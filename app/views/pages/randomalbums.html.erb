@@ -1,0 +1,23 @@
+<% content_for :title do %>Random Albums<% end %>
+
+<% content_for :header do %>
+  <div class="text-center">
+    <h2>Random Albums (Count: <%= @numberofalbums %>)</h2>
+  </div>
+<% end %>
+
+<div class="row no-gutter">
+  <% @albums.each_slice(@slice) do |slice| %>
+    <div class="col-md-2">
+      <% slice.each do |album| %>
+        <%= primary_image_helper(album, album, "medium", :outline_flag => true) %>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+<% content_for :usersidebar do %>
+<% end %>
+
+      
+  

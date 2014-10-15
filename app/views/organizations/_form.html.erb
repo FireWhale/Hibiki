@@ -1,0 +1,129 @@
+<%= form_for @organization, :html => {:class => "form-horizontal"} do |f| %>
+  <% if @organization.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@organization.errors.count, "error") %> prohibited this organization from being saved:</h2>
+
+      <ul>
+      <% @organization.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="row">
+    <div class="col-md-6">
+      <div class="control-group">
+        <%= f.label :name, "Name:", :class => "control-label" %>
+        <%= f.text_field :name, :class => "controls" %>
+      </div>
+      <div class="control-group">
+        <%= f.label :altname, "Alternate Name:", :class => "control-label" %>
+        <%= f.text_field :altname, :class => "controls" %>
+      </div>
+      <div class="control-group">
+        <%= f.label :status, "Status:", :class => "control-label" %>
+        <%= f.select :status, Album::StatusDropdown, :include_blank => true  %>
+      </div>
+      <div class="control-group">
+        <%= f.label :activity, :class => "control-label" %>
+        <%= f.select :activity, [['Retired'], ['Active'], ['Hiatus']], :include_blank => true %>
+      </div>  
+      <div class="control-group">
+        <%= f.label :dbcomplete, "Database Status:", :class => "control-label" %>
+        <%= f.select :dbcomplete, Artist::DatabaseStatus, :include_blank => true %>
+      </div>
+      <div class="control-group">
+        <%= f.label :category, :class => "control-label" %>
+        <%= f.select :category, Organization::Categories, :include_blank => true %>
+      </div>   
+      <div id="Reference">
+        <% if @organization.reference.nil? == false %>
+          <% @organization.reference.each do |reference| %>
+            <div class="row-fluid">
+              <%= fields_for 'organization[reference][types]' do |f| %>
+                <%= f.label '', "Reference Link:", :class => "control-label" %>
+                <%= f.select '', Album::ReferenceLinks, :include_blank => true, :selected => reference[0] %>     
+              <% end %>
+              <%= fields_for 'organization[reference][links]' do |f| %>                
+                <%= f.text_field '', :value => reference[1], :class=>"input-xlarge" %>
+              <% end %>
+            </div>
+          <% end %>
+        <% end %>
+        <div id="ReferenceFields"></div>
+        <%= link_to "Add a Reference", addreference_path(:fields_for => "organization[reference]"), :remote => true %></br></br>
+      </div>
+      <div class="control-group">
+        <%= f.label :established, "Established:", :class => "control-label" %>
+        <%= f.date_select :established, :include_blank => true %>
+      </div>
+      <div class ="control-group">
+        <%= f.label :images, "Add Images:", class: "control-label" %>
+        <%= f.file_field :images, {:multiple => true} %>
+      </div>      
+      <div class="well">
+        <h4 class="text-center">Tags</h4>
+        <%= render :partial => 'tags/edit_tags', locals: {:subject => @organization } %>
+      </div>   
+      <div class="field">
+        <%= f.label :info %>
+        <%= f.text_area :info, :rows => '4', class: 'col-md-12' %>
+      </div>
+      <div class="field">
+        <%= f.label :synopsis %><br />
+        <%= f.text_area :synopsis, :rows => '2', class: 'col-md-12' %>
+      </div>
+      <div class="actions">
+        <%= f.submit %>
+      </div>
+    </div>
+    <div id="TextFields" class="col-md-6">  
+      <div class="well">
+        <%= render :partial => 'layouts/well_toggle', locals: {:divid => 'Organizations', :toggleid => 'OrgToggle'} %>        
+        <h4 class="text-center">Organization Relationships</h4>
+        <div id="Organizations">
+          <%= render :partial => 'layouts/self_relation_edit_form', locals: {:relations => @organization.related_organization_relations, :edit_fields => 'organization[relatedorganizations]', :remove_fields => 'organization[removerelatedorganizations][]', :model => 'Organization'} %>
+          <div id="RelatedOrganizationFields"></div>
+          <%= link_to "Add a Related Organization", addrelatedmodel_path(:div_id => "#RelatedOrganizationFields", :model => "Organization", :fields_for_cats => 'organization[neworganizationcategories]', :fields_for_names_or_ids => 'organization[neworganizationids]', :autocomplete => 'organization_namehash' ), :remote => true %>         
+        </div>
+      </div>
+      <div class="well">
+        <%= render :partial => 'layouts/well_toggle', locals: {:divid => 'Artists', :toggleid => 'ArtistToggle'} %>        
+        <h4 class="text-center">Artists</h4>
+        <div id="Artists">
+          <% if @organization.artist_organizations.empty? == false %>
+            <% @organization.artist_organizations.each do |relation| %>
+              <div class="row-fluid">
+                <%= check_box_tag 'organization[removeartistorganizations][]', relation.id %>
+                <%= link_to relation.artist.name, relation.artist %>
+                <%= fields_for 'organization[artistorganizations]['+ relation.id.to_s + ']' do |f| %>
+                    <%= f.select 'category', ArtistOrganization::Categories, :selected => relation.category %>
+                <% end %>             
+              </div>
+            <% end %>
+          <% end %>             
+          <div id="ArtistFields"></div>
+          <%= link_to "Add an artist", addmodel_path(:div_id => "#ArtistFields", :fields_for_names => "organization[newartistids]", :fields_for_cats => "organization[newartistcategories]", :category_model => "ArtistOrganization", :category_constant => "Categories", :autocomplete => 'artist_namehash'), :remote => true %></br></br>
+        </div>
+      </div>
+      <div class="well">
+        <%= render :partial => 'layouts/well_toggle', locals: {:divid => 'Languages', :toggleid => 'LanguageToggle'} %>
+        <h4 class="text-center">Languages</h4>
+        <div id="Languages">
+          <%= f.fields_for :namehash, @organization.namehash do |p| %>
+            <br>English:<%= p.text_field :English, :class => "input-large", :value => @organization.namehash[:English] %>
+            <br>Japanese:<%= p.text_field :Japanese, :class => "input-large", :value => @organization.namehash[:Japanese] %>
+            <br>Romaji:<%= p.text_field :Romaji, :class => "input-large", :value => @organization.namehash[:Romaji] %>
+            <br>Korean:<%= p.text_field :Korean, :class => "input-large", :value => @organization.namehash[:Korean] %>
+            <br>Romanized Korean:<%= p.text_field :RomanizedKorean, :class => "input-large", :value => @organization.namehash[:RomanizedKorean] %>
+          <% end %>
+        </div>  
+      </div>
+      <div class="field">
+        <%= f.label :privateinfo, "Private Info" %>
+        <%= f.text_area :privateinfo, :rows => '10', class: 'col-md-12' %>
+      </div>
+    </div>  
+  </div>
+<% end %>

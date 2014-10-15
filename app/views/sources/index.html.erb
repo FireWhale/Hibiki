@@ -1,0 +1,16 @@
+<% content_for :title do %>Source Material<% end %>
+
+<% content_for :header do %>
+  <h2 class="text-center">Source Material</h2>
+<% end %>
+
+<div>
+  <%= paginate @sources %>
+  <div class="well">
+    <%= render 'layouts/artist_org_source_index', :collection => @sources %>
+  </div>
+  <%= paginate @sources %>
+</div>
+  
+<% content_for :usersidebar do %>
+<% end %>

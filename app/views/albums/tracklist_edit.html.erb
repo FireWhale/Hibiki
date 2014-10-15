@@ -1,0 +1,120 @@
+<% content_for :title do %>Tracklist Edit - <%= name_language_helper(@album,current_user,0) %><% end %>
+
+<% content_for :header do %>
+  <div class="text-center">
+    <h2>Editing Tracklist for <%= link_to name_language_helper(@album,current_user,0), @album %></h2>
+  </div>
+<% end %>
+
+<div class="row">
+  <div class="col-md-4">
+    <ul id="Navigation" class="nav sticky">
+      <div class="field">
+        <div class="well well-xsmall">
+          <h5 class='text-center'>Artist List<%= render :partial => 'layouts/well_toggle', locals: {:divid => "ArtistList", :toggleid => "ArtistToggle"} %></h5>
+          <div id="ArtistList">
+            <% @album.artists.sort_by! {|a| name_language_helper(a,current_user,0)}.each do |artist| %>
+              <%= artist.id %> - <%= name_language_helper(artist,current_user,0) %><br>
+            <% end %>
+          </div>
+        </div>
+        <div class="well well-xsmall">
+          <h5 class='text-center'>Source List<%= render :partial => 'layouts/well_toggle', locals: {:divid => "SourceList", :toggleid => "SourceToggle"} %></h5>
+          <div id="SourceList">
+            <% @album.sources.sort_by! {|a| name_language_helper(a,current_user,0) }.each do |source| %>
+              <%= source.id %> - <%= name_language_helper(source,current_user,0) %><br>
+            <% end %>
+          </div>
+        </div>
+        <%= form_for 'source', :html => {:class => "form-horizontal"}, :url => addsourceforsong_path(:autocomplete => 'source_namehash'), :method => 'get', :remote => true do |f| %>
+          <%= fields_for "script" do |f| %>
+            Add to all songs:
+            <%= f.select 'name', @album.sources.map { |n| n.id.to_s + " - " + n.name } %>
+            <%= hidden_field_tag 'script[div_ids]', @album.songs.map(&:id).join(',') %>
+            <%= submit_tag 'Add'%>
+          <% end %>
+        <% end %>
+        <%= form_for 'artist', :html => {:class => "form-horizontal"}, :url => addartistforsong_path, :method => 'get', :remote => true do |f| %>
+          <%= fields_for "script" do |f| %>
+            Add to all songs:
+            <%= f.select 'name', @album.artists.map { |n| n.id.to_s + " - " + n.name } %>
+            <%= f.select 'artist_cat', Artist::Credits %>
+            <%= hidden_field_tag 'script[div_ids]', @album.songs.map(&:id).join(',') %>
+            <%= submit_tag 'Add'%>
+          <% end %>
+        <% end %>
+          <%= text_area_tag 'private_info', @album.privateinfo, :rows => '20', class: 'col-md-12' %>
+      </div>
+    </ul>
+  </div>
+  <div class="col-md-8">
+    <%= form_for :song, :html => {:class => "form-horizontal"} do |f| %>
+      <% @album.songs.each do |song| %>
+        <div class="well well-xsmall">
+          <%= render :partial => 'layouts/well_toggle', locals: {:divid => song.id, :toggleid => song.id.to_s + "Toggle"} %>
+          <%= fields_for 'song[]', song do |field| %>
+            <%= field.text_field :name, :class => "input-xlarge" %>
+            Track #:<%= field.text_field :tracknumber, :class => "input-mini"%>
+            Duration: <%= field.text_field :duration, :value => song.length, :class => "input-mini" %>
+            ID: <%= song.id %>
+          <div id="<%= song.id %>"class="row">
+            <div class="col-md-4"><br>
+              OP/ED #:<%= field.text_field :op_ed_number, :class => "input-mini"%>
+              <%= field.fields_for :namehash, song.namehash do |p| %>
+                <h5>Name Hash:</h5>
+                English:<%= p.text_field :English, :class => "input-large", :value => song.namehash[:English] %>
+                <br>Japanese:<%= p.text_field :Japanese, :class => "input-large", :value => song.namehash[:Japanese] %>
+                <br>Romaji:<%= p.text_field :Romaji, :class => "input-large", :value => song.namehash[:Romaji] %>
+                <br>Korean:<%= p.text_field :Korean, :class => "input-large", :value => song.namehash[:Korean] %>
+                <br>R. Korean:<%= p.text_field :RomanizedKorean, :class => "input-large", :value => song.namehash[:RomanizedKorean] %>
+              <% end %>
+              Lyrics: <%= text_area_tag('song[' + song.id.to_s + '][lyrics]', song.lyrics, :rows => 1) %>
+              </div>
+            <div class="col-md-8">
+              <h5>Artists</h5>
+              <% song.artist_songs.each do |artistsong| %>
+                <div class="row-fluid">
+                  <%= link_to artistsong.artist.name, artistsong.artist %>:
+                  <% categories = Artist.get_categories(artistsong.category) %>
+                  <%= hidden_field_tag 'song[' + song.id.to_s + '][artistsongs][' + artistsong.id.to_s + '][]', "placeholder" %>
+                  <% Artist::Credits.each_with_index do |credit,n| %>
+                    <%= check_box_tag 'song[' + song.id.to_s + '][artistsongs][' + artistsong.id.to_s + '][]', credit, categories.include?(credit) %> <%= Artist::CreditsAbbr[n] %> 
+                  <% end %>
+                </div>
+              <% end %>
+              <div id='<%= "Artists" + song.id.to_s %>'></div>
+              <%= link_to "Add an Artist", addartistforsong_path(:song_id => song.id), :remote => true %>  
+              <h5>Sources</h5>
+              <% song.song_sources.each do |song_source| %>
+                <div class="row-fluid">
+                  <%= check_box_tag 'song[' + song.id.to_s + '][removesources][]', song_source.source_id %>
+                  <%= link_to song_source.source.name, song_source.source %>
+                  <%= field.fields_for 'songsources[]', song_source do |s| %>
+                    <%= s.select('classification', SongSource::Relationship, {:include_blank => true}, {:class => "controls input-xsmall"})  %>
+                    <%= s.label 'op_ed_number', "#:" %>
+                    <%= s.text_field 'op_ed_number', :class => "controls input-xmini" %>                    <%= s.label 'op_ed_number', "#:" %>
+                    <%= s.label 'ep_numbers', "Eps:" %>
+                    <%= s.text_field 'ep_numbers', :class => "controls input-xmini" %>
+                  <% end %>
+                </div>    
+              <% end %>
+              <div id="<%= "Sources" + song.id.to_s %>"></div>
+              <%= link_to "Add a source", addsourceforsong_path(:song_id => song.id), :remote => true %></br></br> 
+              <h5>Related Songs (Use IDs)</h5>
+              <%= render :partial => 'layouts/self_relation_edit_form', locals: {:relations => song.related_song_relations, :edit_fields => 'song[' + song.id.to_s + '][relatedsongs]', :remove_fields => 'song[' + song.id.to_s + '][removerelatedsongs]', :model => 'Song'} %>
+              <div id="<%= "Songs" + song.id.to_s %>"></div>
+              <%= link_to "Add a Related Song", addrelatedmodel_path(:div_id => ("#Songs" + song.id.to_s), :model => "Song", :fields_for_cats => ('song[' + song.id.to_s + '][newsongcategories]'), :fields_for_names_or_ids => ('song[' + song.id.to_s + '][newsongids]'), :autocomplete => 'song_namehash'), :remote => true %>         
+              <h5>Tags</h5>
+              <%= render :partial => 'tags/edit_tags', locals: {:subject => song} %>
+            </div>          
+          </div>
+          <% end %>
+        </div>
+      <% end %>
+      <div class="actions">
+        <%= submit_tag %>
+      </div>
+    <% end %>
+  </div>
+</div>
+

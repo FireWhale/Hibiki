@@ -1,0 +1,10 @@
+<div class="row-fluid">
+  <%= fields_for 'album[newsongs][tracknumbers]' do |f| %>
+    <%= f.label '', "Track Number:", :class => 'control-label' %>
+    <%= f.text_field '', :class => 'input-xmini' %>
+  <% end %>
+  <%= fields_for 'album[newsongs][names]' do |f| %>
+    <%= f.label '', "Name:", :class => 'control-label' %>
+		<%= f.text_field '', :class => 'input-large' %>
+  <% end %>
+</div>

@@ -1,0 +1,19 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  category: MyString
+  content: MyText
+  user_id: 1
+  visibility: MyString
+  recipient_id: 1
+  recipient: MyString
+  timestampe: 2013-09-10 11:33:27
+
+two:
+  category: MyString
+  content: MyText
+  user_id: 1
+  visibility: MyString
+  recipient_id: 1
+  recipient: MyString
+  timestampe: 2013-09-10 11:33:27

@@ -1,0 +1,36 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Name:</b>
+  <%= @image.name %>
+</p>
+
+<%= image_helper(@image, "full", :class => 'thumbnail') %>
+  
+<p>
+  <b>Path:</b>
+  <%= @image.path %>
+</p>
+<p>
+  <b>Medium Path:</b>
+  <%= @image.medium_path %>
+</p>
+
+<p>
+  <b>Thumb Path:</b>
+  <%= @image.thumb_path %>
+</p>
+
+<p>
+  <b>LL image link:</b>
+  <%= @image.llimagelink %>
+</p>
+
+<p>
+  <b>Flag:</b>
+  <%= @image.primary_flag %>
+</p>
+
+
+<%= link_to 'Edit', edit_image_path(@image) %> |
+<%= link_to 'Back', images_path %>

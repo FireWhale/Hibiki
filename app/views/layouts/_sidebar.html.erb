@@ -1,0 +1,26 @@
+<div class="well">
+  <% if current_user %>
+      <div id="UserAttributes">
+        Logged in as: <%= current_user.name %><br>
+        Security Class: <%= current_user.security %><br>
+        <%= link_to "Edit Profile", edit_profile_user_path(:id => current_user.id)%> <br>
+        <%= link_to "Watchlist", watchlist_user_path(:id => current_user.id) %><br>
+        <%= link_to "Collection", collection_user_path(:id => current_user.id) %>
+        <% if can? :manage, Album %>
+          <br><%= link_to "Maintenance", maintenance_path %>
+        <% end %>
+     </div>
+      <!-- <div class="text-center">
+        <%= link_to "New Album", new_album_path, :class => "btn" %><br>
+        <%= link_to "New Artist", new_artist_path, :class => "btn" %><br>
+        <%= link_to "New Source", new_source_path, :class => "btn" %><br>
+        <%= link_to "New Org", new_organization_path, :class => "btn" %><br>
+      </div> -->
+  <% else %>
+    <div id="UserAttributes">
+      Not logged in
+    </div>
+  <% end %>
+  
+</div>
+<%= yield :usersidebar %>

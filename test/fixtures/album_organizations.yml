@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  album_id: 1
+  organization_id: 1
+  category: MyString
+
+two:
+  album_id: 1
+  organization_id: 1
+  category: MyString

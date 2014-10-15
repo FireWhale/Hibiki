@@ -1,0 +1,10 @@
+<% content_for :title do %>Edit - <%= @album.name %><% end %>
+
+<% content_for :header do %>
+  <div class="text-center">
+    <h2>Edit Album: <%= link_to name_language_helper(@album,current_user,0), @album %></h2>
+  </div>
+<% end %>
+
+<%= render 'form' %>
+

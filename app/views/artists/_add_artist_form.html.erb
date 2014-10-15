@@ -1,0 +1,10 @@
+<div class="row-fluid">
+  <%= fields_for 'album[newartistids]' do |f| %>
+  		<%= f.label '', "ID:", :class => "control-label" %>
+  		<%= f.autocomplete_field '', autocomplete_artist_namehash_artists_path, :class => "controls input-medium" %>
+  <% end %>
+  <% Artist::Credits.each_with_index do |credit,n| %>
+    <%= check_box_tag 'album[newartistcategories][]', credit %> <%= Artist::CreditsAbbr[n] %> 
+  <% end %>
+  <%= hidden_field_tag 'album[newartistcategories][]', "New Artist" %>
+</div>

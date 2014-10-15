@@ -1,0 +1,74 @@
+<%= form_for @event, :html => {:class => "form-horizontal"} do |f| %>
+  <% if @event.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@event.errors.count, "error") %> prohibited this album from being saved:</h2>
+
+      <ul>
+      <% @event.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+    <%= debug(params) %>
+  <% end %>
+  
+  <div id="Event" class="row">
+    <div class="col-md-6">
+      <div class="control-group">
+        <%= f.label :name, "Name:", :class => "control-label" %>
+        <%= f.text_field :name, :class => "controls" %>
+      </div>
+      <div class="control-group">
+        <%= f.label :abbreviation, "Abbreviation:", :class => "control-label" %>
+        <%= f.text_field :abbreviation, :class => "controls" %>
+      </div>      
+      <div class="control-group">
+        <%= f.label :altname, "Foreign Name:", :class => "control-label" %>
+        <%= f.text_field :altname, :class => "controls" %>
+      </div>
+      <div class="control-group">
+        <%= f.label :startdate, "Start Date:", :class => "control-label" %> 
+        <%= f.date_select :startdate, :start_year => 1970, :include_blank => true %>
+      </div>
+      <div class="control-group">
+        <%= f.label :enddate, "End Date:", :class => "control-label" %> 
+        <%= f.date_select :enddate, :start_year => 1970, :include_blank => true %>
+      </div>
+      <div class="control-group">
+        <%= f.label :shorthand, "Shorthand:", :class => "control-label" %>
+        <%= f.text_field :shorthand, :class => "controls" %>
+      </div>      
+      <div class="control-group">
+        <%= f.label :dbcomplete, "Database Status:", :class => "control-label" %>
+        <%= f.select :dbcomplete, Artist::DatabaseStatus, :include_blank => true %>
+      </div>
+  
+      <div id="Reference">
+        <% if @event.reference.nil? == false %>
+          <% @event.reference.each do |reference| %>
+            <div class="row-fluid">
+                <%= fields_for 'event[reference][types]' do |f| %>
+                    <%= f.label '', "Reference Link:", :class => "control-label" %>
+                    <%= f.select '', Album::ReferenceLinks, :include_blank => true, :selected => reference[0] %>       
+                <% end %>
+                <%= fields_for 'event[reference][links]' do |f| %>
+                    <%= f.text_field '', :value => reference[1], :class=>"input-xlarge" %>
+                <% end %>
+            </div>
+          <% end %>
+        <% end %>
+        <div id="ReferenceFields"></div>
+        <%= link_to "Add a Reference", addreference_path(:fields_for => "event[reference]"), :remote => true %></br></br>
+      </div>
+    </div>  
+    <div class="col-md-6">
+      <div class="field">
+        <%= f.label :info %>
+        <%= f.text_area :info, :rows => '4', class: 'col-md-12' %>
+      </div>
+    </div>  
+  </div>
+    <div class="actions">
+      <%= f.submit %>
+    </div>
+<% end %>

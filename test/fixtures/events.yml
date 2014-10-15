@@ -1,0 +1,23 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  name: MyString
+  startdate: 2013-09-20
+  enddate: 2013-09-20
+  abbreviation: MyString
+  reference: MyString
+  info: MyText
+  dbcomplete: MyString
+  altname: MyString
+  shorthand: MyString
+
+two:
+  name: MyString
+  startdate: 2013-09-20
+  enddate: 2013-09-20
+  abbreviation: MyString
+  reference: MyString
+  info: MyText
+  dbcomplete: MyString
+  altname: MyString
+  shorthand: MyString

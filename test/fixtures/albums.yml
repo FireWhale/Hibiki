@@ -1,0 +1,25 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  name: MyString
+  altname: MyString
+  status: MyString
+  info: MyText
+  privateinfo: MyText
+  reference: MyText
+  classification: MyString
+  releasedate: 2013-08-13
+  catalognumber: MyString
+  popularity: 1
+
+two:
+  name: MyString
+  altname: MyString
+  status: MyString
+  info: MyText
+  privateinfo: MyText
+  reference: MyText
+  classification: MyString
+  releasedate: 2013-08-13
+  catalognumber: MyString
+  popularity: 1

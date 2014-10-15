@@ -1,0 +1,31 @@
+<h1>Listing tags</h1>
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Classification</th>
+    <th>Info</th>
+    <th>Synopsis</th>
+    <th>Available models </th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @tags.each do |tag| %>
+  <tr>
+    <td><%= tag.name %></td>
+    <td><%= tag.classification %></td>
+    <td><%= tag.info %></td>
+    <td><%= tag.synopsis %></td>
+    <td><%= Tag.get_models(tag.model_bitmask).join(", ") %></td>
+    <td><%= link_to 'Show', tag %></td>
+    <td><%= link_to 'Edit', edit_tag_path(tag) %></td>
+    <td><%= link_to 'Destroy', tag, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Tag', new_tag_path %>

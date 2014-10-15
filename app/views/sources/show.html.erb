@@ -1,0 +1,70 @@
+<% content_for :title do %><%= name_language_helper(@source,current_user,0, :no_bold => true) %><% end %>
+
+<% content_for :header do %>
+  <div class="text-center">
+    <h2><%= name_language_helper(@source,current_user,0, :no_bold => true) %></h1>
+    <h4><%= name_language_helper(@source,current_user,1, :no_bold => true) %>        
+        <% if name_language_helper(@source,current_user,2, :no_bold => true).nil? == false %>
+          / <%= name_language_helper(@source,current_user,2, :no_bold => true) %>
+        <% end %>
+    </h4> 
+  </div>
+<% end %>
+
+<p id="notice"><%= notice %></p>
+
+<div class="row">
+  <div class="col-md-4">
+    <%= render :partial => "layouts/show_primary_image", :locals => {:record => @source} %>
+    <div id="Attributes" class="well">
+      <% if can? :manage, Source %>
+        <%= attribute_display(@source, 'status', "Status") %>
+        <%= attribute_display(@source, 'dbcomplete', "Database Status") %>
+      <% end %>      
+      <% @related.each do |k,v| %>
+        <%= linked_attribute_display(v,k) %>
+      <% end %>
+      <%= attribute_display(@source, "category", "Type")%>  
+      <%= attribute_display(@source, "activity", "Activity")%>   
+      <%= attribute_display(@source, "releasedate", "Release Date")%>   
+      <%= attribute_display(@source, "enddate", "End Date")%>   
+      <%= reference_helper(@source) %>  
+      <%= linked_attribute_display(@source.tags, "Tags")%>
+      <%= linked_attribute_display(@source.seasons, "Season")%>
+    </div>
+    <%= render :partial => "layouts/maintenance/admin_actions", :locals => {:record => @source} %>
+  </div>
+  
+  <div class="col-md-8">
+    <% if @source.info.nil? == false && @source.info.empty? == false%>
+      <div id="Info" class="well">
+        <h4 class="text-center">Information</h4>
+          <%= @source.synopsis %>
+          <%= @source.info %>
+      </div>    
+    <% end %>   
+    <%= render 'layouts/albums', :divid => 'Albums', :header => 'Albums', :collection => @collection %>
+  </div>
+</div>
+
+
+
+<% content_for :usersidebar do %>
+  <% if current_user %>
+    <div class="well">
+      <% if watched? current_user, @source %>
+      <div id="WatchLink">You're watching this source <br>
+        <%= link_to "Remove from Watchlist?", unwatch_path(:user_id => current_user.id, :watched_id => @source.id, :watched_type => "Source"), :remote => true %>      
+      </div>
+      <% else %>
+      <div id="WatchLink">
+        <%= link_to "Watch this source", watch_path(:user_id => current_user.id, :watched_id => @source.id, :watched_type => "Source"), :remote => true %>
+      </div>
+      <% end %>    
+    </div>
+
+  <% end %>
+  
+<% end %>
+
+

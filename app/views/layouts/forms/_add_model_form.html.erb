@@ -1,0 +1,16 @@
+<div class="row-fluid">
+  <%= fields_for @fieldsfornames do |f| %>
+		<%= f.label '', "ID:", :class => "control-label" %>
+		<% if @autocompletepath.nil? %>
+		  <%= f.text_field '', :value => @defaultvalue, :class => "controls input-medium" %>
+    <% else %>
+      <%= f.autocomplete_field '', send(@autocompletepath), :value => @defaultvalue, :class => 'controls input-medium' %>
+    <% end %>
+  <% end %>
+  <% if @categories.nil? == false and @fieldsforcats.nil? == false %>
+    <%= fields_for @fieldsforcats do |f| %>
+      <%= f.select '', @categories %>
+    <% end %>
+  <% end %>
+</div>
+

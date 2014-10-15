@@ -1,0 +1,13 @@
+<div class="row-fluid">
+  <%= fields_for @fieldsforcats do |f| %>
+    <%= f.label '', 'This ' + @model.downcase, :class => "control-label" %>
+    <%= f.select '', @relationships,  :class => "controls input-large" %>
+  <% end %>
+  <%= fields_for @fieldsfornamesorids do |f| %>
+    <% if @autocompletepath.nil? %>
+      <%= f.text_field '', :class => "controls input-medium" %>
+    <% else %>
+      <%= f.autocomplete_field '', send(@autocompletepath), :class => "controls input-medium"  %>
+    <% end %>
+  <% end %>
+</div>

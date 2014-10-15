@@ -1,0 +1,12 @@
+<% if relations.nil? == false %>
+  <% relations.each do |relation| %>
+    <div>
+      <%= fields_for edit_fields + '[' + relation.id.to_s + ']', relation do |field|  %>
+        <%= check_box_tag remove_fields + '[]', relation.id %>
+        <%= link_to name_language_helper(relation.send(model.downcase + "1") ,current_user,0), relation.send(model.downcase + "1") %> <% if model == "Song" %><%= "(" + relation.send(model.downcase + "1").id.to_s + ")" %><% end %>
+        <%= field.select :category, model.constantize.const_get("SelfRelationships"),  :class => "controls input-medium" %>
+        <%= link_to name_language_helper(relation.send(model.downcase + "2") ,current_user,0), relation.send(model.downcase + "2") %> <% if model == "Song" %><%= "(" + relation.send(model.downcase + "2").id.to_s + ")" %><% end %>
+      <% end %>      
+    </div>
+  <% end %>
+<% end %>

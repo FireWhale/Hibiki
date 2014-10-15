@@ -1,0 +1,41 @@
+<%= form_for @issue, :html => {:class => "form-horizontal"} do |f| %>
+  <% if @issue.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@issue.errors.count, "error") %> prohibited this organization from being saved:</h2>
+
+      <ul>
+      <% @issue.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+  
+<div class="control-group">
+  <%= f.label :name, "Name:", :class => "control-label" %>
+  <%= f.text_field :name, :class => "controls" %>
+</div>
+<div class="control-group">
+  <%= f.label :category, "Category:", :class => "control-label" %>
+  <%= f.select :category, Issue::Categories %>
+</div>
+<div class="control-group">
+  <%= f.label :status, "Status:", :class => "control-label" %>
+  <%= f.select :status, Issue::Statuses %>
+</div>
+<div class="control-group">
+  <%= f.label :resolution, "Resolution:", :class => "control-label" %>
+  <%= f.select :resolution, Issue::Resolutions, :include_blank => true %>
+</div>
+<div class="field">
+  <%= f.label :description %>
+  <%= f.text_area :description, :rows => '4', class: 'col-md-12' %>
+</div>
+<div class="field">
+  <%= f.label :private_info %><br />
+  <%= f.text_area :private_info, :rows => '2', class: 'col-md-12' %>
+</div>
+<div class="actions">
+  <%= f.submit %>
+</div>
+<% end %>

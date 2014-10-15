@@ -1,0 +1,23 @@
+<div id=<%= "Tags" + subject.id.to_s %>>
+  Delete Tags:  
+  <% tags = subject.tags %>
+  <% tags.sort_by!(&:classification) %>
+  <% tags.each do |tag| %>
+    <span class=<%= "Tag" + tag.id.to_s %>>
+      <%= link_to tag.name, removetag_path(:tag_id => tag.id, :subject_id => subject.id, :subject_type => subject.class.to_s), :remote => true%>
+    </span>
+  <% end %>
+  <br>Add New Tags:
+  <% newtags = Tag.all - tags %>
+  <% newtags.sort_by!(&:classification) %>
+  <% tagclass = newtags.first.classification %>
+  <% newtags.each do |tag| %>
+    <% if Tag.get_models(tag.model_bitmask).include?(subject.class.to_s)%>
+      <% if tag.classification != tagclass %>|<% end  %>
+      <span class=<%= "Tag" + tag.id.to_s %>>
+        <%= link_to tag.name, addtag_path(:tag_id => tag.id, :subject_id => subject.id, :subject_type => subject.class.to_s), :remote => true %>      
+      </span>
+      <% tagclass = tag.classification %>
+    <% end %>
+  <% end %>
+</div>

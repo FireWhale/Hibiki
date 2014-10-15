@@ -1,0 +1,20 @@
+<div id="Image">
+  <div class="text-center thumbnail thumbnail-bordered thumbnail-margined">
+    <% if @image.nil? == false%>
+      <% if @show_nws.nil? == true %>
+        <%= image_helper(@image, "full", :title => @image.name)%>    
+        <% if @image.rating == "NWS" %>
+          <%= link_to "Show NWS", updateimage_path(:id => @image.id, :show_nws => "yes"), remote: true%>
+        <% end %>
+      <% else %>
+        <%= image_helper(@image, "full", :show_nws => true, :title => @image.name)%>
+      <% end %>
+      <% if can? :edit, @image %>
+        <br><%= link_to "Edit", edit_image_path(@image) %>
+      <% end %>
+    <% else %>
+      Image not available
+    <% end %>
+  </div>
+</div>
+

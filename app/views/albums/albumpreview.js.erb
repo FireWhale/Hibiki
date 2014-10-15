@@ -1,0 +1,6 @@
+$('#<%= @album.id %>').html('<%= escape_javascript(render :partial => "album_preview") %>');
+
+$('#<%= @album.id %>').parent().children().first().css("display", "none");
+$('#<%= @album.id %>').parent().children().first().next().css("display", "inline");
+
+<%= render :partial => 'scripts/layouts/lazyload' %>

@@ -1,0 +1,9 @@
+<% content_for :title do %>Edit - <%= @artist.name %><% end %>
+
+<% content_for :header do %>
+  <div class="text-center">
+    <h2>Edit Artist: <%= link_to @artist.name, @artist %></h2>
+  </div>
+<% end %>
+
+<%= render 'form' %>

@@ -1,0 +1,23 @@
+<% content_for :title do %>Update Available Workqueue<% end %>
+
+<% content_for :header do %>
+  <div class="text-center">
+    <h2>Update Available Workqueue (Count: <%= @albums.total_count %>)</h2>
+  </div>
+<% end %>
+
+<%= paginate @albums %>
+<div id='album-list'>  
+  <% @albums.each do |album| %>
+    <div id="<%= album.id %>" class="album-well album-well4x nodisplaynone">
+      <%= render :partial => "layouts/albumlist/albumlist_album_1", :locals => {:album => album} %>
+    </div>
+  <% end %>
+</div>
+<%= paginate @albums %>
+
+<% content_for :usersidebar do %>
+<% end %>
+
+      
+  

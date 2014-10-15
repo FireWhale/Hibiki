@@ -1,0 +1,53 @@
+<% content_for :title do %>Scrape Results - Post #<%= @post.id%><% end %>
+
+<% content_for :header do %>
+  <h2 class="text-center">Scrape Results (Post #<%= @post.id%>: <%= @albums.count %>/<%= @count %> Albums)</h2>
+
+<% end %>
+<h5>Created at: <%= @post.created_at %></h5>
+<h5>Last 58 characters: <%= @post.content[-58..-1] %></h5>
+<div>
+  <%= link_to "Previous Post", maintenance_scraperesults_path(:post_id => @post.id - 1) %>
+  <%= link_to "Next Post", maintenance_scraperesults_path(:post_id => @post.id + 1) %>
+</div>
+
+<div class='row'>
+  <div class='col-md-6'>
+    <div>
+      <h4>Failed URLS</h4>
+      <% if @failedurls.nil? == false%>
+        <% @failedurls.each do |url| %>
+          <% if url[1].reference.nil? == false%>
+            <div><%= link_to url[0], url[0] %>: <%= link_to url[1].reference.first[1], url[1] %> <% if url[1].reference.first[1] == url[0] %><%= image_tag('/assets/tick.png') %><% else %> <%= image_tag('/assets/cross.png') %><% end %></div>
+          <% end %>
+        <% end %>
+      <% else %>
+      <div>No Failed URLs!</div>
+      <% end %>  
+    </div>
+    <div>
+      <h5>Raw Content</h5>
+      <%= simple_format @post.content %>
+    </div>
+  </div>
+  <div class='col-md-6'>
+    <h4>Passed URLS</h4>
+    <% @albums.each do |album| %>
+      <div class="row">
+        <div class="col-md-3">
+          <%= primary_image_helper(album, album, "thumb", :outline_flag => true, :square => true) %>
+        </div>
+        <div class="col-md-9">
+          <%= link_to album.name, album %> (ID: <%= album.id %>)  <%= link_to "Edit", edit_album_path(album)  %><br>
+          <%= album.classification %><br>
+          <%= album.releasedate %> <br>
+          <%= link_to album.reference.first[1], album.reference.first[1] %>   
+        </div>
+      </div>
+    <% end %>    
+  </div> 
+</div>
+
+
+
+

@@ -1,0 +1,13 @@
+<% if @model == "Album" %>
+  $('#Albums').html('<%= escape_javascript(render :partial => 'layouts/search/search_album') %>');
+<% elsif @model == "Artist" %>
+  $('#Artists').html('<%= escape_javascript(render :partial => 'layouts/search/search_artist') %>');
+<% elsif @model == "Source" %>
+  $('#Sources').html('<%= escape_javascript(render :partial => 'layouts/search/search_source') %>');
+<% elsif @model == "Organization" %>
+  $('#Organizations').html('<%= escape_javascript(render :partial => 'layouts/search/search_org') %>');
+<% elsif @model == "Song" %>
+  $('#Songs').html('<%= escape_javascript(render :partial => 'layouts/search/search_song') %>');
+<% end %>
+
+<%= render :partial => "scripts/layouts/lazyload" %>

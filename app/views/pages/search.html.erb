@@ -1,0 +1,31 @@
+<% content_for :title do %>Search Results - <%= @query %><% end %>
+
+<% content_for :header do %>
+  <h2 class="text-center">Search Results for <%= @query %></h2>
+<% end %>
+
+<div id="SearchResults">
+  <ul id="SearchTabs" class="nav nav-tabs">
+    <li><%= link_to "Albums ("+@albums.total_count.to_s+")", '#',class: "searchtab", :"data-href" => "#Albums" %></li>
+    <li><%= link_to "Artists ("+@artists.total_count.to_s+")", '#',class: "searchtab", :"data-href" => "#Artists" %></li>
+    <li><%= link_to "Source Material ("+@sources.total_count.to_s+")", '#',class: "searchtab", :"data-href" => "#Sources" %></li>
+    <li><%= link_to "Organizations ("+@organizations.total_count.to_s+")", '#',class: "searchtab", :"data-href" => "#Organizations" %></li> 
+    <li><%= link_to "Songs ("+@songs.total_count.to_s+")", '#',class: "searchtab", :"data-href" => "#Songs" %></li>   
+  </ul>
+  <div id="Albums" class="tabcontents">
+    <%= render :partial => "layouts/search/search_album" %>
+  </div>
+  <div id="Artists" class="tabcontents">
+    <%= render :partial => "layouts/search/search_artist" %>
+  </div>
+  <div id="Sources" class="tabcontents">
+    <%= render :partial => "layouts/search/search_source" %>
+  </div>  
+  <div id="Organizations" class="tabcontents">
+    <%= render :partial => "layouts/search/search_org" %>
+  </div>  
+  <div id="Songs" class="tabcontents">
+    <%= render :partial => "layouts/search/search_song" %>
+  </div>  
+</div>
+
