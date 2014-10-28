@@ -20,6 +20,10 @@
     <%= f.text_field :classification %>
   </div>
   <div class="field">
+    <%= f.label :visibility, "Security" %><br />
+    <%= f.select :visibility, Ability::Visibility %>
+  </div>
+  <div class="field">
     <%= f.label :synopsis %><br />
     <%= f.text_area :synopsis, :rows => '3' %>
   </div>

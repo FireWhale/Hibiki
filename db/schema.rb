@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20141014200504) do
+ActiveRecord::Schema.define(:version => 20141023174859) do
 
   create_table "album_events", :force => true do |t|
     t.integer  "album_id"
@@ -45,24 +45,24 @@ ActiveRecord::Schema.define(:version => 20141014200504) do
     t.string   "altname"
     t.string   "status"
     t.text     "info"
-    t.text     "privateinfo"
+    t.text     "private_info"
     t.text     "reference"
     t.string   "classification"
-    t.date     "releasedate"
-    t.string   "catalognumber"
+    t.date     "release_date"
+    t.string   "catalog_number"
     t.integer  "popularity"
-    t.datetime "created_at",          :null => false
-    t.datetime "updated_at",          :null => false
+    t.datetime "created_at",           :null => false
+    t.datetime "updated_at",           :null => false
     t.text     "namehash"
-    t.integer  "releasedate_bitmask"
+    t.integer  "release_date_bitmask"
   end
 
   add_index "albums", ["altname"], :name => "index_albums_on_altname"
-  add_index "albums", ["catalognumber"], :name => "index_albums_on_catalognumber"
+  add_index "albums", ["catalog_number"], :name => "index_albums_on_catalognumber"
   add_index "albums", ["classification"], :name => "index_albums_on_classification"
   add_index "albums", ["name"], :name => "index_albums_on_name"
   add_index "albums", ["popularity"], :name => "index_albums_on_popularity"
-  add_index "albums", ["releasedate"], :name => "index_albums_on_releasedate"
+  add_index "albums", ["release_date"], :name => "index_albums_on_releasedate"
   add_index "albums", ["status"], :name => "index_albums_on_status"
 
   create_table "artist_albums", :force => true do |t|
@@ -105,32 +105,32 @@ ActiveRecord::Schema.define(:version => 20141014200504) do
     t.string   "name"
     t.string   "altname"
     t.string   "status"
-    t.string   "dbcomplete"
+    t.string   "db_status"
     t.string   "activity"
     t.string   "category"
     t.text     "info"
-    t.text     "privateinfo"
+    t.text     "private_info"
     t.text     "synopsis"
     t.text     "reference"
     t.integer  "popularity"
-    t.date     "debutdate"
-    t.date     "birthdate"
-    t.datetime "created_at",        :null => false
-    t.datetime "updated_at",        :null => false
+    t.date     "debut_date"
+    t.date     "birth_date"
+    t.datetime "created_at",         :null => false
+    t.datetime "updated_at",         :null => false
     t.text     "namehash"
-    t.integer  "birthdate_bitmask"
+    t.integer  "birth_date_bitmask"
     t.string   "gender"
     t.string   "blood_type"
     t.string   "birth_place"
-    t.integer  "debutdate_bitmask"
+    t.integer  "debut_date_bitmask"
   end
 
   add_index "artists", ["activity"], :name => "index_artists_on_activity"
   add_index "artists", ["altname"], :name => "index_artists_on_altname"
-  add_index "artists", ["birthdate"], :name => "index_artists_on_birthdate"
+  add_index "artists", ["birth_date"], :name => "index_artists_on_birthdate"
   add_index "artists", ["category"], :name => "index_artists_on_category"
-  add_index "artists", ["dbcomplete"], :name => "index_artists_on_dbcomplete"
-  add_index "artists", ["debutdate"], :name => "index_artists_on_debutdate"
+  add_index "artists", ["db_status"], :name => "index_artists_on_dbcomplete"
+  add_index "artists", ["debut_date"], :name => "index_artists_on_debutdate"
   add_index "artists", ["name"], :name => "index_artists_on_name"
   add_index "artists", ["popularity"], :name => "index_artists_on_popularity"
   add_index "artists", ["status"], :name => "index_artists_on_status"
@@ -150,12 +150,12 @@ ActiveRecord::Schema.define(:version => 20141014200504) do
 
   create_table "events", :force => true do |t|
     t.string   "name"
-    t.date     "startdate"
-    t.date     "enddate"
+    t.date     "start_date"
+    t.date     "end_date"
     t.string   "abbreviation"
     t.text     "reference",    :limit => 255
     t.text     "info"
-    t.string   "dbcomplete"
+    t.string   "db_status"
     t.string   "altname"
     t.string   "shorthand"
     t.datetime "created_at",                  :null => false
@@ -191,7 +191,7 @@ ActiveRecord::Schema.define(:version => 20141014200504) do
   create_table "issue_users", :force => true do |t|
     t.integer  "issue_id"
     t.integer  "user_id"
-    t.string   "comment"
+    t.text     "comment"
     t.string   "vote"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
@@ -208,17 +208,18 @@ ActiveRecord::Schema.define(:version => 20141014200504) do
     t.datetime "created_at",   :null => false
     t.datetime "updated_at",   :null => false
     t.string   "resolution"
+    t.string   "difficulty"
   end
 
   create_table "organizations", :force => true do |t|
     t.string   "name"
     t.string   "altname"
     t.string   "status"
-    t.string   "dbcomplete"
+    t.string   "db_status"
     t.string   "activity"
     t.string   "category"
     t.text     "info"
-    t.text     "privateinfo"
+    t.text     "private_info"
     t.text     "synopsis"
     t.string   "reference"
     t.date     "established"
@@ -231,12 +232,12 @@ ActiveRecord::Schema.define(:version => 20141014200504) do
   add_index "organizations", ["activity"], :name => "index_organizations_on_activity"
   add_index "organizations", ["altname"], :name => "index_organizations_on_altname"
   add_index "organizations", ["category"], :name => "index_organizations_on_category"
-  add_index "organizations", ["dbcomplete"], :name => "index_organizations_on_dbcomplete"
+  add_index "organizations", ["db_status"], :name => "index_organizations_on_dbcomplete"
   add_index "organizations", ["established"], :name => "index_organizations_on_established"
   add_index "organizations", ["name"], :name => "index_organizations_on_name"
   add_index "organizations", ["status"], :name => "index_organizations_on_status"
 
-  create_table "postlist", :force => true do |t|
+  create_table "postlists", :force => true do |t|
     t.integer  "post_id"
     t.integer  "model_id"
     t.string   "model_type"
@@ -332,12 +333,18 @@ ActiveRecord::Schema.define(:version => 20141014200504) do
     t.string   "name"
     t.text     "namehash"
     t.integer  "album_id"
-    t.string   "tracknumber"
+    t.string   "track_number"
     t.integer  "length"
     t.text     "lyrics"
-    t.datetime "created_at",   :null => false
-    t.datetime "updated_at",   :null => false
-    t.string   "op_ed_number"
+    t.datetime "created_at",           :null => false
+    t.datetime "updated_at",           :null => false
+    t.text     "reference"
+    t.text     "info"
+    t.text     "private_info"
+    t.date     "release_date"
+    t.integer  "release_date_bitmask"
+    t.string   "altname"
+    t.string   "status"
   end
 
   add_index "songs", ["album_id"], :name => "index_songs_on_album_id"
@@ -360,32 +367,33 @@ ActiveRecord::Schema.define(:version => 20141014200504) do
   end
 
   create_table "sources", :force => true do |t|
-    t.string   "name",                :limit => 1000
+    t.string   "name",                 :limit => 1000
     t.string   "altname"
     t.string   "status"
-    t.string   "dbcomplete"
+    t.string   "db_status"
     t.string   "activity"
     t.string   "category"
     t.text     "info"
-    t.text     "privateinfo"
+    t.text     "private_info"
     t.text     "synopsis"
     t.text     "reference"
     t.integer  "popularity"
-    t.date     "releasedate"
-    t.datetime "created_at",                          :null => false
-    t.datetime "updated_at",                          :null => false
+    t.date     "release_date"
+    t.datetime "created_at",                           :null => false
+    t.datetime "updated_at",                           :null => false
     t.text     "namehash"
-    t.date     "enddate"
-    t.integer  "releasedate_bitmask"
+    t.date     "end_date"
+    t.integer  "release_date_bitmask"
+    t.integer  "end_date_bitmask"
   end
 
   add_index "sources", ["activity"], :name => "index_sources_on_activity"
   add_index "sources", ["altname"], :name => "index_sources_on_altname"
   add_index "sources", ["category"], :name => "index_sources_on_category"
-  add_index "sources", ["dbcomplete"], :name => "index_sources_on_dbcomplete"
+  add_index "sources", ["db_status"], :name => "index_sources_on_dbcomplete"
   add_index "sources", ["name"], :name => "index_sources_on_name", :length => {"name"=>255}
   add_index "sources", ["popularity"], :name => "index_sources_on_popularity"
-  add_index "sources", ["releasedate"], :name => "index_sources_on_releasedate"
+  add_index "sources", ["release_date"], :name => "index_sources_on_releasedate"
   add_index "sources", ["status"], :name => "index_sources_on_status"
 
   create_table "taglists", :force => true do |t|
@@ -408,6 +416,7 @@ ActiveRecord::Schema.define(:version => 20141014200504) do
     t.datetime "created_at",     :null => false
     t.datetime "updated_at",     :null => false
     t.integer  "model_bitmask"
+    t.string   "visibility"
   end
 
   add_index "tags", ["classification"], :name => "index_tags_on_category"
@@ -422,7 +431,7 @@ ActiveRecord::Schema.define(:version => 20141014200504) do
     t.string   "name"
     t.string   "email"
     t.text     "profile"
-    t.date     "birthdate"
+    t.date     "birth_date"
     t.string   "sex"
     t.string   "location"
     t.string   "crypted_password"
@@ -443,7 +452,7 @@ ActiveRecord::Schema.define(:version => 20141014200504) do
     t.string   "artist_language_settings"
     t.integer  "tracklist_export_bitmask"
     t.string   "perishable_token",         :default => "", :null => false
-    t.integer  "birthdate_bitmask"
+    t.integer  "birth_date_bitmask"
   end
 
   add_index "users", ["created_at"], :name => "index_users_on_created_at"

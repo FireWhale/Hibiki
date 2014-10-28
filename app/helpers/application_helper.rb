@@ -189,19 +189,19 @@ module ApplicationHelper
            "Warning! This " + record.class.to_s.camelize(:lower) + "'s info is incomplete"
         end).concat(tag(:br)).html_safe   
       elsif record.status == "Released"
-        if record.dbcomplete == "Up to Date"
+        if record.db_status == "Up to Date"
           (content_tag(:div) do
             "This " + record.class.to_s.camelize(:lower) + " is up to date as of " + record.updated_at.to_date.to_s(:db)
           end).concat(tag(:br)).html_safe           
-        elsif record.dbcomplete == "Complete"
+        elsif record.db_status == "Complete"
           (content_tag(:div) do
             "This " + record.class.to_s.camelize(:lower) + " has no more albums coming out! (" + record.updated_at.to_date.to_s(:db) + ")"
           end).concat(tag(:br)).html_safe
-        elsif record.dbcomplete == "Partial"      
+        elsif record.db_status == "Partial"      
           (content_tag(:div) do
             "This " + record.class.to_s.camelize(:lower) + " may be missing albums (" + record.updated_at.to_date.to_s(:db) + ")"
           end).concat(tag(:br)).html_safe
-        elsif record.dbcomplete == "Ignored"
+        elsif record.db_status == "Ignored"
           (content_tag(:div) do
             "This " + record.class.to_s.camelize(:lower) + " is ignored. sorry (" + record.updated_at.to_date.to_s(:db) + ")"
           end).concat(tag(:br)).html_safe                

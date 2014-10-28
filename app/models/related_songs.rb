@@ -1,8 +1,18 @@
 class RelatedSongs < ActiveRecord::Base
   attr_accessible :category, :song1_id, :song2_id
+
+  validates :song1_id, :presence => true, uniqueness: {scope: :song2_id}
+  validates :song2_id, :presence => true
+  validates :category, inclusion: Song::SelfRelationships.map { |relation| relation[3]}.reject(&:nil?)
+  validates :song1, :presence => true
+  validates :song2, :presence => true
+  validates_different_models :song1, model: "song"
+  validates_unique_combination :song1, model: "song"
   
   belongs_to :song1, class_name: "Song", :foreign_key => :song1_id
   belongs_to :song2, class_name: "Song", :foreign_key => :song2_id
+  
+  
   
   def song_ids
     [song1_id] + [song2_id]
@@ -40,4 +50,5 @@ class RelatedSongs < ActiveRecord::Base
       end
     end
   end
+  
 end

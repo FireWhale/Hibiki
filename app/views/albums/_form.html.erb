@@ -31,7 +31,7 @@
       </div>
       <div class="control-group">
         <%= f.label :status, "Status:", :class => "control-label" %>
-        <%= f.select :status, Album::StatusDropdown, :include_blank => true %>
+        <%= f.select :status, Album::Status, :include_blank => true %>
       </div>
       <div class="control-group">
         <%= f.label :classification, "Classification:", :class => "control-label" %>

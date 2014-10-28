@@ -1,5 +1,5 @@
 class Source < ActiveRecord::Base
-  attr_accessible :activity, :altname, :category, :dbcomplete, :info, :name, :popularity, :privateinfo, :reference, :releasedate, :enddate, :format, :status, :synopsis, :namehash, :image, :newsourcenames, :newsourcecategories, :neworganizationnames, :neworganizationcategories, :releasedate_bitmask
+  attr_accessible :activity, :altname, :category, :db_status, :info, :name, :popularity, :privateinfo, :reference, :releasedate, :enddate, :format, :status, :synopsis, :namehash, :image, :newsourcenames, :newsourcecategories, :neworganizationnames, :neworganizationcategories, :releasedate_bitmask
   
   serialize :reference
   serialize :namehash

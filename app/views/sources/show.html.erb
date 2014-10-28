@@ -19,7 +19,7 @@
     <div id="Attributes" class="well">
       <% if can? :manage, Source %>
         <%= attribute_display(@source, 'status', "Status") %>
-        <%= attribute_display(@source, 'dbcomplete', "Database Status") %>
+        <%= attribute_display(@source, 'db_status', "Database Status") %>
       <% end %>      
       <% @related.each do |k,v| %>
         <%= linked_attribute_display(v,k) %>

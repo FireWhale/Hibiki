@@ -24,8 +24,16 @@
   <%= f.select :status, Issue::Statuses %>
 </div>
 <div class="control-group">
+  <%= f.label :visibility, "Security:", :class => "control-label" %>
+  <%= f.select :visibility, Ability::Visibility %>
+</div>
+<div class="control-group">
   <%= f.label :resolution, "Resolution:", :class => "control-label" %>
   <%= f.select :resolution, Issue::Resolutions, :include_blank => true %>
+</div>
+<div class="control-group">
+  <%= f.label :difficulty, "Difficulty:", :class => "control-label" %>
+  <%= f.select :difficulty, Issue::Difficulty, :include_blank => true %>
 </div>
 <div class="field">
   <%= f.label :description %>

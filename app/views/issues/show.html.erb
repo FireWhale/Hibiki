@@ -12,3 +12,7 @@
   <b>Destination:</b>
   <%= @issue.description %>
 </p>
+
+<% if can? :edit, Issue %>
+<%= link_to "Edit", edit_issue_path(@issue)%>
+<% end %>

@@ -1,9 +1,9 @@
 class Image < ActiveRecord::Base
   attr_accessible :name, :path, :rating, :llimagelink, :primary_flag, :thumb_path, :medium_path
 
-  # #Validation
-  # validates :name, :presence => true
-  
+  #Validation
+    validates :name, presence: true
+    validates :path, presence: true
   
   #Modules
     include ImagesModule 
@@ -11,18 +11,19 @@ class Image < ActiveRecord::Base
   #Callbacks
     before_destroy :delete_images
     
-  
   #associations
-    has_many :imagelists
-    has_many :albums, :through => :imagelists, :source => :model, :source_type => 'Album'
-    has_many :artists, :through => :imagelists, :source => :model, :source_type => 'Artist'
-    has_many :organizations, :through => :imagelists, :source => :model, :source_type => 'Organization'
-    has_many :sources, :through => :imagelists, :source => :model, :source_type => 'Source'
-    has_many :users, :through => :imagelists, :source => :model, :source_type => 'User'
+    has_many :imagelists, dependent: :destroy
+    has_many :albums, through: :imagelists, source: :model, source_type: 'Album'
+    has_many :artists, through: :imagelists, source: :model, source_type: 'Artist'
+    has_many :organizations, through: :imagelists, source: :model, source_type: 'Organization'
+    has_many :sources, through: :imagelists, source: :model, source_type: 'Source'
+    has_many :users, through: :imagelists, source: :model, source_type: 'User'
+    has_many :posts, through: :imagelists, source: :model, source_type: 'Post'
 
     def model
       (albums + artists + organizations + sources + users).first
     end
+    
   #Gem Stuff
     #Pagination
     paginates_per 50

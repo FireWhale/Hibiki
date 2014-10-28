@@ -1,5 +1,11 @@
 class Album < ActiveRecord::Base
-  attr_accessible :altname, :catalognumber, :classification, :info, :name, :popularity, :privateinfo, :reference, :releasedate, :status, :namehash, :image, :newartistnames, :newartistcategories, :newsources, :neworganizationnames, :neworganizationcategories, :newsongs, :neweventshortnames, :newalbumids, :newalbumcategories, :releasedate_bitmask
+  attr_accessible :altname, :catalog_number, :classification, 
+                  :info, :name, :popularity, :private_info, :reference, 
+                  :release_date, :status, :namehash, :image, :release_date_bitmask
+
+  attr_accessible :newartistnames, :newartistcategories, :newsources, 
+                  :neworganizationnames, :neworganizationcategories, :newsongs, 
+                  :neweventshortnames, :newalbumids, :newalbumcategories
 
   serialize :reference
   serialize :namehash
@@ -24,6 +30,7 @@ class Album < ActiveRecord::Base
     ['Anime News Network', :anime_news_network],
     ['Vocaloid wiki', :vocaloid_wiki],['Utaite wiki', :utaite_wiki],
     ['Touhou wiki', :touhou_wiki], ['Vocaloid db', :vocaloid_DB],
+    ['Utaite db', :utaite_DB],
     ['Circus-co.jp',:circuspppco],['Comiket Website', :comiket],
     ['Official Website', :official],
     ['MyAnimeList', :myAnimeList],['IMDb', :iMDb],
@@ -31,6 +38,11 @@ class Album < ActiveRecord::Base
     ['Official Blog', :official_blog],
     ['Twitter', :twitter],
     ['Other', :other_reference ]]
+    
+    Status = ['Released', 'Unreleased', 'Hidden', 'Private']
+      #Hidden - Just a placeholder in the database - maaya => maaya sakamoto
+      #Private - Things that are out of scope of the database but I still like
+      
     
     StatusDropdown = [['Released'], ['Unreleased'], ['Hidden'], ['Private'], ['IP - Incomplete Associations'], ['IP - Incomplete Songs'], ['IP - Incomplete Touhou Refs'], ['IP - Incomplete Song Refs']]
 
@@ -79,9 +91,9 @@ class Album < ActiveRecord::Base
     ]
   
   #Validation
-    validates :name, :presence => true 
-    validates :status, :presence => true
-    validates_uniqueness_of :catalognumber, scope: [:name, :releasedate]
+    validates :name, presence: true 
+    validates :status, presence: true
+    validates :catalog_number, presence: true, uniqueness: {scope: [:name, :release_date]}
 
   #associations
     #Primary Associations
@@ -124,16 +136,15 @@ class Album < ActiveRecord::Base
       has_many :collections
       has_many :users, :through => :collections, dependent: :destroy
   
-    
   #Gem Stuff
     #Pagination
     paginates_per 50
   
     #Sunspot Searching
     searchable do
-      text :name, :catalognumber, :altname, :namehash 
+      text :name, :catalog_number, :altname, :namehash 
       text :reference
-      time :releasedate
+      time :release_date
     end
     
   #Factory Methods
@@ -332,7 +343,7 @@ class Album < ActiveRecord::Base
             songinfo = newsongs['tracknumbers'].zip(newsongs['names'], newsongs['lengths'], newsongs['namehashes'])
             songinfo.each do |each|
               #This will also set the length to 0
-              self.songs.create(:tracknumber => each[0], :name => each[1], :length => each[2], :namehash => each[3])
+              self.songs.create(:track_number => each[0], :name => each[1], :length => each[2], :namehash => each[3])
             end
           end
         end
@@ -372,7 +383,7 @@ class Album < ActiveRecord::Base
             else
               flag = ''
             end   
-            self.upload_image(image,(self.catalognumber + ' - ' + self.id.to_s),'albumart/',flag)
+            self.upload_image(image,(self.catalog_number + ' - ' + self.id.to_s),'albumart/',flag)
           end
         end          
         #If the image is already saved (as in scrape methods), there will only be names and paths.
@@ -418,7 +429,7 @@ class Album < ActiveRecord::Base
             self.delete_related_model(removerelatedalbums,"Album")
           end        
       #Format release date in case it's not a full date. 
-        self.format_date_helper("releasedate",values)
+        self.format_date_helper("release_date",values)
       # #Update keys with values
         self.update_attributes(values)
     end
@@ -431,7 +442,7 @@ class Album < ActiveRecord::Base
     #delete associated images
     self.images.destroy_all
     #delete album folder
-    full_path = 'public/images/albumart/' + self.catalognumber + ' - ' + self.id.to_s
+    full_path = 'public/images/albumart/' + self.catalog_number + ' - ' + self.id.to_s
     if File.exists?(full_path)
       FileUtils.remove_dir(Rails.root.join(full_path), true)
     end
@@ -439,15 +450,15 @@ class Album < ActiveRecord::Base
 
   #For sorting albums
     def week #For sorting by week
-      self.releasedate.beginning_of_week(start_day = :sunday)
+      self.release_date.beginning_of_week(start_day = :sunday)
     end
     
     def month #For sorting by month
-      self.releasedate.beginning_of_month
+      self.release_date.beginning_of_month
     end
     
     def year
-      self.releasedate.beginning_of_year
+      self.release_date.beginning_of_year
     end
 
   #Sees if the album is in a user's collection 
@@ -477,7 +488,7 @@ class Album < ActiveRecord::Base
     end
   
     def collection?(user)
-      #returns the 
+      #returns the type of album-user relationship 
       #if not in collection, returns "" (empty)
       if user.nil? || self.collections.select { |a| a.user_id == user.id}.empty?
         ""
@@ -485,6 +496,7 @@ class Album < ActiveRecord::Base
         self.collections.select { |a| a.user_id == user.id}[0].relationship
       end
     end
+  
   
   #Limited Edition and reprint check
     def limited_edition?

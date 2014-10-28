@@ -1,5 +1,9 @@
 class Song < ActiveRecord::Base
-  attr_accessible :album_id, :category, :length, :lyrics, :name, :namehash, :tracknumber, :op_ed_number, :newartistnames, :newartistcategories, :newsongids, :newsongcategories
+  attr_accessible :album_id, :category, :length, :lyrics, 
+                  :name, :namehash, :track_number, :op_ed_number
+                  
+  attr_accessible :newartistnames, :newartistcategories, 
+                  :newsongids, :newsongcategories
   
   serialize :namehash
   

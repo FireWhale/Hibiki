@@ -1,11 +1,6 @@
 source 'https://rubygems.org'
 
 gem 'rails', '3.2.13'
-
-
-# Bundle edge Rails instead:
-# gem 'rails', :git => 'git://github.com/rails/rails.git'
-
 gem 'sqlite3'
 gem 'yaml_db'
 gem 'authlogic'
@@ -29,6 +24,8 @@ gem 'mysql2'
 gem 'whenever', :require => false
 gem 'lazyload-rails'
 
+#gem 'did_you_mean', group: [:development, :test] #Thanks shard
+
 # Gems used only for assets and not required
 # in production environments by default.
 group :assets do
@@ -41,6 +38,18 @@ group :assets do
   
 end
 
+group :development, :test do
+  gem 'rspec-rails'
+  gem 'factory_girl_rails'
+end
+
+group :test do
+  gem 'faker'
+  gem 'capybara'
+  gem 'guard-rspec'
+  gem 'launchy'
+  gem 'sunspot_test'
+end
 
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'

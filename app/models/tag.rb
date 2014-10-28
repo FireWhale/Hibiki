@@ -1,12 +1,17 @@
 class Tag < ActiveRecord::Base
-  attr_accessible :classification, :info, :name, :synopsis, :model_bitmask
-  
-  # #Validation
-  # validates :name, :presence => true 
+  attr_accessible :classification, :info, :name, :synopsis, :model_bitmask, :visibility
   
   ModelBitmask = %w[Album Artist Organization Song Source]
+  
+  #Validation
+    validates :name, presence: true , uniqueness: {scope: :model_bitmask}
+    validates :classification, presence: true
+    validates :model_bitmask, presence: true
+    validates :visibility, presence: true
+    validate :bitmask_check
+  
 
-  has_many :taglists
+  has_many :taglists, dependent: :destroy
   has_many :albums, :through => :taglists, :source => :subject, :source_type => 'Album'
   has_many :artists, :through => :taglists, :source => :subject, :source_type => 'Artist'
   has_many :organizations, :through => :taglists, :source => :subject, :source_type => 'Organization'
@@ -17,6 +22,10 @@ class Tag < ActiveRecord::Base
     albums + artists + organizations + sources + songs
   end
   
+  def models
+    (Tag::ModelBitmask).reject { |r| ((self.model_bitmask || 0 ) & 2**(Tag::ModelBitmask).index(r)).zero?}    
+  end
+    
   def self.get_bitmask(models)
     (models & Tag::ModelBitmask).map { |r| 2**(Tag::ModelBitmask).index(r) }.sum
   end
@@ -28,8 +37,9 @@ class Tag < ActiveRecord::Base
     (Tag::ModelBitmask).reject { |r| ((bitmask || 0 ) & 2**(Tag::ModelBitmask).index(r)).zero?}
   end
   
-  def get_models
-    Tag.get_models(self.model_bitmask)
-  end
+  private
+    def bitmask_check
+      errors.add(:base, "This isn't a valid bitmask") unless (self.model_bitmask.nil? == false && self.model_bitmask < 2**Tag::ModelBitmask.count && self.model_bitmask > 0)
+    end
   
 end

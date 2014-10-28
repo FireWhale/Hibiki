@@ -23,11 +23,11 @@
       </div>
       <div class="control-group">
         <%= f.label :status, "Status:", :class => "control-label" %>
-        <%= f.select :status, Album::StatusDropdown, :include_blank => true  %>
+        <%= f.select :status, Album::Status, :include_blank => true  %>
       </div>
       <div class="control-group">
-        <%= f.label :dbcomplete, "Database Status:", :class => "control-label" %>
-        <%= f.select :dbcomplete, Artist::DatabaseStatus, :include_blank => true %>
+        <%= f.label :db_status, "Database Status:", :class => "control-label" %>
+        <%= f.select :db_status, Artist::DatabaseStatus, :include_blank => true %>
       </div>
       <div class="control-group">
         <%= f.label :category, :class => "control-label" %>

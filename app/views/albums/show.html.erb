@@ -18,8 +18,8 @@
     <%= render :partial => "layouts/show_primary_image", :locals => {:record => @album} %>
     <div id="Attributes" class="well">
       <%= attribute_display(@album, 'status', "Status") if can? :manage, Album %>
-      <%= attribute_display(@album, "catalognumber", "Catalog Number" ) %>
-      <%= attribute_display(@album, "releasedate", "Release Date" ) %>
+      <%= attribute_display(@album, "catalog_number", "Catalog Number" ) %>
+      <%= attribute_display(@album, "release_date", "Release Date" ) %>
       <% @related.each do |k,v| %><%= linked_attribute_display(v,k) %><% end %>    
       <%= reference_helper(@album) %>  
       <%= linked_attribute_display(@album.events, "Events") %>
@@ -49,7 +49,7 @@
                 <%= link_to "Expand", songpreview_path(:songid => each.id), :remote => true, class: "label label-default" , :id => each.id.to_s + "Show" %>
                 <%= link_to "Collapse", songpreviewhide_path(:id => each.id), :remote => true, class: "label label-default" , :style => 'display: none', :id => each.id.to_s + "Hide"  %> 
               </div>
-              <div class="col-md-1"><%= each.tracknumber %></div>
+              <div class="col-md-1"><%= each.track_number %></div>
               <div class='col-md-9'><%= name_language_helper(each,current_user,0) %></div>
               <td><%= Time.at(each.length).utc.strftime("%-M:%S") if each.length.nil? == false%></td>
             </div>

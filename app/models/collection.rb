@@ -1,8 +1,14 @@
 class Collection < ActiveRecord::Base
-  attr_accessible :album_id, :rating, :user_id, :relationship
+  attr_accessible :album_id, :rating, :relationship
   
+  Relationship = %w[Collected Ignored Watchlist]
+  
+  validates :album, :presence => true
+  validates :user, :presence => true
+  validates :user_id, uniqueness: {scope: :album_id}
+  validates :relationship, presence: true, inclusion: Collection::Relationship
+
   belongs_to :album
   belongs_to :user
   
-  validates_uniqueness_of :user_id, :scope => [:album_id]
 end

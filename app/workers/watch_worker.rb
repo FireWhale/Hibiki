@@ -31,13 +31,13 @@ class WatchWorker
           album = albumresults.results.first
           #Make sure the url matches the reference
           if album.reference[:VGMdb] != link
-            if album.privateinfo.starts_with?("UPDATE AVAILABLE:") == false
-              album.privateinfo = "UPDATE AVAILABLE: " + Time.now.to_s + " - Check Reference \n\n" + album.privateinfo
+            if album.private_info.starts_with?("UPDATE AVAILABLE:") == false
+              album.private_info = "UPDATE AVAILABLE: " + Time.now.to_s + " - Check Reference \n\n" + album.private_info
               album.save
             end
           else
-            if album.privateinfo.starts_with?("UPDATE AVAILABLE:") == false
-              album.privateinfo = "UPDATE AVAILABLE: " + Time.now.to_s + "\n\n" + album.privateinfo
+            if album.private_info.starts_with?("UPDATE AVAILABLE:") == false
+              album.private_info = "UPDATE AVAILABLE: " + Time.now.to_s + "\n\n" + album.private_info
               album.save
             end
           end

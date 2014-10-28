@@ -2,7 +2,7 @@ class UsersController < ApplicationController
   load_and_authorize_resource
   
   def watch
-    @user = User.find_by_id(params[:user_id])
+    @user = current_user
     
     @user.watchlists.create(:watched_type => params[:watched_type], :watched_id => params[:watched_id])
     @watched = params[:watched_type].constantize.find(params[:watched_id])
@@ -13,22 +13,29 @@ class UsersController < ApplicationController
   end
   
   def unwatch
-    watchlist = Watchlist.where(:user_id => params[:user_id], :watched_id => params[:watched_id], :watched_type => params[:watched_type]).first
+    watchlist = Watchlist.where(:user_id => current_user.id, :watched_id => params[:watched_id], :watched_type => params[:watched_type]).first
     watched = params[:watched_type].constantize.find(params[:watched_id])
 
-    if watchlist.nil? == false
-      watchlist.destroy
-    end
     respond_to do |format|
-      format.html { redirect_to watched, notice: 'Successfully removed from watchlist' }
-      format.js
+      if watchlist.nil? == false
+        watchlist.destroy
+        format.html { redirect_to watched, notice: 'Successfully removed from watchlist' }
+        format.js
+      else
+        format.html { redirect_to watched, notice: 'Request failed!' }
+        format.js        
+      end
+
+
     end
   end
 
   def add_to_collection
-    user = User.find_by_id(params[:user_id])
+    user = current_user
     @album = Album.find(params[:album_id])
-    user.collections.create(:album_id => params[:album_id], :relationship => params[:relationship])
+    if user.nil? == false && @album.nil? == false
+      user.collections.create(:album_id => @album.id, :relationship => params[:relationship])
+    end
     
     #Formating response text
     if params[:relationship] == "Collected"

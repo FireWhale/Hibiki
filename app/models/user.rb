@@ -38,6 +38,8 @@ class User < ActiveRecord::Base
     
     has_many :imagelists, :as => :model
     has_many :images, :through => :imagelists, dependent: :destroy  
+    
+    has_many :issue_users
   
   def deliver_password_reset_instructions!
     reset_perishable_token!

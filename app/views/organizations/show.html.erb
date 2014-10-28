@@ -19,7 +19,7 @@
     <div id="Attributes" class="well">
       <% if can? :manage, Organization %>
         <%= attribute_display(@organization, 'status', "Status") %>
-        <%= attribute_display(@organization, 'dbcomplete', "Database Status") %>
+        <%= attribute_display(@organization, 'db_status', "Database Status") %>
       <% end %>
       <%= attribute_display(@organization, "activity", "Activity")%>
       <%= attribute_display(@organization, "category", "Type of Organization")%>

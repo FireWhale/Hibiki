@@ -17,17 +17,6 @@ module RelationsModule
     relatedmodels.each do |each|
       if each[0].empty? == false
         exists = model.constantize.find_by_id(each[0])
-        # if model == "Song" || model == "Album" || model == "Artist" || model == "Source"
-        # #Does not create a song or album if not found.
-        # else #Used to be for Artists, Organizations, Sources. 
-          # #Creates the artist/organization/source if not found. 
-          # #This is now obsolete code since all the models use IDs for identification.
-          # exists = model.constantize.find_by_name(each[0])
-          # if exists.nil?
-            # exists = model.constantize.new(:name => each[0], :status => 'Unreleased')
-            # exists.save
-          # end
-        # end
         if exists.nil? == false
           if each[1].starts_with?("-")
             each[1].slice!(0)

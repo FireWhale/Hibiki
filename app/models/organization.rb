@@ -1,5 +1,5 @@
 class Organization < ActiveRecord::Base
-  attr_accessible :activity, :altname, :category, :dbcomplete, :established, :info, :name, :privateinfo, :reference, :status, :synopsis, :namehash, :image, :newartistnames, :newartistcategories, :neworganizationnames, :neworganizationcategories, :established_bitmask
+  attr_accessible :activity, :altname, :category, :db_status, :established, :info, :name, :privateinfo, :reference, :status, :synopsis, :namehash, :image, :newartistnames, :newartistcategories, :neworganizationnames, :neworganizationcategories, :established_bitmask
   
   serialize :reference
   serialize :namehash

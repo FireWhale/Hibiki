@@ -1,5 +1,5 @@
 class Artist < ActiveRecord::Base
-  attr_accessible :activity, :altname, :birthdate, :category, :dbcomplete, :debutdate, :info, :name, :popularity, :privateinfo, :reference, :status, :synopsis, :namehash, :image, :newartistids, :newartistcategories, :neworganizationids, :neworganizationcategories, :birthdate_bitmask, :debutdate_bitmask
+  attr_accessible :activity, :altname, :birthdate, :category, :db_status, :debutdate, :info, :name, :popularity, :privateinfo, :reference, :status, :synopsis, :namehash, :image, :newartistids, :newartistcategories, :neworganizationids, :neworganizationcategories, :birthdate_bitmask, :debutdate_bitmask
   
   serialize :reference
   serialize :namehash
@@ -82,8 +82,8 @@ class Artist < ActiveRecord::Base
       has_many :taglists, :as => :subject
       has_many :tags, :through => :taglists, dependent: :destroy
       
-      has_many :imagelists, :as => :model
-      has_many :images, :through => :imagelists, dependent: :destroy  
+      has_many :imagelists, :as => :model, dependent: :destroy  
+      has_many :images, :through => :imagelists
       has_many :primary_images, :through => :imagelists, :source => :image, :conditions => "images.primary_flag = 'Primary'" 
    
    #User Associations
