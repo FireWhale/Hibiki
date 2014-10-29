@@ -10,37 +10,37 @@ describe Image do
   #Association Test
     it "has many imagelists" do
       expect(create(:image, :with_imagelist_album).imagelists.first).to be_a Imagelist
-      expect(Image.reflect_on_association(:imagelist).macro).to eq(:has_many)  
+      expect(Image.reflect_on_association(:imagelists).macro).to eq(:has_many)
     end
     
     it "has many albums" do
-      expect(create(:image, :with_imagelist_album).imagelists.first).to be_a Imagelist
-      expect(Image.reflect_on_association(:imagelist).macro).to eq(:has_many)  
+      expect(create(:image, :with_imagelist_album).albums.first).to be_a Album
+      expect(Image.reflect_on_association(:albums).macro).to eq(:has_many)  
     end
     
     it "has many artists" do
-      expect(create(:image, :with_imagelist_album).imagelists.first).to be_a Imagelist
-      expect(Image.reflect_on_association(:imagelist).macro).to eq(:has_many)  
+      expect(create(:image, :with_imagelist_artist).artists.first).to be_a Artist
+      expect(Image.reflect_on_association(:artists).macro).to eq(:has_many)  
     end
     
     it "has many organizations" do
-      expect(create(:image, :with_imagelist_album).imagelists.first).to be_a Imagelist
-      expect(Image.reflect_on_association(:imagelist).macro).to eq(:has_many)  
+      expect(create(:image, :with_imagelist_organization).organizations.first).to be_a Organization
+      expect(Image.reflect_on_association(:organizations).macro).to eq(:has_many)  
     end
     
     it "has many sources" do
-      expect(create(:image, :with_imagelist_album).imagelists.first).to be_a Imagelist
-      expect(Image.reflect_on_association(:imagelist).macro).to eq(:has_many)  
+      expect(create(:image, :with_imagelist_source).sources.first).to be_a Source
+      expect(Image.reflect_on_association(:sources).macro).to eq(:has_many)  
     end
     
     it "has many users" do
-      expect(create(:image, :with_imagelist_album).imagelists.first).to be_a Imagelist
-      expect(Image.reflect_on_association(:imagelist).macro).to eq(:has_many)  
+      expect(create(:image, :with_imagelist_user).users.first).to be_a User
+      expect(Image.reflect_on_association(:users).macro).to eq(:has_many)  
     end
         
     it "has many posts" do
-      expect(create(:image, :with_imagelist_post).imagelists.first).to be_a Imagelist
-      expect(Image.reflect_on_association(:imagelist).macro).to eq(:has_many)  
+      expect(create(:image, :with_imagelist_post).posts.first).to be_a Post
+      expect(Image.reflect_on_association(:posts).macro).to eq(:has_many)  
     end    
     
     it "destroys imagelists when destroyed" do
@@ -72,6 +72,16 @@ describe Image do
       expect(build(:image, path: nil)).to_not be_valid
     end
     
+    it "is valid without a medium path" do
+      expect(build(:image, medium_path: "")).to be_valid
+      expect(build(:image, medium_path: nil)).to be_valid     
+    end
+    
+    it "is valid without a thumb path" do
+      expect(build(:image, thumb_path: "")).to be_valid
+      expect(build(:image, thumb_path: nil)).to be_valid     
+    end
+    
     it "is valid without a primary flag" do
       expect(build(:image, primary_flag: "")).to be_valid
       expect(build(:image, primary_flag: nil)).to be_valid     
@@ -94,7 +104,9 @@ describe Image do
     end
    
   #Class Method Tests
-    it "deletes the folder when destroyed"
+    it "deletes the actual images when destroyed"
+    
+    it "deletes the folder the images were in if there are no more images"
   
 end
 
@@ -113,6 +125,21 @@ describe Imagelist do
     it "belongs to a image" do
       expect(create(:imagelist).image).to be_a Image
       expect(Imagelist.reflect_on_association(:image).macro).to eq(:belongs_to)      
+    end
+    
+    it "destroys the image if there are no other imagelists" do
+      imagelist = create(:imagelist)
+      expect{imagelist.destroy}.to change(Image, :count).by(-1)
+    end
+    
+    it "does not destroy the image if there are other imagelists" do
+      image = create(:image)
+      imagelist1 = create(:imagelist, image: image)
+      imagelist2 = create(:imagelist, image: image)
+      imagelist3 = create(:imagelist, image: image)
+      expect{imagelist1.destroy}.to change(Image, :count).by(0)
+      expect{imagelist2.destroy}.to change(Image, :count).by(0)
+      expect{imagelist3.destroy}.to change(Image, :count).by(-1)       
     end
     
   #Validation Tests
@@ -138,6 +165,10 @@ describe Imagelist do
     
     it "is valid with a source" do
       expect(build(:imagelist, :with_source)).to be_valid
+    end
+        
+    it "is valid with a post" do
+      expect(build(:imagelist, :with_post)).to be_valid
     end
         
     it "is invalid without a image" do

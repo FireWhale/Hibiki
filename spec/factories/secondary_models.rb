@@ -119,7 +119,6 @@ FactoryGirl.define do
         end        
       end 
 
-
       trait :with_multiple_imagelists do
         after(:create) do |image|
           [:with_album, :with_artist, :with_organization, :with_user, :with_source].each do |model|

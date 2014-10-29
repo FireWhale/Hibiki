@@ -1,9 +1,16 @@
 class SourceOrganization < ActiveRecord::Base
   attr_accessible :organization_id, :source_id, :category
   
-  belongs_to :organization
-  belongs_to :source
-
-  Categories = [['Publisher'],['Distributor'],['Developer']]
-
+  #Constants
+    Categories = ['Publisher','Distributor','Developer']
+    
+  #Associations
+    belongs_to :organization
+    belongs_to :source
+    
+  #Validations
+    validates :source, presence: true
+    validates :organization, presence: true
+    validates :category, presence: true, inclusion: SourceOrganization::Categories
+    
 end

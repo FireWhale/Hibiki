@@ -4,5 +4,5 @@ class AlbumOrganization < ActiveRecord::Base
   belongs_to :album
   belongs_to :organization
   
-  Categories = [['Publisher'],['Distributor']]
+  Categories = ['Publisher','Distributor']
 end

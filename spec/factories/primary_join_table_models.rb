@@ -4,6 +4,7 @@ require 'faker'
 FactoryGirl.define do    
   #Primary Join Table Models - A Lot
     factory :album_organization do
+      category {AlbumOrganization::Categories.sample}
       association :album
       association :organization
     end
@@ -14,26 +15,31 @@ FactoryGirl.define do
     end
     
     factory :artist_album do
+      category {Array(1..(2**Artist::Credits.count - 1)).sample}
       association :artist
       association :album
     end
     
     factory :artist_organization do
+      category {ArtistOrganization::Categories.sample}
       association :artist
       association :organization
     end
     
     factory :artist_song do 
+      category {Array(1..(2**Artist::Credits.count - 1)).sample}
       association :artist
       association :song    
     end
     
     factory :song_source do 
+      classification {SongSource::Relationship.sample}
       association :song
       association :source
     end
     
     factory :source_organization do
+      category {SourceOrganization::Categories.sample}
       association :source
       association :organization
     end

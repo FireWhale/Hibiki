@@ -4,6 +4,6 @@ class ArtistOrganization < ActiveRecord::Base
   belongs_to :artist
   belongs_to :organization
   
-  Categories = [['Member'],['Founder'],['Former Member'],['Label']]
+  Categories = ['Member','Founder','Former Member','Label']
 
 end
