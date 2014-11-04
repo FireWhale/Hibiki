@@ -8,7 +8,7 @@ describe Post do
     end
     
   #Shared Examples
-    it_behaves_like "it has images", Post, :post
+    it_behaves_like "it has images", :post, Post
     
   #Association Test
     it "has many postlists" do
@@ -61,11 +61,28 @@ describe Post do
       expect{post.destroy}.to change(Album, :count).by(0)      
     end
     
-  #Validation Tests
-    it "is valid with a category and visibility" do
-      expect(build(:post)).to be_valid
+    it "does not destroy users when destroyed" do
+      post = create(:post, :by_user)
+      expect{post.destroy}.to change(User, :count).by(0)      
     end
     
+    it "does not destroy recipients when destroyed" do
+      post = create(:post, :to_recipient)
+      expect{post.destroy}.to change(User, :count).by(0)      
+    end
+    
+  #Validation Tests
+    include_examples "is invalid without an attribute", :post, :category
+    include_examples "is invalid without an attribute", :post, :visibility
+    include_examples "is invalid without an attribute", :post, :status
+
+    include_examples "is invalid without an attribute in a category", :post, :category, Post::Categories - ["Private Message", "Blog Post"], "Post::Categories"
+    include_examples "is invalid without an attribute in a category", :post, :status, Post::Status, "Post::Status"
+
+    include_examples "is valid with or without an attribute", :post, :title, "hi"
+    include_examples "is valid with or without an attribute", :post, :content, "haha this is content!"
+    include_examples "is valid with or without an attribute", :post, :user_info, "User:, Recipient:"
+   
     it "is valid with multiple postlists" do
        expect(build(:post, :with_multiple_postlists)).to be_valid
     end
@@ -88,31 +105,7 @@ describe Post do
       expect(build(:post, recipient_id: nil, category: "Blog Post")).to_not be_valid
       expect(build(:post, recipient_id: 999999999, category: "Blog Post")).to_not be_valid
     end
-            
-    it "is invalid without a category" do
-      expect(build(:post, category: "")).to_not be_valid
-      expect(build(:post, category: nil)).to_not be_valid
-    end
-    
-    it "is invalid if it's a category that is not included in categories" do
-      expect(build(:post, category: "heyheyhey")).to_not be_valid
-    end
-        
-    it "is invalid without a visibility" do
-      expect(build(:post, visibility: "")).to_not be_valid
-      expect(build(:post, visibility: nil)).to_not be_valid      
-    end
-    
-    it "is valid without a title" do
-      expect(build(:post, title: "")).to be_valid
-      expect(build(:post, title: nil)).to be_valid     
-    end
-    
-    it "is valid without content" do
-      expect(build(:post, content: "")).to be_valid
-      expect(build(:post, content: nil)).to be_valid       
-    end
-    
+                
     it "is valid even with all fields duplicated" do
       @user = create(:user)
       expect(create(:post, user: @user, recipient: @user, title: "hi")).to be_valid
@@ -154,8 +147,30 @@ describe Post do
     it "returns scrape and rescrape results" do
       expect(Post.scrape_and_rescrape_results).to eq(@scrapes + @rescrapes)
     end
-  end
     
+  end
+    it "returns a list of posts with destroyed records" do
+      destroyed = create_list(:post, 2, status: "Deleted Records")
+      expect(Post.destroyed_records).to eq(destroyed)
+    end
+        
+  #Callbacks
+    context "before_save callback" do
+      [:album, :artist, :source, :organization, :song].each do |model|
+        it "associates the image"
+      end
+      
+      it "uploads an image" 
+      it "associates an image found on another model"
+      
+      it "associates the user"
+      
+      it "associates the recipient"
+      
+      it "adds the user and recipient to the recipient field" #in case the user or recipient is destroyed
+    end
+  
+  
   #Instance Method Tests
   
     describe "using upload_image_to_ll" do
@@ -171,7 +186,13 @@ describe Post do
             
       it "returns a message with record information"
     end
-      
+    
+    #Full Update
+      context "has a full update method" do
+        include_examples "updates with keys and values", :post
+        include_examples "can upload an image", :post
+        include_examples "updates with normal attributes", :post
+      end      
       
   #Class Method Tests
   
@@ -204,63 +225,18 @@ describe Postlist do
       expect(create(:postlist).post).to be_a Post
       expect(Postlist.reflect_on_association(:post).macro).to eq(:belongs_to)      
     end
+
+    it "does not destroy the post when destroyed" do
+      postlist = create(:postlist)
+      expect{postlist.destroy}.to change(Post, :count).by(0)
+    end
+    
+    it "des not destroy the model when destroyed" do
+      postlist = create(:postlist, :with_album)
+      expect{postlist.destroy}.to change(Album, :count).by(0)      
+    end
     
   #Validation Tests
-    it "is valid with a post and model" do
-      expect(build(:postlist)).to be_valid
-    end
-    
-    it "is valid with an album" do
-      expect(build(:postlist, :with_album)).to be_valid
-    end
-    
-    it "is valid with an artist" do
-      expect(build(:postlist, :with_artist)).to be_valid
-    end
-    
-    it "is valid with an organization" do
-      expect(build(:postlist, :with_organization)).to be_valid
-    end
-    
-    it "is valid with a song" do
-      expect(build(:postlist, :with_song)).to be_valid
-    end
-    
-    it "is valid with a source" do
-      expect(build(:postlist, :with_source)).to be_valid
-    end
-        
-    it "is invalid without a post" do
-      expect(build(:postlist, post: nil)).to_not be_valid
-    end
-    
-    it "is invalid without a real post" do
-      expect(build(:postlist, post_id: 999999999)).to_not be_valid
-    end
-    
-    it "is invalid without a model type" do
-      expect(build(:postlist, model_type: nil)).to_not be_valid      
-    end
-
-    it "is invalid without a model_id" do
-      expect(build(:postlist, model_id: nil)).to_not be_valid      
-    end
-    
-    it "is invalid without a real model" do
-      expect(build(:postlist, model_type: "Album", model_id: 999999999)).to_not be_valid      
-    end
-    
-    it "is valid with unique post/model_type combinatioin" do
-      @post = create(:post)
-      expect(create(:postlist, :with_artist, post: @post)).to be_valid
-      expect(build(:postlist, :with_artist, post: @post)).to be_valid    
-    end
-    
-    it "should have a unique tag/subject combination" do
-      @post = create(:post)
-      @model = create(:album)
-      expect(create(:postlist, post: @post, model: @model)).to be_valid
-      expect(build(:postlist, post: @post, model: @model)).to_not be_valid      
-    end
+    it_behaves_like "it is a polymorphic join model", :postlist, "post", "model", "album", ["album", "artist", "organization", "source", "song"]
   
 end

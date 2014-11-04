@@ -36,7 +36,7 @@ class MaintenanceController < ApplicationController
         scrapehash[:manifo_albums].each {|each| postmessage << "\n" + each } 
         postmessage << "\n\n Scrape Log: "
   
-        @post = Post.create(:category => "Scrape Result", :recipient => "Scrape Results", :content => postmessage)
+        @post = Post.create(category: "Scrape Result", status: "Released", visibility: "Scraper", content: postmessage)
         ScrapeWorker.perform_async(scrapehash,@post.id)      
       end
           

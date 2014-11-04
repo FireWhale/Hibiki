@@ -12,10 +12,16 @@ class Issue < ActiveRecord::Base
     
   #Validations
     validates :name, presence: true
-    validates :category, presence: true
+    validates :category, presence: true, inclusion: Issue::Categories
     validates :visibility, presence: true
-    validates :status, presence: true
+    validates :status, presence: true, inclusion: Issue::Statuses
     
   #Associations
     has_many :issue_users, dependent: :destroy
+    
+  #Scope
+    scope :bug_reports, -> { where(category: "Bug Report")}
+    scope :feature_requests, -> { where(category: "Feature Request")}
+    scope :code_changes, -> { where(category: "Code Change")}
+
 end

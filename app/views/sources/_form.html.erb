@@ -11,7 +11,7 @@
     </div>
   <% end %>
 
-  <div id="Album" class="row">
+  <div id="Source" class="row">
     <div class="col-md-6">
       <div class="control-group">
         <%= f.label :name, "Name:", :class => "control-label" %>
@@ -35,7 +35,7 @@
       </div>
       <div class="control-group">
         <%= f.label :activity, :class => "control-label" %>
-        <%= f.select :activity, [['Retired'], ['Active'], ['Complete']], :include_blank => true %>
+        <%= f.select :activity, Source::Activity, :include_blank => true %>
       </div>  
       <div id="Reference">
         <% if @source.reference.nil? == false %>
@@ -55,12 +55,12 @@
         <%= link_to "Add a Reference", addreference_path(:fields_for => "source[reference]"), :remote => true %></br></br>
       </div>
       <div class="control-group">
-        <%= f.label :releasedate, "Release Date:", :class => "control-label" %>
-        <%= f.date_select :releasedate, :include_blank => true, :start_year => 1980 %>
+        <%= f.label :release_date, "Release Date:", :class => "control-label" %>
+        <%= f.date_select :release_date, :include_blank => true, :start_year => 1980 %>
       </div>
       <div class="control-group">
-        <%= f.label :enddate, "End Date:", :class => "control-label" %>
-        <%= f.date_select :enddate, :include_blank => true, :start_year => 1980 %>
+        <%= f.label :end_date, "End Date:", :class => "control-label" %>
+        <%= f.date_select :end_date, :include_blank => true, :start_year => 1980 %>
       </div>  
       <div class ="control-group">
         <%= f.label :images, "Add Images:", class: "control-label" %>
@@ -125,8 +125,8 @@
         </div>
       </div>
       <div class="field">
-        <%= f.label :privateinfo, "Private Info" %>
-        <%= f.text_area :privateinfo, :rows => '10', class: 'col-md-12' %>
+        <%= f.label :private_info, "Private Info" %>
+        <%= f.text_area :private_info, :rows => '10', class: 'col-md-12' %>
       </div>   
     </div>
   </div>

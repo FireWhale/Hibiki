@@ -3,7 +3,7 @@ class ApplicationController < ActionController::Base
   
   include ActionView::Helpers::TextHelper
 
-  helper_method :current_user_session, :current_user, :name_language_helper, :watched?, :display_settings
+  helper_method :current_user_session, :current_user, :name_language_helper, :watched?
   
   rescue_from CanCan::AccessDenied do |exception|
     render "pages/access_denied" 
@@ -11,10 +11,6 @@ class ApplicationController < ActionController::Base
   
   rescue_from ActiveRecord::RecordNotFound do |exception|
     render "pages/record_not_found"
-  end
-
-  def watched?(user, subject)
-    subject.users.where(:id => user.id).empty? == false
   end
       
   def filter_albums(collection)
@@ -78,7 +74,7 @@ class ApplicationController < ActionController::Base
         #If: no user is logged in
         #If: record is not an artist/org/source
         array[priority]        
-      elsif watched?(user,record) && user.display_settings.include?("Bolding") && ["Artist","Organization","Source"].include?(record.class.to_s)
+      elsif ["Artist","Organization","Source"].include?(record.class.to_s) && record.watched?(user) && user.display_settings.include?("Bolding")
         if user.security == 'Admin' && record.status == 'Released' && user.display_settings.include?("EditMode")
           highlight(array[priority], array[priority], :highlighter => '<em><strong>\1</strong></em>')
         else
@@ -86,7 +82,7 @@ class ApplicationController < ActionController::Base
         end
       elsif user.security == 'Admin' && record.status == 'Released' && user.display_settings.include?("EditMode") && ["Artist","Organization","Source"].include?(record.class.to_s)
         highlight(array[priority], array[priority], :highlighter => '<em>\1</em>')        
-      elsif user.security == 'Admin' && user.display_settings.include?("EditMode") && record.class.to_s == 'Album' && record.privateinfo.starts_with?('UPDATE AVAILABLE')
+      elsif user.security == 'Admin' && user.display_settings.include?("EditMode") && record.class.to_s == 'Album' && record.private_info.starts_with?('UPDATE AVAILABLE')
         highlight(array[priority], array[priority], :highlighter => '<em>\1</em>')  
       else
         #If nothing catches, it goes here!
@@ -129,15 +125,15 @@ class ApplicationController < ActionController::Base
     end
   end
   
-  def credits_helper(record,credits)
-    record.send('artist_' + record.class.to_s.downcase + 's').each do |relation|
-      Artist.get_categories(relation.category).each do |category|
-        (credits[Artist::CreditsFull[category]] ||= []) << relation.artist
+  private
+    def credits_helper(record,credits)
+      record.send('artist_' + record.class.to_s.downcase + 's').each do |relation|
+        Artist.get_credits(relation.category).each do |category|
+          (credits[Artist::CreditsFull[category]] ||= []) << relation.artist
+        end
       end
     end
-  end
   
-  private
     def current_user_session
       return @current_user_session if defined?(@current_user_session)
       @current_user_session = UserSession.find

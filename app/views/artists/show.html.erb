@@ -30,8 +30,8 @@
           <div><%= link_to name_language_helper(org.organization,current_user,0), org.organization %> (<%= org.category %>)</div>
         <% end %>
       <% end %>   
-      <%= attribute_display(@artist, "debutdate", "Debut Date")%>      
-      <%= attribute_display(@artist, "birthdate", "Birthdate")%>
+      <%= attribute_display(@artist, "debut_date", "Debut Date")%>      
+      <%= attribute_display(@artist, "birth_date", "Birthdate")%>
       <%= reference_helper(@artist) %>  
       <%= linked_attribute_display(@artist.tags, "Tags")%>
     </div>
@@ -46,10 +46,10 @@
       </div>   
     <% end %>
     <% if can? :edit, @artist %>
-      <% if @artist.privateinfo.nil? == false && @artist.privateinfo.empty? == false %>
+      <% if @artist.private_info.nil? == false && @artist.private_info.empty? == false %>
         <div id="Info" class="well">
           <h4 class="text-center">Private Info</h4>
-            <%= @artist.privateinfo %>
+            <%= @artist.private_info %>
         </div>    
       <% end %>
     <% end %>

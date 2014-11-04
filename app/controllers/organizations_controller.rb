@@ -17,7 +17,7 @@ class OrganizationsController < ApplicationController
     self_relation_helper(@organization,@related = {}) #Prepare @related (self_relations)
 
     @collection = @organization.album_organizations
-    @collection.sort! { |a,b| a.album.releasedate <=> b.album.releasedate }
+    @collection.sort! { |a,b| a.album.release_date <=> b.album.release_date }
 
     #Take out reprints and alternate printings
     @collection = filter_albums(@collection)

@@ -29,10 +29,10 @@ class ArtistsController < ApplicationController
       # redirect_to artist_url(artist) and return
     # end 
     
-    @collection = ArtistAlbum.includes(:artist, {album: [:related_album_relations1, :tags]}).where(:artist_id => @artist.id).order("albums.releasedate")
+    @collection = ArtistAlbum.includes(:artist, {album: [:related_album_relations1, :tags]}).where(:artist_id => @artist.id).order("albums.release_date")
     collectionids = @collection.map(&:album_id)
     
-    otheridcollection = ArtistAlbum.includes(:album).where(:artist_id => otherids).order("albums.releasedate")
+    otheridcollection = ArtistAlbum.includes(:album).where(:artist_id => otherids).order("albums.release_date")
  
     otheridcollection.each do |relation|
       unless collectionids.include?(relation.album_id)
@@ -40,7 +40,7 @@ class ArtistsController < ApplicationController
       end
     end
     
-    @collection.sort! { |a,b| a.album.releasedate <=> b.album.releasedate }
+    @collection.sort! { |a,b| a.album.release_date <=> b.album.release_date }
     #Take out reprints and alternate printings
     @collection = filter_albums(@collection)
         

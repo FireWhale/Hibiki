@@ -1,7 +1,7 @@
 class Collection < ActiveRecord::Base
   attr_accessible :album_id, :rating, :relationship
   
-  Relationship = %w[Collected Ignored Watchlist]
+  Relationship = %w[Collected Ignored Wishlist]
   
   validates :album, :presence => true
   validates :user, :presence => true

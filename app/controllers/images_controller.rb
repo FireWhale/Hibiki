@@ -1,9 +1,6 @@
 class ImagesController < ApplicationController  
   load_and_authorize_resource
 
-
-  include ImagesModule 
-
   def updateimage
     #This is used for showalbumart and other 'show images for primary models' pages
     @image = Image.find(params[:id])
@@ -68,7 +65,7 @@ class ImagesController < ApplicationController
     @image = Image.find(params[:id])
 
     respond_to do |format|
-      if @image.full_update_attributes(params[:image])
+      if @image.update_attributes(params[:image])
         format.html { redirect_to @image, notice: 'Image was successfully updated.' }
         format.json { head :no_content }
       else

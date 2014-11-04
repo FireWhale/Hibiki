@@ -31,11 +31,11 @@
       </div>
       <div class="control-group">
         <%= f.label :category, :class => "control-label" %>
-        <%= f.select :category, [['Group'], ['Person'], ['Unit'], ['Synthesized']], :include_blank => true %>
+        <%= f.select :category, Artist::Categories, :include_blank => true %>
       </div>   
       <div class="control-group">
         <%= f.label :activity, :class => "control-label" %>
-        <%= f.select :activity, [['Retired'], ['Active'], ['Hiatus']], :include_blank => true %>
+        <%= f.select :activity, Artist::Activity, :include_blank => true %>
       </div>  
       <div id="Reference">
         <% if @artist.reference.nil? == false %>
@@ -55,12 +55,12 @@
         <%= link_to "Add a Reference", addreference_path(:fields_for => "artist[reference]"), :remote => true %></br></br>
       </div>
       <div class="control-group">
-        <%= f.label :debutdate, "Debut Date:", :class => "control-label" %>
-        <%= f.date_select :debutdate, :include_blank => true, :start_year => 1960 %>
+        <%= f.label :debut_date, "Debut Date:", :class => "control-label" %>
+        <%= f.date_select :debut_date, :include_blank => true, :start_year => 1960 %>
       </div>
       <div class="control-group">
-        <%= f.label :birthdate, "Birth Date:", :class => "control-label" %>
-        <%= f.date_select :birthdate, :include_blank => true, :start_year => 1950 %>
+        <%= f.label :birth_date, "Birth Date:", :class => "control-label" %>
+        <%= f.date_select :birth_date, :include_blank => true, :start_year => 1950 %>
       </div>
       <div class="control-group">
         <%= f.label :popularity, :class => "control-label" %>
@@ -129,8 +129,8 @@
         </div>
       </div>
       <div class="field">
-        <%= f.label :privateinfo, "Private Info" %>
-        <%= f.text_area :privateinfo, :rows => '10', class: 'col-md-12' %>
+        <%= f.label :private_info, "Private Info" %>
+        <%= f.text_area :private_info, :rows => '10', class: 'col-md-12' %>
       </div>
     </div>
   </div>

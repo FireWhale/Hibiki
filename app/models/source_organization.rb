@@ -13,4 +13,5 @@ class SourceOrganization < ActiveRecord::Base
     validates :organization, presence: true
     validates :category, presence: true, inclusion: SourceOrganization::Categories
     
+    validates :source_id, uniqueness: {scope: [:organization_id]}
 end

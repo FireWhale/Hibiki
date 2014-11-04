@@ -23,11 +23,11 @@
       </div>
       <div class="control-group">
         <%= f.label :catalognumber, "Catalog Number:", :class => "control-label"  %>
-        <%= f.text_field :catalognumber, :class => "controls input-medium" %>
+        <%= f.text_field :catalog_number, :class => "controls input-medium" %>
       </div>      
       <div class="control-group">
-        <%= f.label :releasedate, "Release Date:", :class => "control-label" %> 
-        <%= f.date_select :releasedate, :start_year => 1970, :include_blank => true %>
+        <%= f.label :release_date, "Release Date:", :class => "control-label" %> 
+        <%= f.date_select :release_date, :start_year => 1970, :include_blank => true %>
       </div>
       <div class="control-group">
         <%= f.label :status, "Status:", :class => "control-label" %>
@@ -80,8 +80,8 @@
         <%= f.text_area :info, :rows => '4', class: 'col-md-12' %>
       </div>
       <div class="field">
-        <%= f.label :privateinfo, "Private Info" %>
-        <%= f.text_area :privateinfo, :rows => '10', class: 'col-md-12' %>
+        <%= f.label :private_info, "Private Info" %>
+        <%= f.text_area :private_info, :rows => '10', class: 'col-md-12' %>
       </div>
     </div>
     <div id="Relationships" class="col-md-6">
@@ -102,7 +102,7 @@
             <% @album.artist_albums.each do |artistalbum| %>
               <div class="row-fluid">
                 <%= link_to artistalbum.artist.name, artistalbum.artist %>:
-                <% categories = Artist.get_categories(artistalbum.category) %>
+                <% categories = Artist.get_credits(artistalbum.category) %>
                 <%= hidden_field_tag 'album[artistalbums][' + artistalbum.id.to_s + '][]', '' %>
                 <% Artist::Credits.each_with_index do |credit,n| %>
                   <%= check_box_tag 'album[artistalbums][' + artistalbum.id.to_s + '][]', credit, categories.include?(credit) %> <%= Artist::CreditsAbbr[n] %> 
@@ -171,7 +171,7 @@
         <% if @album.songs.nil? == false %>
           <% @album.songs.each do |song| %>
             <div class="row-fluid">    
-              <%= song.tracknumber %>
+              <%= song.track_number %>
               <%= song.name %>
             </div>
           <% end %>

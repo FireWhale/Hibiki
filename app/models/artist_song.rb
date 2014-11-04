@@ -9,5 +9,7 @@ class ArtistSong < ActiveRecord::Base
     validates :artist, presence: true
     validates :song, presence: true
     validates :category, presence: true, inclusion: Array(1..(2**Artist::Credits.count - 1))
+    
+    validates :artist_id, uniqueness: {scope: [:song_id]}
   
 end

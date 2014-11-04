@@ -41,7 +41,9 @@ module ApplicationHelper
       if options[:square].nil? == false
         options[:class] = options[:class] + ' thumbnail-square'                
       end
-      if options[:outline_flag].nil? == false && record.class == Album && display_settings.include?("AlbumArtOutline") && record.collection?(current_user).empty? == false 
+      if options[:outline_flag].nil? == false && record.class == Album && 
+      display_settings.include?("AlbumArtOutline") && 
+      record.collected_category(current_user).empty? == false 
         #Default is no flag. Otherwise, we'll outline the image if conditions are met
         options[:class] = options[:class] + ' ' + record.collection?(current_user).downcase
       end
@@ -157,7 +159,7 @@ module ApplicationHelper
         else
           link_to record.send(attribute).to_formatted_s(:long), calendar_url(:date => record.send(attribute))
         end
-      elsif (record.class == Artist && (attribute == 'birthdate' || attribute == 'debutdate')) || (record.class == Source && attribute == 'releasedate') || (record.class == Organization && attribute == 'established') 
+      elsif record.respond_to?(attribute + "_bitmask")
         if record.send(attribute + '_bitmask') == 6
           record.send(attribute).year.to_s
         elsif record.send(attribute + '_bitmask') == 4

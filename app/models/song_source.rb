@@ -12,5 +12,7 @@ class SongSource < ActiveRecord::Base
     validates :source, presence: true
     validates :song, presence: true
     validates :classification, presence: true, inclusion: SongSource::Relationship
+    
+    validates :source_id, uniqueness: {scope: [:song_id]}
   
 end

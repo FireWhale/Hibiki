@@ -26,8 +26,8 @@
       <% end %>
       <%= attribute_display(@source, "category", "Type")%>  
       <%= attribute_display(@source, "activity", "Activity")%>   
-      <%= attribute_display(@source, "releasedate", "Release Date")%>   
-      <%= attribute_display(@source, "enddate", "End Date")%>   
+      <%= attribute_display(@source, "release_date", "Release Date")%>   
+      <%= attribute_display(@source, "end_date", "End Date")%>   
       <%= reference_helper(@source) %>  
       <%= linked_attribute_display(@source.tags, "Tags")%>
       <%= linked_attribute_display(@source.seasons, "Season")%>

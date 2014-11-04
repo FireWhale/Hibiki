@@ -7,21 +7,21 @@ shared_examples "a self relation" do |model_name, associated_model, relation, mo
     expect(create(relation)).to be_valid
   end 
   
-  #Association Tests
-    it "should have #{model_name}s" do
-      #This should cover the association
-      instance = build(relation)
-      expect(instance.send(model_name + "1")).to be_a associated_model
-      expect(instance.send(model_name + "2")).to be_a associated_model
-    end
-    
+  #Association Tests    
     it "should have an #{model_name}1" do
+      expect(build(relation).send(model_name + "1")).to be_a associated_model
       expect(model.reflect_on_association((model_name + "1").to_sym).macro).to eq(:belongs_to)    
     end
     
     it "should have an #{model_name}2" do
+      expect(build(relation).send(model_name + "2")).to be_a associated_model
       expect(model.reflect_on_association((model_name + "2").to_sym).macro).to eq(:belongs_to)        
     end  
+    
+    it "should not destroy #{model_name}s" do
+      record = create(relation)
+      expect{record.destroy}.to change(associated_model, :count).by(0)
+    end
   
   #Validation Tests
     it "is valid with two #{model_name}s and a category" do
@@ -31,7 +31,7 @@ shared_examples "a self relation" do |model_name, associated_model, relation, mo
     it "is invalid without #{model_name}s" do
       #This should make the association fail if oen of the records is nil
       expect(build(relation, (model_name + "1").to_sym => nil)).not_to be_valid
-      expect(build(relation, (model_name + "1").to_sym => nil)).not_to be_valid
+      expect(build(relation, (model_name + "2").to_sym => nil)).not_to be_valid
     end
       
     it "is invalid when the #{model_name}s are not in the database" do
@@ -40,19 +40,15 @@ shared_examples "a self relation" do |model_name, associated_model, relation, mo
       expect(build(relation, (model_name + "2_id").to_sym => 999999999)).not_to be_valid
     end
     
-    it "is invalid without a category" do
-      expect(build(relation, category: nil)).not_to be_valid
-    end
-    
-    it "is invalid with an empty category" do
-      expect(build(relation, category: "")).not_to be_valid
-    end
-    
-    it "is invalid with a category that is not in the SelfRelationship list" do
-      expect(build(relation, category: "hiya")).not_to be_valid
+    include_examples "is invalid without an attribute", relation, :category
+    if model_sym == :artist
+      include_examples "is invalid without an attribute in a category", relation, :category, associated_model::SelfRelationships.reject {|r| r.count < 3}.map(&:last), "#{associated_model}::SelfRelationships"      
+    else
+      include_examples "is invalid without an attribute in a category", relation, :category, associated_model::SelfRelationships.map { |e| e[3]}.reject(&:nil?), "#{associated_model}::SelfRelationships"
+      
     end
   
-    it "should not have duplicate #{model_name} combinations" do
+    it "should not have reverse duplicate #{model_name} combinations" do
       @record1 = create(model_sym)
       @record2 = create(model_sym)
       @record3 = create(model_sym)
@@ -67,7 +63,6 @@ shared_examples "a self relation" do |model_name, associated_model, relation, mo
       expect(build(relation, (model_name + "1").to_sym => @record, (model_name + "2").to_sym => @record)).to_not be_valid
     end
   
-
 end
 
 describe RelatedAlbums do

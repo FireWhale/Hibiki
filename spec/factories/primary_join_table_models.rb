@@ -53,7 +53,7 @@ FactoryGirl.define do
     factory :related_artists do 
       association :artist1, :factory => :artist
       association :artist2, :factory => :artist
-      category Artist::SelfRelationships.map { |relation| relation[3]}.reject(&:nil?).sample
+      category Artist::SelfRelationships.reject {|r| r.count < 3}.map(&:last).sample
     end
     
     factory :related_organizations do

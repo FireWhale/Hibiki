@@ -79,7 +79,6 @@ class UsersController < ApplicationController
         @watched[k].sort_by! {|a| a.position || 100000 }      
         @watched[k] = v.map(&:watched)
       end  
-      #Rename the nil category to unwatche
 
     respond_to do |format|
       format.html # show.html.erb
@@ -113,11 +112,7 @@ class UsersController < ApplicationController
             unless watched.nil?
               watched.grouping_category = values["name"]
               #Store position if position is there
-              if values["order"] == "1"
-                watched.position = n
-              else
-                watched.position = nil
-              end
+              watched.position = (values["order"] == "1" ?  n : nil )
               watched.save
             end
           end          
@@ -138,9 +133,9 @@ class UsersController < ApplicationController
   
   def collection
     @user = User.find(params[:id])
-    @collection = @user.collections.includes(:album).order("albums.releasedate").where(:relationship => "Collected")
-    @ignorelist = @user.collections.includes(:album).order("albums.releasedate").where(:relationship => "Ignored")
-    @wishlist = @user.collections.includes(:album).order("albums.releasedate").where(:relationship => "Wishlist")
+    @collection = @user.collections.includes(:album).order("albums.release_date").where(:relationship => "Collected")
+    @ignorelist = @user.collections.includes(:album).order("albums.release_date").where(:relationship => "Ignored")
+    @wishlist = @user.collections.includes(:album).order("albums.release_date").where(:relationship => "Wishlist")
   end
   
   def index

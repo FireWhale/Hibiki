@@ -11,12 +11,11 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20141023174859) do
+ActiveRecord::Schema.define(:version => 20141103032958) do
 
   create_table "album_events", :force => true do |t|
     t.integer  "album_id"
     t.integer  "event_id"
-    t.string   "category"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end
@@ -227,6 +226,7 @@ ActiveRecord::Schema.define(:version => 20141023174859) do
     t.datetime "updated_at",          :null => false
     t.text     "namehash"
     t.integer  "established_bitmask"
+    t.integer  "popularity"
   end
 
   add_index "organizations", ["activity"], :name => "index_organizations_on_activity"
@@ -251,11 +251,12 @@ ActiveRecord::Schema.define(:version => 20141023174859) do
     t.integer  "user_id"
     t.string   "visibility"
     t.integer  "recipient_id"
-    t.string   "recipient"
+    t.string   "user_info"
     t.datetime "timestamp"
     t.datetime "created_at",                       :null => false
     t.datetime "updated_at",                       :null => false
     t.string   "title"
+    t.string   "status"
   end
 
   create_table "ratings", :force => true do |t|
@@ -345,6 +346,7 @@ ActiveRecord::Schema.define(:version => 20141023174859) do
     t.integer  "release_date_bitmask"
     t.string   "altname"
     t.string   "status"
+    t.string   "disc_number"
   end
 
   add_index "songs", ["album_id"], :name => "index_songs_on_album_id"
@@ -385,6 +387,7 @@ ActiveRecord::Schema.define(:version => 20141023174859) do
     t.date     "end_date"
     t.integer  "release_date_bitmask"
     t.integer  "end_date_bitmask"
+    t.text     "plot_summary"
   end
 
   add_index "sources", ["activity"], :name => "index_sources_on_activity"

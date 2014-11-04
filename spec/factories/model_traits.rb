@@ -1,3 +1,5 @@
+require 'faker' 
+
 FactoryGirl.define do
   #Polymorphics!
     trait :with_image do
@@ -18,9 +20,17 @@ FactoryGirl.define do
       end
     end
     
-    trait :with_watchlist do
+    trait :with_watcher do
       after(:create) do |record|
         create(:watchlist, watched: record)
       end    
     end
+    
+    trait :with_info do
+      info {Faker::Lorem.paragraphs(2)}
+    end
+    
+    trait :with_private_info do
+      private_info {Faker::Lorem.paragraphs(2)}
+    end    
 end

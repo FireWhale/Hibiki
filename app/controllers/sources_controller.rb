@@ -1,7 +1,9 @@
 class SourcesController < ApplicationController
   load_and_authorize_resource
 
-  autocomplete :source, :namehash, :full => true, :extra_data => [:name], :display_value => :format_method
+  autocomplete :source, :namehash, :full => true, :extra_data => [:name, :search_context], 
+               :display_value => :autocomplete_format
+  
   
   def addsourceforsongform
     #For normal source adding to a single song
@@ -26,7 +28,7 @@ class SourcesController < ApplicationController
     @source = Source.includes(:albums, :organizations, :images).find(params[:id])
     self_relation_helper(@source,@related = {}) #Prepare @related (self_relations)
 
-    @collection = AlbumSource.includes(album: [:related_album_relations1]).where(source_id: @source.id).order("albums.releasedate")
+    @collection = AlbumSource.includes(album: [:related_album_relations1]).where(source_id: @source.id).order("albums.release_date")
     
     #Take out reprints and alternate printings
     @collection = filter_albums(@collection)

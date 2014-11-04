@@ -48,47 +48,22 @@ describe Tag do
       expect{tag.destroy}.to change(Source, :count).by(0)
     end
     
-  #Validation Tests
-    it "is valid with a name, classification, model_bitmask, and visibility" do
-      expect(build(:tag, :with_multiple_taglists)).to be_valid
-    end
-    
+  #Validation Tests   
     it "is valid with multiple taglists" do
        expect(build(:tag, :with_multiple_taglists)).to be_valid
     end
     
-    it "is invalid without a name" do
-      expect(build(:tag, name: "")).to_not be_valid
-      expect(build(:tag, name: nil)).to_not be_valid
-    end
+    include_examples "is invalid without an attribute", :tag, :name
+    include_examples "is invalid without an attribute", :tag, :classification
+    include_examples "is invalid without an attribute", :tag, :model_bitmask
+    include_examples "is invalid without an attribute", :tag, :visibility
+
+    include_examples "is valid with or without an attribute", :tag, :info, "This is info!"
+    include_examples "is valid with or without an attribute", :tag, :synopsis, "synop"
     
-    it "is invalid without a classification" do
-      expect(build(:tag, classification: "")).to_not be_valid
-      expect(build(:tag, classification: nil)).to_not be_valid
-    end
-    
-    it "is invalid without a model_bitmask" do
-      expect(build(:tag, model_bitmask: 0)).to_not be_valid
-      expect(build(:tag, model_bitmask: nil)).to_not be_valid
-    end
     
     it "is invalid without a model_bitmask that is small enough" do
       expect(build(:tag, model_bitmask: 999999)).to_not be_valid
-    end
-    
-    it "is invalid without a visibility" do
-      expect(build(:tag, visibility: "")).to_not be_valid
-      expect(build(:tag, visibility: nil)).to_not be_valid      
-    end
-    
-    it "is valid without info" do
-      expect(build(:tag, info: "")).to be_valid
-      expect(build(:tag, info: nil)).to be_valid     
-    end
-    
-    it "is valid without a synopsis" do
-      expect(build(:tag, synopsis: "")).to be_valid
-      expect(build(:tag, synopsis: nil)).to be_valid       
     end
     
     it "is invalid with duplicate name/model_bitmask" do
@@ -96,11 +71,15 @@ describe Tag do
       expect(build(:tag, name: "hi", model_bitmask: 8)).to_not be_valid
     end
     
-    it "is valid with duplicate names" do
+    it "is valid with duplicate names if bitmask is different" do
       expect(create(:tag, name: "hi", model_bitmask: 8)).to be_valid
       expect(build(:tag, name: "hi", model_bitmask: 14)).to be_valid
     end
     
+    it "is valid with duplicate bitmasks if name is different" do
+      expect(create(:tag, name: "hio", model_bitmask: 14)).to be_valid
+      expect(build(:tag, name: "hi", model_bitmask: 14)).to be_valid
+    end
     
   #Instance Method Tests
     it "returns all records when using 'subjects'" do
@@ -109,7 +88,7 @@ describe Tag do
     end
     
     it "returns models when queried" do
-      expect(build(:tag, model_bitmask: 31).models).to eq(Tag::ModelBitmask)
+      expect(build(:tag, model_bitmask: 31).models).to match_array(Tag::ModelBitmask)
     end
    
   #Class Method Tests
@@ -119,6 +98,11 @@ describe Tag do
     
     it "returns models when given a bitmask" do
       expect(Tag.get_models(25)).to eq(["Album","Song","Source"])
+    end
+    
+    it "has methods that reverse each other" do
+      shuffled = Tag::ModelBitmask.shuffle[0..2]
+      expect(Tag.get_models(Tag.get_bitmask(shuffled))).to match_array(shuffled)
     end
   
 end
@@ -140,61 +124,23 @@ describe Taglist do
       expect(Taglist.reflect_on_association(:tag).macro).to eq(:belongs_to)      
     end
     
+    it "does not destroy the tag when destroyed" do
+      taglist = create(:taglist)
+      expect{taglist.destroy}.to change(Tag, :count).by(0)
+    end
+    
+    it "des not destroy the subject when destroyed" do
+      taglist = create(:taglist, :with_album)
+      expect{taglist.destroy}.to change(Album, :count).by(0)      
+    end
+    
   #Validation Tests
-    it "is valid with a tag and a subject" do
-      expect(build(:taglist)).to be_valid
-    end
-    
-    it "is valid with an album" do
-      expect(build(:taglist, :with_album)).to be_valid
-    end
-    
-    it "is valid with an artist" do
-      expect(build(:taglist, :with_artist)).to be_valid
-    end
-    
-    it "is valid with an organization" do
-      expect(build(:taglist, :with_organization)).to be_valid
-    end
-    
-    it "is valid with a song" do
-      expect(build(:taglist, :with_song)).to be_valid
-    end
-    
-    it "is valid with a source" do
-      expect(build(:taglist, :with_source)).to be_valid
-    end
+    it_behaves_like "it is a polymorphic join model", :taglist, "tag", "subject", "album", ["album", "artist", "organization", "source", "song"]
     
     it "is invalid if the subject is not in the tag's bitmask" do
       tag = create(:tag, model_bitmask: 1)
       expect(build(:taglist, :with_source, tag: tag)).to_not be_valid
-    end
-    
-    it "is invalid without a tag" do
-      expect(build(:taglist, tag: nil)).to_not be_valid
-    end
-    
-    it "is invalid without a real tag" do
-      expect(build(:taglist, tag_id: 999999999)).to_not be_valid
-    end
-    
-    it "is invalid without a subject_type" do
-      expect(build(:taglist, subject_type: nil)).to_not be_valid      
-    end
-
-    it "is invalid without a subject_id" do
-      expect(build(:taglist, subject_id: nil)).to_not be_valid      
-    end
-    
-    it "is invalid without a real subject" do
-      expect(build(:taglist, subject_type: "Album", subject_id: 999999999)).to_not be_valid      
-    end
-    
-    it "should have a unique tag/subject combination" do
-      @tag = create(:tag)
-      @subject = create(:album)
-      expect(create(:taglist, tag: @tag, subject: @subject)).to be_valid
-      expect(build(:taglist, tag: @tag, subject: @subject)).to_not be_valid      
+      expect(build(:taglist, :with_song, tag: tag)).to_not be_valid
     end
   
 end

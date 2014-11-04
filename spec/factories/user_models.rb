@@ -50,9 +50,6 @@ FactoryGirl.define do
         association :watched, factory: :source        
       end
       
-      trait :with_song do
-        association :watched, factory: :song
-      end
     end
     
 end

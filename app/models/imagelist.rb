@@ -14,8 +14,6 @@ class Imagelist < ActiveRecord::Base
   private
     def destroy_image_on_condition
       #If there are no other imagelists attached to the image, destroy the image as well
-      unless self.image.imagelists.count >= 1
-        self.image.destroy
-      end
+      self.image.destroy if self.image.imagelists.count == 0
     end
 end

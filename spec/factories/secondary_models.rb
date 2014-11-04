@@ -17,14 +17,7 @@ FactoryGirl.define do
     
     factory :event do
       name {Faker::Lorem.word}
-      abbreviation {Faker::Lorem.word}
-      altname {Faker::Lorem.word}
       shorthand {Faker::Lorem.word}
-      db_status {Faker::Lorem.word}
-      start_date {Faker::Date.between(2.years.ago, Date.today)}
-      end_date {Faker::Date.between(2.years.ago, Date.today)} 
-      reference {{"hey"=> "ho",
-                  Faker::Lorem.word => Faker::Lorem.word }}
                   
       trait :with_album_event do
         after(:create) do |event|
@@ -35,7 +28,7 @@ FactoryGirl.define do
     end
     
     factory :tag do
-      name {Faker::Lorem.word}
+      name {Faker::Lorem.sentence}
       classification {Faker::Lorem.word}
       model_bitmask 31
       visibility {Faker::Lorem.word}
@@ -106,6 +99,12 @@ FactoryGirl.define do
           create(:imagelist, :with_source, image: image)
         end        
       end 
+
+      trait :with_imagelist_song do
+        after(:create) do |image|
+          create(:imagelist, :with_song, image: image)
+        end        
+      end 
       
       trait :with_imagelist_user do
         after(:create) do |image|
@@ -121,7 +120,7 @@ FactoryGirl.define do
 
       trait :with_multiple_imagelists do
         after(:create) do |image|
-          [:with_album, :with_artist, :with_organization, :with_user, :with_source].each do |model|
+          [:with_album, :with_artist, :with_organization, :with_user, :with_song, :with_source].each do |model|
             create(:imagelist, model, image: image)
           end
         end
@@ -130,9 +129,8 @@ FactoryGirl.define do
   
     factory :post do
       category "Rescrape Result"
-      content {Faker::Lorem.paragraphs(3)}
       visibility {Faker::Lorem.word}
-      title {Faker::Lorem.sentence}
+      status {Post::Status.sample}
       
       trait :by_user do
         association :user, factory: :user 
@@ -184,14 +182,9 @@ FactoryGirl.define do
   
     factory :issue do
       name {Faker::Lorem.sentence}
-      category {Faker::Lorem.word}
+      category {Issue::Categories.sample}
       visibility {Faker::Lorem.word}
-      status {Faker::Lorem.word}
-      description {Faker::Lorem.paragraph}
-      private_info {Faker::Lorem.paragraph}
-      priority {Faker::Lorem.word}
-      resolution {Faker::Lorem.word}
-      difficulty {Faker::Lorem.word}
+      status {Issue::Statuses.sample}
       
       trait :with_comments do
         after(:create) do |issue|
@@ -223,6 +216,10 @@ FactoryGirl.define do
             
       trait :with_source do
         association :model, factory: :source
+      end
+      
+      trait :with_song do
+        association :model, factory: :song
       end
       
       trait :with_user do

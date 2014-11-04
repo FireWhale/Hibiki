@@ -28,48 +28,44 @@ describe Issue do
     end
     
   #Validation Tests
-    it "is valid with a name, category, visiblity, and status" do
-      expect(create(:issue)).to be_valid
-    end
+    include_examples "is invalid without an attribute", :issue, :name
+    include_examples "is invalid without an attribute", :issue, :category
+    include_examples "is invalid without an attribute", :issue, :visibility
+    include_examples "is invalid without an attribute", :issue, :status
     
-    it "is invalid without a name" do
-      expect(build(:issue, name: nil)).not_to be_valid  
-      expect(build(:issue, name: "")).to_not be_valid  
-    end
+    include_examples "is invalid without an attribute in a category", :issue, :category, Issue::Categories, "Issue::Categories"
+    include_examples "is invalid without an attribute in a category", :issue, :status, Issue::Statuses, "Issue::Statuses"
     
-    it "is invalid without a category" do
-      expect(build(:issue, category: nil)).not_to be_valid  
-      expect(build(:issue, category: "")).to_not be_valid  
-    end
-    
-    it "is invalid without a visibility" do
-      expect(build(:issue, visibility: nil)).not_to be_valid  
-      expect(build(:issue, visibility: "")).to_not be_valid  
-    end
-    #Consider these?
+    include_examples "is valid with or without an attribute", :issue, :resolution, Issue::Resolutions.sample
+    include_examples "is valid with or without an attribute", :issue, :priority, Issue::Priorities.sample
+    include_examples "is valid with or without an attribute", :issue, :difficulty, Issue::Difficulties.sample
+    include_examples "is valid with or without an attribute", :issue, :description, "this is a description"    
+    include_examples "is valid with or without an attribute", :issue, :private_info, "this is private info"   
+
     it "is invalid without a visiblity in the list??"
     
-    it "is invalid without a status in the list??"
-    
-    it "is invalid without a category defined in Issue??"
-    
-    it "is invalid without a status" do
-      expect(build(:issue, status: nil)).not_to be_valid  
-      expect(build(:issue, status: "")).to_not be_valid  
+  #Scope Tests
+  context "Category Scope Tests" do
+    before(:each) do
+      @buglist = create_list(:issue, 5, category: "Bug Report")
+      @featurelist = create_list(:issue, 4, category: "Feature Request")
+      @codelist = create_list(:issue, 2, category: "Code Change")
+    end
+ 
+    it "returns bug reports when called" do
+      expect(Issue.bug_reports).to eq(@buglist)
     end
     
-    #It's okay to not have resolution, priority, description, or difficulty validated
+    it "returns feature requests when called" do
+      expect(Issue.feature_requests).to eq(@featurelist)
+    end
         
-  #Instance Method Tests
-
-      
-  #Class Method Tests        
-        
-  #Scope Tests
-        
-  #Other Tests?
-    #Pagination?
-    #Delete images method?
+    it "returns bug reports when called" do
+      expect(Issue.code_changes).to eq(@codelist)
+    end
+  end
+    
+    
 end
 
 

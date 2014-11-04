@@ -64,7 +64,7 @@
         <% if album.reprint? %>
           reprint = "reprint"
         <% end %>        
-        addAlbumDiv( '<%= album.id %>', '<%= album.releasedate.to_s %>', collected, limited_edition, reprint);
+        addAlbumDiv( '<%= album.id %>', '<%= album.release_date.to_s %>', collected, limited_edition, reprint);
         $('#' + '<%= album.id %>').html('<%= escape_javascript(render :partial => "layouts/albumlist/albumlist_album_1", :locals => {:album => album}) %>');
       };
       
