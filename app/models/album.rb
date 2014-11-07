@@ -47,9 +47,9 @@ class Album < ActiveRecord::Base
     ['has the instrumental version', '-Instrumental']]
 
     FullUpdateFields = {reference: true, events: true, songs: true, sources_for_album: true, artists_for_album: [:new_artist_ids, :new_artist_categories, :update_album_artists],
-                        scrapes: {organization: [:new_organization_names, :new_organization_categories],
+                        scrapes: {organization: [:new_organization_names, :new_organization_categories_scraped],
                                   sources: [:new_source_names],
-                                  artists: [:new_artist_names, :new_artist_categories]},
+                                  artists: [:new_artist_names, :new_artist_categories_scraped]},
                         relations_by_id: {organization: [:new_organization_ids, :new_organization_categories, :update_album_organizations, :remove_album_organizations, AlbumOrganization, "album_organizations"]},
                         self_relations: [:new_related_album_ids, :new_related_album_categories, :update_related_albums, :remove_related_albums],
                         images: ["album", "albumart/", "Cover"], 
@@ -138,6 +138,9 @@ class Album < ActiveRecord::Base
       has_many :collections, dependent: :destroy
       has_many :collectors, through: :collections, source: :user
   
+  #Scopes
+    scope :released, -> { where(status: "Released")}
+    
   #Gem Stuff
     #Pagination
     paginates_per 50
@@ -148,12 +151,7 @@ class Album < ActiveRecord::Base
       text :reference
       time :release_date
     end
-    
-    
-  def format_method #for autocomplete
-    self.id.to_s + " - " + self.name
-  end  
-      
+        
 
   #For sorting albums
     def week #For sorting by week

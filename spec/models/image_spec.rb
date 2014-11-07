@@ -94,7 +94,11 @@ describe Image do
     it "calls create_image_thumbnails after being saved"
     
   #Scopes
-    it "returns a list of primary images"
+    it "returns a list of primary images" do
+      imagelist = create_list(:image, 6, :primary_flag => "Cover")
+      imagelist2 = create_list(:image, 3)
+      expect(Image.primary_images).to match_array(imagelist)
+    end
 end
 
 describe Imagelist do

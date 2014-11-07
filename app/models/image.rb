@@ -30,6 +30,7 @@ class Image < ActiveRecord::Base
     end
   
   #Scopes
+    scope :primary_images, -> { where("primary_flag <>''")}
     
   #Gem Stuff
     #Pagination

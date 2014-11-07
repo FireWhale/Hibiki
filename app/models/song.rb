@@ -12,7 +12,7 @@ class Song < ActiveRecord::Base
     include FormattingModule
 
   #Callbacks/Hooks
-    
+    before_save :format_track_number
   
   #Constants
     SelfRelationships = [['is the same song as', 'Also Appears On', 'Also Appears On', 'Same Song'],
@@ -20,7 +20,7 @@ class Song < ActiveRecord::Base
       ['is arranged from', '-Arrangement'],
       ['is an alternate version of', 'Alternate Version', 'Alternate Version', 'Alternate Version']] 
 
-    FullUpdateFields = {reference: true, sources_for_song: true, track_numbers: true, artists_for_songs: [:new_artist_ids, :new_artist_categories, :update_artist_songs],
+    FullUpdateFields = {reference: true, sources_for_song: true, track_numbers: true, artists_for_song: [:new_artist_ids, :new_artist_categories, :update_artist_songs],
                         self_relations: [:new_related_song_ids, :new_related_song_categories, :update_related_songs, :remove_related_songs],
                         images: ["id", "songimages/", "Primary"],
                         dates: ["release_date"] }
@@ -73,7 +73,8 @@ class Song < ActiveRecord::Base
   
   #Scopes
     scope :no_album, -> { where(album_id: nil)}
-  
+    scope :released, -> { where(status: "Released")}
+    
   #Gem Stuff
     #Pagination
       paginates_per 50
@@ -109,13 +110,22 @@ class Song < ActiveRecord::Base
     # end
 #   
   
-  def format_method #for autocomplete
-    self.id.to_s + " - " + self.name
-  end    
-
   def op_ed_insert
     #Returns an array if the song is OP/ED/Insert
     self.song_sources.map { |rel| rel.classification }
+  end
+
+  def format_track_number
+    track_number = self.track_number
+    unless track_number.nil?
+      if track_number.include?(".")
+        self.disc_number = track_number.split(".")[0] 
+        self.track_number = track_number.split(".")[1]
+      end
+      if self.track_number.length < 2
+        self.track_number =  self.track_number.rjust(2,'0')
+      end
+    end    
   end
 
 end

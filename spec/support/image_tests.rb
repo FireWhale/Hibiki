@@ -54,7 +54,7 @@ module ImageTests
       end
     
     #Callbacks   
-      it "cleans up the folder where images are stored if there are no remaining images"
-    
+      # it "cleans up the folder where images are stored if there are no remaining images"
+      # This is covered by a before_destroy callback in images
   end
 end

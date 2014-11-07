@@ -1,13 +1,22 @@
 class User < ActiveRecord::Base
-  attr_accessible :birthdate, :email, :explicit, :location, :name, :password, :password_confirmation, :privacy, :profile, :security, :sex, :stylesheet, :usernames, :display_bitmask, :language_settings, :artist_language_settings, :birthdate_bitmask
+  attr_accessible :birth_date, :email, :explicit, :location, :name, 
+                  :password, :password_confirmation, :privacy, :profile, 
+                  :sex, :stylesheet, :usernames, :display_bitmask, 
+                  :language_settings, :artist_language_settings
+
+  #Modules
+    include FormattingModule
   
   #Validation
-    validates :name, :presence => true   
-    validates :email, :uniqueness => { :case_sensitive => false }, :allow_blank => true
+    validates :name, presence: true, length: { minimum: 3, maximum: 20}
+    validates :email, uniqueness: { :case_sensitive => false }, allow_blank: true
+    validates :crypted_password, presence: true
+    validates :password_salt, presence: true
+    validates :security, presence: true, inclusion: Array(1..(2**Ability::Abilities.count - 1)).map(&:to_s)
+    validates :birth_date, presence: true, unless: -> {self.birth_date_bitmask.nil?}
+    validates :birth_date_bitmask, presence: true, unless: -> {self.birth_date.nil?}
 
-  #Authetication and Security
-    Security = %w[Admin SpecialUser User Unconfirmed]  
-    
+  #Authetication and Security    
     acts_as_authentic do |c|
       c.login_field = :name
       c.perishable_token_valid_for = 3.hour
@@ -30,14 +39,14 @@ class User < ActiveRecord::Base
       watched_sources + watched_organizations + watched_artists
     end
     
-    has_many :collections
-    has_many :albums, :through => :collections, dependent: :destroy
+    has_many :collections, dependent: :destroy
+    has_many :albums, through: :collections
     
-    has_many :ratings
-    has_many :songs, :through => :ratings, dependent: :destroy
+    has_many :ratings, dependent: :destroy
+    has_many :songs, through: :ratings
     
-    has_many :imagelists, :as => :model
-    has_many :images, :through => :imagelists, dependent: :destroy  
+    has_many :imagelists,  dependent: :destroy, as: :model
+    has_many :images, through: :imagelists
     
     has_many :issue_users
   
@@ -47,14 +56,31 @@ class User < ActiveRecord::Base
   end
   
   #Bitmask Methods
-  def tracklist_settings
-    settings = Album::TracklistOptions.map {|k,v| k.to_s}
-    settings.reject { |r| ((self.tracklist_export_bitmask || 0 ) & 2**settings.index(r)).zero?}    
-  end
+    def tracklist_settings
+      settings = Album::TracklistOptions.map {|k,v| k.to_s}
+      settings.reject { |r| ((self.tracklist_export_bitmask || 0 ) & 2**settings.index(r)).zero?}    
+    end
+    
+    def display_settings
+      displayarray = User::DisplaySettings    
+      displayarray.reject { |r| ((self.display_bitmask || 0 ) & 2**displayarray.index(r)).zero?}    
+    end
+    
+    def abilities
+      abilities = Ability::Abilities
+      abilities.reject { |r| ((self.security.to_i || 0 ) & 2**abilities.index(r)).zero? }
+    end
+    
+    def self.get_security_bitmask(abilities)
+      abilities = [abilities] if abilities.class != Array
+      (abilities & Ability::Abilities).map { |r| 2**(Ability::Abilities).index(r) }.sum
+    end
   
-  def display_settings
-    displayarray = User::DisplaySettings    
-    displayarray.reject { |r| ((self.display_bitmask || 0 ) & 2**displayarray.index(r)).zero?}    
-  end
   
+  #Update Method
+    def update_security(values)
+      abilities = values.delete :abilities
+      self.security = User.get_security_bitmask(abilities)
+      self.save
+    end
 end

@@ -75,7 +75,15 @@ describe ArtistSong do
   #Shared Examples
     it_behaves_like "a join table", :artist_song, "artist", "song", ArtistSong
     it_behaves_like "it has an artist bitmask", :artist_song
-    
+  
+  #Callbacks
+    it "adds the artist to the album as well" do
+      album = create(:album)
+      song = create(:song, album: album)
+      artist = create(:artist)
+      song_source = create(:artist_song, song: song, artist: artist)
+      expect(album.artists).to match_array([artist])
+    end
 end
     
 describe SongSource do
@@ -86,7 +94,19 @@ describe SongSource do
     end
   #Shared Examples
     it_behaves_like "a join table", :song_source, "song", "source", SongSource
-    it_behaves_like "it has a category", :song_source, "classification", SongSource::Relationship
+    include_examples "is valid with or without an attribute", :song_source, :classification, "OP"
+    include_examples "is valid with or without an attribute", :song_source, :op_ed_number, "5"
+    include_examples "is valid with or without an attribute", :song_source, :ep_numbers, "23-49"
+    it_behaves_like "is invalid without an attribute in a category", :song_source, :classification, SongSource::Relationship
+    
+  #Callbacks    
+    it "adds the source to the album as well" do
+      album = create(:album)
+      song = create(:song, album: album)
+      source = create(:source)
+      song_source = create(:song_source, song: song, source: source)
+      expect(album.sources).to match_array([source])
+    end
     
   #More Validation
     include_examples "is valid with or without an attribute", :song_source, :op_ed_number, "some op number"

@@ -134,4 +134,13 @@ module AttributeTests
         expect(instance.reload.send(attribute.to_s)).to eq({:hi => 'ho', 'ho' => 'hi'})
       end
     end
+  
+  #Scopes on attributes
+    shared_examples "it reports released records" do |model|
+      it "reports released records" do
+        @released = create_list(model, 3, status: "Released")
+        @unreleased = create_list(model, 2, status: "Unreleased")
+        expect(model.to_s.capitalize.constantize.released).to match_array(@released)
+      end
+    end
 end

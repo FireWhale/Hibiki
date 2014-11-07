@@ -77,8 +77,10 @@ class Organization < ActiveRecord::Base
     #User Associations
       has_many :watchlists, as: :watched, dependent: :destroy  
       has_many :watchers, through: :watchlists, source: :user
-
   
+  #Scopes
+    scope :released, -> { where(status: "Released")}
+    
   #Gem Stuff
     #Pagination
     paginates_per 50
@@ -88,10 +90,5 @@ class Organization < ActiveRecord::Base
         text :name, :altname, :namehash, :boost => 5
         text :reference
       end    
-
-  def format_method #for autocomplete
-    self.id.to_s + " - " + self.name
-  end  
-
 
 end

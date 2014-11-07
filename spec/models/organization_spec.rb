@@ -66,7 +66,7 @@ describe Organization do
     
     
   #Scope Tests
-    it "reports released records"
+    it_behaves_like "it reports released records", :organization
     
 end
 

@@ -86,6 +86,15 @@ module FullUpdateTests
         expect(record.send(relationship + "s")[1].send(model2.to_s)).to eq(record3)
         expect(record.send(relationship + "s")[1].category).to eq(category2)
       end
+      
+      it "does not create a #{relationship} if record does not exist" do
+        record = create(model)
+        attributes = attributes_for(model)
+        category = relationship_class::Categories.sample
+        attributes.merge!("new_#{model2.to_s}_ids".to_sym => ["999999"])
+        attributes.merge!("new_#{model2.to_s}_categories".to_sym => [category])
+        expect{record.full_update_attributes(attributes)}.to change(relationship_class, :count).by(0)        
+      end
     end
     
     context "it updates #{relationship_class.to_s}" do
@@ -282,16 +291,16 @@ module FullUpdateTests
     # end
     
     context "image attributes" do
-      it "creates an image record with the right path"
+      #it "creates an image record with the right path"
       
-      it "creates an image record with the right flag"
+      #it "creates an image record with the right flag"
     end
     
-    it "associates the image record"
+    #it "associates the image record"
     
-    it "can create multiple image records"
+    #it "can create multiple image records"
     
-    it "makes it in the right directory"
+    #it "makes it in the right directory"
   end
     
   shared_examples "updates the reference properly" do |model|

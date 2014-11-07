@@ -92,6 +92,8 @@ class Source < ActiveRecord::Base
       has_many :watchlists, as: :watched, dependent: :destroy
       has_many :watchers, through: :watchlists, source: :user
       
+  #Scopes
+    scope :released, -> { where(status: "Released")}
       
   #Gem Stuff
     #Pagination    
@@ -102,20 +104,5 @@ class Source < ActiveRecord::Base
         text :name, :altname, :namehash, :boost => 5
         text :reference
       end
-      
-  def format_method #for autocomplete
-    self.id.to_s + " - " + self.name
-  end  
-  
-  def autocomplete_format
-    ##Sends extra data 
-    if search_context.nil? || search_context == "Full Search"    
-      self.class.to_s + " - " + name 
-    elsif search_context == "Model Search"
-      
-    elsif search_context == "Edit Search"
-      id.to_s + " - " + name
-    end
-  end
    
 end

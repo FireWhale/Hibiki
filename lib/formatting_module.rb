@@ -81,22 +81,22 @@ module FormattingModule
     #Add Songs - Album only
       unless fields[:songs].nil?
         new_songs = values.delete :new_songs
-        self.add_songs(new_songs) unless newsongs.nil?
+        self.add_songs(new_songs) unless new_songs.nil?
       end
     #Add Sources - Album/Song require less/more complex methods 
       unless fields[:sources_for_album].nil?
         new_source_ids = values.delete :new_source_ids
         self.add_sources_for_albums(new_source_ids) unless new_source_ids.nil?
-        remove_sources = values.delete :remove_sources
-        remove_sources.each {|id| self.source.delete(Source.find_by_id(id))} unless remove_sources.nil?
+        remove_album_sources = values.delete :remove_album_sources
+        self.delete_records(remove_album_sources, AlbumSource) unless remove_album_sources.nil?
       end
       unless fields[:sources_for_song].nil?
         #Update
           song_sources = values.delete :song_sources
           SongSource.update(song_sources.keys, song_sources.values) unless song_sources.nil? || song_sources.keys.empty?
         #Destroy
-          remove_sources = values.delete :remove_sources
-          remove_sources.each {|source_id| self.sources.delete(Source.find_by_id(source_id))} unless remove_sources.nil?
+          remove_song_sources = values.delete :remove_song_sources
+          self.delete_records(remove_song_sources, SongSource) unless remove_song_sources.nil?
         #New
           new_sources = values.delete :new_sources
           self.add_sources_for_songs(new_sources) unless new_sources.nil?          
@@ -104,25 +104,26 @@ module FormattingModule
     #Add Artists - Album/Song requires a more complex method
       unless fields[:artists_for_album].nil?
         update_artist_albums = values.delete fields[:artists_for_album][2]
-        self.update_artists_for_albums(update_artist_albums) unless update_artist_albums.nil?
+        self.update_artists(update_artist_albums, "album") unless update_artist_albums.nil?
         new_artist_ids = values.delete fields[:artists_for_album][0]
         new_artist_categories = values.delete fields[:artists_for_album][1]
-        self.add_artists_for_albums(new_artist_ids,nil,new_artist_categories) unless new_artist_ids.nil? || new_artist_categories.nil?
+        self.add_artists(new_artist_ids, nil, new_artist_categories, "album") unless new_artist_ids.nil? || new_artist_categories.nil?
       end
       unless fields[:artists_for_song].nil?
         update_artist_songs = values.delete fields[:artists_for_song][2]
-        self.update_artists_for_songs(update_artist_songs) unless update_artist_songs.nil?
-        new_artiat_ids = values.delete fields[:artists_for_song][0]
-        new_artist_categories = values.delete fields[:artists_for_song][0]
-        self.add_artists_for_songs(new_artist_ids,new_artist_categories) unless new_artist_ids.nil? || new_artist_categories.nil?
+        self.update_artists(update_artist_songs, "song") unless update_artist_songs.nil?
+        new_artist_ids = values.delete fields[:artists_for_song][0]
+        new_artist_categories = values.delete fields[:artists_for_song][1]
+        self.add_artists(new_artist_ids, nil, new_artist_categories, "song") unless new_artist_ids.nil? || new_artist_categories.nil?
       end
+      
     #Scrapes - Album Only..just gonna write out the logic here
       unless fields[:scrapes].nil?
         #Organizations:
           new_organization_names = values.delete fields[:scrapes][:organization][0]
-          new_organization_categories = values.delete fields[:scrapes][:organization][1]
-          unless new_organization_names.nil? || new_organization_categories.nil?
-            new_organization_names.zip(new_organization_categories).each do |info|
+          new_organization_categories_scraped = values.delete fields[:scrapes][:organization][1]
+          unless new_organization_names.nil? || new_organization_categories_scraped.nil?
+            new_organization_names.zip(new_organization_categories_scraped).each do |info|
               unless info[0].empty? || info[1].empty?
                 organization = Organization.find_by_name(info[0])
                 organization = Organization.create(name: info[0], status: "Unreleased") if organization.nil?
@@ -141,20 +142,13 @@ module FormattingModule
           end
         #Artists
           new_artist_names = values.delete fields[:scrapes][:artists][0]
-          new_artist_categories = values.delete fields[:scrapes][:artists][1]
-          self.add_artists_for_albums(nil,new_artist_names,new_artist_categories) unless new_artist_names.nil? || new_artist_categories.nil?
+          new_artist_categories_scraped = values.delete fields[:scrapes][:artists][1]
+          self.add_artists(nil,new_artist_names,new_artist_categories_scraped, "album") unless new_artist_names.nil? || new_artist_categories_scraped.nil?
       end
-    #Track Numbers/ Disc Numbers / Lengths - Song Only
+    #Lengths - Song Only
       unless fields[:track_numbers].nil?
         duration = values.delete :duration #Format the duration into seconds if it includes ":"
-        values[:length] = ( duration.include?(":") ? (duration.split(":")[0].to_i * 60 +  duration.split(":")[1].to_i ) : duration)
-        track_number = values.delete :track_number
-        if track_number.split(".")[1].length < 2 #Format the tracknumber into disc_number and track_number
-          disc_number = track_number.split(".")[0] 
-          track_number =  track_number.split(".")[1].rjust(2,'0')
-          values[:disc_number] = disc_number
-        end
-        values[:track_number] = track_number
+        values[:length] = ( duration.include?(":") ? (duration.split(":")[0].to_i * 60 +  duration.split(":")[1].to_i ) : duration) unless duration.nil?
       end
     #Events/Season
       #Events - Albums only
@@ -166,8 +160,9 @@ module FormattingModule
         end
       #Seasons - Sources only
         unless fields[:seasons].nil?
-          new_seasons = values.delete :new_season_names #Adding
-          self.add_seasons(new_seasons) unless new_seasons.nil?
+          new_season_names = values.delete :new_season_names #Adding
+          new_season_categories = values.delete :new_season_categories 
+          self.add_seasons(new_season_names, new_season_categories) unless new_season_names.nil? || new_season_categories.nil?
           remove_seasons = values.delete :remove_seasons #Removing
           remove_seasons.each {|season_id| self.seasons.delete(Season.find_by_id(season_id))} unless remove_seasons.nil?
         end
@@ -289,25 +284,25 @@ module FormattingModule
   def add_events(events)
     events.each do |shorthand|
       event = Event.find_by_shorthand(shorthand) 
-      event = Event.create(shorthand: each) if event.nil? #create a new event if not present
+      event = Event.create(shorthand: shorthand) if event.nil? #create a new event if not present
       self.events << event
     end
   end
   
-  def add_seasons(seasons)
-    seasons.each do |name|
-      season = Season.find_by_name(name)
-      self.seasons << season unless season.nil? #don't create a new season if not present
+  def add_seasons(names, categories)
+    names.zip(categories).each do |info|
+      season = Season.find_by_name(info[0])
+      self.source_seasons.create(season_id: season.id, category: info[1]) unless season.nil? #don't create a new season if not present
     end
   end  
 
   def add_songs(songs)
-    unless newsongs['tracknumbers'].nil? || newsongs['names'].nil?
+    unless songs['track_numbers'].nil? || songs['names'].nil?
       #Fill in the values that are not required
-        newsongs['namehashes'] = Array.new(newsongs['names'].count, {}) if newsongs['namehashes'].nil?
-        newsongs['lengths'] = Array.new(newsongs['names'].count, 0) if newsongs['lengths'].nil?
+        songs['namehashes'] = Array.new(songs['names'].count, {}) if songs['namehashes'].nil?
+        songs['lengths'] = Array.new(songs['names'].count, 0) if songs['lengths'].nil?
       #Zip them up and add them to the album
-        newsongs['tracknumbers'].zip(newsongs['names'], newsongs['lengths'], newsongs['namehashes']). each do |info|
+        songs['track_numbers'].zip(songs['names'], songs['lengths'], songs['namehashes']). each do |info|
           self.songs.create(track_number: info[0], name: info[1], length: info[2], namehash: info[3], status: "Unreleased")
         end
     end
@@ -321,20 +316,19 @@ module FormattingModule
   end
   
   def add_sources_for_songs(sources)
-    unless sources[:ids].nil? #check the hash to make sure there are IDs
-      sources[:ids].zip(sources[:classification],sources[:op_ed_number],sources[:ep_numbers]).each do |info|
+    unless sources["ids"].nil? #check the hash to make sure there are IDs
+      #Fill in values that are not required
+      sources["classification"] = Array.new(sources["ids"].count, "") if sources["classification"].nil?
+      sources["op_ed_number"] = Array.new(sources["ids"].count, "") if sources["op_ed_number"].nil?
+      sources['ep_numbers'] = Array.new(sources["ids"].count, "") if sources['ep_numbers'].nil?
+      sources["ids"].zip(sources["classification"],sources["op_ed_number"],sources['ep_numbers']).each do |info|
         source = Source.find_by_id(info[0])
-        unless source.nil?
-          self.song_sources.create(:source_id => info[0], :classification => info[1], :op_ed_number => info[2], :ep_numbers => info[3])
-          #Check to see if source is in info and add it if it isn't
-          album_source = AlbumSource.where(:source_id => source.id, :album_id => self.album.id)
-          self.album.album_sources.create(:source_id => source.id) if album_source.empty?
-        end
+        self.song_sources.create(:source_id => info[0], :classification => info[1], :op_ed_number => info[2], :ep_numbers => info[3]) unless source.nil?
       end      
     end
   end
   
-  def add_artists_for_albums(ids, names, categories)
+  def add_artists(ids, names, categories, model)
     unless categories.nil?
       #Prepare categories
       categories.pop
@@ -359,76 +353,19 @@ module FormattingModule
           unless info[0].empty? || info[1].empty?
             bitmask = Artist.get_bitmask(info[1])
             artist = Artist.find_by_id(info[0])
-            self.artist_albums.create(:artist_id => artist.id, :category => bitmask) unless artist.nil?          
+            self.send("artist_#{model}s").create(:artist_id => artist.id, :category => bitmask) unless artist.nil?        
           end
         end
       end
     end
   end
   
-  def update_artists_for_albums(artist_albums)
-    artist_albums.each do |k,v|
-      artist_album = ArtistAlbum.find_by_id(k)
-      unless artist_album.nil?
-        bitmark = Artist.get_bitmask(v)
-        bitmask == 0 ? artist_album.destroy : ArtistAlbum.update(artist_album.id, category: bitmask)
-      end
-    end
-  end
-  
-  def update_artists_for_songs(artist_songs)
-    artist_songs.each do |k,v|
-      artist_song = ArtistSong.find_by_id(k)
-      unless artist_song.nil?
+  def update_artists(records, model)
+    records.each do |k,v|
+      record = "Artist#{model.capitalize}".constantize.find_by_id(k)
+      unless record.nil?
         bitmask = Artist.get_bitmask(v)
-        if bitmask == 0
-          artist_song.destroy
-        else
-          ArtistSong.update(artist_song.id, category: bitmask)
-          #Update artist_albums as well
-          unless self.album.nil?
-            album_artist = ArtistAlbum.where(artist_id: artist_song.artist.id, album_id: self.album.id)
-            if album_artist.empty? #If can't find one, create it
-              self.album.artist_albums.create(artist_id: artist_song.artist.id, category: bitmask)
-            else
-              #Grab the categories, merge them, get uniques. 
-              album_artist = album_artist.first
-              categories = Artist.get_categories(album_artist.category)
-              uniquecategories = (v + categories).uniq
-              albumbitmask = Artist.get_bitmask(uniquecategories)
-              album_artist.update_attributes(category: albumbitmask)
-            end
-          end
-        end
-      end
-    end
-  end
-  
-  def add_artists_for_songs(ids, categories)
-    categories.pop
-    categories = categories.split { |i| i == "New Artist"}
-    ids.zip(categories).each do |info|
-      unless info[0].empty? || info[1].empty?
-        bitmask = Artist.get_bitmask(info[1])
-        artist = Artist.find_by_id(info[0])
-        unless artist.nil?
-          #Create the artist-song association
-          self.artist_songs.create(:artist_id => artist.id, :category => bitmask)
-          #update AlbumArtist as well
-          unless self.album.nil?
-            album_artist = ArtistAlbum.where(:artist_id => artist.id, :album_id => self.album.id)
-            if album_artist.empty? #If can't find one, create it
-              self.album.artist_albums.create(:artist_id => artist.id, :category => bitmask)
-            else
-              #Grab the categories, merge them, get uniques, add to album.
-              album_artist = album_artist.first
-              categories = Artist.get_categories(album_artist.category)
-              uniquecategories = (newartistsong[1] + categories).uniq
-              albumbitmask = Artist.get_bitmask(uniquecategories)
-              album_artist.update_attributes(:category => albumbitmask)
-            end
-          end
-        end
+        bitmask == 0 ? record.destroy : "Artist#{model.capitalize}".constantize.update(record.id, category: bitmask)
       end
     end
   end

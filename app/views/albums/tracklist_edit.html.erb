@@ -43,7 +43,7 @@
             <%= submit_tag 'Add'%>
           <% end %>
         <% end %>
-          <%= text_area_tag 'private_info', @album.privateinfo, :rows => '20', class: 'col-md-12' %>
+          <%= text_area_tag 'private_info', @album.private_info, :rows => '20', class: 'col-md-12' %>
       </div>
     </ul>
   </div>
@@ -54,12 +54,11 @@
           <%= render :partial => 'layouts/well_toggle', locals: {:divid => song.id, :toggleid => song.id.to_s + "Toggle"} %>
           <%= fields_for 'song[]', song do |field| %>
             <%= field.text_field :name, :class => "input-xlarge" %>
-            Track #:<%= field.text_field :tracknumber, :class => "input-mini"%>
+            Track #:<%= field.text_field :track_number, :class => "input-mini"%>
             Duration: <%= field.text_field :duration, :value => song.length, :class => "input-mini" %>
             ID: <%= song.id %>
           <div id="<%= song.id %>"class="row">
             <div class="col-md-4"><br>
-              OP/ED #:<%= field.text_field :op_ed_number, :class => "input-mini"%>
               <%= field.fields_for :namehash, song.namehash do |p| %>
                 <h5>Name Hash:</h5>
                 English:<%= p.text_field :English, :class => "input-large", :value => song.namehash[:English] %>

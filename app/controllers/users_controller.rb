@@ -25,8 +25,6 @@ class UsersController < ApplicationController
         format.html { redirect_to watched, notice: 'Request failed!' }
         format.js        
       end
-
-
     end
   end
 
@@ -165,8 +163,22 @@ class UsersController < ApplicationController
     end
   end
 
-  def edit
+  def edit_security
     @user = User.find(params[:id])
+  end
+  
+  def update_security
+    @user = User.find(params[:id])
+    
+    respond_to do |format|
+      if @user.update_security(params[:user])
+        format.html { redirect_to user_path(:id => params[:id]), notice: 'Security was successfully updated.' }
+        format.json { head :no_content }
+      else
+        format.html { render action: "edit_security" }
+        format.json { render json: @user.errors, status: :unprocessable_entity }
+      end
+    end    
   end
 
   def edit_profile
@@ -242,29 +254,13 @@ class UsersController < ApplicationController
     #Set Default Language Settings
     @user.language_settings = User::Languages
     @user.artist_language_settings = User::Languages
-    @user.security = "User"
+    @user.security = "2"
     
     respond_to do |format|
       if @user.save
         format.html { redirect_to :root, notice: 'User was successfully created.' }
       else
         format.html { render action: "new" }
-        format.json { render json: @user.errors, status: :unprocessable_entity }
-      end
-    end
-  end
-
-  # PUT /users/1
-  # PUT /users/1.json
-  def update
-    @user = User.find(params[:id])
-
-    respond_to do |format|
-      if @user.update_attributes(params[:user])
-        format.html { redirect_to :root, notice: 'User was successfully updated.' }
-        format.json { head :no_content }
-      else
-        format.html { render action: "edit" }
         format.json { render json: @user.errors, status: :unprocessable_entity }
       end
     end

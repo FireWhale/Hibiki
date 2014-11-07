@@ -113,22 +113,280 @@ describe Song do
     
   #Callback Tests   
     
-    context "hass a full update method" do
+    context "has a full update method" do
       include_examples "updates with keys and values", :song
       include_examples "updates the reference properly", :song
       include_examples "can upload an image", :song
-      it "updates artists"
-      it "updates it's album's artists"
-      it "updates sources"
-      it "updates it's album's sources"
+
+      context "updates artists" do
+        it "creates an artist_song" do
+          song = create(:song)
+          attributes = attributes_for(:song)
+          artist = create(:artist, name: 'hihi')
+          attributes.merge!(:new_artist_ids => [artist.id.to_s], :new_artist_categories => ["Performer", "New Artist"])
+          expect{song.full_update_attributes(attributes)}.to change(ArtistSong, :count).by(1)
+          expect(song.artists.first.name).to eq("hihi")
+          expect(song.artist_songs.first.category).to eq("4")
+        end
+        
+        
+        it "creates an album_artist" do
+          song = create(:song, :with_album)
+          attributes = attributes_for(:song)
+          artist = create(:artist, name: 'hihi')
+          attributes.merge!(:new_artist_ids => [artist.id.to_s], :new_artist_categories => ["Performer", "New Artist"])
+          expect{song.full_update_attributes(attributes)}.to change(ArtistAlbum, :count).by(1)
+        end
+        
+        it "adds to the current album_artist" do
+          album = create(:album)
+          song = create(:song, album: album)
+          attributes = attributes_for(:song)
+          artist = create(:artist, name: 'hihi')
+          artist_album = create(:artist_album, album: album, artist: artist, category: 1)
+          attributes.merge!(:new_artist_ids => [artist.id.to_s], :new_artist_categories => ["Performer", "New Artist"])
+          expect{song.full_update_attributes(attributes)}.to change(ArtistAlbum, :count).by(0)
+          expect(album.artist_albums.first.category).to eq("5")
+        end
+        
+        it "handles multiple categories" do
+          song = create(:song)
+          attributes = attributes_for(:song)
+          artist = create(:artist, name: 'hihi')
+          attributes.merge!(:new_artist_ids => [artist.id.to_s], :new_artist_categories => ["Performer", "Composer", "New Artist"])
+          expect{song.full_update_attributes(attributes)}.to change(ArtistSong, :count).by(1)
+          expect(song.artists.first.name).to eq("hihi")
+          expect(song.artist_songs.first.category).to eq("5")
+        end
+        
+        
+        it "can create multiple artist_songs" do
+          song = create(:song)
+          attributes = attributes_for(:song)
+          artist = create(:artist, name: 'hihi')
+          artist2 =create(:artist, name: 'hoho')
+          attributes.merge!(:new_artist_ids => [artist.id.to_s, artist2.id.to_s], :new_artist_categories => ["Performer", "Composer", "New Artist", "Performer", "New Artist" ])
+          expect{song.full_update_attributes(attributes)}.to change(ArtistSong, :count).by(2)
+          expect(song.artists.first.name).to eq("hihi")
+          expect(song.artist_songs.first.category).to eq("5")
+          expect(song.artists[1].name).to eq("hoho")
+          expect(song.artist_songs[1].category).to eq("4")
+        end
+        
+        it "does not create artist_songs if it doesn't exist" do
+          song = create(:song)
+          attributes = attributes_for(:song)
+          attributes.merge!(:new_artist_ids => ["999999"], :new_artist_categories => ["Performer", "Composer", "New Artist"])
+          expect{song.full_update_attributes(attributes)}.to change(ArtistSong, :count).by(0)
+        end
+        
+        it "updates artist_songs" do
+          song = create(:song)
+          attributes = attributes_for(:song)
+          artist = create(:artist, name: 'hihi')
+          artist_song = create(:artist_song, song: song, artist: artist, category: 33)
+          attributes.merge!(:update_artist_songs => {artist_song.id.to_s => ["Performer", "Arranger", "Composer"]})
+          expect{song.full_update_attributes(attributes)}.to change(ArtistSong, :count).by(0)
+          expect(song.artist_songs.first.category).to eq("7")
+        end
+        
+        it "updates artist_albums" do
+          album = create(:album)
+          song = create(:song, album: album)
+          attributes = attributes_for(:song)
+          artist = create(:artist, name: 'hihi')
+          artist_song = create(:artist_song, song: song, artist: artist, category: 33)
+          album.artist_albums.first.update_attributes(category: 20) #just by making artist_song, we've made an artist_album
+          attributes.merge!(:update_artist_songs => {artist_song.id.to_s => ["Performer", "Arranger", "Composer"]})
+          expect{song.full_update_attributes(attributes)}.to change(ArtistSong, :count).by(0)
+          expect(song.artist_songs.first.category).to eq("7")
+          expect(album.artist_albums.first.category).to eq("23")
+        end
+        
+        it "updates multiple artist_songs" do
+          song = create(:song)
+          attributes = attributes_for(:song)
+          artist = create(:artist, name: 'hihi')
+          artist2 = create(:artist, name: 'hihooi')
+          artist_song = create(:artist_song, song: song, artist: artist, category: 33)
+          artist_song2 = create(:artist_song, song: song, artist: artist2, category: 44)
+          attributes.merge!(:update_artist_songs => {artist_song.id.to_s => ["Performer", "Arranger", "Composer"], artist_song2.id.to_s => ["Composer", "FeatArranger"]})
+          expect{song.full_update_attributes(attributes)}.to change(ArtistSong, :count).by(0)
+          expect(song.artist_songs.first.category).to eq("7")
+          expect(song.artist_songs[1].category).to eq("33")          
+        end
+        
+        it "destroys artist_songs" do
+          song = create(:song)
+          attributes = attributes_for(:song)
+          artist = create(:artist, name: 'hihi')
+          artist_song = create(:artist_song, song: song, artist: artist, category: 33)
+          attributes.merge!(:update_artist_songs => {artist_song.id.to_s => []})
+          expect{song.full_update_attributes(attributes)}.to change(ArtistSong, :count).by(-1)
+        end
+        
+        it "does not destroy album_artists" do
+          song = create(:song)
+          attributes = attributes_for(:song)
+          artist = create(:artist, name: 'hihi')
+          artist_song = create(:artist_song, song: song, artist: artist, category: 33)
+          attributes.merge!(:update_artist_songs => {artist_song.id.to_s => []})
+          expect{song.full_update_attributes(attributes)}.to change(ArtistAlbum, :count).by(0)          
+        end
+        
+        it "doesn't destroy artists" do
+          song = create(:song)
+          attributes = attributes_for(:song)
+          artist = create(:artist, name: 'hihi')
+          artist_song = create(:artist_song, song: song, artist: artist, category: 33)
+          attributes.merge!(:update_artist_songs => {artist_song.id.to_s => []})
+          expect{song.full_update_attributes(attributes)}.to change(Artist, :count).by(0)          
+        end
+        
+        it "destroy multiple artist_song" do 
+          song = create(:song)
+          attributes = attributes_for(:song)
+          artist = create(:artist, name: 'hihi')
+          artist2 = create(:artist, name: 'hihooi')
+          artist_song = create(:artist_song, song: song, artist: artist, category: 33)
+          artist_song2 = create(:artist_song, song: song, artist: artist2, category: 44)
+          attributes.merge!(:update_artist_songs => {artist_song.id.to_s => [], artist_song2.id.to_s => []})
+          expect{song.full_update_attributes(attributes)}.to change(ArtistSong, :count).by(-2)
+        end
+      end
+      
+      context "updates sources" do 
+        before(:each) do 
+          @song = create(:song)
+          @attributes = attributes_for(:song)
+          @source = create(:source, name: "this is a name")
+        end
+        
+        it "creates a song_source" do
+          song = create(:song)
+          source = create(:source, name: "hello")
+          attributes = attributes_for(:song)
+          attributes.merge!(:new_sources => {"ids" => [source.id]})
+          expect{song.full_update_attributes(attributes)}.to change(SongSource, :count).by(1)
+          expect(song.reload.sources.first.name).to eq("hello")
+        end
+
+        it "creates an album_source" do
+          album= create(:album)
+          @song = create(:song, album: album)
+          @attributes.merge!(:new_sources => {"ids" => [@source.id]})
+          expect{@song.full_update_attributes(@attributes)}.to change(AlbumSource, :count).by(1)
+          expect(@song.album.sources.first.name).to eq("this is a name")
+        end
+        
+        it "does not create a new album_source if one exists" do
+          @attributes.merge!(:new_sources => {"ids" => [@source.id]})
+          expect{@song.full_update_attributes(@attributes)}.to change(AlbumSource, :count).by(0)
+        end
+        
+        it "passes op/classification/ep numbers" do
+          @attributes.merge!(:new_sources => {"ids" => [@source.id], "classification" => ["OP"], "op_ed_number" => ["2"], "ep_numbers" => ["5-8"]})
+          expect{@song.full_update_attributes(@attributes)}.to change(SongSource, :count).by(1)
+          expect(@song.song_sources.first.classification).to eq("OP")
+          expect(@song.song_sources.first.op_ed_number).to eq("2")
+          expect(@song.song_sources.first.ep_numbers).to eq("5-8")
+        end
+        
+        it "creates multiple song_sources" do
+          source2 = create(:source)
+          @attributes.merge!(:new_sources => {"ids" => [@source.id, source2.id]})
+          expect{@song.full_update_attributes(@attributes)}.to change(SongSource, :count).by(2)
+        end
+        
+        it "does not create song_source if it doesn't exist" do
+          @attributes.merge!(:new_sources => {"ids" => [@source.id, 99999999]})
+          expect{@song.full_update_attributes(@attributes)}.to change(SongSource, :count).by(1)
+        end
+        
+        it "updates song_sources" do
+          song_source = create(:song_source, song: @song, classification: "OP")
+          @attributes.merge!(:song_sources => { song_source.id.to_s => {"classification" => "ED"}})
+          expect{@song.full_update_attributes(@attributes)}.to change(SongSource, :count).by(0)
+          expect(@song.song_sources.first.classification).to eq("ED")
+        end
+        
+        it "adds to album_source through update if for some reason it doesn't exist" do
+          song_source = create(:song_source, song: @song, classification: "OP")
+          album = create(:album)
+          @song.update_attributes(:album_id => album.id)
+          album.album_sources.first.delete unless album.album_sources.empty?
+          @attributes.merge!(:song_sources => { song_source.id.to_s => {"classification" => "ED"}})
+          expect{@song.full_update_attributes(@attributes)}.to change(AlbumSource, :count).by(1)
+        end
+        
+        it "updates multiple song_sources" do 
+          song_source = create(:song_source, song: @song, classification: "OP")
+          song_source2 = create(:song_source, song: @song, classification: "ED")
+          @attributes.merge!(:song_sources => { song_source.id.to_s => {"classification" => "ED"}, song_source2.id.to_s => {"classification" => "OP"}})
+          expect{@song.full_update_attributes(@attributes)}.to change(SongSource, :count).by(0)
+          expect(@song.song_sources.first.classification).to eq("ED")          
+          expect(@song.song_sources[1].classification).to eq("OP")          
+        end
+        
+        it "destroys song_sources" do
+          song_source = create(:song_source, song: @song, classification: "OP")
+          @attributes.merge!(:remove_song_sources => [song_source.id.to_s])
+          expect{@song.full_update_attributes(@attributes)}.to change(SongSource, :count).by(-1)
+        end
+        
+        it "does not destroy album_sources" do
+          album = create(:album)
+          song = create(:song, album: album)
+          song_source = create(:song_source, song: song, classification: "OP")
+          @attributes.merge!(:remove_song_sources => [song_source.id.to_s])
+          expect{@song.full_update_attributes(@attributes)}.to change(AlbumSource, :count).by(0)
+        end
+        
+        it "doesn't destroy sources" do
+          album = create(:album)
+          song = create(:song, album: album)
+          song_source = create(:song_source, song: song, classification: "OP")
+          @attributes.merge!(:remove_song_sources => [song_source.id.to_s])
+          expect{@song.full_update_attributes(@attributes)}.to change(Source, :count).by(0)
+        end
+        
+        it "destroys multiple song_sources" do
+          album = create(:album)
+          song = create(:song, album: album)
+          song_source = create(:song_source, song: song, classification: "OP")
+          song_source2 = create(:song_source, song: song, classification: "OP")
+          @attributes.merge!(:remove_song_sources => [song_source.id.to_s, song_source2.id.to_s])
+          expect{@song.full_update_attributes(@attributes)}.to change(SongSource, :count).by(-2)
+        end      
+          
+      end
       include_examples "can update self-relations", :song
-      it "formats the length aka duration into an integer"
-      it "formats tracknumbers into a disc_number and track_number"
-      it "adds a discnumber if there is no disc number"
       include_examples "updates dates properly", :song, "release_date"
       include_examples "updates with normal attributes", :song
      
     end       
+    
+    it "formats tracknumbers into a disc_number and track_number" do
+      song = create(:song)
+      song.update_attributes(:track_number => "4.39")
+      expect(song.track_number).to eq("39")
+      expect(song.disc_number).to eq("4")      
+    end
+    
+    it "formats a track number of <10 into a disc_number and track_number" do
+      song = create(:song)
+      song.update_attributes(:track_number => "4.39")
+      expect(song.track_number).to eq("39")
+      expect(song.disc_number).to eq("4")      
+    end
+        
+    it "formats the length aka duration into an integer" do
+      song = create(:song)
+      attributes = attributes_for(:song)
+      attributes.merge!(:duration => "5:33")
+      song.full_update_attributes(attributes)
+      expect(song.length).to eq(333)
+    end
     
   #Scope Tests
     it "returns a list of songs with no albums" do
@@ -136,6 +394,9 @@ describe Song do
       songlist2 = create_list(:song, 3, :with_album)
       expect(Song.no_album).to eq(songlist)
     end
+    
+    it_behaves_like "it reports released records", :song
+
 end
 
 

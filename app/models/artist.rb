@@ -100,6 +100,9 @@ class Artist < ActiveRecord::Base
       has_many :watchlists, as: :watched, dependent: :destroy
       has_many :watchers, through: :watchlists, source: :user
 
+  #Scopes
+    scope :released, -> { where(status: "Released")}
+    
   #Gem Stuff
     #Pagination
       paginates_per 50
@@ -122,8 +125,5 @@ class Artist < ActiveRecord::Base
       (Artist::Credits).reject { |r| ((bitmask || 0 ) & 2**(Artist::Credits).index(r)).zero?}
     end
   
-  def format_method #for autocomplete
-    self.id.to_s + " - " + self.name
-  end  
 
 end

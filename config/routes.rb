@@ -5,7 +5,9 @@ Hibiki::Application.routes.draw do
       get 'watchlist'
       get 'collection'
       get 'edit_profile'
+      get 'edit_security'
       put 'update_profile'
+      put 'update_security'
       get 'watchlist_edit'
       put 'update_watchlist'
     end

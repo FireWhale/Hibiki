@@ -56,13 +56,88 @@ describe Source do
   #Instance Method Tests
         
   #Class Method Tests    
-    context "hass a full update method" do
+    context "has a full update method" do
       include_examples "updates with keys and values", :source
       include_examples "updates the reference properly", :source
       include_examples "can upload an image", :source
       include_examples "can update a primary relationship", :source, :organization, SourceOrganization, "source_organization"
       include_examples "can update self-relations", :organization
-      it "adds seasons"
+      context "it full updates seasons" do 
+        it "adds an season" do
+          source = create(:source)
+          attributes = attributes_for(:source)
+          season = create(:season, name: "shorty")
+          attributes.merge!(:new_season_names => ["shorty"], :new_season_categories => ["Airing"])
+          expect{source.full_update_attributes(attributes)}.to change(SourceSeason, :count).by(1)
+          expect(source.seasons.first).to eq(season)
+        end
+        
+        it "does not create seasons that do not exist" do
+          source = create(:source)
+          attributes = attributes_for(:source)
+          attributes.merge!(:new_season_names => ["shorty"], :new_season_categories => ["Airing"])
+          expect{source.full_update_attributes(attributes)}.to change(Season, :count).by(0)
+        end
+        
+        it "deletes an sourceseason" do
+          source = create(:source)
+          season = create(:season)
+          source_season = create(:source_season, season: season, source: source)
+          attributes = attributes_for(:source)
+          attributes.merge!(:remove_seasons => [season.id.to_s])
+          expect{source.full_update_attributes(attributes)}.to change(SourceSeason, :count).by(-1)
+        end
+        
+        it "does not delete the season" do
+          source = create(:source)
+          season = create(:season)
+          source_season = create(:source_season, season: season, source: source)
+          attributes = attributes_for(:source)
+          attributes.merge!(:remove_seasons => [season.id.to_s])
+          expect{source.full_update_attributes(attributes)}.to change(Season, :count).by(0)
+        end
+        
+        it "does not delete an sourceseason that does not exist" do
+          source = create(:source)
+          season = create(:season)
+          source_season = create(:source_season, source: source)
+          attributes = attributes_for(:source)
+          attributes.merge!(:remove_seasons => [season.id.to_s])
+          expect{source.full_update_attributes(attributes)}.to change(SourceSeason, :count).by(0)
+        end
+        
+        it "adds multiple seasons" do
+          source = create(:source)
+          attributes = attributes_for(:source)
+          season = create(:season, name: "shorty")
+          season2 = create(:season, name: "tally")
+          attributes.merge!(:new_season_names => ["shorty", "tally"], :new_season_categories => ["Airing", "Movie"])
+          expect{source.full_update_attributes(attributes)}.to change(SourceSeason, :count).by(2)
+          expect(source.seasons).to match_array([season, season2])          
+        end
+        
+        it "adds multiple seasons that exist and not seasons that do not" do
+          source = create(:source)
+          attributes = attributes_for(:source)
+          season = create(:season, name: "shorty")
+          season2 = create(:season, name: "tally")
+          attributes.merge!(:new_season_names => ["shorty", "tally", "holly"], :new_season_categories => ["Airing", "Movie", "Short"])
+          expect{source.full_update_attributes(attributes)}.to change(SourceSeason, :count).by(2)
+          expect(source.seasons.count).to eq(2)   
+          expect(Season.find_by_name("holly")).to be nil           
+        end
+        
+        it "removes multiple seasons" do
+          source = create(:source)
+          season = create(:season)
+          season2 = create(:season)
+          source_season = create(:source_season, season: season, source: source)
+          source_season2 = create(:source_season, season: season2, source: source)
+          attributes = attributes_for(:source)
+          attributes.merge!(:remove_seasons => [season.id.to_s, season2.id.to_s])
+          expect{source.full_update_attributes(attributes)}.to change(SourceSeason, :count).by(-2)
+        end
+      end
       include_examples "updates dates properly", :source, "release_date"
       include_examples "updates dates properly", :source, "end_date"
       include_examples "updates with normal attributes", :source
@@ -70,7 +145,7 @@ describe Source do
     end
         
   #Scope Tests
-    it "reports released records"
+    it_behaves_like "it reports released records", :source
         
 end
 

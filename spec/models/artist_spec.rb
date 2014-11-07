@@ -105,7 +105,7 @@ describe Artist do
     end       
     
   #Scope Tests
-    it "reports released records"
+    it_behaves_like "it reports released records", :artist
     
 end
 
