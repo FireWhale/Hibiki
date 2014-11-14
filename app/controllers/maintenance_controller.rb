@@ -117,7 +117,7 @@ class MaintenanceController < ApplicationController
   
   def updated_albums
     authorize! :edit, Album
-    @albums = Album.where("privateinfo LIKE ?", "#{'UPDATE AVAILABLE'}%").page(params[:page])
+    @albums = Album.where("private_info LIKE ?", "#{'UPDATE AVAILABLE'}%").page(params[:page])
   end
   
   def le_workqueue
