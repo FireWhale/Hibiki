@@ -1,16 +1,26 @@
-<div class="row-fluid">
-  <%= fields_for @fieldsfornames do |f| %>
-		<%= f.label '', "ID:", :class => "control-label" %>
-		<% if @autocompletepath.nil? %>
-		  <%= f.text_field '', :value => @defaultvalue, :class => "controls input-medium" %>
-    <% else %>
-      <%= f.autocomplete_field '', send(@autocompletepath), :value => @defaultvalue, :class => 'controls input-medium' %>
+<div>
+  <% unless @self_relationship_model.nil? %>
+    <%= fields_for @category_field_names do |f| %>
+      <%= f.label '', "This #{@self_relationship_model}"%><%= f.select '', @self_relationship_model.constantize::SelfRelationships %>
     <% end %>
   <% end %>
-  <% if @categories.nil? == false and @fieldsforcats.nil? == false %>
-    <%= fields_for @fieldsforcats do |f| %>
+  <%= fields_for @field_names do |f| %>
+		<%= f.label '', @label %>
+		<% if @autocomplete_path.nil? %>
+		  <%= f.text_field '', :value => @default_value %>
+    <% else %>
+      <%= f.autocomplete_field '', send(@autocomplete_path), :value => @default_value%>
+    <% end %>
+  <% end %>
+  <% unless @categories.nil? || @category_field_names.nil? %>
+    <%= fields_for @category_field_names do |f| %>
       <%= f.select '', @categories %>
     <% end %>
   <% end %>
+  <% unless @artist_category_names.nil? %>
+    <% Artist::Credits.each_with_index do |credit,n| %>
+      <%= check_box_tag @artist_category_names, credit %> <%= Artist::CreditsAbbr[n] %> 
+    <% end %>
+    <%= hidden_field_tag @artist_category_names, "New Artist" %>  
+  <% end %>
 </div>
-

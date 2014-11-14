@@ -66,25 +66,29 @@ class ScriptsController < ApplicationController
       authorize! :edit, Album
       #This adds a relational model with a category
       #Params for the div ID/Class it should be attached to
-      @divid = params[:div_id]      
+        @parent_div = params[:parent_div]      
       #Check if query qualifies for autocomplete
-      autocomplete = params[:autocomplete]
-      if autocomplete.nil? == false
-        @autocompletepath = "autocomplete_" + autocomplete + '_' + autocomplete.split('_')[0] + 's_path'
-      end
-      #Params for the fields_for name
-      @fieldsfornames = params[:fields_for_names]
-      #Parmams for if there's a model
-      @fieldsforcats = params[:fields_for_cats]
-      category_model = params[:category_model]
-      category_constant = params[:category_constant]
-      if category_model.nil? == false and category_constant.nil? == false
-        @categories = category_model.constantize.const_get(category_constant)
-      end
+        autocomplete = params[:autocomplete_path]
+        @autocomplete_path = "autocomplete_" + autocomplete + '_' + autocomplete.split('_')[0] + 's_path' unless autocomplete.nil?
+      #Fields_for names
+        @field_names = params[:field_names]
+      #Category list names
+        @category_field_names = params[:category_field_names]
+        @categories = params[:category_select]
+        @categories = @categories.split("::")[0].constantize.const_get(categories.split("::")[1]) if @categories.class == String
+      #Get the label if there is one passed in
+        @label = (params[:label].nil? ? "ID:" : params[:label]) 
+      #Get the default value if there is one passed in
+        @default_value = params[:default_value] unless params[:default_value].nil?
+      #Get a self-relationship flag if one is passed in
+        @self_relationship_model = params[:self_relationship_model]
+        @label = "" unless @self_relationship_model.nil?
+      #Get a artist_categories if one is passed in
+        @artist_category_names = params[:artist_category_names] 
       #Check if this is a script function to add to all song fields
       if params[:script].nil? == false
         @songscript = []
-        @defaultvalue = params[:script][:name]
+        @default_value = params[:script][:name]
         params[:script][:div_ids].split(',').each do |songid|
           songarray = {}
           songarray[:divid] = "#Sources" + songid.to_s
@@ -94,24 +98,6 @@ class ScriptsController < ApplicationController
       end
     end  
     
-    def add_related_model_form
-      authorize! :edit, Album
-      #This adds a self related model form, given some inputs
-      #Params for the div ID/Class
-      @divid = params[:div_id]      
-      #Check if model qualifies for autocomplete
-      autocomplete = params[:autocomplete]
-      if autocomplete.nil? == false
-        @autocompletepath = "autocomplete_" + autocomplete + '_' + autocomplete.split('_')[0] + 's_path'
-      end
-      #Params for category
-      @fieldsforcats = params[:fields_for_cats]
-      #Params for the fields_for name/id
-      @fieldsfornamesorids = params[:fields_for_names_or_ids]
-      #params for the model
-      @model = params[:model]
-      @relationships = @model.constantize::SelfRelationships
-    end  
   
   #Misc.
     def well_toggle

@@ -251,15 +251,6 @@ body { padding-top: 30px; } //Padding for the fixed header
 
 //dunno what these are for.
 
-
-.form-horizontal .control-label {
-  width: auto;
-}
-
-.form-horizontal .controls {
-  margin-left: 5px;
-}
-
 a {
   text-decoration:underline;
   color: #000;
@@ -294,7 +285,9 @@ a {
     }
   }
 
-
+input[type="file"] {
+  display: inline;
+}
 
 .ui-autocomplete {
   width: 400px;

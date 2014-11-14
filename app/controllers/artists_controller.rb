@@ -69,14 +69,11 @@ class ArtistsController < ApplicationController
     end
   end
 
-  # GET /artists/1/edit
   def edit
     @artist = Artist.find(params[:id])
     @artist.namehash = @artist.namehash || {}
   end
 
-  # POST /artists
-  # POST /artists.json
   def create
     respond_to do |format|
       if @artist.full_save(params[:artist])
@@ -89,8 +86,6 @@ class ArtistsController < ApplicationController
     end
   end
 
-  # PUT /artists/1
-  # PUT /artists/1.json
   def update
     @artist = Artist.find(params[:id])
        
