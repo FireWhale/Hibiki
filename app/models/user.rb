@@ -80,7 +80,7 @@ class User < ActiveRecord::Base
   #Update Method
     def update_security(values)
       abilities = values.delete :abilities
-      self.security = User.get_security_bitmask(abilities)
+      self.security = User.get_security_bitmask(abilities).to_s
       self.save
     end
 end
