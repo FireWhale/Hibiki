@@ -52,7 +52,7 @@
 <% content_for :usersidebar do %>
   <% if current_user %>
     <div class="well">
-      <% if watched? current_user, @source %>
+      <% if @source.watched? current_user %>
       <div id="WatchLink">You're watching this source <br>
         <%= link_to "Remove from Watchlist?", unwatch_path(:user_id => current_user.id, :watched_id => @source.id, :watched_type => "Source"), :remote => true %>      
       </div>

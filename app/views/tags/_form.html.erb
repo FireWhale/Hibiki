@@ -32,7 +32,7 @@
     <%= f.text_area :info, :rows => '3' %>
   </div>
   <% Tag::ModelBitmask.each do |model| %>
-    <%= check_box_tag 'tag[model_bitmask][]', model, @models.include?(model) %> <%= model %><br>
+    <%= check_box_tag 'tag[models][]', model, @models.include?(model) %> <%= model %><br>
   <% end %>
   <div class="actions">
     <%= f.submit %>

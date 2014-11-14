@@ -2,14 +2,17 @@ class IssuesController < ApplicationController
   load_and_authorize_resource
   
   def index
-    @issues = Issue.all.group_by(&:category)
+    @issues = Issue.all
   end
   
   def show
     @issue = Issue.find(params[:id])
-    
   end
-  
+
+  def new
+    @issue = Issue.new
+  end
+    
   def create
     @issue = Issue.new(params[:issue])
     
@@ -24,6 +27,10 @@ class IssuesController < ApplicationController
     end
   end
   
+  def edit
+    @issue = Issue.find(params[:id])
+  end
+    
   def update
     @issue = Issue.find(params[:id])
     
@@ -39,12 +46,14 @@ class IssuesController < ApplicationController
     
   end
   
-  def edit
+  def destroy
     @issue = Issue.find(params[:id])
-  end
-  
-  def new
-    @issue = Issue.new
+    @issue.destroy
+
+    respond_to do |format|
+      format.html { redirect_to issues_url }
+      format.json { head :no_content }
+    end
   end
   
 end

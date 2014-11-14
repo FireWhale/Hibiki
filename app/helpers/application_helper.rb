@@ -45,7 +45,7 @@ module ApplicationHelper
       display_settings.include?("AlbumArtOutline") && 
       record.collected_category(current_user).empty? == false 
         #Default is no flag. Otherwise, we'll outline the image if conditions are met
-        options[:class] = options[:class] + ' ' + record.collection?(current_user).downcase
+        options[:class] = options[:class] + ' ' + record.collected_category(current_user).downcase
       end
       if record.primary_images[0].nil? 
         if record.class == Album
@@ -110,51 +110,35 @@ module ApplicationHelper
       if record.send(attribute).nil? == false
         if record.send(attribute).instance_of?(String)
           if record.send(attribute).empty? == false
-            (content_tag(:b) do
-              if text.empty? == false
-                text + ": "
-              end
-            end).concat(record.send(attribute)).concat(tag(:br)).html_safe        
+            (text.empty? ? "" : content_tag(:b, text + ": ")).concat(record.send(attribute)).concat(tag(:br)).html_safe        
           end
         elsif record.send(attribute).instance_of?(Date)
-          (content_tag(:b) do
-            if text.empty? == false
-              text + ": "
-            end
-          end).concat(date_helper(record,attribute)).concat(tag(:br)).html_safe    
+          (text.empty? ? "" : content_tag(:b, text + ": ")).concat(date_helper(record,attribute)).concat(tag(:br)).html_safe    
         else
-          (content_tag(:b) do 
-            if text.empty? == false
-              text + ": "
-            end
-          end).concat(record.send(attribute)).concat(tag(:br)).html_safe
+          (text.empty? ? "" : content_tag(:b, text + ": ")).concat(record.send(attribute)).concat(tag(:br)).html_safe
         end
       end
     end
     
     def linked_attribute_display(collection, text)
       if collection.empty? == false
-        (content_tag(:b) do 
-            if text.empty? == false
-              text + ": "
-            end
-        end).concat(collection.map{ |wl| 
-        if wl.class == Song
-          link_to name_language_helper(wl,current_user,0), url_for(wl.album)
-        elsif wl.class == Event
-          link_to wl.shorthand, url_for(wl)
+        (text.empty? ? "" : content_tag(:b, text + ": ")).concat(collection.map{ |record| 
+        if record.class == Song
+          link_to name_language_helper(record,current_user,0), url_for(record.album)
+        elsif record.class == Event
+          link_to record.shorthand, url_for(record)
         else
-          link_to name_language_helper(wl,current_user,0), url_for(wl)
+          link_to name_language_helper(record,current_user,0), url_for(record)
         end }.join(', ').html_safe).concat(tag(:br)).html_safe
       end
     end
     
     def date_helper(record,attribute)
       #Used to format Release date and Birth Date
-      if record.class == Album && attribute == 'releasedate'
-        if record.releasedate_bitmask == 6
+      if record.class == Album && attribute == 'release_date'
+        if record.release_date_bitmask == 6
           link_to record.send(attribute).year, calendar_url(:date => record.send(attribute))
-        elsif record.releasedate_bitmask == 4
+        elsif record.release_date_bitmask == 4
           link_to record.send(attribute).to_formatted_s(:month_and_year), calendar_url(:date => record.send(attribute))
         else
           link_to record.send(attribute).to_formatted_s(:long), calendar_url(:date => record.send(attribute))

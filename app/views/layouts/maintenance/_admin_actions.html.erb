@@ -7,7 +7,7 @@
         <% end %>
         <%= link_to 'Destroy', record, method: :delete, data: { confirm: 'Are you sure?' } %>
         <% if record.class == Album %>
-          <%= link_to 'Rescrape', rescrape_path(:album_id => record.id), data: { confirm: 'Rescrape: Are you sure?' }, :remote => true %>
+          <%= link_to 'Rescrape', rescrape_album_path, method: :post, data: { confirm: 'Rescrape: Are you sure?' }, :remote => true %>
         <% end %>
     </li>
   </ul>

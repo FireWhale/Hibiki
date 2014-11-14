@@ -50,7 +50,7 @@ class ApplicationController < ActionController::Base
           end  
         end
         languagesettings.each do |language|
-          if record.namehash[language.to_sym].nil? == false && record.namehash[language.to_sym].empty? == false
+          unless record.namehash[language.to_sym].nil? || record.namehash[language.to_sym].empty?
             array.push(record.namehash[language.to_sym])
           end
         end   

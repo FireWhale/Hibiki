@@ -1,7 +1,6 @@
 class SeasonsController < ApplicationController
   load_and_authorize_resource
-  # GET /seasons
-  # GET /seasons.json
+
   def index
     @seasons = Season.all
 
@@ -11,8 +10,6 @@ class SeasonsController < ApplicationController
     end
   end
 
-  # GET /seasons/1
-  # GET /seasons/1.json
   def show
     @season = Season.includes({source_seasons: {source: {album_sources: {album: [:primary_images, {songs: :song_sources}]}}}}).find(params[:id])
 
@@ -36,7 +33,7 @@ class SeasonsController < ApplicationController
       end
       
     #Now we need to group our albums.     
-    @albums = relations.map(&:album).sort_by(&:releasedate).uniq
+    @albums = relations.map(&:album).sort_by(&:release_date).uniq
  
     #Get the current week.
     # @week = Date.today.beginning_of_week(start_day = :sunday)
@@ -91,8 +88,6 @@ class SeasonsController < ApplicationController
     end
   end
 
-  # GET /seasons/new
-  # GET /seasons/new.json
   def new
     @season = Season.new
 
@@ -102,19 +97,14 @@ class SeasonsController < ApplicationController
     end
   end
 
-  # GET /seasons/1/edit
   def edit
     @season = Season.find(params[:id])
     @sourceseasons = @season.source_seasons
   end
 
-  # POST /seasons
-  # POST /seasons.json
   def create
-    @season = Season.new(params[:season])
-
     respond_to do |format|
-      if @season.save
+      if @season.full_save(params[:season])
         format.html { redirect_to @season, notice: 'Season was successfully created.' }
         format.json { render json: @season, status: :created, location: @season }
       else
@@ -124,8 +114,6 @@ class SeasonsController < ApplicationController
     end
   end
 
-  # PUT /seasons/1
-  # PUT /seasons/1.json
   def update
     @season = Season.find(params[:id])
     
@@ -162,8 +150,6 @@ class SeasonsController < ApplicationController
     end
   end
 
-  # DELETE /seasons/1
-  # DELETE /seasons/1.json
   def destroy
     @season = Season.find(params[:id])
     @season.destroy

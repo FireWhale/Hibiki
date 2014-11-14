@@ -4,7 +4,7 @@ class AlbumsController < ApplicationController
   autocomplete :album, :namehash, :full => true, :extra_data => [:name], :display_value => :format_method  
     
   def index
-    @albums = Album.includes(:primary_images).order(:releasedate).page(params[:page])
+    @albums = Album.includes(:primary_images).order(:release_date).page(params[:page])
 
     respond_to do |format|
       format.html # index.html.erb
@@ -29,44 +29,20 @@ class AlbumsController < ApplicationController
     end
   end
    
-  def showalbumart
+  def album_art
     @album = Album.includes(:images).find_by_id(params[:id])
-    if @album.images.empty?
-      #What if there are no album images? Shouldn't be able to get here, but...
-    else
-      if params[:image] == "cover"
-        @image = @album.primary_images.first
-      else
-        @image = @album.images.first
-      end      
-    end
+    @image = (params[:image] == "cover" ?  @album.primary_images.first : @album.images.first ) unless @album.images.empty?
   end
-   
-  def albumpreview #For other models show views
-    @album= Album.includes(:primary_images, {artist_albums: :artist}, :sources, :collections).find_by_id(params[:albumid])
-    @composers = []
-    @performers = []
-    relationship = Artist::Relationship 
-    @album.artist_albums.each do |each|
-      categories= relationship.reject { |r| ((each.category.to_i || 0 ) & 2**relationship.index(r)).zero?}
-      categories.each do |category|
-        @composers << each.artist if category == "Composer" or category == "FeatComposer"
-        @performers << each.artist if category == "Performer" or category == "FeatPerformer"
-      end
-    end
+  
+  def album_preview
+    @album = Album.includes(:images).find_by_id(params[:id])
+    
     respond_to do |format|
       format.html { redirect_to @album}
       format.js
-    end
+    end    
   end
-  
-  def hidealbumpreview
-    @id = (params[:id])
-    respond_to do |format|
-      format.js
-    end
-  end
-  
+      
   def tracklist_export
     @album = Album.includes(songs: {artist_songs: :artist}).find(params[:id])
     #Send params to view to know if box should be checked
@@ -246,21 +222,10 @@ class AlbumsController < ApplicationController
     @album = Album.includes({artist_albums: :artist}, :sources, {album_organizations: :organization}, :songs).find(params[:id])
     @album.namehash = @album.namehash || {}
   end
-  
-  def tracklist_edit
-    @album = Album.includes(songs: {artist_songs: :artist}).find_by_id(params[:id])
-  end
     
   def create
-    #First, symbolize the key
-    params[:album] = params[:album].deep_symbolize_keys
-    
-    #Namehash
-    params[:album][:namehash].delete_if { |key,value| value.empty?}
- 
-    #call full_update on @album to add in all the other information        
     respond_to do |format|
-      if @album.full_create(params[:album])
+      if @album.full_save(params[:album])
         format.html { redirect_to @album, notice: 'Album was successfully created.' }
         format.json { render json: @album, status: :created, location: @album }
       else
@@ -272,11 +237,7 @@ class AlbumsController < ApplicationController
 
   def update
     @album = Album.includes({artist_albums: :artist}, :sources, {album_organizations: :organization}, :songs).find(params[:id])
-    params[:album] = params[:album].deep_symbolize_keys   
-    
-    #Namehash
-    params[:album][:namehash].delete_if { |key,value| value.empty?}
-    
+        
     respond_to do |format|
       if @album.full_update_attributes(params[:album])
         format.html { redirect_to @album, notice: 'Album was successfully updated.' }
@@ -288,12 +249,13 @@ class AlbumsController < ApplicationController
     end
   end
   
+  def edit_tracklist
+    @album = Album.includes(songs: {artist_songs: :artist}).find_by_id(params[:id])
+  end
+    
   def update_tracklist
-    @album = Album.includes({songs: :artist_songs}).find_by_id(params[:id])
-    @songs = params[:song]
-    @songs = @songs.deep_symbolize_keys
-    @songs.each { |k,v| v[:namehash].delete_if { |key,value| value.empty?}} #deletes empty languages out of hash
-    Song.full_update(params[:song].keys, @songs.values)
+    @album = Album.find_by_id(params[:id])
+    Song.full_update(params[:song].keys, params[:song].values)
          
     respond_to do |format|
         format.html { redirect_to @album, notice: 'Tracklist updated!' }
@@ -312,7 +274,7 @@ class AlbumsController < ApplicationController
   end
   
   def rescrape
-    @album = Album.find(params[:album_id])
+    @album = Album.find(params[:id])
     
     if @album.reference[:VGMdb].nil? == false
       scrapehash = {}
@@ -326,8 +288,9 @@ class AlbumsController < ApplicationController
       
       ScrapeWorker.perform_async(scrapehash,562)  
     end 
+    
     respond_to do |format|
-      format.html { redirect_to @album }
+      format.html { redirect_to @album, notice: "Rescraped" }
       format.json { head :no_content }
     end 
   end

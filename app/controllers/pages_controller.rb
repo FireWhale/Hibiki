@@ -36,7 +36,7 @@ class PagesController < ApplicationController
     if params[:model].nil? or params[:model] == "Album"
       albumresults = Album.search(:include => [:primary_images])  do
         fulltext params[:search]
-        order_by(:releasedate)
+        order_by(:release_date)
         paginate :page => params[:albumpage]
       end
       @albums = albumresults.results
@@ -86,7 +86,7 @@ class PagesController < ApplicationController
       date ||= Date.today
     end
     enddate = date + 30
-    @albums = Album.where(:releasedate => date..enddate).includes(:primary_images)
+    @albums = Album.where(:release_date => date..enddate).includes(:primary_images)
   end
   
   def calendar_update
@@ -100,7 +100,7 @@ class PagesController < ApplicationController
     end
     enddate = date + 30
     
-    @albums = Album.where(:releasedate => date..enddate).includes(:primary_images)
+    @albums = Album.where(:release_date => date..enddate).includes(:primary_images)
   end
   
   def randomalbums #Just a fun side-project to display   

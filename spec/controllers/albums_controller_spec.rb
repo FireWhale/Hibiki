@@ -1,131 +1,182 @@
 require 'rails_helper'
 
 describe AlbumsController do
+  shared_examples "has an edit_tracklist page" do |valid|
+    describe 'GET #edit_tracklist' do
+      it "populates an album record" do
+        album = create(:album)
+        get :edit_tracklist, id: album
+        expect(assigns(:album)).to eq album
+      end
+       
+      it "renders the :edit_tracklist template" do
+        album = create(:album)
+        get :edit_tracklist, id: album
+        valid_permissions(:edit_tracklist, valid)
+      end
+    end
+  end
+   
+  shared_examples "can post update_tracklist" do |valid|
+    describe 'POST #update_tracklist' do
+      if valid == true
+        it "locates the album" do
+          album = create(:album)
+          put :update_tracklist, id: album.id
+          expect(assigns(:album)).to eq album
+        end
+        
+        
+        it "locates the songs"
+        
+        it "updates each song"
+        
+        it "redirects to the album"
+      elsif valid == false
+        it "does not update any songs"
+        
+        it "redirects to the album"
+      else
+        Raise Exception
+      end
+    end
+    
+  end  
+
+  shared_examples "can get album_preview" do |valid|
+    describe 'GET #album_preview' do
+      it "locates the requested album" do
+        album = create(:album)
+          get "album_preview", id: album.id
+        expect(assigns(:album)).to eq album
+      end
+      
+      describe 'javascript response' do
+        it "renders a view"
+      end
+      
+      describe 'html response' do
+        it "redirects to the album"
+      end
+      
+    end
+  end
+  
+  shared_examples "can post rescrape" do |valid|
+    describe 'POST #rescrapte' do
+      if valid == true
+        it "locates the requested album"  do
+          album = create(:album)
+          put :rescrape, id: album.id
+          expect(assigns(:album)).to eq album
+        end
+        
+        it "performs a rescrape"
+        
+        it "redirects to the album"
+        
+      elsif valid == false
+        
+        it "does not perform a rescrape"
+        
+        it "redirects to the album"
+        
+      else
+        Raise Exception
+      end
+    end
+  end
+
   #Authenticate
   before :each do
     activate_authlogic
-    @user = create(:admin)
-    UserSession.create(@user)
   end
   
-  shared_examples_for 'public access to albums' do
-    #Gets
-      describe 'GET #index' do
-        it "populates an array of paged albums"
-        it 'renders the :index template' do
-          get :index
-          expect(response).to render_template :index
-        end
-      end
+  context 'public access to albums' do
+    before :each do
+      @user = create(:user, security: "0")
+      UserSession.create(@user)
+    end
+    
+    #Shows
+      include_examples 'has an index page', "album", true
+      include_examples "has a show page", "album", true
+      include_examples "has an images page", "album", true, :album_art
+      include_examples "can get album_preview", true
       
-      describe 'GET #show' do
-        it "assigns the requested album to @album" do
-          album = create(:album)
-          get :show, id: album
-          expect(assigns(:album)).to eq album
-        end
-        it "renders the :show template" do
-          album = create(:album)
-          get :show, id: album
-          expect(response).to render_template :show   
-        end
-      end
+    #Edits
+      include_examples "has a new page", "album", false
+      include_examples "has an edit page", "album", false
+      include_examples "has an edit_tracklist page", false
+
+    #Posts
+      include_examples "can post create", "album", false
+      include_examples "can post update", "album", false, :name
+      include_examples "can post update_tracklist", false
+      include_examples "can post rescrape", false
+
+    #Delete
+      include_examples "can delete a record", "album", false
+      
   end
   
+  context 'user access to albums' do
+    before :each do
+      @user = create(:user)
+      UserSession.create(@user)
+    end
 
     
-    describe 'GET #new' do
-      it "assigns a new album to @album" do
-        get :new
-        expect(assigns(:album)).to be_a_new(Album)
-      end
-      it "renders the :new template" do
-        get :new
-        expect(response).to render_template :new
-      end
+    #Shows
+      include_examples 'has an index page', "album", true
+      include_examples "has a show page", "album", true
+      include_examples "has an images page", "album", true, :album_art
+      include_examples "can get album_preview", true
       
+    #Edits
+      include_examples "has a new page", "album", false
+      include_examples "has an edit page", "album", false
+      include_examples "has an edit_tracklist page", false
+      
+    #Posts
+      include_examples "can post create", "album", false
+      include_examples "can post update", "album", false, :name
+      include_examples "can post update_tracklist", false
+      include_examples "can post rescrape", false
+    
+    #Delete
+      include_examples "can delete a record", "album", false
+          
+  end
+
+  context 'admin access to albums' do
+    before :each do
+      @user = create(:admin)
+      UserSession.create(@user)
     end
     
-    describe 'GET #edit' do
-      it "assigns the requested contact to @contact" do
-        album = create(:album)
-        get :edit, id: album
-        expect(assigns(:album)).to eq album
-      end
-      it "renders the :edit template" do
-        album = create(:album)
-        get :edit, id: album
-        expect(response).to render_template :edit
-      end
-    end
-  
-  #Posts
-    describe 'POST #create' do
+    #Shows
+      include_examples 'has an index page', "album", true
+      include_examples "has a show page", "album", true
+      include_examples "has an images page", "album", true, :album_art
+      include_examples "can get album_preview", true
       
-      context "with valid attributes" do
-        it "saves the new album in the database" do
-          expect{post :create, album: attributes_for(:album)
-          }.to change(Album, :count).by(1)
-        end
-        it "redirects to albums#show" do
-          post :create, album: attributes_for(:album)
-          expect(response).to redirect_to album_path(assigns[:album])
-        end
-      end
+    #Edits
+      include_examples "has a new page", "album", true
+      include_examples "has an edit page", "album", true
+      include_examples "has an edit_tracklist page", true
       
-      context "with invalid attributes" do
-        it "does not save the new contact in the database"
-        it "re-renders the :new template"
-      end
-    end
-  
-    describe 'PUT #update' do
-      before :each do
-        @album = create(:album, name: 'hi', status: 'unreleased', catalognumber: '111')
-      end
-      
-      context "with valid attributes" do
-        it "locates the requested @album" do
-          put :update, id: @album, album: attributes_for(:album)
-          expect(assigns(:album)).to eq(@album)
-        end
-        
-        it "updates the album in the database" do
-          put :update, id: @album, album: attributes_for(:album, name: 'hello')
-          @album.reload
-          expect(@album.name).to eq('hello')
-        end
-        
-        it "redirects to the album" do
-          put :update, id: @album, album: attributes_for(:album)
-          expect(response).to redirect_to @album
-        end
-      end
-      
-      context "with invalid attributes" do
-        it "does not update the album" do
-          put :update, id: @album, album: attributes_for(:album, name: '')
-          @album.reload
-          expect(@album.name).not_to eq('')
-        end
-        it "re-renders the #edit template" do
-          put :update, id: @album, album: attributes_for(:album, name: '')
-          expect(response).to render_template :edit
-        end
-      end
-    end  
+    #Posts
+      include_examples "can post create", "album", true
+      include_examples "can post update", "album", true, :name
+      include_examples "can post update_tracklist", true
+      include_examples "can post rescrape", false
     
-    describe 'DELETE #destroy' do
-      before :each do
-        @album = create(:album)
-      end
+    #Delete
+      include_examples "can delete a record", "album", true
       
-      it "destroys the album from the database" do
-        expect{delete :destroy, id: @album}.to change(Album,:count).by(-1)
-      end
-      it "redirects to album#index" do
-        delete :destroy, id: @album
-        expect(response).to redirect_to albums_url
-      end
-    end
+  end
+   
 end
+
+

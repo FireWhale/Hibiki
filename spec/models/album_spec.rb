@@ -149,6 +149,7 @@ describe Album do
       include_examples "updates with keys and values", :album
       include_examples "updates the reference properly", :album   
       include_examples "can upload an image", :album
+      include_examples "updates namehash properly", :album
 
       context "updates artists" do
         it "creates an album_artist" do

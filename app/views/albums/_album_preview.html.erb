@@ -6,24 +6,7 @@
     <h5 class="text-center"><%= link_to name_language_helper(@album,current_user,0), @album %></h5>
     <h6 class="text-center"><%= name_language_helper(@album,current_user,1) %></h6>
     <div class="row">
-      <ul class="col-md-4">
-        <h6 class="text-center">Composers</h6>
-        <% @composers.each do |composer| %>
-          <li><%= link_to name_language_helper(composer,current_user,0), composer %></li>
-        <% end %>
-      </ul>  
-      <ul class="col-md-4">
-        <h6 class="text-center">Performers</h6>
-        <% @performers.each do |performer| %>
-          <li><%= link_to name_language_helper(performer,current_user,0), performer %></li>
-        <% end %>
-      </ul>
-      <ul class="col-md-4">
-        <h6 class="text-center">Sources</h6>
-        <% @album.sources.each do |source| %>
-          <li><%= link_to name_language_helper(source,current_user,0), source %></li>
-        <% end %>
-      </ul>
+
     </div>
   </div>
 </div>

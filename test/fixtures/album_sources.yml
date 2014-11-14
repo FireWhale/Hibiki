@@ -1,9 +1,0 @@
-# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
-
-one:
-  album_id: 1
-  source_id: 1
-
-two:
-  album_id: 1
-  source_id: 1

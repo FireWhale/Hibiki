@@ -12,7 +12,7 @@
           <div class="col-md-11">
             <b>Song Name: </b><%= name_language_helper(song,current_user,0) %><br>
             <b>Album: </b><%= link_to name_language_helper(song.album,current_user,0), song.album %><br>
-            <b>Track Number: </b><%= song.tracknumber %><br>
+            <b>Track Number: </b><%= song.track_number %><br>
             <b>Duration: </b><% if song.length != nil %><%= Time.at(song.length).utc.strftime("%-M:%S") %><% end %>
           </div>
         </div>

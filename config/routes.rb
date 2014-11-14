@@ -17,16 +17,17 @@ Hibiki::Application.routes.draw do
       get :autocomplete_album_namehash
     end
     member do
-      get 'albumart', :action => 'showalbumart'
-      get 'tracklist_edit', :action => 'tracklist_edit'
+      get 'albumart', :action => 'album_art'
+      get 'tracklist_edit', :action => 'edit_tracklist'
       post 'tracklist_edit', :action => 'update_tracklist'
       get 'tracklist_export', :action => 'tracklist_export'
+      post 'rescrape', action: 'rescrape'
     end
   end
   resources :sources do
     get :autocomplete_source_namehash, :on => :collection
     member do
-      get 'images', :action => 'showimages'
+      get 'images', :action => 'show_images'
     end
   end
   resources :songs do
@@ -35,13 +36,13 @@ Hibiki::Application.routes.draw do
   resources :organizations do
     get :autocomplete_organization_namehash, :on => :collection
     member do
-      get 'images', :action => 'showimages'
+      get 'images', :action => 'show_images'
     end
   end
   resources :artists do
     get :autocomplete_artist_namehash, :on => :collection
     member do
-      get 'images', :action => 'showimages'
+      get 'images', :action => 'show_images'
     end
   end
   
@@ -115,13 +116,10 @@ Hibiki::Application.routes.draw do
   match '/addtopost', :to => 'posts#addtopost'
   
   #Index js scripts
-  match '/albumpreview', :to => 'albums#albumpreview'
-  match '/hidealbumpreview', :to => 'albums#hidealbumpreview'
+  match '/album_preview', :to => 'albums#album_preview'
   match '/songpreview', :to => 'songs#songpreview'
   match '/songpreviewhide', :to => 'songs#songpreviewhide'
   
-  #Album Edit script
-  match '/rescrape', :to => 'albums#rescrape'
   
   #User Functions
   match '/watch', :to => 'users#watch'

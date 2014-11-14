@@ -15,7 +15,7 @@ module FormattingModule
       end
     end
     
-    def full_create(keys,values)
+    def full_create(values)
       #Push em into arrays if it's just one
       keys = [keys] if keys.class != Array
       values = [values] if values.class != Array
@@ -27,16 +27,36 @@ module FormattingModule
   end
   
   def full_save(values)
-    #This method will call the full_update_atributes method for whatever record it's called on.
-    if self.save
-      #If the required info is correct, the save will go through and we can call full_update
-      self.full_update_attributes(values)
-    end
+    #Deep symbolize everything!
+      values = values.deep_symbolize_keys   
+    #Get a new_values hash without all non-accessible attributes from the values hash
+      acc_attrs = self.class.accessible_attributes - ["reference"]
+      new_values = values.reject {|k,v| v.empty? || acc_attrs.include?(k) }
+    #Get fields
+      fields = self.class::FullUpdateFields
+    #Reference
+      references = new_values.delete :reference
+      self.format_references_hash(references) if fields[:reference] == true && references.nil? == false
+    #Dates
+      fields[:dates].each {|date| self.format_date_helper(date,new_values)} unless fields[:dates].nil?
+    #Namehash
+      namehash = new_values.delete :namehash
+      if self.respond_to?("namehash") && namehash.nil? == false
+        namehash.delete_if { |key,value| value.empty?}
+        new_values[:namehash] = namehash
+      end    
+    #Save
+      if self.save
+        #If the required info is correct, the save will go through and we can call full_update
+        self.full_update_attributes(values)
+      end
   end
 
   def full_update_attributes(values)
     #The meat and potatoes of the whole operation. get the fields we have to address from a model constant
     fields = self.class::FullUpdateFields
+    #Deep symbolize everything!
+    values = values.deep_symbolize_keys   
     
     #Primary Relations by ID
       unless fields[:relations_by_id].nil?
@@ -73,11 +93,28 @@ module FormattingModule
         folder = self.catalog_number + ' - ' + self.id.to_s if fields[:images][0] == "album" #albums have a different folder structure
         images.each {|image| self.upload_image(image, folder, fields[:images][1], fields[:images][2]) }
       end
+      image_names = values.delete :image_names
+      image_paths = values.delete :image_paths
+      unless fields[:images.nil?] || image_names.nil? || image_paths.nil?
+        image_names.zip(image_paths).each do |each|
+          unless each[0].empty? || each[1].empty?
+            self.images.empty? ? priflag = 'Cover' : priflag = '' 
+            image = Image.new(name: each[0], path: each[1], primary_flag: 'Cover')
+            self.images << image
+          end
+        end
+      end
     #Reference
       references = values.delete :reference
       self.format_references_hash(references) if fields[:reference] == true && references.nil? == false
     #Dates
       fields[:dates].each {|date| self.format_date_helper(date,values)} unless fields[:dates].nil?
+    #Namehash
+      namehash = values.delete :namehash
+      if self.respond_to?("namehash") && namehash.nil? == false
+        namehash.delete_if { |key,value| value.empty?}
+        values[:namehash] = namehash
+      end
     #Add Songs - Album only
       unless fields[:songs].nil?
         new_songs = values.delete :new_songs
@@ -190,9 +227,9 @@ module FormattingModule
   def format_date_helper(field,values)  
     #Allows partial dates in the following fields:
     #Grab the date from values
-    year = values[field + '(1i)']
-    month = values[field + '(2i)']
-    day = values[field + '(3i)']
+    year = values[(field + '(1i)').to_sym]
+    month = values[(field + '(2i)').to_sym]
+    day = values[(field + '(3i)').to_sym]
     #search for related bitmask field. if it doesn't exist, return date
     if self.respond_to?(field + "_bitmask") && year.nil? == false && month.nil? == false && day.nil? == false
       unless year.empty? && month.empty? && day.empty?
@@ -202,13 +239,19 @@ module FormattingModule
         month, bitmask = '1', bitmask + 2 if month.empty?
         day, bitmask = '1', bitmask + 4 if day.empty?
         self.send(field + '_bitmask=', bitmask)  
-        values[field + '(1i)'].replace year
-        values[field + '(2i)'].replace month
-        values[field + '(3i)'].replace day     
+        values[(field + '(1i)').to_sym].replace year
+        values[(field + '(2i)').to_sym].replace month
+        values[(field + '(3i)').to_sym].replace day     
       end
     end 
   end
 
+  def format_namehash(values)
+    namehash = values["namehash"]
+    @songs.each { |k,v| v[:namehash].delete_if { |key,value| value.empty?}}
+  end
+  
+  
   def upload_image(image,path,directory,flag)
     #First, create the folder for the image
     path = path.gsub(/[\\?\/|*:#.<>%"]/, "") #stripping the name for proper directory creation
@@ -263,18 +306,18 @@ module FormattingModule
     keys = [keys] if keys.class != Array
     values = [values] if values.class != Array
     keys.zip(values).each do |relation|
-      if relation[1]['category'].starts_with?("-")
+      if relation[1][:category].starts_with?("-")
         relatedmodel = ("Related" + model.capitalize + "s").constantize.find_by_id(relation[0])
-        relation[1][model + '1_id'] = relatedmodel.send(model + "2_id")
-        relation[1][model + '2_id'] = relatedmodel.send(model + "1_id")
-        relation[1]['category'] = relation[1]['category'].slice(1..-1) #takes off the "-" 
+        relation[1][(model + '1_id').to_sym] = relatedmodel.send(model + "2_id")
+        relation[1][(model + '2_id').to_sym] = relatedmodel.send(model + "1_id")
+        relation[1][:category] = relation[1][:category].slice(1..-1) #takes off the "-" 
       end
       ("Related" + model.capitalize + "s").constantize.update(relation[0], relation[1])
     end
   end
   
   def update_primary_relation(records, model) 
-    records.each { |k,v| model.find_by_id(k).update_attributes(v) unless v['category'].empty? }
+    records.each { |k,v| model.find_by_id(k).update_attributes(v) unless v[:category].empty? }
   end
   
   def delete_records(ids, model)
@@ -297,12 +340,12 @@ module FormattingModule
   end  
 
   def add_songs(songs)
-    unless songs['track_numbers'].nil? || songs['names'].nil?
+    unless songs[:track_numbers].nil? || songs[:names].nil?
       #Fill in the values that are not required
-        songs['namehashes'] = Array.new(songs['names'].count, {}) if songs['namehashes'].nil?
-        songs['lengths'] = Array.new(songs['names'].count, 0) if songs['lengths'].nil?
+        songs[:namehashes] = Array.new(songs[:names].count, {}) if songs[:namehashes].nil?
+        songs[:lengths] = Array.new(songs[:names].count, 0) if songs[:lengths].nil?
       #Zip them up and add them to the album
-        songs['track_numbers'].zip(songs['names'], songs['lengths'], songs['namehashes']). each do |info|
+        songs[:track_numbers].zip(songs[:names], songs[:lengths], songs[:namehashes]). each do |info|
           self.songs.create(track_number: info[0], name: info[1], length: info[2], namehash: info[3], status: "Unreleased")
         end
     end
@@ -316,12 +359,12 @@ module FormattingModule
   end
   
   def add_sources_for_songs(sources)
-    unless sources["ids"].nil? #check the hash to make sure there are IDs
+    unless sources[:ids].nil? #check the hash to make sure there are IDs
       #Fill in values that are not required
-      sources["classification"] = Array.new(sources["ids"].count, "") if sources["classification"].nil?
-      sources["op_ed_number"] = Array.new(sources["ids"].count, "") if sources["op_ed_number"].nil?
-      sources['ep_numbers'] = Array.new(sources["ids"].count, "") if sources['ep_numbers'].nil?
-      sources["ids"].zip(sources["classification"],sources["op_ed_number"],sources['ep_numbers']).each do |info|
+      sources[:classification] = Array.new(sources[:ids].count, "") if sources[:classification].nil?
+      sources[:op_ed_number] = Array.new(sources[:ids].count, "") if sources[:op_ed_number].nil?
+      sources[:ep_numbers] = Array.new(sources[:ids].count, "") if sources[:ep_numbers].nil?
+      sources[:ids].zip(sources[:classification],sources[:op_ed_number],sources[:ep_numbers]).each do |info|
         source = Source.find_by_id(info[0])
         self.song_sources.create(:source_id => info[0], :classification => info[1], :op_ed_number => info[2], :ep_numbers => info[3]) unless source.nil?
       end      

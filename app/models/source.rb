@@ -6,8 +6,11 @@ class Source < ActiveRecord::Base
                     :release_date, :end_date, #Dates!
                     :popularity #Not yet implemented
 
+    attr_accessor   :album_count
+    
     serialize :reference
     serialize :namehash
+  
   
   #Modules
     include FormattingModule

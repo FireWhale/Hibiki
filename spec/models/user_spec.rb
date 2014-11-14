@@ -12,7 +12,7 @@ describe User do
     it "has many watchlists"
     it "has many Ratings"
     it "has many IssueUsers"
-    it_behaves_like "it has images", :artist, Artist
+    it_behaves_like "it has images", :user, User
     it "has many posts as user"
     it "has many posts as recipient"
       

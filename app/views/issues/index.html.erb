@@ -5,7 +5,7 @@
 <% end %>
 
 <div id="bugreport" >
-  <% @issues.each do |k,v| %>
+  <% @issues.group_by(&:category).each do |k,v| %>
       <h3 class="text-center"><%= k.pluralize %></h4>
       <% v.each_with_index do |issue,n| %>
         <div class="row well">

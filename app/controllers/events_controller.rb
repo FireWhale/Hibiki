@@ -5,8 +5,24 @@ class EventsController < ApplicationController
     @events = Event.all.sort_by { |e| e.shorthand }
   end
   
+  def new
+    @event = Event.new
+  end
+  
   def show
     @event = Event.find(params[:id])
+  end
+  
+  def create
+    respond_to do |format|
+      if @event.full_save(params[:event])
+        format.html { redirect_to @event, notice: 'Event was successfully created.' }
+        format.json { render json: @event, status: :created, location: @event }
+      else
+        format.html { render action: "new" }
+        format.json { render json: @event.errors, status: :unprocessable_entity }
+      end
+    end
   end
   
   def edit

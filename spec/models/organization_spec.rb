@@ -57,6 +57,7 @@ describe Organization do
       include_examples "updates with keys and values", :organization
       include_examples "updates the reference properly", :organization
       include_examples "can upload an image", :organization
+      include_examples "updates namehash properly", :organization
       include_examples "can update a primary relationship", :organization, :artist, ArtistOrganization, "artist_organization"
       include_examples "can update self-relations", :organization
       include_examples "updates dates properly", :organization, "established"

@@ -12,7 +12,7 @@ class User < ActiveRecord::Base
     validates :email, uniqueness: { :case_sensitive => false }, allow_blank: true
     validates :crypted_password, presence: true
     validates :password_salt, presence: true
-    validates :security, presence: true, inclusion: Array(1..(2**Ability::Abilities.count - 1)).map(&:to_s)
+    validates :security, presence: true, inclusion: Array(0..(2**Ability::Abilities.count - 1)).map(&:to_s)
     validates :birth_date, presence: true, unless: -> {self.birth_date_bitmask.nil?}
     validates :birth_date_bitmask, presence: true, unless: -> {self.birth_date.nil?}
 

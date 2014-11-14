@@ -49,8 +49,6 @@ class TagsController < ApplicationController
     end
   end
 
-  # GET /tags/1
-  # GET /tags/1.json
   def show
     @tag = Tag.find(params[:id])
     @models = Tag.get_models(@tag.model_bitmask)
@@ -75,8 +73,6 @@ class TagsController < ApplicationController
     end
   end
 
-  # GET /tags/new
-  # GET /tags/new.json
   def new
     @tag = Tag.new
     @models = Tag.get_models(@tag.model_bitmask)
@@ -87,18 +83,15 @@ class TagsController < ApplicationController
     end
   end
 
-  # GET /tags/1/edit
   def edit
     @tag = Tag.find(params[:id])
     @models = Tag.get_models(@tag.model_bitmask)
   end
 
-  # POST /tags
-  # POST /tags.json
   def create
     @tag = Tag.new(params[:tag])
-    models = params[:tag].delete :model_bitmask
-    @tag.model_bitmask =  Tag.get_bitmask(models)
+    models = params[:tag].delete :models
+    @tag.model_bitmask =  Tag.get_bitmask(models)  unless models.nil?
 
 
     respond_to do |format|
@@ -112,12 +105,10 @@ class TagsController < ApplicationController
     end
   end
 
-  # PUT /tags/1
-  # PUT /tags/1.json
   def update
     @tag = Tag.find(params[:id])
-    models = params[:tag].delete :model_bitmask
-    @tag.model_bitmask =  Tag.get_bitmask(models)
+    models = params[:tag].delete :models
+    @tag.model_bitmask =  Tag.get_bitmask(models) unless models.nil?
 
     respond_to do |format|
       if @tag.update_attributes(params[:tag])
@@ -130,8 +121,6 @@ class TagsController < ApplicationController
     end
   end
 
-  # DELETE /tags/1
-  # DELETE /tags/1.json
   def destroy
     @tag = Tag.find(params[:id])
     @tag.destroy

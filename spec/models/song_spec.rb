@@ -361,6 +361,7 @@ describe Song do
           
       end
       include_examples "can update self-relations", :song
+      include_examples "updates namehash properly", :song
       include_examples "updates dates properly", :song, "release_date"
       include_examples "updates with normal attributes", :song
      

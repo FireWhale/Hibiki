@@ -3,8 +3,9 @@ class Album < ActiveRecord::Base
     attr_accessible :name, :altname, :namehash, :catalog_number, #Names!
                     :status, :classification,
                     :reference, :info, :private_info, 
-                    :release_date
-  
+                    :release_date, :release_date_bitmask #bitmask is needed for scraping
+    attr_accessor   :flag, :list_text
+    
     serialize :reference
     serialize :namehash
     
@@ -13,7 +14,7 @@ class Album < ActiveRecord::Base
 
   #Callbacks/Hooks
     
- 
+   
   #Multiple Model Constants - Put here for lack of a better place
     ReferenceLinks = [['vgmdb.net',:VGMdb], ['Last.FM',:lastpppfm], #seriously, going to sub ppp for a period
     ['Generasia Wiki',:generasia_wiki], ['Wikipedia.org',:wikipedia], 
@@ -54,6 +55,16 @@ class Album < ActiveRecord::Base
                         self_relations: [:new_related_album_ids, :new_related_album_categories, :update_related_albums, :remove_related_albums],
                         images: ["album", "albumart/", "Cover"], 
                         dates: ["release_date"]}
+    FormFields = [[["text", :name, "Name:"], ["text", :altname, "Alternate Name:"], 
+                   ["text", :catalog_number, "Catalog Number:"], ["date", :release_date, "Release Date:"],
+                   ["select", :status, "Status:", Album::Status], ["text", :classification, "Classification:"],
+                   ["references"]]]
+    
+    
+    # [[[:name, "Name:"], [:altname, "Alternate Name:"], [:catalog_number, "Catalog Number:", "Medium"], 
+                  # [:release_date, "Release Date:", "Date"], [:status, "Status:", "Select", Album::Status, "Blank"],
+                  # [:classification, "Classification:", "Medium"], [:references], [:events], [:images], [:tags], 
+                  # [:info, "", "Text Area", 4], [:private_info, "", 10]], [[:self_relationship],[:artist_relationship] ]]
 
     #Tracklist options is a tricky variable
     #It needs to be stored in the user's preference as a bitmask, so add only to the end.

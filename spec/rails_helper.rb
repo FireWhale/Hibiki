@@ -26,7 +26,18 @@ RSpec.configure do |config|
 
   # Factory Girl Syntax
   config.include FactoryGirl::Syntax::Methods
-  config.include ImageTests
+  config.include ControllerTests, type: :controller
+  config.include AssociationTests, type: :model
+  config.include AttributeTests, type: :model
+  config.include FullUpdateTests, type: :model
+  config.include ImageTests, type: :model
+  config.include PaginationTests, type: :model
+  config.include PostTests, type: :model
+  config.include SearchTests, type: :model
+  config.include TagTests, type: :model
+  config.include WatchlistTests, type: :model
+  
+  
 
   # If you're not using ActiveRecord, or you'd prefer not to run each of your
   # examples within a transaction, remove the following line or assign false

@@ -31,9 +31,7 @@ class Tag < ActiveRecord::Base
   end
   
   def self.get_models(bitmask)
-    if bitmask.class == String
-      bitmask = bitmask.to_i
-    end
+    bitmask = bitmask.to_i if bitmask.class == String
     (Tag::ModelBitmask).reject { |r| ((bitmask || 0 ) & 2**(Tag::ModelBitmask).index(r)).zero?}
   end
   

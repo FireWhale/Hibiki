@@ -96,6 +96,7 @@ describe Artist do
       include_examples "updates with keys and values", :artist
       include_examples "updates the reference properly", :artist     
       include_examples "can upload an image", :artist
+      include_examples "updates namehash properly", :artist
       include_examples "can update a primary relationship", :artist, :organization, ArtistOrganization, "artist_organization"
       include_examples "can update self-relations", :artist
       include_examples "updates dates properly", :artist, "birth_date"

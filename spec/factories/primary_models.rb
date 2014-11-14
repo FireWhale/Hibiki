@@ -46,6 +46,10 @@ FactoryGirl.define do
           create_list(:song, 6, album: record)
         end
       end
+      
+      trait :invalid do
+        name ""
+      end
     end
     
     factory :artist do 

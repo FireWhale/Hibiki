@@ -5,7 +5,7 @@ class Organization < ActiveRecord::Base
                     :reference, :info, :private_info, :synopsis, #Text Info!
                     :established, #Dates!
                     :popularity #Not yet implemented
-  
+     
     serialize :reference
     serialize :namehash
       

@@ -140,6 +140,7 @@ describe Source do
       end
       include_examples "updates dates properly", :source, "release_date"
       include_examples "updates dates properly", :source, "end_date"
+      include_examples "updates namehash properly", :source
       include_examples "updates with normal attributes", :source
       
     end
