@@ -99,7 +99,7 @@ module FormattingModule
         image_names.zip(image_paths).each do |each|
           unless each[0].empty? || each[1].empty?
             self.images.empty? ? priflag = 'Cover' : priflag = '' 
-            image = Image.new(name: each[0], path: each[1], primary_flag: 'Cover')
+            image = Image.new(name: each[0], path: each[1], primary_flag: priflag)
             self.images << image
           end
         end
@@ -266,7 +266,7 @@ module FormattingModule
     self.images.empty? ? priflag = flag : priflag = '' 
     #Finally, create an image record and add the image to the instance.
     if image_name.empty? == false && image.path.empty? == false
-      @image = Image.new(name: image_name, path: image_path, primary_flag: flag)
+      @image = Image.new(name: image_name, path: image_path, primary_flag: priflag)
       self.images << @image
     end
   end
