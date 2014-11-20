@@ -42,6 +42,17 @@ class Source < ActiveRecord::Base
                         self_relations: [:new_related_source_ids, :new_related_source_categories, :update_related_sources, :remove_related_sources],
                         images: ["id", "sourceimages/", "Primary"], 
                         dates: ["release_date", "end_date"]}
+                        
+    FormFields = [["text", :name, "Name:"], ["text", :altname, "Alternate Name:"], 
+                  ["select", :status, "Status:", Album::Status],["select", :db_status, "Database Status:", Artist::DatabaseStatus],
+                  ["select", :category, "Product/Franchise:", Source::Categories], ["select", :activity, "Activity:", Source::Activity], 
+                  ["references"], ["date", :release_date, "Release Date:"], ["date", :end_date, "End Date:"], ["images"], ["tags"],
+                  ["text-area", :info, 4 ], ["text-area", :synopsis, 2],
+                  ["split"],
+                  ["self-relations"], ["related_model", "organization", "source_organizations", "source[remove_source_organizations][]", "source[new_organization_ids]",
+                   "source[update_source_organizations]", SourceOrganization::Categories, "source[new_organization_categories]"], ["namehash"], ["text-area", :private_info, 10]]
+                  
+                  
   #Validation
     validates :name, presence: true , uniqueness: {scope: [:reference]}
     validates :status, presence: true, inclusion: Album::Status

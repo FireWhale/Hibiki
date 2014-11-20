@@ -39,17 +39,9 @@ class SourcesController < ApplicationController
     end
   end
 
-  def showimages
+  def show_images
     @source = Source.includes(:images).find_by_id(params[:id])
-    if @source.images.empty?
-      #What if there are no album images? Shouldn't be able to get here, but...
-    else
-      if params[:image] == "cover"
-        @image = @source.primary_images.first
-      else
-        @image = @source.images.first
-      end      
-    end
+    @image = (params[:image] == "cover" ?  @source.primary_images.first : @source.images.first ) unless @source.images.empty?
   end
 
   # GET /sources/new

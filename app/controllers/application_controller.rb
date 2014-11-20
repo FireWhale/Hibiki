@@ -38,12 +38,13 @@ class ApplicationController < ActionController::Base
   
   #User methods!
     def name_language_helper(record,user,priority, opts = {})
+      #options: no_bold: true  
       array = []
       if record.respond_to?(:namehash) && record.namehash.nil? == false && record.namehash.empty? == false
         if user.nil? #Guest users will be nil
           languagesettings = User::DefaultLanguages.split(",")
         else
-          if record.class.to_s == "Artist" or record.class.to_s == 'Organization'
+          if record.class.to_s == "Artist" || record.class.to_s == 'Organization'
             languagesettings = user.artist_language_settings.split(",")
           else
             languagesettings = user.language_settings.split(",")

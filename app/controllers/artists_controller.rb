@@ -35,15 +35,7 @@ class ArtistsController < ApplicationController
 
   def show_images
     @artist = Artist.includes(:images).find_by_id(params[:id])
-    if @artist.images.empty?
-      #What if there are no album images? Shouldn't be able to get here, but...
-    else
-      if params[:image] == "cover"
-        @image = @artist.primary_images.first
-      else
-        @image = @artist.images.first
-      end      
-    end
+    @image = (params[:image] == "cover" ?  @artist.primary_images.first : @artist.images.first ) unless @artist.images.empty?
   end
 
   def addartistforsongform

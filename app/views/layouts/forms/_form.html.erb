@@ -69,8 +69,8 @@
         </div>
       <% elsif attribute[0] == "events"%>
         <div id="Events">
-          <% if @album.events.nil? == false %>
-            <% @album.events.each do |event| %>
+          <% if record.events.nil? == false %>
+            <% record.events.each do |event| %>
               <div>Event: <%= check_box_tag 'album[remove_events][]', event.id %> <%= link_to event.shorthand, event %></div>
             <% end %>
           <% end %>
@@ -82,7 +82,7 @@
       <% elsif attribute[0] == "tags" %>
         <div id="Tags" class="well">
           <h4 class="text-center">Tags</h4>
-          <%= render :partial => 'tags/edit_tags', locals: {:subject => @album } %>
+          <%= render :partial => 'tags/edit_tags', locals: {:subject => record } %>
         </div>          
       <% elsif attribute[0] == "related_model" %>
         <div id=<%= attribute[1].capitalize %> class="well">

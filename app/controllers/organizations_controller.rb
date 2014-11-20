@@ -28,17 +28,10 @@ class OrganizationsController < ApplicationController
     end
   end
   
-  def showimages
+  def show_images
+
     @organization = Organization.includes(:images).find_by_id(params[:id])
-    if @organization.images.empty?
-      #What if there are no album images? Shouldn't be able to get here, but...
-    else
-      if params[:image] == "cover"
-        @image = @organization.primary_images.first
-      else
-        @image = @organization.images.first
-      end      
-    end
+    @image = (params[:image] == "cover" ?  @organization.primary_images.first : @organization.images.first ) unless @organization.images.empty?    
   end
   
   # GET /organizations/new

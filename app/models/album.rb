@@ -55,20 +55,15 @@ class Album < ActiveRecord::Base
                         self_relations: [:new_related_album_ids, :new_related_album_categories, :update_related_albums, :remove_related_albums],
                         images: ["album", "albumart/", "Cover"], 
                         dates: ["release_date"]}
+                        
     FormFields = [["text", :name, "Name:"], ["text", :altname, "Alternate Name:"], 
-                   ["text", :catalog_number, "Catalog Number:"], ["date", :release_date, "Release Date:"],
-                   ["select", :status, "Status:", Album::Status], ["text", :classification, "Classification:"],
-                   ["references"], ["events"], ["images"], ["tags"], ["text-area", :info, 4 ], ["text-area", :private_info, 10],
-                   ["split"],
-                   ["self-relations"], ["artist_albums"], ["related_model", "source", "album_sources", "album[remove_album_sources][]", "album[new_source_ids]"],
-                   ["related_model", "organization", "album_organizations", "album[remove_album_organizations][]", "album[new_organization_ids]", 
+                  ["text", :catalog_number, "Catalog Number:"], ["date", :release_date, "Release Date:"],
+                  ["select", :status, "Status:", Album::Status], ["text", :classification, "Classification:"],
+                  ["references"], ["events"], ["images"], ["tags"], ["text-area", :info, 4 ], ["text-area", :private_info, 10],
+                  ["split"],
+                  ["self-relations"], ["artist_albums"], ["related_model", "source", "album_sources", "album[remove_album_sources][]", "album[new_source_ids]"],
+                  ["related_model", "organization", "album_organizations", "album[remove_album_organizations][]", "album[new_organization_ids]", 
                    "album[update_album_organizations]", AlbumOrganization::Categories, "album[new_organization_categories]"], ["namehash"], ["songs"]]
-    
-    
-    # [[[:name, "Name:"], [:altname, "Alternate Name:"], [:catalog_number, "Catalog Number:", "Medium"], 
-                  # [:release_date, "Release Date:", "Date"], [:status, "Status:", "Select", Album::Status, "Blank"],
-                  # [:classification, "Classification:", "Medium"], [:references], [:events], [:images], [:tags], 
-                  # [:info, "", "Text Area", 4], [:private_info, "", 10]], [[:self_relationship],[:artist_relationship] ]]
 
     #Tracklist options is a tricky variable
     #It needs to be stored in the user's preference as a bitmask, so add only to the end.
