@@ -52,16 +52,9 @@ class OrganizationsController < ApplicationController
     @organization.namehash = @organization.namehash || {}
   end
 
-  # POST /organizations
-  # POST /organizations.json
   def create
-    params[:organization] = params[:organization].deep_symbolize_keys
-    
-    #Namehash
-    params[:organization][:namehash].delete_if { |key,value| value.empty?}
-    
     respond_to do |format|
-      if @organization.full_create(params[:organization])
+      if @organization.full_save(params[:organization])
         format.html { redirect_to @organization, notice: 'Organization was successfully created.' }
         format.json { render json: @organization, status: :created, location: @organization }
       else
@@ -71,14 +64,8 @@ class OrganizationsController < ApplicationController
     end
   end
 
-  # PUT /organizations/1
-  # PUT /organizations/1.json
   def update
     @organization = Organization.find(params[:id])
-    params[:organization] = params[:organization].deep_symbolize_keys
-
-    #Namehash
-    params[:organization][:namehash].delete_if { |key,value| value.empty?}
     
     respond_to do |format|
       if @organization.full_update_attributes(params[:organization])

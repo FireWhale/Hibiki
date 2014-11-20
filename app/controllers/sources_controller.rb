@@ -63,16 +63,9 @@ class SourcesController < ApplicationController
     
   end
 
-  # POST /sources
-  # POST /sources.json
-  def create
-    params[:source] = params[:source].deep_symbolize_keys
-    
-    #Namehash
-    params[:source][:namehash].delete_if { |key,value| value.empty?}
-    
+  def create    
     respond_to do |format|
-      if @source.full_create(params[:source])
+      if @source.full_save(params[:source])
         format.html { redirect_to @source, notice: 'Source was successfully created.' }
         format.json { render json: @source, status: :created, location: @source }
       else
@@ -82,14 +75,8 @@ class SourcesController < ApplicationController
     end
   end
 
-  # PUT /sources/1
-  # PUT /sources/1.json
   def update
     @source = Source.find(params[:id])
-    params[:source] = params[:source].deep_symbolize_keys
-
-    #Namehash
-    params[:source][:namehash].delete_if { |key,value| value.empty?}
     
     respond_to do |format|
       if @source.full_update_attributes(params[:source])
