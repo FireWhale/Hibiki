@@ -26,7 +26,6 @@ describe AlbumsController do
           expect(assigns(:album)).to eq album
         end
         
-        
         it "locates the songs"
         
         it "updates each song"

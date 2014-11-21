@@ -50,6 +50,16 @@ class Artist < ActiveRecord::Base
                         self_relations: [:new_related_artist_ids, :new_related_artist_categories, :update_related_artists, :remove_related_artists],
                         images: ["id", "artistimages/", "Primary"], 
                         dates: ["birth_date", "debut_date"]}  
+                        
+    FormFields = [["text", :name, "Name:"], ["text", :altname, "Alternate Name:"], 
+                  ["select", :status, "Status:", Album::Status],["select", :db_status, "Database Status:", Artist::DatabaseStatus], 
+                  ["select", :category, "Categories:", Artist::Categories], ["select", :activity, "Activity:", Artist::Activity],
+                  ["references"], ["date", :debut_date, "Debut Date:"], ["date", :birth_date, "Birth Date:"], ["images"], ["tags"],
+                  ["text-area", :info, 4 ], ["text-area", :synopsis, 2],
+                  ["split"],
+                  ["self-relations"], ["related_model", "organization", "artist_organizations", "artist[remove_artist_organizations]", "artist[new_organization_ids]",
+                  "artist[update_artist_organizations]", ArtistOrganization::Categories, "artist[new_organization_categories]"], ["namehash"], ["text-area", :private_info, 10]]   
+                                  
   #Validation
     validates :name, presence: true, uniqueness: {scope: [:reference]}
     validates :status, presence: true, inclusion: Album::Status

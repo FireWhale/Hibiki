@@ -44,8 +44,6 @@ class SourcesController < ApplicationController
     @image = (params[:image] == "cover" ?  @source.primary_images.first : @source.images.first ) unless @source.images.empty?
   end
 
-  # GET /sources/new
-  # GET /sources/new.json
   def new
     @source = Source.new
     @source.namehash = @source.namehash || {}
@@ -56,7 +54,6 @@ class SourcesController < ApplicationController
     end
   end
 
-  # GET /sources/1/edit
   def edit
     @source = Source.find(params[:id])
     @source.namehash = @source.namehash || {}
@@ -89,8 +86,6 @@ class SourcesController < ApplicationController
     end
   end
 
-  # DELETE /sources/1
-  # DELETE /sources/1.json
   def destroy
     @source = Source.find(params[:id])
     @source.destroy

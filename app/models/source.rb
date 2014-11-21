@@ -52,7 +52,6 @@ class Source < ActiveRecord::Base
                   ["self-relations"], ["related_model", "organization", "source_organizations", "source[remove_source_organizations][]", "source[new_organization_ids]",
                    "source[update_source_organizations]", SourceOrganization::Categories, "source[new_organization_categories]"], ["namehash"], ["text-area", :private_info, 10]]
                   
-                  
   #Validation
     validates :name, presence: true , uniqueness: {scope: [:reference]}
     validates :status, presence: true, inclusion: Album::Status

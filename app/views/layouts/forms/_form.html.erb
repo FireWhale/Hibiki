@@ -11,7 +11,7 @@
   <% end %>
   
   <div class="col-md-6">
-    <% record.class::FormFields.each do |attribute| %>
+    <% ((defined? fields) ? fields : record.class::FormFields).each do |attribute| %>
       <% if attribute[0] == "text" %>
         <div>
           <%= f.label attribute[1], attribute[2] %>
@@ -20,8 +20,10 @@
       <% elsif attribute[0] == "date" %>
         <div>
           <%= f.label attribute[1], attribute[2] %> 
-          <%= f.date_select attribute[1], start_year: 1950, include_blank: true %>
-        </div>   
+          <%= select_year((record.send("#{attribute[1].to_s}_bitmask").nil? || record.send("#{attribute[1].to_s}_bitmask") & 1 == 0) ? record.send(attribute[1]).try(:year) : Date.new(10), start_year: 1950, end_year: Date.today.year, prefix: record.class.to_s.downcase, field_name: "#{attribute[1]}(1i)", include_blank: true)%>
+          <%= select_month((record.send("#{attribute[1].to_s}_bitmask").nil? || record.send("#{attribute[1].to_s}_bitmask") & 2 == 0) ? record.send(attribute[1]).try(:month) : 13, prefix: record.class.to_s.downcase, field_name: "#{attribute[1]}(2i)", include_blank: true)%>
+          <%= select_day((record.send("#{attribute[1].to_s}_bitmask").nil? || record.send("#{attribute[1].to_s}_bitmask") & 4 == 0) ? record.send(attribute[1]).try(:day) : 40, prefix: record.class.to_s.downcase, field_name: "#{attribute[1]}(3i)", include_blank: true)%>
+        </div>
       <% elsif attribute[0] == "select" %>     
         <div>
           <%= f.label attribute[1], attribute[2] %>
