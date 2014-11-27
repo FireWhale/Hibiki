@@ -47,7 +47,7 @@ class Album < ActiveRecord::Base
     ['is an instrumental version of', "Normal Versions", "Instrumental Versions", 'Instrumental'],
     ['has the instrumental version', '-Instrumental']]
 
-    FullUpdateFields = {reference: true, events: true, songs: true, sources_for_album: true, artists_for_album: [:new_artist_ids, :new_artist_categories, :update_album_artists],
+    FullUpdateFields = {reference: true, events: true, songs: true, sources_for_album: true, artists_for_album: [:new_artist_ids, :new_artist_categories, :update_artist_albums],
                         scrapes: {organization: [:new_organization_names, :new_organization_categories_scraped],
                                   sources: [:new_source_names],
                                   artists: [:new_artist_names, :new_artist_categories_scraped]},
@@ -56,14 +56,25 @@ class Album < ActiveRecord::Base
                         images: ["album", "albumart/", "Cover"], 
                         dates: ["release_date"]}
                         
-    FormFields = [["text", :name, "Name:"], ["text", :altname, "Alternate Name:"], 
-                  ["text", :catalog_number, "Catalog Number:"], ["date", :release_date, "Release Date:"],
-                  ["select", :status, "Status:", Album::Status], ["text", :classification, "Classification:"],
-                  ["references"], ["events"], ["images"], ["tags"], ["text-area", :info, 4 ], ["text-area", :private_info, 10],
-                  ["split"],
-                  ["self-relations"], ["artist_albums"], ["related_model", "source", "album_sources", "album[remove_album_sources][]", "album[new_source_ids]"],
-                  ["related_model", "organization", "album_organizations", "album[remove_album_organizations][]", "album[new_organization_ids]", 
-                   "album[update_album_organizations]", AlbumOrganization::Categories, "album[new_organization_categories]"], ["namehash"], ["songs"]]
+    FormFields = [{type: "markup", tag_name: "div class='col-md-6'"},
+                  {type: "text", attribute: :name, label: "Name:"}, 
+                  {type: "text", attribute: :altname, label: "Alternate Name:"}, 
+                  {type: "text", attribute: :catalog_number, label: "Catalog Number:"}, 
+                  {type: "date", attribute: :release_date, label: "Release Date:"}, 
+                  {type: "select", attribute: :status, label: "Status:", categories: Album::Status},
+                  {type: "text", attribute: :classification, label: "Classification:"}, 
+                  {type: "references"}, {type: "events"}, {type: "images"},
+                  {type: "tags", div_class: "well", title: "Tags"},
+                  {type: "text_area", attribute: :info, rows: 4, label: "Info:"},
+                  {type: "text_area", attribute: :private_info, rows: 10, label: "Private Info:"},
+                  {type: "markup", tag_name: "/div"}, {type: "markup", tag_name: "div  class='col-md-6'"},
+                  {type: "self_relations", div_class: "well", title: "Album Relationships", sub_div_id: "Albums"},
+                  {type: "artist_relations", div_class: "well", title: "Artist Relationships", sub_div_id: "Artists"} ,
+                  {type: "related_model", div_class: "well", title: "Source Relationships", model: "source", relation_model: "album_sources", sub_div_id: "Sources"},
+                  {type: "related_model", div_class: "well", title: "Organization Relationships", model: "organization", relation_model: "album_organizations", categories: AlbumOrganization::Categories, sub_div_id: "Organizations"},
+                  {type: "namehash", title: "Languages", div_class: "well", sub_div_id: "Languages"}, {type: "songs", title: "Songs", div_class: "well", sub_div_id: "Songs"},
+                  {type: "markup", tag_name: "/div"}]
+
 
     #Tracklist options is a tricky variable
     #It needs to be stored in the user's preference as a bitmask, so add only to the end.

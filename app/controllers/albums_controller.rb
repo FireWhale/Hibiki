@@ -255,7 +255,7 @@ class AlbumsController < ApplicationController
     
   def update_tracklist
     @album = Album.find_by_id(params[:id])
-    Song.full_update(params[:song].keys, params[:song].values)
+    Song.full_update(params["song"].keys, params["song"].values)
          
     respond_to do |format|
         format.html { redirect_to @album, notice: 'Tracklist updated!' }

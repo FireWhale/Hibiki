@@ -1,0 +1,2 @@
+<%= content_tag(:h4, class: "text-center") {opts[:title]} unless opts[:title].nil? %>
+<%= render :partial => 'tags/edit_tags', locals: {:subject => record } %>

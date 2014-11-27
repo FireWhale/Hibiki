@@ -1,0 +1,6 @@
+<%= fields_for form_prefix, record do |f| %>
+  <%= render "layouts/forms/fields/label", label: opts[:label], form_prefix: form_prefix, record: record, attribute: opts[:attribute] %>
+  <%= select_year((record.send("#{opts[:attribute].to_s}_bitmask").nil? || record.send("#{opts[:attribute].to_s}_bitmask") & 1 == 0) ? record.send(opts[:attribute]).try(:year) : Date.new(10), start_year: 1950, end_year: Date.today.year, prefix: form_prefix, field_name: "#{opts[:attribute]}(1i)", include_blank: true)%>
+  <%= select_month((record.send("#{opts[:attribute].to_s}_bitmask").nil? || record.send("#{opts[:attribute].to_s}_bitmask") & 2 == 0) ? record.send(opts[:attribute]).try(:month) : 13, prefix: form_prefix, field_name: "#{opts[:attribute]}(2i)", include_blank: true)%>
+  <%= select_day((record.send("#{opts[:attribute].to_s}_bitmask").nil? || record.send("#{opts[:attribute].to_s}_bitmask") & 4 == 0) ? record.send(opts[:attribute]).try(:day) : 40, prefix: form_prefix, field_name: "#{opts[:attribute]}(3i)", include_blank: true)%>
+<% end %>

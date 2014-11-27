@@ -342,4 +342,11 @@ module FixModule
     #Finished 8/30. about 180 albums looked at
   end
   
+  def add_status_to_songs
+    #Performed 11/26/2014
+    #Recent Validation additions have made all of our current songs invalid, since they have no status. We're just gonna add Unreleased to all of them.
+    Song.where(status: nil).update_all(status: "Unreleased")
+    #easy peasy
+  end
+  
 end

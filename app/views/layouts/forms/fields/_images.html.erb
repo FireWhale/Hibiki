@@ -1,0 +1,3 @@
+<%= fields_for form_prefix, record do |f| %>
+  <%= f.label :images, "Add Images:" %> <%= f.file_field :images, {:multiple => true} %></br></br>
+<% end %>

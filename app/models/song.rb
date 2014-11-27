@@ -4,7 +4,8 @@ class Song < ActiveRecord::Base
                     :status, :reference, :info, :private_info, #Database and Info
                     :track_number, :disc_number, :length, :lyrics, #more detailed info!
                     :release_date, :album_id #Dates and album ID
-                    
+    attr_accessor   :duration #for editing a song
+    
     serialize :namehash
     serialize :reference
     
@@ -23,7 +24,47 @@ class Song < ActiveRecord::Base
     FullUpdateFields = {reference: true, sources_for_song: true, track_numbers: true, artists_for_song: [:new_artist_ids, :new_artist_categories, :update_artist_songs],
                         self_relations: [:new_related_song_ids, :new_related_song_categories, :update_related_songs, :remove_related_songs],
                         images: ["id", "songimages/", "Primary"],
-                        dates: ["release_date"] }
+                        dates: ["release_date"]}
+    
+    FormFields = [{type: "markup", tag_name: "div class='col-md-6'"},
+                  {type: "text", attribute: :name, label: "Name:"}, 
+                  {type: "text", attribute: :altname, label: "Alternate Name:"},
+                  {type: "text", attribute: :album_id, label: "Album ID:"},
+                  {type: "select", attribute: :status, label: "Status:", categories: Album::Status},
+                  {type: "date", attribute: :release_date, label: "Release Date:"},
+                  {type: "text", attribute: :track_number, label: "Track Number:"},
+                  {type: "text", attribute: :disc_number, label: "Disc Number:"},
+                  {type: "text", attribute: :length, label: "Length:"},
+                  {type: "references"}, {type: "images"},
+                  {type: "tags", div_class: "well", title: "Tags"},
+                  {type: "text_area", attribute: :info, rows: 4, label: "Info:"},
+                  {type: "text_area", attribute: :private_info, rows: 10, label: "Private Info:"},
+                  {type: "markup", tag_name: "/div"}, {type: "markup", tag_name: "div  class='col-md-6'"},
+                  {type: "self_relations", div_class: "well", title: "Song Relationships", sub_div_id: "Songs"},
+                  {type: "artist_relations", div_class: "well", title: "Artist Relationships", sub_div_id: "Artists"},
+                  {type: "source_relations", div_class: "well", title: "Source Relationships", sub_div_id: "Sources"},
+                  {type: "namehash", title: "Languages", div_class: "well", sub_div_id: "Languages"}, 
+                  {type: "text_area", attribute: :lyrics, rows: 20, label: "Lyrics:"},             
+                  {type: "markup", tag_name: "/div"}]
+    
+    TracklistEditFields = [{type: "markup", tag_name: "div class='well well-xsmall'"}, {type: "well_hide"},
+                           {type: "text", attribute: :name, no_div: true}, 
+                           {type: "text", attribute: :track_number, no_div: true, field_class: "input-xmini", label: "Track #:"},
+                           {type: "text", attribute: :length, no_div: true, label: "Length:"},
+                           {type: "id", no_div: true, label: "ID:"},
+                           {type: "markup", tag_name: "div ", add_id: true}, {type: "markup", tag_name: "div class='row'"}, {type: "markup", tag_name: "div class='col-md-4'"}, {type: "markup", tag_name: "br"},
+                           {type: "namehash"}, {type: "text_area", attribute: :lyrics, rows: 2, label: "Lyrics:"}, {type: "markup", tag_name: "/div"}, 
+                           {type: "markup", tag_name: "div class='col-md-8'"}, {type: "markup", tag_name: "br"},
+                           {type: "artist_relations", no_div: true}, {type: "source_relations", no_div: true},
+                           {type: "self_relations", no_div: true}, {type: "tags", no_div: true},
+                           {type: "markup", tag_name: "/div"},
+                           {type: "markup", tag_name: "/div"}, {type: "markup", tag_name: "/div"},
+                           {type: "markup", tag_name: "/div"}]
+    
+    TracklistEditFields1 = [["well"], ["toggle"], ["text-no-div", :name, "", "input-xlarge"], ["text-no-div", :track_number, "Track #:", "input-xmini"], 
+        ["text-no-div", :length, "Length"], ["id", "ID:"],
+                           ["row", "id"], ["col", "4"], ["namehash", "not nil"], ["text-area", :lyrics, 2],["end"], 
+                           ["col", "8"], ["artist_relation", "not nil"], ["sources", "not nil"], ["self-relations", "not nil"], ["tags", "not nil"], ["end"], ["end"], ["end"]]                  
 
   #Validation - Meh, not needed I guess (4/19)
     validates :name, presence: true

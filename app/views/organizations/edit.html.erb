@@ -1,9 +1,1 @@
-<% content_for :title do %>Edit - <%= @organization.name %><% end %>
-
-<% content_for :header do %>
-  <div class="text-center">
-    <h2>Edit Organization: <%= @organization.name %></h2>
-  </div>
-<% end %>
-
-<%= render 'form' %>
+<%= render 'layouts/forms/edit', :record => @organization %>

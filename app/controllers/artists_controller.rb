@@ -37,19 +37,6 @@ class ArtistsController < ApplicationController
     @artist = Artist.includes(:images).find_by_id(params[:id])
     @image = (params[:image] == "cover" ?  @artist.primary_images.first : @artist.images.first ) unless @artist.images.empty?
   end
-
-  def addartistforsongform
-    @songid = params[:song_id]
-    #@defaultcat is not normally used in normal artist adding, but for scripted adding we need it.
-    #^wow thanks past me, that's very useful
-    @defaultcat = ''
-    #check to see if this is a script function
-    if params[:script].nil? == false
-      @songids = params[:script][:div_ids].split(',')
-      @defaultvalue = params[:script][:name]
-      @defaultcat = params[:script][:artist_cat]
-    end
-  end
   
   def new
     @artist = Artist.new

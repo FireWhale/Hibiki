@@ -1,7 +1,0 @@
-<% if @songids.nil? %>
-  $('#<%= "Artists" + @songid.to_s %>').append('<%= escape_javascript(render :partial => 'artists/add_artist_for_song_form', :locals => {:song_id => @songid}) %>');
-<% else %>
-  <% @songids.each do |songid| %>
-    $('#<%= "Artists" + songid.to_s %>').append('<%= escape_javascript(render :partial => 'artists/add_artist_for_song_form', :locals => {:song_id => songid}) %>');
-  <% end %>  
-<% end %>

@@ -1,9 +1,1 @@
-<% content_for :title do %>New Album<% end %>
-
-<% content_for :header do %>
-  <div class="text-center">
-    <h2>New Album</h2>
-  </div>
-<% end %>
-
-<%= render 'form' %>
+<%= render 'layouts/forms/new', :record => @album %>

@@ -129,7 +129,7 @@ module FormattingModule
       end
       unless fields[:sources_for_song].nil?
         #Update
-          song_sources = values.delete :song_sources
+          song_sources = values.delete :update_song_sources
           SongSource.update(song_sources.keys, song_sources.values) unless song_sources.nil? || song_sources.keys.empty?
         #Destroy
           remove_song_sources = values.delete :remove_song_sources
@@ -184,8 +184,10 @@ module FormattingModule
       end
     #Lengths - Song Only
       unless fields[:track_numbers].nil?
+        length = values.delete :length
+        values[:length] = ( length.include?(":") ? (length.split(":")[0].to_i * 60 + length.split(":")[1].to_i ) : length) unless length.nil?
         duration = values.delete :duration #Format the duration into seconds if it includes ":"
-        values[:length] = ( duration.include?(":") ? (duration.split(":")[0].to_i * 60 +  duration.split(":")[1].to_i ) : duration) unless duration.nil?
+        values[:length] = ( duration.include?(":") ? (duration.split(":")[0].to_i * 60 + duration.split(":")[1].to_i ) : duration) unless duration.nil?
       end
     #Events/Season
       #Events - Albums only
@@ -242,6 +244,8 @@ module FormattingModule
         values[(field + '(1i)').to_sym].replace year
         values[(field + '(2i)').to_sym].replace month
         values[(field + '(3i)').to_sym].replace day     
+      else #The bitmask should be nil'd for validation
+        self.send(field + '_bitmask=', nil)
       end
     end 
   end

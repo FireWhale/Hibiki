@@ -167,6 +167,36 @@ module ApplicationHelper
       end
     end
 
+  #Form helpers
+    def render_form(records, opts = {})
+      multi_flag = true if records.class == Array
+      records = [records] unless records.class == Array  
+      render "layouts/forms/form", records: records, url: opts[:url], form_prefix: opts[:form_prefix], fields: opts[:fields], multi_flag: multi_flag
+    end
+  
+    def fields_helper(record, opts = {})
+      model = record.class.to_s.downcase
+      fields = opts[:fields] || record.class::FormFields
+      form_prefix = opts[:form_prefix] || (opts[:multi_flag] ? "#{model}[#{record.id}]" : model)
+      render "layouts/forms/fields", form_prefix: form_prefix, record: record, fields: fields, model: model
+    end
+
+    def single_field_helper(opts, record, form_prefix)
+      #Render a form based on the type
+      if opts[:type] == "markup"
+        output = "<#{opts[:tag_name]}".html_safe
+        output = output + "id=#{record.id}" if opts[:add_id]
+        output = output + ">".html_safe
+        opts[:no_div] = true
+      elsif opts[:type] == "well_hide"
+        output = render :partial => 'layouts/forms/well_toggle', locals: {:div_id => record.id, :toggle_id => "Song#{record.id}Toggle"} 
+        opts[:no_div] = true
+      else
+        output =  render "layouts/forms/fields/#{opts[:type]}", opts: opts, form_prefix: form_prefix, record: record
+      end
+      opts[:no_div] == true ? output : content_tag(:div, class: opts[:div_class], id: opts[:div_id]) {output}
+    end
+
   #Random Status helper lol
     def status_helper(record)
       #this checks both the status and db status of the record and returns information.

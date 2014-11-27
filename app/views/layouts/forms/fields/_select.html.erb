@@ -1,0 +1,4 @@
+<%= fields_for form_prefix, record do |f| %>
+  <%= render "layouts/forms/fields/label", label: opts[:label], form_prefix: form_prefix, record: record, attribute: opts[:attribute] %>
+  <%= f.select opts[:attribute], opts[:categories], include_blank: true %>
+<% end %>

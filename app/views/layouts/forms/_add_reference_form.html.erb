@@ -1,11 +1,11 @@
 <div class="row-fluid">
-    <% if @fieldsfor.nil? == false %>
-      <%= fields_for (@fieldsfor + "[types]") do |f| %>
-        <%= f.label '', "Reference Link:", :class => "control-label" %>
-        <%= f.select '', Album::ReferenceLinks, :include_blank => true %>   
-      <% end %>   
-      <%= fields_for (@fieldsfor + "[links]") do |f| %>                
-        <%= f.text_field '', :class=>"input-xlarge" %>
-      <% end %>           
-    <% end %>
+  <% if @fieldsfor.nil? == false %>
+    <%= fields_for (@fieldsfor + "[types]") do |f| %>
+      <%= f.label '', "Reference Link:", :class => "control-label" %>
+      <%= f.select '', Album::ReferenceLinks, :include_blank => true %>   
+    <% end %>   
+    <%= fields_for (@fieldsfor + "[links]") do |f| %>                
+      <%= f.text_field '', class: "input-xlarge" %>
+    <% end %>           
+  <% end %>
 </div>

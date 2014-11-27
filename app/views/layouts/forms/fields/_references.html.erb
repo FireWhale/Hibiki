@@ -1,0 +1,15 @@
+<% unless record.reference.nil? %>
+  <% record.reference.each do |k,v| %>
+    <div>
+      <%= fields_for "#{form_prefix}[reference][types]" do |f| %>
+        <%= f.label '', "Reference Link:" %>
+        <%= f.select '', Album::ReferenceLinks, include_blank: true, selected: k %>
+      <% end %>
+      <%= fields_for "#{form_prefix}[reference][links]" do |f| %>
+        <%= f.text_field '', value: v, class: "input-xlarge"  %>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>
+<div id="ReferenceFields"></div>
+<%= link_to "Add a Reference", addreference_path(:fields_for => "#{form_prefix}[reference]"), :remote => true %></br></br>

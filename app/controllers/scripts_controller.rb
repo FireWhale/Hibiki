@@ -85,6 +85,10 @@ class ScriptsController < ApplicationController
         @label = "" unless @self_relationship_model.nil?
       #Get a artist_categories if one is passed in
         @artist_category_names = params[:artist_category_names] 
+      #Get track info for songs
+        @song_info = params[:song_info]
+      #Get song_source model
+        @song_source = params[:song_source]
       #Check if this is a script function to add to all song fields
       if params[:script].nil? == false
         @songscript = []

@@ -19,7 +19,7 @@ Hibiki::Application.routes.draw do
     member do
       get 'albumart', :action => 'album_art'
       get 'tracklist_edit', :action => 'edit_tracklist'
-      post 'tracklist_edit', :action => 'update_tracklist'
+      put 'tracklist_edit', :action => 'update_tracklist'
       get 'tracklist_export', :action => 'tracklist_export'
       post 'rescrape', action: 'rescrape'
       get 'rescrape', action: 'rescrape'
@@ -101,13 +101,10 @@ Hibiki::Application.routes.draw do
   match '/addtag', :to => 'tags#add_tag'
   match '/removetag', :to => 'tags#remove_tag'
   match '/addartistforsong', :to => 'artists#addartistforsongform'
-  match '/addevent', :to => 'events#addeventform'
   match '/addsourceforseason', :to => 'sources#addsourceforseasonform'
   match '/addsourceforsong', :to => 'sources#addsourceforsongform'
-  match '/addsong', :to => 'songs#addsongform'
   match '/addreference', :to => 'scripts#add_reference_form'
   match '/addmodel', :to => 'scripts#add_model_form'
-  match '/addimageform', :to => 'images#addimageform'
   match '/well_toggle', :to => 'scripts#well_toggle'
   
   #links for adding scrape links and albums/artists/sources to posts

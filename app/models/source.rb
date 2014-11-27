@@ -43,14 +43,35 @@ class Source < ActiveRecord::Base
                         images: ["id", "sourceimages/", "Primary"], 
                         dates: ["release_date", "end_date"]}
                         
-    FormFields = [["text", :name, "Name:"], ["text", :altname, "Alternate Name:"], 
+    FormFields = [["start"], ["text", :name, "Name:"], ["text", :altname, "Alternate Name:"], 
                   ["select", :status, "Status:", Album::Status],["select", :db_status, "Database Status:", Artist::DatabaseStatus],
                   ["select", :category, "Product/Franchise:", Source::Categories], ["select", :activity, "Activity:", Source::Activity], 
                   ["references"], ["date", :release_date, "Release Date:"], ["date", :end_date, "End Date:"], ["images"], ["tags"],
                   ["text-area", :info, 4 ], ["text-area", :synopsis, 2],
                   ["split"],
                   ["self-relations"], ["related_model", "organization", "source_organizations", "source[remove_source_organizations][]", "source[new_organization_ids]",
-                   "source[update_source_organizations]", SourceOrganization::Categories, "source[new_organization_categories]"], ["namehash"], ["text-area", :private_info, 10]]
+                   "source[update_source_organizations]", SourceOrganization::Categories, "source[new_organization_categories]"], ["namehash"], ["text-area", :private_info, 10], ["end"]]
+
+    FormFields = [{type: "markup", tag_name: "div class='col-md-6'"},
+                  {type: "text", attribute: :name, label: "Name:"}, 
+                  {type: "text", attribute: :altname, label: "Alternate Name:"}, 
+                  {type: "select", attribute: :status, label: "Status:", categories: Album::Status},
+                  {type: "select", attribute: :db_status, label: "Database Status:", categories: Artist::DatabaseStatus},
+                  {type: "select", attribute: :category, label: "Categories:", categories: Source::Categories},
+                  {type: "select", attribute: :activity, label: "Activity:", categories: Source::Activity},
+                  {type: "references"},
+                  {type: "date", attribute: :release_date, label: "Release Date:"}, 
+                  {type: "date", attribute: :end_date, label: "End Date:"}, 
+                  {type: "images"},
+                  {type: "tags", div_class: "well", title: "Tags"},
+                  {type: "text_area", attribute: :info, rows: 4, label: "Info:"},
+                  {type: "text_area", attribute: :synopsis, rows: 2, label: "Synopsis:"},
+                  {type: "markup", tag_name: "/div"}, {type: "markup", tag_name: "div  class='col-md-6'"},
+                  {type: "self_relations", div_class: "well", title: "Source Relationships", sub_div_id: "Sources"},
+                  {type: "related_model", div_class: "well", title: "Organization Relationships", model: "organization", relation_model: "source_organizations", categories: SourceOrganization::Categories, sub_div_id: "Organizations"},
+                  {type: "namehash", title: "Languages", div_class: "well", sub_div_id: "Languages"}, 
+                  {type: "text_area", attribute: :private_info, rows: 10, label: "Private Info:"},
+                  {type: "markup", tag_name: "/div"}]
                   
   #Validation
     validates :name, presence: true , uniqueness: {scope: [:reference]}

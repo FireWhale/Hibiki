@@ -51,14 +51,26 @@ class Artist < ActiveRecord::Base
                         images: ["id", "artistimages/", "Primary"], 
                         dates: ["birth_date", "debut_date"]}  
                         
-    FormFields = [["text", :name, "Name:"], ["text", :altname, "Alternate Name:"], 
-                  ["select", :status, "Status:", Album::Status],["select", :db_status, "Database Status:", Artist::DatabaseStatus], 
-                  ["select", :category, "Categories:", Artist::Categories], ["select", :activity, "Activity:", Artist::Activity],
-                  ["references"], ["date", :debut_date, "Debut Date:"], ["date", :birth_date, "Birth Date:"], ["images"], ["tags"],
-                  ["text-area", :info, 4 ], ["text-area", :synopsis, 2],
-                  ["split"],
-                  ["self-relations"], ["related_model", "organization", "artist_organizations", "artist[remove_artist_organizations]", "artist[new_organization_ids]",
-                  "artist[update_artist_organizations]", ArtistOrganization::Categories, "artist[new_organization_categories]"], ["namehash"], ["text-area", :private_info, 10]]   
+    FormFields = [{type: "markup", tag_name: "div class='col-md-6'"},
+                  {type: "text", attribute: :name, label: "Name:"}, 
+                  {type: "text", attribute: :altname, label: "Alternate Name:"}, 
+                  {type: "select", attribute: :status, label: "Status:", categories: Album::Status},
+                  {type: "select", attribute: :db_status, label: "Database Status:", categories: Artist::DatabaseStatus},
+                  {type: "select", attribute: :category, label: "Categories:", categories: Artist::Categories},
+                  {type: "select", attribute: :activity, label: "Activity:", categories: Artist::Activity},
+                  {type: "references"},
+                  {type: "date", attribute: :debut_date, label: "Debut Date:"}, 
+                  {type: "date", attribute: :birth_date, label: "Birth Date:"}, 
+                  {type: "images"},
+                  {type: "tags", div_class: "well", title: "Tags"},
+                  {type: "text_area", attribute: :info, rows: 4, label: "Info:"},
+                  {type: "text_area", attribute: :synopsis, rows: 2, label: "Synopsis:"},
+                  {type: "markup", tag_name: "/div"}, {type: "markup", tag_name: "div  class='col-md-6'"},
+                  {type: "self_relations", div_class: "well", title: "Artist Relationships", sub_div_id: "Artists"},
+                  {type: "related_model", div_class: "well", title: "Organization Relationships", model: "organization", relation_model: "artist_organizations", categories: ArtistOrganization::Categories, sub_div_id: "Organizations"},
+                  {type: "namehash", title: "Languages", div_class: "well", sub_div_id: "Languages"}, 
+                  {type: "text_area", attribute: :private_info, rows: 10, label: "Private Info:"},
+                  {type: "markup", tag_name: "/div"}]
                                   
   #Validation
     validates :name, presence: true, uniqueness: {scope: [:reference]}

@@ -3,10 +3,6 @@ class SongsController < ApplicationController
 
   autocomplete :song, :namehash, :full => true, :extra_data => [:name], :display_value => :format_method  
 
-  def addrelatedsongform
-    @song = Song.find_by_id(params[:song_id])
-  end
-
   def songpreview
     @song= Song.includes(:related_song_relations1, :related_song_relations2, {artist_songs: :artist}, :sources).find_by_id(params[:songid])   
     self_relation_helper(@song,@related = {}) #Prepare @related (self_relations)
@@ -45,6 +41,8 @@ class SongsController < ApplicationController
 
   def new
     @song = Song.new
+    @song.namehash = @song.namehash || {}
+
 
     respond_to do |format|
       format.html # new.html.erb
@@ -57,10 +55,8 @@ class SongsController < ApplicationController
   end
 
   def create
-    @song = Song.new(params[:song])
-
     respond_to do |format|
-      if @song.full_create(values)
+      if @song.full_save(params[:song])
         format.html { redirect_to @song, notice: 'Song was successfully created.' }
         format.json { render json: @song, status: :created, location: @song }
       else
@@ -84,8 +80,6 @@ class SongsController < ApplicationController
     end
   end
 
-  # DELETE /songs/1
-  # DELETE /songs/1.json
   def destroy
     @song = Song.find(params[:id])
     @song.destroy
