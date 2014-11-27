@@ -100,9 +100,6 @@ Hibiki::Application.routes.draw do
   #Links for js scripts for adding and editing
   match '/addtag', :to => 'tags#add_tag'
   match '/removetag', :to => 'tags#remove_tag'
-  match '/addartistforsong', :to => 'artists#addartistforsongform'
-  match '/addsourceforseason', :to => 'sources#addsourceforseasonform'
-  match '/addsourceforsong', :to => 'sources#addsourceforsongform'
   match '/addreference', :to => 'scripts#add_reference_form'
   match '/addmodel', :to => 'scripts#add_model_form'
   match '/well_toggle', :to => 'scripts#well_toggle'
