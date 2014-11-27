@@ -1,0 +1,41 @@
+<table class="table table-striped table-bordered">
+  <thead>
+    <tr>
+      <td>Name</td>
+      <td>Name Hash</td>
+      <td>Status</td>
+      <td>Database Status</td>
+      <td>Category</td>
+      <td>Activity</td>
+      <td>References</td>
+      <td>Related Models</td>
+      <td>Tags</td>
+      <td>Drill</td>
+    </tr>
+  </thead>
+  <% collection.each do |record| %>
+    <tr class="<%= record.class.to_s[0] + record.id.to_s %>">
+      <td><%= link_to record.name, record %></td>
+      <td>
+        <% unless record.namehash.nil? %>
+          <% record.namehash.each do |k,v| %> 
+            <%= k.to_s + ": " + v %>
+          <% end %>
+        <% end %>
+      </td>
+      <td><%= record.status %></td>
+      <td><%= record.db_status %></td>
+      <td><%= record.category %></td>
+      <td><%= record.activity %></td>
+      <td><%= reference_helper(record) %></td>
+      <td>
+        <%= linked_attribute_display(record.organizations, "") if record.respond_to?("organizations")%>
+        <%= linked_attribute_display(record.sources, "") if record.respond_to?("sources")%>
+        <%= linked_attribute_display(record.artists, "") if record.respond_to?("artists")%>
+        <%= linked_attribute_display(record.send("related_" + record.class.to_s.downcase + "s"), "")%>
+      </td>
+      <td><%= linked_attribute_display(record.tags, "")%></td>
+      <td><a class='drill'>Drill</td>
+    </tr>
+  <% end %>
+</table>

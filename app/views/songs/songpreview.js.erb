@@ -1,0 +1,4 @@
+$('#<%= @song.id %>').hide().html('<%= escape_javascript(render :partial => "song_preview") %>').fadeIn(1000);
+
+$('#<%= @song.id.to_s + "Show" %>').css("display", "none");
+$('#<%= @song.id.to_s + "Hide" %>').css("display", "inline");

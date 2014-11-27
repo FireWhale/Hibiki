@@ -1,0 +1,56 @@
+<% #This is a relatively simple javascript, comparitively.%>  
+  
+  var filters = '<%= @filters %>';
+  $('.album-well').each(function (){
+    calcvisibility( $(this) );  
+  });
+  
+function calcvisibility( albumdiv ) {
+  var flagdata = albumdiv.data('flags');
+  var collect = albumdiv.data('collection');
+  var le = albumdiv.data('le');
+  var reprint = albumdiv.data('reprint');
+  <% #Fade in anything that has a yes %>
+    if(flagdata.indexOf('y') != -1 ) {
+      if(filters.indexOf(collect) > -1 && filters.indexOf(le) > -1 && filters.indexOf(reprint) > -1) {
+        albumdiv.fadeIn(1000);
+        <% #We should also toggle the week text %>
+        albumdiv.parent().fadeIn(1000)
+        albumdiv.parent().children('.divider-header').fadeIn(1000)            
+      } else if( collect.length > 0)  {
+        <% #Fade out anything with a collect that doesn't match filter%>
+        if(filters.indexOf(collect) == -1) {
+          albumdiv.fadeOut(500,function(){
+            if(albumdiv.parent().children('.album-well:visible').length == 0) {
+              $(albumdiv.parent()).hide();
+              $(albumdiv.parent().children('.divider-header')).hide();
+            }
+            $(window).scroll();
+          });
+        };
+      } else if( le.length > 0)  {
+        <% #Fade out anything with a reprint that doesn't match filter%>
+        if(filters.indexOf(le) == -1) {
+          albumdiv.fadeOut(500,function(){
+            if(albumdiv.parent().children('.album-well:visible').length == 0) {
+              $(albumdiv.parent()).hide();
+              $(albumdiv.parent().children('.divider-header')).hide();
+            }    
+            $(window).scroll();
+          });
+        };
+      } else if (reprint.length > 0 ) {
+        <% #Fade out anything with a reprint that doesn't match filter%>
+        if(filters.indexOf(reprint) == -1) {
+          albumdiv.fadeOut(500,function(){
+            if(albumdiv.parent().children('.album-well:visible').length == 0) {
+              $(albumdiv.parent()).hide();
+              $(albumdiv.parent().children('.divider-header')).hide();
+            }
+            $(window).scroll();
+          });
+        };        
+      };
+    };
+
+  };

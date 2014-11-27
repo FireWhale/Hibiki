@@ -1,0 +1,40 @@
+<%= form_for(@tag) do |f| %>
+  <% if @tag.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@tag.errors.count, "error") %> prohibited this tag from being saved:</h2>
+
+      <ul>
+      <% @tag.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :name %><br />
+    <%= f.text_field :name %>
+  </div>
+  <div class="field">
+    <%= f.label :classification %><br />
+    <%= f.text_field :classification %>
+  </div>
+  <div class="field">
+    <%= f.label :visibility, "Security" %><br />
+    <%= f.select :visibility, Ability::Visibility %>
+  </div>
+  <div class="field">
+    <%= f.label :synopsis %><br />
+    <%= f.text_area :synopsis, :rows => '3' %>
+  </div>
+  <div class="field">
+    <%= f.label :info %><br />
+    <%= f.text_area :info, :rows => '3' %>
+  </div>
+  <% Tag::ModelBitmask.each do |model| %>
+    <%= check_box_tag 'tag[models][]', model, @models.include?(model) %> <%= model %><br>
+  <% end %>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

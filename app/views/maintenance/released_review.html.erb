@@ -1,0 +1,15 @@
+<% content_for :title do %>Released Review<% end %>
+
+<% content_for :header do %>
+  <h2 class="text-center">Released Review</h2>
+<% end %>
+
+<%= paginate @collection %>
+<div id="ReleasedTable">
+  <%= render :partial => "layouts/maintenance/released_review_table", :locals => {:collection => @collection} %>
+</div>
+<%= paginate @collection %>
+
+<% content_for :usersidebar do %>
+<% end %>
+

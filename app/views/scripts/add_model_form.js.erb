@@ -1,0 +1,10 @@
+<% if @songscript.nil? %>
+  $('<%= @parent_div %>').append('<%= escape_javascript(render :partial => 'layouts/forms/add_model_form') %>');
+<% else %>
+  <% @songscript.each do |song| %>
+    <% @fieldsfornames = song[:fields_for_names] %>
+    <% @categories = song[:categories] %>
+    <% @fieldsforcats = song[:fields_for_cats] %>
+    $('<%= song[:divid] %>').append('<%= escape_javascript(render :partial => 'layouts/forms/add_model_form') %>');
+  <% end %>  
+<% end %>

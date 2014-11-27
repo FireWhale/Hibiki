@@ -1,0 +1,17 @@
+<% content_for :title do %>Calendar<% end %>
+
+<% content_for :header do %>
+  <h2 class="text-center">Calendar</h2>
+<% end %>
+
+<div id="Calendar">
+  <%= render :partial => "layouts/calendar_partial" %>
+</div>
+
+<% content_for :usersidebar do %>
+  <%= form_for :datepicker, :url => calendarupdate_path, :remote => true do |f|  %>
+    <h5>Date Selection</h3>
+    <%= f.text_field :date, :id => "datepicker", :readonly => true, :class => 'input-medium' %>    
+    <%= f.submit "Go" %>
+  <% end %>
+<% end %>

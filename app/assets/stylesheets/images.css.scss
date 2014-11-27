@@ -1,0 +1,46 @@
+//First, let's alter bootstraps default thumbnail class
+  .thumbnail {
+    background-color: transparent;
+    border: none;
+    border-radius: 0px;
+    margin-bottom: 0px;
+    padding: 0px;    
+  }
+
+
+//Add various efects depending on class, which is given through the helper
+  .thumbnail-bordered {
+    //Given through :border
+    border: 1px solid #dddddd;
+    border-radius: 4px;
+    padding: 4px;
+  }
+  
+  a.thumbnail-bordered {
+    &:hover, &:focus, &:active {
+      border-color: #428bca;  
+    }
+  }
+  
+  .thumbnail-margined {
+    margin-bottom: 20px;
+  }
+
+//Highlights album art according to user's collection'
+  //Given through :outline_flag
+  a.collected a.ignored, a.wishlist {
+    display: block;
+    z-index: 1;
+  }
+  
+  a.collected {
+    border: 5px ridge #00BFFF !important;
+  }
+  
+  a.ignored {
+    border: 5px ridge #D2691E !important;
+  }
+  
+  a.wishlist {
+    border: 5px ridge #E189FF !important;
+  }

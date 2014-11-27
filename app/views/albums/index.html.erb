@@ -1,0 +1,30 @@
+<% content_for :title do %>Albums<% end %>
+
+<% content_for :header do %>
+  <h2 class="text-center">Albums</h2>
+<% end %>
+
+<div>
+  <list class="IndexListing">
+    <%= paginate @albums %>
+    <% @albums.each_with_index do |album, index| %>
+    <ul class="thumbnails well well-xsmall">
+      <div class="row">
+        <div class="albumimagepreview col-md-1">
+          <%= primary_image_helper(album, album, "thumb", :outline_flag => true, :square => true) %>
+        </div>
+        <div class="col-md-11">
+          <%= link_to name_language_helper(album,current_user,0), album %><br>
+          <%= album.classification %><br>
+          <%= album.release_date %>    
+        </div>
+      </div>
+    </ul>
+    <% end %>
+    <%= paginate @albums %>
+  </list>
+</div>
+
+<% content_for :usersidebar do %>
+<% end %>
+

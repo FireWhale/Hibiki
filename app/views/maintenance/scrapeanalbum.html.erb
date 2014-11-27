@@ -1,0 +1,62 @@
+<% content_for :title do %>Scrape<% end %>
+
+<% content_for :header do %>
+  <h2 class="text-center">Scrape!</h2>
+<% end %>
+
+<p id="notice"><%= notice %></p>
+
+<%= form_for :website, :url => {:controller => :maintenance, :action => 'scrape'}, :html => {:class => 'form-horizontal'}  do |f| %>
+  <div class="row">
+    <div class="col-md-6">
+      <div class="well">
+        <h4 class="text-center">VGMDB links</h4>
+        <%= fields_for :vgmdb_albums do |f| %>
+          <%= f.label '', 'Album link' %>
+          <%= f.text_field '', :class => 'controls' %>
+        <% end %>
+        <div id="VGMDBAlbum"></div>
+        <%= link_to "Add another album link", addscrapelink_path(:fields_for => "vgmdb_albums", :div_id => "#VGMDBAlbum"), :remote => true %></br></br>
+        <%= fields_for :vgmdb_artists do |f| %>
+          <%= f.label '', 'Artist/Source Link'%>
+          <%= f.text_field '', :class => 'controls' %>
+        <% end %>
+        <div id="VGMDBArtistSource"></div>        
+        <%= link_to "Add another artist or source link", addscrapelink_path(:fields_for => "vgmdb_artists", :div_id => "#VGMDBArtistSource"), :remote => true %></br></br>
+        <%= fields_for :vgmdb_orgs do |f| %>
+          <%= f.label '', 'Organization/Search Result link'%>
+          <%= f.text_field '', :class => 'controls' %>
+        <% end %>
+        <div id="VGMDBOrg"></div>
+        <%= link_to "Add another organization link", addscrapelink_path(:fields_for => "vgmdb_orgs", :div_id => "#VGMDBOrg"), :remote => true %></br></br>
+        <%= fields_for :vgmdb_albumlist do |f| %>
+          <%= f.label :text, 'Album link list'%>
+          <%= f.text_area :text, :class => 'controls', :rows => '7' %>
+        <% end %>
+      </div>
+      <div class="actions">
+        <%= f.submit 'Scrape!' %>
+      </div>    
+    </div>
+    <div class="col-md-6">
+      <div class="well">
+        <h4 class="text-center">CDJapan links</h4>
+        <%= fields_for :cdjapan_albums do |f| %>
+          <%= f.label '', 'Album Link'%>
+          <%= f.text_field '', :class => 'controls' %>
+        <% end %>
+        <div id="CDJapanAlbum"></div>
+        <%= link_to "Add another album", addscrapelink_path(:fields_for => "cdjapan_albums", :div_id => "#CDJapanAlbum"), :remote => true %></br></br>
+      </div>
+      <div class="well">
+        <h4 class="text-center">Manifo links</h4>
+        <%= fields_for :manifo_albums do |f| %>
+          <%= f.label '', 'Album Link'%>
+          <%= f.text_field '', :class => 'controls' %>
+        <% end %>
+        <div id="ManifoAlbum"></div>
+        <%= link_to "Add another album", addscrapelink_path(:fields_for => "manifo_albums", :div_id => "#ManifoAlbum"), :remote => true %></br></br>
+      </div>
+    </div>  
+  </div>
+<% end %>

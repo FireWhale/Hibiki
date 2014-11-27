@@ -1,0 +1,4 @@
+<div id=<%= toggle_id %> class="pull-right">
+  <%= link_to "Hide", well_toggle_path(:div_id => div_id, :toggle_id => toggle_id), :remote => true %>
+  <%= link_to "Display", well_toggle_path(:div_id => div_id, :toggle_id => toggle_id), :remote => true, :style => 'display: none' %>
+</div>

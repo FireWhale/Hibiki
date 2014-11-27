@@ -1,0 +1,9 @@
+<%= form_for records.first, :html => {:class => "form-horizontal", multipart: true}, url: url do |form| %>
+  <% records.each do |record| %>
+    <%= fields_helper(record, fields: fields, multi_flag: multi_flag, form_prefix: form_prefix) %>
+  <% end %>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

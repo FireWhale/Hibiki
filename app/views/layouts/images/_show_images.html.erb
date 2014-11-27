@@ -1,0 +1,14 @@
+<% content_for :title do %><%= name_language_helper(record,current_user,0, :no_bold => true)  %><%= record.class == Album ? " Album Art" : " Images" %><% end %>
+
+<% content_for :header do %>
+  <div class="text-center">
+    <h2><%= link_to name_language_helper(record,current_user,0, :no_bold => true), record  %></h2>
+    <h4><%= record.class == Album ? "Album Art" : "Images" %></h4>
+  </div>
+<% end %>
+
+<%= render :partial => "layouts/images/image_partial", :locals => {:record => record}  %>
+
+<% content_for :usersidebar do %>
+  <%= render :partial => "layouts/images/image_sidebar_partial", :locals => {:record => record}  %>
+<% end%>

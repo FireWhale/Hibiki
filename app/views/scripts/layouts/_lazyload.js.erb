@@ -1,0 +1,14 @@
+//Used to trigger lazyload on all images of class lazyload
+//Called from pretty much every js that makes an image
+
+$("img.lazyload").lazyload({
+    effect : "fadeIn", 
+    effectspeed : 250,
+    skip_invisible : false,
+    load : function() {
+        // We need to make the image into a square first
+        if($(this).parent().hasClass("thumbnail-square")) {
+            resizeToSquare($(this));
+        }        
+    }
+}).removeClass("lazyload");  

@@ -1,0 +1,17 @@
+//Used to add a divider to an albumlist view
+//Called from (but not limited to) toggle_albums and sort_albums
+
+function addDividerDiv(id) {
+    var position          = 0,
+        newElem           = document.createElement('div');
+        newElem.setAttribute("id", id);
+        newElem.setAttribute("class", "dividers");
+        
+    divideritems.push( newElem );
+    divideritems.sort(function( a, b ) {
+        return a.id.localeCompare( b.id );
+    });
+
+    position = divideritems.indexOf( newElem );
+    albumlist.insertBefore( newElem, dividers[ position ] );
+};

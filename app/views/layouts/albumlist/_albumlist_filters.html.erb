@@ -1,0 +1,18 @@
+<h4>Filters</h4>
+<%= form_tag( filter_albums_path, :method => 'get', :id => 'filter', :remote => true) do %>
+  <% if current_user.nil? == false%>
+    <%= check_box_tag('filters[]', 'collected', true ,:class => 'filter', :id => 'collected' )%>
+    <%= label_tag 'collected', 'Collected Albums' %><br>
+    <%= check_box_tag('filters[]', 'ignored', current_user.display_settings.include?("DisplayIgnored"),:class => 'filter', :id => 'ignored' )%>
+    <%= label_tag 'ignored', 'Ignored Albums' %><br>
+    <%= check_box_tag('filters[]', 'wishlist', true ,:class => 'filter', :id => 'wishlist' )%>
+    <%= label_tag 'wishlist', 'Wishlist Albums' %><br>
+    <%= check_box_tag('filters[]', 'limitededition', current_user.display_settings.include?("DisplayLEs") ,:class => 'filter', :id => 'limitededition' )%>
+    <%= label_tag 'limitededition', 'Limited Editions' %><br>
+  <% else %>
+    <%= check_box_tag('filters[]', 'limitededition', true ,:class => 'filter', :id => 'limitededition' )%>
+    <%= label_tag 'limitededition', 'Limited Editions' %><br>
+  <% end %>
+    <%= check_box_tag('filters[]', 'reprint', true ,:class => 'filter', :id => 'reprint' )%>
+    <%= label_tag 'reprint', 'Reprints' %>
+<% end %>

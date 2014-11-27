@@ -1,0 +1,10 @@
+<% content_for :title do %>Edit - <%= name_language_helper(record,current_user,0, no_bold: true) %><% end %>
+
+<% content_for :header do %>
+  <div class="text-center">
+    <h2>Edit <%= record.class%>: <%= link_to name_language_helper(record,current_user,0, no_bold: true), record %></h2>
+  </div>
+<% end %>
+
+<%= render_form(record) %>
+

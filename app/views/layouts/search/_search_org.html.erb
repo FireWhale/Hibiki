@@ -1,0 +1,11 @@
+<div>
+  <%= paginate @organizations, :remote => true, :param_name => 'orgpage', :params => {:model => 'Organization'} %>
+  <% if @organizations.empty? %>
+    <h5>No Organization Results</h5>
+  <% else %>
+    <div class="well">
+      <%= render 'layouts/artist_org_source_index', :collection => @organizations %>
+    </div>
+  <% end %>
+  <%= paginate @organizations, :remote => true, :param_name => 'orgpage', :params => {:model => 'Organization'} %>
+</div>

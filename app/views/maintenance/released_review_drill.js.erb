@@ -1,0 +1,19 @@
+active = $('.activeDrill');
+row = $('<tr></tr>').insertAfter(active);
+row.append('<td colspan="10"><div class="drilled-table"></td>');
+row.find('td').find('div').html("<%= escape_javascript(render :partial => "layouts/maintenance/released_review_table", :locals => {:collection => @collection})%> " )
+
+row.find('.drill').on('click', function() {
+  $('.activeDrill').removeClass("activeDrill").addClass("drilled");
+  parent = $(this).parent().parent();
+  if ((parent).hasClass('drilled')) {
+      //Need to unmark it and remove div
+      parent.removeClass('drilled');
+      parent.next().remove();
+  } 
+  else {
+    parent.addClass("activeDrill");    
+    params = {id: parent.attr("class")};
+    $.get('/maintenance/released_review_drill', params);
+  }  
+})

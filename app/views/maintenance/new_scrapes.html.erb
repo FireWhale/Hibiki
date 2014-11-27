@@ -1,0 +1,21 @@
+<% content_for :title do %>Scrape<% end %>
+
+<% content_for :header do %>
+  <h2 class="text-center">Scrape!</h2>
+<% end %>
+
+<%= form_for :number, :url => {:controller => :maintenance, :action => 'update_scrape_number'}, :html => {:class => 'form-horizontal'}, :remote => true  do |form| %>
+  <%= fields_for :vgmdb_number do |f| %>
+    <%= f.text_field :id, :class => 'controls', :id => 'number', :value => @number, :autocomplete => :off %>
+    <%= f.submit 'get urls', :id => "vgmdbID"  %>
+  <% end %>
+<% end %>
+<br>
+<%= fields_for :urllist do |f| %>
+  <%= f.text_area :text, :class => 'controls', :rows => '15', :id => "list" %>
+  <div class="actions">
+    <%= f.submit 'Generate!', :id => "GenerateScrapes"  %>
+  </div>    
+<% end %>
+
+

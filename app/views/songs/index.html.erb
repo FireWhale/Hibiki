@@ -1,0 +1,31 @@
+<h1>Listing songs</h1>
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Namehash</th>
+    <th>Category</th>
+    <th>Album</th>
+    <th>Tracknumber</th>
+    <th>Length</th>
+    <th>Lyrics</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<%= paginate @songs %>
+<% @songs.each do |song| %>
+  <tr>
+    <td><%= song.name %></td>
+    <td><%= song.namehash %></td>
+    <td><%= song.album_id %></td>
+    <td><%= song.tracknumber %></td>
+    <td><%= song.length %></td>
+    <td><%= song.lyrics %></td>
+    <td><%= link_to 'Show', song %></td>
+    <td><%= link_to 'Edit', edit_song_path(song) %></td>
+    <td><%= link_to 'Destroy', song, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+  </tr>
+<% end %>
+</table>

@@ -1,0 +1,9 @@
+<div class="row-fluid">
+<%= fields_for :sourceids do |f| %>
+		<%= f.label '', "Source Name:", :class => "control-label" %>
+    <%= f.autocomplete_field '', autocomplete_source_namehash_sources_path, :class => "controls input-large" %>
+<% end %>
+<%= fields_for :sourcecategories do |f| %>
+    <%= f.select '', SourceSeason::Categories, :class => "controls input-medium" %>
+<% end %>
+</div>

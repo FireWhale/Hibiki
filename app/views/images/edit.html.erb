@@ -1,0 +1,13 @@
+<% content_for :title do %>Edit Image <%= @image.id.to_s + " - " + @image.name %><% end %>
+
+<% content_for :header do %>
+  <div class="text-center">
+    <h2>Edit Image: <%= @image.id.to_s + " - " + @image.name %> </h2>
+  </div>
+<% end %>
+
+<%= render 'form' %>
+
+<% content_for :usersidebar do %>
+  <%= link_to 'Show', @image %> | <%= link_to 'Destroy', @image, method: :delete, data: { confirm: 'Are you sure?' } %>
+<% end %>

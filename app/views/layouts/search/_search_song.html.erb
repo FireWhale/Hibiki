@@ -1,0 +1,23 @@
+<div>
+  <%= paginate @songs, :remote => true, :param_name => 'songpage', :params => {:model => 'Song'} %>
+  <% if @songs.empty? %>
+    <h5>No Song Results</h5>
+  <% else %>
+    <% @songs.each do |song| %> 
+      <ul class="thumbnails well well-xsmall">
+        <div class="row">
+          <div class="albumimagepreview col-md-1">
+            <%= primary_image_helper(song.album, song.album, "thumb", :outline_flag => true, :square => true) %>
+          </div>
+          <div class="col-md-11">
+            <b>Song Name: </b><%= name_language_helper(song,current_user,0) %><br>
+            <b>Album: </b><%= link_to name_language_helper(song.album,current_user,0), song.album %><br>
+            <b>Track Number: </b><%= song.track_number %><br>
+            <b>Duration: </b><% if song.length != nil %><%= Time.at(song.length).utc.strftime("%-M:%S") %><% end %>
+          </div>
+        </div>
+      </ul>
+    <% end %>
+  <%end %>
+  <%= paginate @songs, :remote => true, :param_name => 'songpage', :params => {:model => 'Song'} %>
+</div>

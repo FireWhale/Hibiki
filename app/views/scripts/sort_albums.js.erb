@@ -1,0 +1,61 @@
+<% # woo comments %>
+<% # First, we get all the data we need%>
+  
+  var sort = '<%= @sort %>';
+<% # If the sort method is already in place, do nothing %>
+
+if($('.' + sort).length == 0) {
+
+  var albumlist = document.getElementById('album-list');  
+  var dividers = albumlist.getElementsByClassName('dividers');
+  var divideritems = Array.prototype.slice.call( dividers );
+  var filters = $('input[class=filter]:checked', '#filter').map(function() {
+    return this.value;
+  }).get().join(" ");
+  
+  <% #Hide everything, then rebuild it by looping through albums %>
+  $('.dividers').children().fadeOut(500);
+  $('.dividers').fadeOut(500);
+  $('.dividers').promise().done(function() {
+    <% if @albums.nil? == false %>
+      <% @albums.each do |album| %>
+        <% #Create the divider div if it doesn't exist %>
+          var dividerid = '<%= album.send(@sort).to_s %>' + sort
+          if($('#' + dividerid).length == 0) {
+            addDividerDiv(dividerid);
+            $('#' + dividerid).html('<%= escape_javascript(render :partial => "layouts/albumlist/albumlist_divider", :locals => {:date => album.send(@sort), :format => @sort }) %>');
+          };    
+        <% #Move the album into the proper spot%>  
+          var dividerlist = document.getElementById(dividerid);
+          var albumwells = dividerlist.getElementsByClassName('album-well');
+          var albumitems = Array.prototype.slice.call( albumwells );
+          var album = document.getElementById('<%= album.id %>');
+          
+          <% #Add the album to the sorting array %>
+            var position = 0;
+            albumitems.push( album );
+            albumitems.sort(function( a, b ) {
+                return a.outerHTML.substr(a.outerHTML.indexOf("data-date") + 11,10).localeCompare( b.outerHTML.substr(b.outerHTML.indexOf("data-date") + 11,10));
+            });   
+          <% #Now actually move it according to position in array %>
+            position = albumitems.indexOf( album );
+            dividerlist.insertBefore( album, albumwells[ position ] );             
+            
+        <% #calculate visability %>
+          var album = $('#' + '<%= album.id %>')  
+          calcvisibility( album );  
+        <% #Delete the old divider divs %>    
+        
+      <% end %>
+    <% end %>
+    
+    
+  });
+  
+  <%= render :partial => "scripts/layouts/lazyload"  %>
+
+}
+<% #some functions used in this js %>
+
+<%= render :partial => "scripts/layouts/add_divider_function"  %>
+<%= render :partial => "scripts/layouts/calc_visibility_function" %>

@@ -1,0 +1,24 @@
+ <div class='well text-center'>
+    <% if record.images.count > 2 %>
+      <% record.images.each_with_index do |image, n| %>
+        <% if n.even? %>
+          <div class="row">
+        <% end %>
+        <div class="col-md-6">
+          <%= link_to image_helper(image, "thumb"), updateimage_path(:id => image.id), remote: true, class: "thumbnail thumbnail-bordered" %>
+          <%= link_to image.name, updateimage_path(:id => image.id ), remote: true %>
+        </div>
+        <% if n.odd? %>
+          </div><br>
+        <% end %> 
+        <% if n.even? and n == record.images.count - 1 %>     
+          </div>
+        <% end %>      
+      <% end %>
+    <% else %>
+      <% record.images.each do |image| %>    
+        <%= link_to image_helper(image, "thumb"), updateimage_path(:id => image.id), remote: true, class: "thumbnail thumbnail-bordered"  %>
+        <br><%= link_to image.name, updateimage_path(:id => image.id ), remote: true %><br>
+      <% end %>      
+    <% end %>
+  </div>
