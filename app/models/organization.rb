@@ -29,14 +29,6 @@ class Organization < ActiveRecord::Base
                         self_relations: [:new_related_organization_ids, :new_related_organization_categories, :update_related_organizations, :remove_related_organizations],
                         images: ["id", "orgimages/","Primary"], 
                         dates: ["established"]}
-    
-    FormFields = [["start"], ["text", :name, "Name:"], ["text", :altname, "Alternate Name:"],
-                  ["select", :status, "Status:", Album::Status], ["select", :db_status, "Database Status:", Artist::DatabaseStatus], 
-                  ["select", :activity, "Activity:", Organization::Activity], ["select", :category, "Category:", Organization::Categories],
-                  ["references"], ["date", :established, "Established:"], ["images"], ["tags"], ["text-area", :info, 4 ], ["text-area", :synopsis, 2],
-                  ["split"],
-                  ["self-relations"], ["related_model", "artist", "artist_organizations", "organization[remove_artist_organizations]", "organization[new_artist_ids]",
-                  "organization[update_artist_organizations]", ArtistOrganization::Categories, "organization[new_artist_categories]"], ["namehash"], ["text-area", :private_info, 10], ["end"]]
 
     FormFields = [{type: "markup", tag_name: "div class='col-md-6'"},
                   {type: "text", attribute: :name, label: "Name:"}, 
