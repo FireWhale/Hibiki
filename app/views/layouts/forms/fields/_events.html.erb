@@ -1,8 +1,0 @@
-<% unless record.events.nil? %>
-  <% record.events.each do |event| %>
-    <div>Event: <%= check_box_tag "#{form_prefix}[remove_events][]", event.id %> <%= link_to event.shorthand, event %></div>
-  <% end %>
-<% end %>
-<div id="EventFields"></div>
-<%= link_to "Add an Event", addmodel_path(parent_div: "#EventFields", field_names: "#{form_prefix}[new_event_shorthands]", label: "Short Name:"), :remote => true %></br></br>
-

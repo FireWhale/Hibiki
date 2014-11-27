@@ -1,7 +1,0 @@
-<% if format == 'week' %>
-<h4 class='divider-header'>Week of <%= date.strftime('%B %-d, %Y')%></h4>
-<% elsif format == 'month' %>
-<h4 class='divider-header'><%= date.strftime('%B %Y')%></h4>
-<% elsif format == 'year' %>
-<h4 class='divider-header'> <%= date.strftime('%Y')%></h4>
-<% end%>
