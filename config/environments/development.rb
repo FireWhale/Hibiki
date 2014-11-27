@@ -5,7 +5,7 @@ Hibiki::Application.configure do
     port:                 587,
     domain:               'gmail..com',
     user_name:            'HibikiMusicDB@gmail.com',
-    password:             'Wrath.Whale',
+    password:             'what.Whale',
     authentication:       'plain',
     enable_starttls_auto: true  }
 
