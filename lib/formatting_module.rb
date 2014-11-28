@@ -115,6 +115,18 @@ module FormattingModule
         namehash.delete_if { |key,value| value.empty?}
         values[:namehash] = namehash
       end
+    #Language Records - Namehashes and lyrics
+      unless fields[:language_records].nil?
+        fields[:language_records].each do |model, text_field|
+          new_languages = values.delete "new_#{model.to_s}_languages".to_sym
+          new_texts = values.delete "new_#{model.to_s}_texts".to_sym
+          self.add_language_records(model.to_s, new_languages, new_texts, text_field) unless new_languages.nil? || new_texts.nil?
+          update_language_records = values.delete "update_#{model.to_s}s".to_sym
+          self.update_language_record(update_language_records, model.to_s.capitalize.constantize) unless update_language_records.nil? 
+          remove_language_records = values.delete "remove_#{model.to_s}s".to_sym
+          self.delete_records(remove_language_records, model.to_s.capitalize.constantize) unless remove_language_records.nil?
+        end
+      end
     #Add Songs - Album only
       unless fields[:songs].nil?
         new_songs = values.delete :new_songs
@@ -343,6 +355,12 @@ module FormattingModule
     end
   end  
 
+  def add_language_records(model, languages, texts, text_field)
+    languages.zip(texts).each do |info|
+      language_record = self.send("#{model}s").create(language: info[0], text_field.to_sym => info[1])
+    end
+  end
+
   def add_songs(songs)
     unless songs[:track_numbers].nil? || songs[:names].nil?
       #Fill in the values that are not required
@@ -414,6 +432,13 @@ module FormattingModule
         bitmask = Artist.get_bitmask(v)
         bitmask == 0 ? record.destroy : "Artist#{model.capitalize}".constantize.update(record.id, category: bitmask)
       end
+    end
+  end
+  
+  def update_language_record(records, model)
+    records.each do |k,v|
+      record = model.find_by_id(k)
+      record.update_attributes(v) unless record.nil?
     end
   end
   

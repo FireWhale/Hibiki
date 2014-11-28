@@ -90,7 +90,11 @@ module AttributeTests
         end
         
         it "has a #{attribute}_bitmask that is accessible" do
-          expect(build(model).class.accessible_attributes.include?("#{attribute}_bitmask")).to be false
+          unless model == :album
+            expect(build(model).class.accessible_attributes.include?("#{attribute}_bitmask")).to be false
+          else #Albums need release_date_bitmask to be accessible for scrapes
+            expect(build(model).class.accessible_attributes.include?("#{attribute}_bitmask")).to be true           
+          end
         end
         
         it "is valid with a #{attribute} and #{attribute}_bitmask" do

@@ -1,0 +1,18 @@
+<%= render :partial => 'layouts/forms/well_toggle', locals: {:div_id => opts[:sub_div_id], :toggle_id => "#{opts[:sub_div_id]}Toggle"} unless opts[:sub_div_id].nil? %>
+<%= content_tag(:h4, class: "text-center") {opts[:title]} unless opts[:title].nil? %>
+<div<%= ' id="'.html_safe + opts[:sub_div_id] + '"'.html_safe unless opts[:sub_div_id].nil? %>>
+  <% unless record.send("#{opts[:model]}s").empty? %>
+    <% record.send("#{opts[:model]}s").each do |language_record| %>
+      <div>
+        <%= fields_for "#{form_prefix}[update_#{opts[:model]}s][#{language_record.id}]" do |f| %>
+          <%= check_box_tag "#{form_prefix}[remove_#{opts[:model]}s][]", language_record.id %>
+          <%= f.select 'language', User::Languages.split(","), selected: language_record.language %>
+          <%= f.text_area opts[:text_area], value: language_record.send(opts[:text_area]), rows: 10, class: 'col-md-12' unless opts[:text_area].nil?%>
+          <%= f.text_field opts[:text_field], value: language_record.send(opts[:text_field]) unless opts[:text_fields].nil?%>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+  <div id="<%= opts[:model].capitalize %>Fields"></div>
+  <%= link_to "Add a #{opts[:model]}", addmodel_path(:parent_div => "##{opts[:model].capitalize}Fields", category_field_names: "#{form_prefix}[new_#{opts[:model]}_languages]", category_select: User::Languages.split(","), text_area_field_names: "#{form_prefix}[new_#{opts[:model]}_texts]"), :remote => true %></br></br>          
+</div>

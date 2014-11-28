@@ -57,6 +57,7 @@ class Source < ActiveRecord::Base
                   {type: "tags", div_class: "well", title: "Tags"},
                   {type: "text_area", attribute: :info, rows: 4, label: "Info:"},
                   {type: "text_area", attribute: :synopsis, rows: 2, label: "Synopsis:"},
+                  {type: "text_area", attribute: :plot_summary, rows: 4, label: "Plot Summary:"},
                   {type: "markup", tag_name: "/div"}, {type: "markup", tag_name: "div  class='col-md-6'"},
                   {type: "self_relations", div_class: "well", title: "Source Relationships", sub_div_id: "Sources"},
                   {type: "related_model", div_class: "well", title: "Organization Relationships", model: "organization", relation_model: "source_organizations", categories: SourceOrganization::Categories, sub_div_id: "Organizations"},

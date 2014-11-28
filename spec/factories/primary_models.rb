@@ -139,5 +139,11 @@ FactoryGirl.define do
           create(:song_source, song: record)
         end            
       end
+      
+      trait :with_lyric do
+        after(:create) do |record|
+          create(:lyric, song: record)
+        end
+      end
     end
 end

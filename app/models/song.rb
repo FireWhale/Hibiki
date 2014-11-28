@@ -24,7 +24,8 @@ class Song < ActiveRecord::Base
     FullUpdateFields = {reference: true, sources_for_song: true, track_numbers: true, artists_for_song: [:new_artist_ids, :new_artist_categories, :update_artist_songs],
                         self_relations: [:new_related_song_ids, :new_related_song_categories, :update_related_songs, :remove_related_songs],
                         images: ["id", "songimages/", "Primary"],
-                        dates: ["release_date"]}
+                        dates: ["release_date"],
+                        language_records: {:lyric => "lyrics"}}
     
     FormFields = [{type: "markup", tag_name: "div class='col-md-6'"},
                   {type: "text", attribute: :name, label: "Name:"}, 
@@ -44,7 +45,7 @@ class Song < ActiveRecord::Base
                   {type: "artist_relations", div_class: "well", title: "Artist Relationships", sub_div_id: "Artists"},
                   {type: "source_relations", div_class: "well", title: "Source Relationships", sub_div_id: "Sources"},
                   {type: "namehash", title: "Languages", div_class: "well", sub_div_id: "Languages"}, 
-                  {type: "text_area", attribute: :lyrics, rows: 20, label: "Lyrics:"},             
+                  {type: "language_records", title: "Lyrics", div_class: "well", sub_div_id: "Lyrics", model: "lyric", text_area: "lyrics"},
                   {type: "markup", tag_name: "/div"}]
     
     TracklistEditFields = [{type: "markup", tag_name: "div class='well well-xsmall'"}, {type: "well_hide"},
@@ -107,6 +108,8 @@ class Song < ActiveRecord::Base
 
       has_many :postlists, dependent: :destroy, as: :model
       has_many :posts, through: :postlists
+      
+      has_many :lyrics, dependent: :destroy
       
     #User Associations
       has_many :ratings, dependent: :destroy

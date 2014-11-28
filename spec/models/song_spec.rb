@@ -20,14 +20,15 @@ describe Song do
     it_behaves_like "it has a primary relation", :song, "source", SongSource, :song_source
     it_behaves_like "it has a primary relation", :song, "artist", ArtistSong, :artist_song
       
-    it "belongs to an album" do
-      expect(create(:song, :with_album).album).to be_a Album
-      expect(Song.reflect_on_association(:album).macro).to eq(:belongs_to)
+
+    it "has many lyrics" do
+      expect(create(:song, :with_lyric).lyrics.first).to be_a Lyric
+      expect(Song.reflect_on_association(:lyrics).macro).to eq(:has_many)  
     end
     
-    it "does not destroy the album when destroyed" do
-      song = create(:song, :with_album)
-      expect{song.destroy}.to change(Album, :count).by(0)
+    it "destroys it's songs when destroyed" do
+      song = create(:song, :with_lyric)
+      expect{song.destroy}.to change(Lyric, :count).by(-1)
     end
     
   #Validation Tests
@@ -65,11 +66,22 @@ describe Song do
       
     end
 
+    it "is valid with lyrics" do
+      song = create(:song)
+      lyric1 = create(:lyric, :language => "English", song: song)
+      lyric2 = create(:lyric, :language => "Japanese", song: song)
+      expect(song.lyrics).to match_array([lyric1, lyric2])
+    end
+    
+    it "is valid without lyrics" do
+      #well the factory doesn't come with songs
+      expect(create(:song)).to be_valid
+    end
+
     include_examples "is valid with or without an attribute", :song, :altname, "hi"
     include_examples "is valid with or without an attribute", :song, :track_number, "hi"
     include_examples "is valid with or without an attribute", :song, :disc_number, "hi"
     include_examples "is valid with or without an attribute", :song, :length, 12323
-    include_examples "is valid with or without an attribute", :song, :lyrics, "DANCE"
     include_examples "is valid with or without an attribute", :song, :info, "DANCE"
     include_examples "is valid with or without an attribute", :song, :private_info, "DANCE"
 
@@ -117,7 +129,8 @@ describe Song do
       include_examples "updates with keys and values", :song
       include_examples "updates the reference properly", :song
       include_examples "can upload an image", :song
-
+      include_examples "can update a language record", :song, "lyric", "lyrics"
+      
       context "updates artists" do
         it "creates an artist_song" do
           song = create(:song)
@@ -305,7 +318,7 @@ describe Song do
         
         it "updates song_sources" do
           song_source = create(:song_source, song: @song, classification: "OP")
-          @attributes.merge!(:song_sources => { song_source.id.to_s => {"classification" => "ED"}})
+          @attributes.merge!(:update_song_sources => { song_source.id.to_s => {"classification" => "ED"}})
           expect{@song.full_update_attributes(@attributes)}.to change(SongSource, :count).by(0)
           expect(@song.song_sources.first.classification).to eq("ED")
         end
@@ -315,14 +328,14 @@ describe Song do
           album = create(:album)
           @song.update_attributes(:album_id => album.id)
           album.album_sources.first.delete unless album.album_sources.empty?
-          @attributes.merge!(:song_sources => { song_source.id.to_s => {"classification" => "ED"}})
+          @attributes.merge!(:update_song_sources => { song_source.id.to_s => {"classification" => "ED"}})
           expect{@song.full_update_attributes(@attributes)}.to change(AlbumSource, :count).by(1)
         end
         
         it "updates multiple song_sources" do 
           song_source = create(:song_source, song: @song, classification: "OP")
           song_source2 = create(:song_source, song: @song, classification: "ED")
-          @attributes.merge!(:song_sources => { song_source.id.to_s => {"classification" => "ED"}, song_source2.id.to_s => {"classification" => "OP"}})
+          @attributes.merge!(:update_song_sources => { song_source.id.to_s => {"classification" => "ED"}, song_source2.id.to_s => {"classification" => "OP"}})
           expect{@song.full_update_attributes(@attributes)}.to change(SongSource, :count).by(0)
           expect(@song.song_sources.first.classification).to eq("ED")          
           expect(@song.song_sources[1].classification).to eq("OP")          

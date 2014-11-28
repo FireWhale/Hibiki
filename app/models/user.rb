@@ -23,13 +23,13 @@ class User < ActiveRecord::Base
     end
   
   #Display Settings constants
-    Languages = "English,Japanese,Romaji,Korean,RomanizedKorean,Chinese,Pinyin,Chinese (Traditional)"
+    Languages = "English,Japanese,Romaji,Korean,Romanized Korean,Chinese,Pinyin,Chinese (Traditional)"
     DefaultLanguages = "English,Romaji,RomanizedKorean,Pinyin,Japanese,Korean,Chinese,Chinese (Traditional)"
     DisplaySettings = %w[DisplayLEs DisplayNWS DisplayIgnored AlbumArtOutline Bolding EditMode] 
     PrivacySettings = %w[ShowWatchlist ShowCollection]
     DefaultDisplaySettings = %w[DisplayLEs DisplayIgnored]
     
-  #Relationships
+  #Associations
     has_many :watchlists, dependent: :destroy
     has_many :watched_sources, :through => :watchlists, :source => :watched, :source_type => 'Source'
     has_many :watched_organizations, :through => :watchlists, :source => :watched, :source_type => 'Organization'
@@ -47,6 +47,7 @@ class User < ActiveRecord::Base
     
     has_many :imagelists,  dependent: :destroy, as: :model
     has_many :images, through: :imagelists
+    has_many :primary_images, through: :imagelists, source: :image, conditions: "images.primary_flag = 'Primary'" 
     
     has_many :issue_users
   

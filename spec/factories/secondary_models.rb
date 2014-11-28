@@ -293,4 +293,10 @@ FactoryGirl.define do
       association :source
       association :season
     end
+    
+    factory :lyric do
+      language {User::Languages.split(",").sample}
+      association :song
+      lyrics {Faker::Lorem.paragraph}
+    end
 end

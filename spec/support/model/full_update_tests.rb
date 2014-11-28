@@ -54,6 +54,96 @@ module FullUpdateTests
       end
     end
   end
+
+  shared_examples "can update a language record" do |model, language_model, text_field|
+    #Example: :song, "lyric", "lyrics"
+    
+    it "creates a #{language_model} record with the right values" do
+      record = create(model)
+      attributes = attributes_for(model)
+      language = User::Languages.split(",").sample
+      attributes.merge!("new_#{language_model}_languages" => [language]) #"new_lyric_languages"
+      attributes.merge!("new_#{language_model}_texts" => ["Hey hey"]) #"new_lyric_texts"
+      expect{record.full_update_attributes(attributes)}.to change(language_model.capitalize.constantize, :count).by(1)
+      expect(record.send("#{language_model}s").first.language).to eq language
+      expect(record.send("#{language_model}s").first.send(model.to_s)).to eq record
+      expect(record.send("#{language_model}s").first.send(text_field)).to eq("Hey hey")
+    end
+    
+    it "does not create a #{language_model} if there's no text" do
+      record = create(model)
+      attributes = attributes_for(model)
+      language = User::Languages.split(",").sample
+      attributes.merge!("new_#{language_model}_languages" => [language])
+      attributes.merge!("new_#{language_model}_texts" => [""])
+      expect{record.full_update_attributes(attributes)}.to change(language_model.capitalize.constantize, :count).by(0)
+    end
+    
+    it "does not create a #{language_model} if there's no text" do
+      record = create(model)
+      attributes = attributes_for(model)
+      attributes.merge!("new_#{language_model}_languages".to_sym => [""])
+      attributes.merge!("new_#{language_model}_texts".to_sym => ["haha"])
+      expect{record.full_update_attributes(attributes)}.to change(language_model.capitalize.constantize, :count).by(0)      
+    end
+    
+    it "creates multiple #{language_model} records" do
+      record = create(model)
+      attributes = attributes_for(model)
+      languages = User::Languages.split(",").sample(2)
+      attributes.merge!("new_#{language_model}_languages" => [languages[0], languages[1]])
+      attributes.merge!("new_#{language_model}_texts" => ["haha", "hoho"])
+      expect{record.full_update_attributes(attributes)}.to change(language_model.capitalize.constantize, :count).by(2)
+    end
+    
+    it "rejects invalid #{language_model} records" do
+      record = create(model)
+      attributes = attributes_for(model)
+      languages = User::Languages.split(",").sample(3)
+      attributes.merge!("new_#{language_model}_languages" => [languages[0], "", languages[1], languages[2], "", languages[2]])
+      attributes.merge!("new_#{language_model}_texts" => ["haha", "hoho", "hehe", "", "", "hahaha"])
+      expect{record.full_update_attributes(attributes)}.to change(language_model.capitalize.constantize, :count).by(3)      
+    end
+    
+    it "updates the #{text_field} with text" do
+      record = create(model)
+      language_record = create(language_model.to_sym, model => record)
+      attributes = attributes_for(model)
+      attributes.merge!("update_#{language_model}s" => { language_record.id.to_s => {:language => "English", text_field => "Hey hey"}})
+      record.full_update_attributes(attributes)
+      expect(record.send("#{language_model}s").first.language).to eq "English"
+      expect(record.send("#{language_model}s").first.send(text_field)).to eq("Hey hey")
+    end
+    
+    it "does not update the #{text_field} if there's an invalid language" do
+      record = create(model)
+      language_record = create(language_model.to_sym, model => record)
+      attributes = attributes_for(model)
+      attributes.merge!("update_#{language_model}s" => { language_record.id.to_s => {:language => "", text_field => "Hey hey"}})
+      record.full_update_attributes(attributes)
+      expect(record.send("#{language_model}s").first.send(text_field)).to_not eq("Hey hey")
+    end
+    
+    
+    it "destroys a #{language_model} record" do
+      record = create(model)
+      language_record = create(language_model.to_sym, model => record)
+      attributes = attributes_for(model)
+      attributes.merge!("remove_#{language_model}s" => [language_record.id.to_s])
+      expect{record.full_update_attributes(attributes)}.to change(language_model.capitalize.constantize, :count).by(-1)      
+    end
+    
+    it "removes multiple #{language_model} records" do
+      record = create(model)
+      languages = User::Languages.split(",").sample(2)
+      language_record = create(language_model.to_sym, model => record, language: languages[1])
+      language_record2 = create(language_model.to_sym, model => record, language: languages[0])
+      attributes = attributes_for(model)
+      attributes.merge!("remove_#{language_model}s" => [language_record.id.to_s, language_record2.id.to_s])
+      expect{record.full_update_attributes(attributes)}.to change(language_model.capitalize.constantize, :count).by(-2)     
+    end
+    
+  end
   
   shared_examples "can update a primary relationship" do |model, model2, relationship_class, relationship|
     context "it creates #{relationship_class.to_s}" do

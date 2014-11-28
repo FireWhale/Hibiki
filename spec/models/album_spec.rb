@@ -31,25 +31,25 @@ describe Album do
       expect{album.destroy}.to change(Song, :count).by(-1)
     end
     
-      it "has many collections" do
-        expect(create(:album, :with_collection).collections.first).to be_a Collection
-        expect(Album.reflect_on_association(:collections).macro).to eq(:has_many)
-      end
-      
-      it "has many collectors" do
-        expect(create(:album, :with_collection).collectors.first).to be_a User
-        expect(Album.reflect_on_association(:collectors).macro).to eq(:has_many)
-      end
-      
-      it "destroys collections when destroyed" do
-        record = create(:album, :with_collection)
-        expect{record.destroy}.to change(Collection, :count).by(-1)
-      end
-      
-      it "does not destroy users when destroyed" do
-        record = create(:album, :with_collection)
-        expect{record.destroy}.to change(User, :count).by(0)
-      end    
+    it "has many collections" do
+      expect(create(:album, :with_collection).collections.first).to be_a Collection
+      expect(Album.reflect_on_association(:collections).macro).to eq(:has_many)
+    end
+    
+    it "has many collectors" do
+      expect(create(:album, :with_collection).collectors.first).to be_a User
+      expect(Album.reflect_on_association(:collectors).macro).to eq(:has_many)
+    end
+    
+    it "destroys collections when destroyed" do
+      record = create(:album, :with_collection)
+      expect{record.destroy}.to change(Collection, :count).by(-1)
+    end
+    
+    it "does not destroy users when destroyed" do
+      record = create(:album, :with_collection)
+      expect{record.destroy}.to change(User, :count).by(0)
+    end    
     
     it_behaves_like "it has_many", :album, "event", "album_event", AlbumEvent, :with_album_event
     
@@ -197,7 +197,7 @@ describe Album do
           attributes = attributes_for(:album)
           artist = create(:artist, name: 'hihi')
           artist_album = create(:artist_album, album: album, artist: artist, category: 33)
-          attributes.merge!(:update_album_artists => {artist_album.id.to_s => ["Performer", "Arranger", "Composer"]})
+          attributes.merge!(:update_artist_albums => {artist_album.id.to_s => ["Performer", "Arranger", "Composer"]})
           expect{album.full_update_attributes(attributes)}.to change(ArtistAlbum, :count).by(0)
           expect(album.artist_albums.first.category).to eq("7")
         end
@@ -209,7 +209,7 @@ describe Album do
           artist2 = create(:artist, name: 'hihooi')
           artist_album = create(:artist_album, album: album, artist: artist, category: 33)
           artist_album2 = create(:artist_album, album: album, artist: artist2, category: 44)
-          attributes.merge!(:update_album_artists => {artist_album.id.to_s => ["Performer", "Arranger", "Composer"], artist_album2.id.to_s => ["Composer", "FeatArranger"]})
+          attributes.merge!(:update_artist_albums => {artist_album.id.to_s => ["Performer", "Arranger", "Composer"], artist_album2.id.to_s => ["Composer", "FeatArranger"]})
           expect{album.full_update_attributes(attributes)}.to change(ArtistAlbum, :count).by(0)
           expect(album.artist_albums.first.category).to eq("7")
           expect(album.artist_albums[1].category).to eq("33")          
@@ -220,7 +220,7 @@ describe Album do
           attributes = attributes_for(:album)
           artist = create(:artist, name: 'hihi')
           artist_album = create(:artist_album, album: album, artist: artist, category: 33)
-          attributes.merge!(:update_album_artists => {artist_album.id.to_s => []})
+          attributes.merge!(:update_artist_albums => {artist_album.id.to_s => []})
           expect{album.full_update_attributes(attributes)}.to change(ArtistAlbum, :count).by(-1)
         end
         
@@ -229,7 +229,7 @@ describe Album do
           attributes = attributes_for(:album)
           artist = create(:artist, name: 'hihi')
           artist_album = create(:artist_album, album: album, artist: artist, category: 33)
-          attributes.merge!(:update_album_artists => {artist_album.id.to_s => []})
+          attributes.merge!(:update_artist_albums => {artist_album.id.to_s => []})
           expect{album.full_update_attributes(attributes)}.to change(Artist, :count).by(0)          
         end
         
@@ -240,7 +240,7 @@ describe Album do
           artist2 = create(:artist, name: 'hihooi')
           artist_album = create(:artist_album, album: album, artist: artist, category: 33)
           artist_album2 = create(:artist_album, album: album, artist: artist2, category: 44)
-          attributes.merge!(:update_album_artists => {artist_album.id.to_s => [], artist_album2.id.to_s => []})
+          attributes.merge!(:update_artist_albums => {artist_album.id.to_s => [], artist_album2.id.to_s => []})
           expect{album.full_update_attributes(attributes)}.to change(ArtistAlbum, :count).by(-2)
         end
         

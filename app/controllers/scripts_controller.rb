@@ -72,6 +72,8 @@ class ScriptsController < ApplicationController
         @autocomplete_path = "autocomplete_" + autocomplete + '_' + autocomplete.split('_')[0] + 's_path' unless autocomplete.nil?
       #Fields_for names
         @field_names = params[:field_names]
+        #If text_area is flagged, use a text area instead of text_field
+        @text_area_field_names = params[:text_area_field_names]
       #Category list names
         @category_field_names = params[:category_field_names]
         @categories = params[:category_select]

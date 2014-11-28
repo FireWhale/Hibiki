@@ -12,20 +12,28 @@
     <% end %>
   <% end %>
   
-  <%= fields_for @field_names do |f| %>
-		<%= f.label '', @label %>
-		<% if @autocomplete_path.nil? %>
-		  <%= f.text_field '', :value => @default_value %>
-    <% else %>
-      <%= f.autocomplete_field '', send(@autocomplete_path), :value => @default_value%>
+  <% unless @field_names.nil? %>
+    <%= fields_for @field_names do |f| %>
+  		<%= f.label '', @label %>
+  		<% if @autocomplete_path.nil? %>
+  		  <%= f.text_field '', :value => @default_value %>
+      <% else %>
+        <%= f.autocomplete_field '', send(@autocomplete_path), :value => @default_value%>
+      <% end %>
     <% end %>
   <% end %>
-  
+    
   <% unless @categories.nil? || @category_field_names.nil? %>
     <%= fields_for @category_field_names do |f| %>
       <%= f.select '', @categories %>
     <% end %>
   <% end %>
+
+  <% unless @text_area_field_names.nil? %>
+    <%= fields_for @text_area_field_names do |f| %>
+      <%= f.text_area '', rows: 10, :value => @default_value, class: "col-md-12" %>
+    <% end %>
+  <% end %>  
   
   <% unless @artist_category_names.nil? %>
     <% Artist::Credits.each_with_index do |credit,n| %>
