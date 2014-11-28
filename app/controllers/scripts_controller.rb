@@ -91,17 +91,6 @@ class ScriptsController < ApplicationController
         @song_info = params[:song_info]
       #Get song_source model
         @song_source = params[:song_source]
-      #Check if this is a script function to add to all song fields
-      if params[:script].nil? == false
-        @songscript = []
-        @default_value = params[:script][:name]
-        params[:script][:div_ids].split(',').each do |songid|
-          songarray = {}
-          songarray[:divid] = "#Sources" + songid.to_s
-          songarray[:fields_for_names] = 'song[' + songid.to_s + '][newsourceids]'
-          @songscript << songarray
-        end
-      end
     end  
     
   
