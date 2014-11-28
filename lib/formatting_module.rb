@@ -227,7 +227,7 @@ module FormattingModule
 
   def format_references_hash(ref_hash)
     references = ref_hash[:types].zip(ref_hash[:links]) #Zip up the types and links
-    self.reference = {} #Clear the old references
+    self.reference ||= {} #Initialize a hash if it isn't one already
     types = Album::ReferenceLinks.map(&:last).map(&:to_s) #Get a list of valid types
     references.each do |reference|
       #make sure they aren't empty and included in ReferenceLinks
