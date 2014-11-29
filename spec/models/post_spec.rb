@@ -157,10 +157,40 @@ describe Post do
   #Callbacks
     context "before_save callback" do
       [:album, :artist, :source, :organization, :song].each do |model|
-        it "associates the image"
+        it "parses the content and creates a postlist" do
+          record = create(model)
+          post = build(:post, content: "This is a <record=\"#{record.class},#{record.id}\">" )
+          expect{post.save}.to change(Postlist, :count).by(1)
+        end
+        
+        it "it adds a #{model} from content" do
+          record = create(model)
+          post = create(:post, content: "This is a <record=\"#{record.class},#{record.id}\">" )
+          expect(post.primary_records).to match_array([record])
+        end
+        
+        it "does not add an improperly formatted record from content" do
+          record = create(model)
+          post = build(:post, content: "This is not a <record = \"#{record.class},#{record.id}\">")
+          expect{post.save}.to change(Postlist, :count).by(0)
+        end
       end
       
-      it "uploads an image" 
+      it "adds multiple records" do
+        album = create(:album)
+        song = create(:song)
+        post = build(:post, content: "hahaha\r <record=\"Album,#{album.id}\"> and \r <record=\"Song,#{song.id}\"> this is more content")
+        expect{post.save}.to change(Postlist, :count).by(2)
+      end
+      
+      it "parses content and adds an image" do
+        image = create(:image)
+        post = build(:post, content: "hahaha\r <image=\"#{image.id}\">")
+        expect{post.save}.to change(Imagelist, :count).by(1)
+      end
+      
+      it "uploads an image"
+       
       it "associates an image found on another model"
       
       it "associates the user"
