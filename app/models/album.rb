@@ -108,6 +108,9 @@ class Album < ActiveRecord::Base
       ['Peco', 5927] #Liz Triangle artist over some 1997 ost artist 
     ]
     
+    #Ignore Artist Names - for ignoring certain names when scraping, particulary organizations in parenthesis
+    IgnoredArtistNames = ['(Elements Garden)', '(Angel Note)', "(CROW'SCLAW)", '(C9)']
+    
   #Validation
     validates :name, presence: true 
     validates :status, presence: true

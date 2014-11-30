@@ -364,6 +364,16 @@ describe Album do
           expect(album.artist_albums.first.category).to eq("5")
         end
         
+        it "ignores certain artists that are included in the 'IgnoreArtist' Constant " do
+          album = create(:album)
+          attributes = attributes_for(:album)
+          ignored_artists = Album::IgnoredArtistNames.sample(2)
+          attributes.merge!(:new_artist_names => ['Hey', "ho"] + ignored_artists)
+          attributes.merge!(:new_artist_categories_scraped => ['Performer', 'Composer', 'New Artist', 'Performer', 'New Artist', 'Composer', 'New Artist', 'Composer', 'New Artist'])
+          expect{album.full_update_attributes(attributes)}.to change(Artist, :count).by(2)               
+        end
+        
+        
       end
       
       context "updates sources through names" do

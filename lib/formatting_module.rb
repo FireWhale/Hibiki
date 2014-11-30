@@ -402,8 +402,9 @@ module FormattingModule
       categories = categories.split { |i| i == "New Artist"}
       unless names.nil? #If names are passed in, it'll fall to here
         replace_artists = Album::Artistreplace
+        ignored_artists = Album::IgnoredArtistNames
         names.zip(categories).each do |info|
-          unless info[0].empty? || info[1].empty?
+          unless info[0].empty? || info[1].empty? || ignored_artists.include?(info[0])
             bitmask = Artist.get_bitmask(info[1])
             if replace_artists.map {|n| n[0]}.include?(info[0]) #if found in replace artists, replace the artist
               artist = Artist.find_by_id(replace_artists[replace_artists.index {|n| n[0] == info[0] }][1])
