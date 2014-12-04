@@ -50,6 +50,7 @@ class Song < ActiveRecord::Base
     
     TracklistEditFields = [{type: "markup", tag_name: "div class='well well-xsmall'"}, {type: "well_hide"},
                            {type: "text", attribute: :name, no_div: true}, 
+                           {type: "text", attribute: :disc_number, no_div: true, field_class: "input-xmini", label: "Disc #:"},
                            {type: "text", attribute: :track_number, no_div: true, field_class: "input-xmini", label: "Track #:"},
                            {type: "text", attribute: :length, no_div: true, label: "Length:"},
                            {type: "id", no_div: true, label: "ID:"},

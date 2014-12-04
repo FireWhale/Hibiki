@@ -179,7 +179,7 @@ module FormattingModule
                 self.album_organizations.create(:organization_id => organization.id, :category => info[1])    
               end
             end
-          end 
+          end
         #Sources
           new_source_names = values.delete fields[:scrapes][:sources][0]
           unless new_source_names.nil?
