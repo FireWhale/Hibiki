@@ -1,0 +1,3 @@
+<%= fields_for form_prefix, record do |f| %>
+  <%= f.hidden_field opts[:attribute], :value => current_user.id %>
+<% end %>

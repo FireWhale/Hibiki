@@ -197,36 +197,11 @@ module ApplicationHelper
       opts[:no_div] == true ? output : content_tag(:div, class: opts[:div_class], id: opts[:div_id]) {output}
     end
 
-  #Random Status helper lol
-    def status_helper(record)
-      #this checks both the status and db status of the record and returns information.
-      if record.status == "Unreleased"
-        (content_tag(:div) do
-           "Warning! This " + record.class.to_s.camelize(:lower) + "'s info is incomplete"
-        end).concat(tag(:br)).html_safe   
-      elsif record.status == "Released"
-        if record.db_status == "Up to Date"
-          (content_tag(:div) do
-            "This " + record.class.to_s.camelize(:lower) + " is up to date as of " + record.updated_at.to_date.to_s(:db)
-          end).concat(tag(:br)).html_safe           
-        elsif record.db_status == "Complete"
-          (content_tag(:div) do
-            "This " + record.class.to_s.camelize(:lower) + " has no more albums coming out! (" + record.updated_at.to_date.to_s(:db) + ")"
-          end).concat(tag(:br)).html_safe
-        elsif record.db_status == "Partial"      
-          (content_tag(:div) do
-            "This " + record.class.to_s.camelize(:lower) + " may be missing albums (" + record.updated_at.to_date.to_s(:db) + ")"
-          end).concat(tag(:br)).html_safe
-        elsif record.db_status == "Ignored"
-          (content_tag(:div) do
-            "This " + record.class.to_s.camelize(:lower) + " is ignored. sorry (" + record.updated_at.to_date.to_s(:db) + ")"
-          end).concat(tag(:br)).html_safe                
-        end  
-      elsif record.status == ""
-        (content_tag(:div) do
-           "Dude you found one. Check out the status"
-        end).concat(tag(:br)).html_safe             
-      end
+  #Post Helper - for parsing a post's content and replacing with hyperlinks and images
+    def post_content_helper(post) 
+      #Get a list of the records
+      matches = content.scan(/<record=\"[a-zA-Z]*,\d*\">/)
+      post.content.gsub!(/<record=\"[a-zA-Z]*,\d*\">/) {"<%= lin"}
     end
   
 end

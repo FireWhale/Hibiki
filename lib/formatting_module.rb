@@ -195,7 +195,7 @@ module FormattingModule
           self.add_artists(nil,new_artist_names,new_artist_categories_scraped, "album") unless new_artist_names.nil? || new_artist_categories_scraped.nil?
       end
     #Lengths - Song Only
-      unless fields[:track_numbers].nil?
+      unless fields[:lengths].nil?
         length = values.delete :length
         values[:length] = ( length.include?(":") ? (length.split(":")[0].to_i * 60 + length.split(":")[1].to_i ) : length) unless length.nil?
         duration = values.delete :duration #Format the duration into seconds if it includes ":"

@@ -1,6 +1,0 @@
-<div class="row-fluid">
-  <%= fields_for @fieldsfornames do |f| %>
-  		<%= f.label '', @label, :class => "control-label" %>
-      <%= f.autocomplete_field '', send(@autocompletepath), :class => 'controls input-medium' %>
-  <% end %>
-</div>

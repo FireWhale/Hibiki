@@ -21,7 +21,7 @@ class Song < ActiveRecord::Base
       ['is arranged from', '-Arrangement'],
       ['is an alternate version of', 'Alternate Version', 'Alternate Version', 'Alternate Version']] 
 
-    FullUpdateFields = {reference: true, sources_for_song: true, track_numbers: true, artists_for_song: [:new_artist_ids, :new_artist_categories, :update_artist_songs],
+    FullUpdateFields = {reference: true, sources_for_song: true, lengths: true, artists_for_song: [:new_artist_ids, :new_artist_categories, :update_artist_songs],
                         self_relations: [:new_related_song_ids, :new_related_song_categories, :update_related_songs, :remove_related_songs],
                         images: ["id", "songimages/", "Primary"],
                         dates: ["release_date"],

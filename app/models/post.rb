@@ -16,6 +16,13 @@ class Post < ActiveRecord::Base
     Status = ["Released", "Deleted Records"]
 
     FullUpdateFields = {images: ["id", "postimages/", "Primary"]}  
+
+    FormFields = [{type: "text", attribute: :title, label: "Title:"}, 
+                  {type: "select", attribute: :category, label: "Category:", categories: Post::Categories},
+                  {type: "select", attribute: :visibility, label: "Visibility", categories: Ability::Abilities},
+                  {type: "select", attribute: :status, label: "Status:", categories: Post::Status},
+                  {type: "current_user_id", attribute: :user_id},
+                  {type: "images"}, {type: "text_area", attribute: :content, rows: 30, label: "Info:"}]
     
   #Validation
     validates :user, presence: true, if: ->(post){post.category == "Blog Post" || post.category == "Private Message"}
@@ -79,21 +86,16 @@ class Post < ActiveRecord::Base
     def parse_content
       unless self.content.nil?
         content = self.content
-        #Match records
-          matches = content.scan(/<record=\"[a-zA-Z]*,\d*\">/)
-          matches.each do |match|
-            info = match.split("\"")[1].split(",")
-            if ["Album", "Artist", "Organization", "Source", "Song"].include?(info[0])
-              record = info[0].constantize.find_by_id(info[1])
-              self.send("#{info[0].downcase}s") << record unless record.nil?
+        matches = content.scan(/<record=\"[a-zA-Z]*,\d*\">/)
+        matches.each do |match|
+          info = match.split("\"")[1].split(",")
+          if ["Album", "Artist", "Organization", "Source", "Song", "Image"].include?(info[0])
+            record = info[0].constantize.find_by_id(info[1])
+            unless record.nil? || self.send("#{info[0].downcase}s").include?(record)
+              self.send("#{info[0].downcase}s") << record
             end
           end
-        #match Images
-          image_matches = content.scan(/<image=\"\d*\">/)
-          image_matches.each do |match|
-            record = Image.find_by_id(match.split("\"")[1])
-            self.images << record unless record.nil?
-          end
+        end
       end
     end
 
