@@ -185,7 +185,7 @@ describe Post do
       
       it "parses content and adds an image" do
         image = create(:image)
-        post = build(:post, content: "hahaha\r <image=\"#{image.id}\">")
+        post = build(:post, content: "hahaha\r <record=\"Image,#{image.id}\">")
         expect{post.save}.to change(Imagelist, :count).by(1)
       end
       

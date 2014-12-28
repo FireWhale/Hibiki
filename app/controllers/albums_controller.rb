@@ -31,7 +31,13 @@ class AlbumsController < ApplicationController
    
   def album_art
     @album = Album.includes(:images).find_by_id(params[:id])
-    @image = (params[:image] == "cover" ?  @album.primary_images.first : @album.images.first ) unless @album.images.empty?
+    if params[:image] == "cover"
+      @image = @album.primary_images.first
+    elsif @album.images.map(&:id).map(&:to_s).include?(params[:image])
+      @image = Image.find_by_id(params[:image])
+    else
+      @image = @album.images.first
+    end  
   end
   
   def album_preview

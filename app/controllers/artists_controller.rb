@@ -35,7 +35,13 @@ class ArtistsController < ApplicationController
 
   def show_images
     @artist = Artist.includes(:images).find_by_id(params[:id])
-    @image = (params[:image] == "cover" ?  @artist.primary_images.first : @artist.images.first ) unless @artist.images.empty?
+    if params[:image] == "cover"
+      @image = @artist.primary_images.first
+    elsif @artist.images.map(&:id).map(&:to_s).include?(params[:image])
+      @image = Image.find_by_id(params[:image])
+    else
+      @image = @artist.images.first
+    end
   end
   
   def new

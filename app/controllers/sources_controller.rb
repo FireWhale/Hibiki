@@ -41,7 +41,13 @@ class SourcesController < ApplicationController
 
   def show_images
     @source = Source.includes(:images).find_by_id(params[:id])
-    @image = (params[:image] == "cover" ?  @source.primary_images.first : @source.images.first ) unless @source.images.empty?
+    if params[:image] == "cover"
+      @image = @source.primary_images.first
+    elsif @source.images.map(&:id).map(&:to_s).include?(params[:image])
+      @image = Image.find_by_id(params[:image])
+    else
+      @image = @source.images.first
+    end  
   end
 
   def new

@@ -48,6 +48,10 @@ class Post < ActiveRecord::Base
       albums + artists + organizations + songs + sources
     end
     
+    def records
+      primary_records + images
+    end
+    
     belongs_to :user
     belongs_to :recipient, class_name: "User" 
 
@@ -65,18 +69,8 @@ class Post < ActiveRecord::Base
     end
     
   #Instance Methods
-    def upload_image_to_ll(image, topicid)
-      
-    end
-    
-    def add_record_to_post
-      #Used as a callback. 
-      #This is only used for blog posts, but it'll link parse the post's content
-      #for records mentions and it will add it to the post. The record will 
-      #then list out the Blog Posts it has been mentioned in
-      
-    end
-    
+  
+  
   #Class Methods    
     def self.cut_messages_for_ll(messages)
       #Takes in an array of messages and makes sure they are less than 9000 characters    
@@ -86,7 +80,7 @@ class Post < ActiveRecord::Base
     def parse_content
       unless self.content.nil?
         content = self.content
-        matches = content.scan(/<record=\"[a-zA-Z]*,\d*\">/)
+        matches = content.scan(/<record=\"[a-zA-Z]*,\d*.*?\">/)
         matches.each do |match|
           info = match.split("\"")[1].split(",")
           if ["Album", "Artist", "Organization", "Source", "Song", "Image"].include?(info[0])
@@ -98,6 +92,5 @@ class Post < ActiveRecord::Base
         end
       end
     end
-
 
 end

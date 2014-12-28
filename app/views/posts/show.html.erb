@@ -14,8 +14,18 @@
 </p>
 
 <p>
-  <b>Content:</b>
-  <% @contentarray.each do |line| %>
-  <%=  line%><br>
-  <% end %>
+  <b>Simple Format Content:</b>
+  <%= simple_format(@post.content, nil, sanitize: false) %>
 </p>
+
+
+<p>
+  <b>Raw Content:</b>
+  <%= @post.content %>
+</p>
+
+<p>
+  <b>Parsed Content:</b>
+  <%= post_content_helper(@post.content) %>
+</p>
+

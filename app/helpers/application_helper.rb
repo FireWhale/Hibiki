@@ -197,11 +197,25 @@ module ApplicationHelper
       opts[:no_div] == true ? output : content_tag(:div, class: opts[:div_class], id: opts[:div_id]) {output}
     end
 
-  #Post Helper - for parsing a post's content and replacing with hyperlinks and images
-    def post_content_helper(post) 
-      #Get a list of the records
-      matches = content.scan(/<record=\"[a-zA-Z]*,\d*\">/)
-      post.content.gsub!(/<record=\"[a-zA-Z]*,\d*\">/) {"<%= lin"}
+  #Post Helper - for parsing a post's content and replacing with hyperlinks and images  
+    def post_content_helper(content)
+      subbed_content = content.gsub(/<record=\"[a-zA-Z]*,\d*.*?\">/) { |text|
+        info = text.split("\"")[1..(text.split("\"").count - 2)].join("\"").split(",")
+        record = info[0].constantize.find_by_id(info[1])
+        unless record.class == Image
+          label = info[2].nil? ? name_language_helper(record, current_user,0) : info[2]
+          link_to(label, record)
+        else
+          size = info[2].nil? || ["thumb", "full", "medium"].include?(info[2]) == false ? "thumb" : info[2]
+          if record.model.class == Album
+            link = albumart_album_path(record.model.id, :image => record.id)
+          else
+            link = eval("images_#{record.model.class.to_s.downcase}_path(#{record.model.id}, :image => #{record.id})")
+          end
+          content_tag(:div, link_to(image_helper(record, size, :title => name_language_helper(record.model,current_user,0)), link), class: "text-center")
+        end
+      }
+      raw simple_format(subbed_content, nil)
     end
   
 end

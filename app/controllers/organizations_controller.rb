@@ -29,9 +29,14 @@ class OrganizationsController < ApplicationController
   end
   
   def show_images
-
     @organization = Organization.includes(:images).find_by_id(params[:id])
-    @image = (params[:image] == "cover" ?  @organization.primary_images.first : @organization.images.first ) unless @organization.images.empty?    
+    if params[:image] == "cover"
+      @image = @organization.primary_images.first
+    elsif @organization.images.map(&:id).map(&:to_s).include?(params[:image])
+      @image = Image.find_by_id(params[:image])
+    else
+      @image = @organization.images.first
+    end  
   end
   
   # GET /organizations/new

@@ -56,11 +56,15 @@ class ApplicationController < ActionController::Base
           end
         end   
       else
-        array.push(record.name)
-        if record.respond_to?(:altname) && record.altname.nil? == false
-          if record.altname.empty? == false
-            array.push(record.altname)
+        if record.respond_to?(:name) 
+          array.push(record.name)
+          if record.respond_to?(:altname) && record.altname.nil? == false
+            if record.altname.empty? == false
+              array.push(record.altname)
+            end
           end
+        else
+          array.push(record.id.to_s)
         end
       end
       #If the priority specificed isn't available, we return nil

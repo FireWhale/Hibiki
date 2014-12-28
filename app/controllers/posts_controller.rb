@@ -13,6 +13,10 @@ class PostsController < ApplicationController
       format.json { render json: @album }
     end    
   end
+  
+  def edit
+    @post = Post.find(params[:id])
+  end
     
   def create
     respond_to do |format|
@@ -26,6 +30,19 @@ class PostsController < ApplicationController
     end
   end
   
+  def update
+    @post = Post.find(params[:id])
 
+    respond_to do |format|
+      if @post.full_update_attributes(params[:post])
+        format.html { redirect_to @post, notice: 'Post was successfully updated.' }
+        format.json { head :no_content }
+      else
+        format.html { render action: "edit" }
+        format.json { render json: @post.errors, status: :unprocessable_entity }
+      end
+    end
+    
+  end
   
 end
