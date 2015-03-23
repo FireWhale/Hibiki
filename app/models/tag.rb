@@ -1,7 +1,7 @@
 class Tag < ActiveRecord::Base
   attr_accessible :classification, :info, :name, :synopsis, :model_bitmask, :visibility
   
-  ModelBitmask = %w[Album Artist Organization Song Source]
+  ModelBitmask = %w[Album Artist Organization Song Source Post]
   
   #Validation
     validates :name, presence: true , uniqueness: {scope: :model_bitmask}
@@ -10,16 +10,21 @@ class Tag < ActiveRecord::Base
     validates :visibility, presence: true
     validate :bitmask_check
   
-
-  has_many :taglists, dependent: :destroy
-  has_many :albums, :through => :taglists, :source => :subject, :source_type => 'Album'
-  has_many :artists, :through => :taglists, :source => :subject, :source_type => 'Artist'
-  has_many :organizations, :through => :taglists, :source => :subject, :source_type => 'Organization'
-  has_many :sources, :through => :taglists, :source => :subject, :source_type => 'Source'
-  has_many :songs, :through => :taglists, :source => :subject, :source_type => 'Song'
+  #Associations
+    has_many :taglists, dependent: :destroy
+    has_many :albums, :through => :taglists, :source => :subject, :source_type => 'Album'
+    has_many :artists, :through => :taglists, :source => :subject, :source_type => 'Artist'
+    has_many :organizations, :through => :taglists, :source => :subject, :source_type => 'Organization'
+    has_many :sources, :through => :taglists, :source => :subject, :source_type => 'Source'
+    has_many :songs, :through => :taglists, :source => :subject, :source_type => 'Song'
+    has_many :posts, :through => :taglists, :source => :subject, :source_type => 'Post'
   
+  #Scopes
+    scope :model_tags, ->(model) { where("model_bitmask & #{2**Tag::ModelBitmask.index(model)} > ?", 0 )}
+    scope :meets_security, ->(user) { where('tags.visibility IN (?)', user.nil? ? ["Any"] : user.abilities )}
+
   def subjects
-    albums + artists + organizations + sources + songs
+    albums + artists + organizations + sources + songs + posts
   end
   
   def models

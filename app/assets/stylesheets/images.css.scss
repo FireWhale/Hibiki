@@ -4,7 +4,7 @@
     border: none;
     border-radius: 0px;
     margin-bottom: 0px;
-    padding: 0px;    
+    padding: 0px;
   }
 
 
@@ -24,6 +24,13 @@
   
   .thumbnail-margined {
     margin-bottom: 20px;
+  }
+  
+  .thumbnail-square {
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: center;
+    align-items: center;
   }
 
 //Highlights album art according to user's collection'

@@ -1,0 +1,14 @@
+<% if can? :read, post%>
+  <div class="post" id="<%= post.id %>">
+    <h2><%= link_to post.title, post %></h2>
+    <div class="post-meta">
+      <%= post.created_at.strftime("Posted on %B %-d, %Y") %>
+      <% unless post.tags.empty? %>
+        | Tagged: <% post.tags.each do |tag| %>
+          <%= link_to tag.name, tag%>
+        <% end %>
+      <% end %>
+    </div> 
+    <%= post_content_helper(post.content, post.id, truncate_length)%>
+  </div>
+<% end %>

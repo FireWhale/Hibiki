@@ -1,11 +1,18 @@
 <% if record.errors.any? %>
   <div id="error_explanation">
-    <h2><%= pluralize(record.errors.count, "error") %> prohibited this <%= record.class.to_s.downcase %> from being saved:</h2>
-    <ul>
-    <% record.errors.full_messages.each do |msg| %>
-      <li><%= msg %></li>
+    <% if record.class == UserSession %>
+      <h2>Login Failed:</h2>
+      <% record.errors.messages.each do |v| %>
+        <div><%= v[1][0]%></div>
+      <% end %><br>
+    <% else %>
+      <h2><%= pluralize(record.errors.count, "error") %> prohibited this <%= record.class.to_s.downcase %> from being saved:</h2>
+      <ul>
+      <% record.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
     <% end %>
-    </ul>
   </div>
 <% end %>
 

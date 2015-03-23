@@ -27,7 +27,7 @@
       </div>
       <br>
       <div class="row">
-        <div class="col-md-4">
+        <div class="col-md-6">
           <div class="well">
             <h3 class="text-center">Display Settings</h3>
             <%= fields_for :displaysettings do |f| %>
@@ -69,15 +69,7 @@
             <% end %>
           </div>
         </div> 
-        <div class="col-md-4">
-          <div class="well">
-            <h4 class="text-center">Tracklist Export Defaults</h4>   
-            <% Album::TracklistOptions.each do |k,v| %>
-              <%= check_box_tag 'tracklist_export_settings[]', k, @user.tracklist_settings.include?(k.to_s) %> <%= v %><br>
-            <% end %>      
-          </div>  
-        </div>
-        <div class="col-md-4">
+        <div class="col-md-6">
           <div class="well">
             <h3 class="text-center">Language Settings</h3>
             <h5 class="text-center">Drag and drop the languages into the preferred order you'd like to see them. There is a separate preference for artist/organization names.</h5>

@@ -1,0 +1,102 @@
+<% if records.nil? || records.empty? %>
+  <div class="no-records">
+    Sorry, there were no results <%= "under #{@model}s" unless @model.nil? %>
+  </div> 
+<% else %>
+  <% if @model.nil? %>
+    <%= paginate records %>
+  <% else %>
+    <%= paginate records, remote: true, param_name: "#{@model}_page", :params => {model: @model} %>
+  <% end %>
+  <% if records.first.class == Album %>
+    <div class="record-container">
+      <div class="album">
+        <div class="image">Album Cover</div>
+        <div class="name album-name">Album Title</div>
+        <div class="date">Release Date</div>
+      </div>
+    </div>
+    <% records.each do |record| %>
+      <div class="record-container">
+        <div class="<%= record.class.to_s.downcase %>">
+          <div class="image"><%= primary_image_helper(record, record, "thumb", :square => true, :outline => true) %></div>
+          <div class="name album-name">
+            <h4><%= link_to name_language_helper(record,current_user,0), record %></h4>
+            <div class="tags"><%= linked_attribute_display(record.tags, '') %></div>
+          </div>
+          <div class="date"><%= date_helper(record, 'release_date', :calendar_link => false)%></div>
+        </div>
+      </div>
+    <% end %>
+  <% elsif records.first.class == Song %>
+    <div class="record-container">
+      <div class="song">
+        <div class="image">Album Cover</div>
+        <div class="name song-name">Song Title</div>
+        <div class="date">Release Date</div>
+      </div>
+    </div>
+    <% records.each do |record| %>
+      <div class="record-container">
+        <div class="<%= record.class.to_s.downcase %>">
+          <% if record.album.nil? %>
+            <div class="image"><%= primary_image_helper(record, record, "thumb", :square => true, :outline => true) %></div>
+            <div class="name song-name">
+              <h4><%= link_to name_language_helper(record,current_user,0), record %></h4>
+              <div class="tags"><%= linked_attribute_display(record.tags, '') %></div>          
+            </div>
+            <div class="date"></div>
+          <% else %>
+            <div class="image"><%= primary_image_helper(record.album, record.album, "thumb", :square => true, :outline => true) %></div>
+            <div class="name song-name">
+              <h4><%= link_to "#{record.disc_track_number unless record.track_number.nil?} #{name_language_helper(record,current_user,0)}", record.album %></h4>
+              <h5>Album: <%= link_to name_language_helper(record.album,current_user,0), record.album %></h5>        
+              <h5><%= "Duration: #{record.length_as_time}" unless record.length.nil? || record.length == 0 %></h5>
+              <div class="tags"><%= linked_attribute_display(record.tags, '') %></div>          
+            </div>
+            <div class="date"><%= date_helper(record.album, 'release_date', :calendar_link => false)%></div>    
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="record-container">
+      <div class="<%= records.first.class.to_s.downcase %>">
+        <div class="name"><%= records.first.class == Source ? "Title" : "Name" %></div>
+        <div class="albums">Albums</div>
+      </div>
+    </div>
+    <% records.each do |record| %>
+      <div class="record-container">
+        <div class="<%= record.class.to_s.downcase %>">
+          <div class="name">
+            <h4><%= link_to name_language_helper(record,current_user,0), record %></h4>
+            <div class="tags"><%= linked_attribute_display(record.tags, '') %></div>
+          </div>
+          <div class="albums">
+            <div class="album-images">
+              <% if record.albums.count > 5 %>
+                <% record.albums.order(:release_date).last(5).reverse.each do |album| %>
+                <div><%= primary_image_helper(album, album, "thumb", :outline_flag => true, :square => true) %>
+                </div>
+                <% end %>  
+                <div class="album-extra-count">
+                  <%= link_to "+#{record.albums.count - 5}", record %>   
+                </div>     
+              <% else %>
+                <% record.albums.order(:release_date).each do |album| %>
+                  <div><%= primary_image_helper(album, album, "thumb", :outline_flag => true, :square => true) %></div>
+                <% end %>    
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+  <% if @model.nil? %>
+    <%= paginate records %>
+  <% else %>
+    <%= paginate records, remote: true, param_name: "#{@model}_page", :params => {model: @model} %>
+  <% end %>
+<% end %>

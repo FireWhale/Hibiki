@@ -1,0 +1,29 @@
+<div id="selection-sidebar">
+  <% collection.sort_by {|k,v| (k ||= "zzzzzz").downcase }.map do |k,v| %>
+    <div class="grouping">
+      <div class='group-label'>
+        <div class="group-section">
+          <div class="count"><span class="badge"></span></div>
+          <div>
+            <% if k.nil? %>
+              <b><%= "No Grouping (#{v.count})" %></b>
+            <% else %>
+              <b><%= k.to_s + ' (' + v.count.to_s + ')' %></b>
+            <% end %>                  
+          </div>
+          <div class="chevron">
+            <span class='glyphicon glyphicon-chevron-down'></span>              
+          </div>
+        </div>
+      </div>
+      <div class="group-items">
+        <% v.each do |record| %>
+          <div class="item">
+            <span class="glyphicon"></span>
+            <%= link_to (name_language_helper(record,current_user,0, :no_bold => true) + ' (' + record.albums.count.to_s + ')'), record, data: {id: (record.class.to_s.downcase[0] + record.id.to_s)}, :remote => true %>        
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

@@ -1,2 +1,1 @@
-$('#CollectLink').html('<%= @noticetext.titleize + "!" %>');
-$('#<%= @album.id.to_s %>').html('<%= @text %>');
+$('#user-actions').children().children('div.nav').html('<%= escape_javascript(render :partial => "layouts/primary_models/user_options", :locals => {:record => @album }) %>');      

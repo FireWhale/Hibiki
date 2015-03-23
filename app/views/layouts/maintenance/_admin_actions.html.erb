@@ -1,14 +1,1 @@
-<% if can? :edit, record %>
-  <ul id="Navigation" class="nav nav-tabs nav-stacked sticky">
-    <li>
-        <%= link_to 'Edit', eval("edit_" + record.class.to_s.downcase + "_path(record)") %>
-        <% if record.class == Album %>
-          <%= link_to "Edit tracklist", tracklist_edit_album_path %>
-        <% end %>
-        <%= link_to 'Destroy', record, method: :delete, data: { confirm: 'Are you sure?' } %>
-        <% if record.class == Album %>
-          <%= link_to 'Rescrape', rescrape_album_path, method: :post, data: { confirm: 'Rescrape: Are you sure?' }, :remote => true %>
-        <% end %>
-    </li>
-  </ul>
-<% end %>
+

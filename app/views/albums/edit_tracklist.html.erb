@@ -6,49 +6,46 @@
   </div>
 <% end %>
 
-<div class="row">
-  <div class="col-md-4">
-    <ul id="Navigation" class="nav sticky">
-      <div class="field">
-        <div class="well well-xsmall">
-          <h5 class='text-center'>Artist List<%= render partial: 'layouts/forms/well_toggle', locals: {div_id: "ArtistList", toggle_id: "ArtistToggle"} %></h5>
-          <div id="ArtistList">
-            <% @album.artists.sort_by! {|a| name_language_helper(a,current_user,0)}.each do |artist| %>
-              <%= artist.id %> - <%= name_language_helper(artist,current_user,0) %><br>
-            <% end %>
-          </div>
-        </div>
-        <div class="well well-xsmall">
-          <h5 class='text-center'>Source List<%= render partial: 'layouts/forms/well_toggle', locals: {div_id: "SourceList", toggle_id: "SourceToggle"} %></h5>
-          <div id="SourceList">
-            <% @album.sources.sort_by! {|a| name_language_helper(a,current_user,0) }.each do |source| %>
-              <%= source.id %> - <%= name_language_helper(source,current_user,0) %><br>
-            <% end %>
-          </div>
-        </div>
-        <%= form_for 'source', :html => {:class => "form-horizontal"}, :url => addmodel_path(:autocomplete_path => 'source_namehash'), :method => 'get', :remote => true do |f| %>
-          <%= fields_for "div_id_list" do |f| %>
-            Add to all songs:
-            <%= f.select 'default_value', @album.sources.map { |n| n.id.to_s + " - " + n.name } %>
-            <%= hidden_field_tag 'div_id_list[div_ids]', @album.songs.map(&:id).map {|a| "Sources#{a}"}.join(',') %>
-            <%= submit_tag 'Add'%>
+<% content_for :left_sidebar_form_view do %>
+  <div id="Navigation">
+    <div class="field">
+      <div class="well well-xsmall">
+        <h5 class='text-center'>Artist List<%= render partial: 'layouts/forms/well_toggle', locals: {div_id: "ArtistList", toggle_id: "ArtistToggle"} %></h5>
+        <div id="ArtistList">
+          <% @album.artists.sort_by! {|a| name_language_helper(a,current_user,0)}.each do |artist| %>
+            <%= artist.id %> - <%= name_language_helper(artist,current_user,0) %><br>
           <% end %>
-        <% end %>
-        <%= form_for 'artist', :html => {:class => "form-horizontal"}, :url => addmodel_path, :method => 'get', :remote => true do |f| %>
-          <%= fields_for "script" do |f| %>
-            Add to all songs:
-            <%= f.select 'name', @album.artists.map { |n| n.id.to_s + " - " + n.name } %>
-            <%= f.select 'artist_cat', Artist::Credits %>
-            <%= hidden_field_tag 'script[div_ids]', @album.songs.map(&:id).join(',') %>
-            <%= submit_tag 'Add'%>
-          <% end %>
-        <% end %>
-          <%= text_area_tag 'private_info', @album.private_info, :rows => '20', class: 'col-md-12' %>
+        </div>
       </div>
-    </ul>
+      <div class="well well-xsmall">
+        <h5 class='text-center'>Source List<%= render partial: 'layouts/forms/well_toggle', locals: {div_id: "SourceList", toggle_id: "SourceToggle"} %></h5>
+        <div id="SourceList">
+          <% @album.sources.sort_by! {|a| name_language_helper(a,current_user,0) }.each do |source| %>
+            <%= source.id %> - <%= name_language_helper(source,current_user,0) %><br>
+          <% end %>
+        </div>
+      </div>
+      <%= form_for 'source', :html => {:class => "form-horizontal"}, :url => addmodel_path(:autocomplete_path => 'source_namehash'), :method => 'get', :remote => true do |f| %>
+        <%= fields_for "div_id_list" do |f| %>
+          Add to all songs:
+          <%= f.select 'default_value', @album.sources.map { |n| n.id.to_s + " - " + n.name } %>
+          <%= hidden_field_tag 'div_id_list[div_ids]', @album.songs.map(&:id).map {|a| "Sources#{a}"}.join(',') %>
+          <%= submit_tag 'Add'%>
+        <% end %>
+      <% end %>
+      <%= form_for 'artist', :html => {:class => "form-horizontal"}, :url => addmodel_path, :method => 'get', :remote => true do |f| %>
+        <%= fields_for "script" do |f| %>
+          Add to all songs:
+          <%= f.select 'name', @album.artists.map { |n| n.id.to_s + " - " + n.name } %>
+          <%= f.select 'artist_cat', Artist::Credits %>
+          <%= hidden_field_tag 'script[div_ids]', @album.songs.map(&:id).join(',') %>
+          <%= submit_tag 'Add'%>
+        <% end %>
+      <% end %>
+        <%= text_area_tag 'private_info', @album.private_info, :rows => '20', class: 'col-md-12' %>
+    </div>
   </div>
-  <div class="col-md-8">
-    <%= render_form(@album.songs, url: tracklist_edit_album_path(@album), fields: Song::TracklistEditFields) %>
-  </div>
-</div>
+<% end %>
+    
+<%= render_form(@album.songs, url: tracklist_edit_album_path(@album), fields: Song::TracklistEditFields) %>
 

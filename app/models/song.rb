@@ -107,7 +107,7 @@ class Song < ActiveRecord::Base
 
       has_many :imagelists, dependent: :destroy, as: :model
       has_many :images, through: :imagelists
-      has_many :primary_images, through: :imagelists, source: :image, conditions: "images.primary_flag = 'Primary'" 
+      has_many :primary_images, -> {where "images.primary_flag = 'Primary'" }, through: :imagelists, source: :image
 
       has_many :postlists, dependent: :destroy, as: :model
       has_many :posts, through: :postlists
@@ -173,6 +173,16 @@ class Song < ActiveRecord::Base
         self.track_number =  self.track_number.rjust(2,'0')
       end
     end    
+  end
+  
+  def disc_track_number
+    "#{(self.disc_number + ".") unless self.disc_number.nil?}#{self.track_number}"
+  end
+  
+  def length_as_time
+    unless self.length.nil? || self.length == 0
+      Time.at(self.length).utc.strftime("%-M:%S") 
+    end
   end
 
 end

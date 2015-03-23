@@ -3,3 +3,9 @@
 
 en:
   hello: "Hello world"
+  authlogic:
+    error_messages:
+      login_blank: "Please enter a username."
+      password_blank: "The password cannot be blank."
+      login_not_found: "The username was not found in our system."
+      password_invalid: "The password does not match the one in our system."

@@ -1,0 +1,9 @@
+<% if can? :read, issue %>
+  <div class="issue" id="<%= issue.id %>">
+    <span class="label <%= issue.category.parameterize %>"><%= issue.category%></span>
+    <span class="label <%= issue.status.parameterize %>"><%= issue.status %></span>
+    <h4><%= link_to issue.name, issue %></h4>
+    <div class="post-meta"></div> 
+    <%= post_content_helper(issue.description, issue.id, truncate_length)%>
+  </div>
+<% end %>

@@ -2,13 +2,6 @@
 @import "bootstrap/variables";
 @import "bootstrap/mixins";
 
-body { padding-top: 30px; } //Padding for the fixed header
-
-    #bugreport {
-      max-width: 600px;
-      margin: auto;
-    }
-
 //Additional modifications to bootstrap for more flexibility
   //Gutters
     .no-gutter [class*="-2"] {
@@ -20,50 +13,6 @@ body { padding-top: 30px; } //Padding for the fixed header
         padding-left:0;
         padding-right:0;
     }
-  //Wells
-    .well-xsmall {
-        padding: 7px;
-        line-height: normal;
-        margin-bottom: 10px;
-        box-shadow: 0 1px 1px -1px #000;
-        }
-        
-  //Forms
-    .form-horizontal select {
-      margin-left: 8px;
-      width: 25%;
-    }
-    
-    .input-xmini {
-     width: 5%;
-    }    
-    
-    .input-xlarge {
-      width: 35%;
-    }
-
-    .input-xsmall {
-     width: 10% !important;
-    }        
-
-//Making the header nice :D
-  .navbar-mid {
-      position: absolute;
-      width: 100%;
-      left: 0;
-      text-align: center;
-      margin: auto;
-  }
-  
-  #search_nav {
-    position: relative;
-    z-index: 1;
-  }
-  
-  #user_nav {
-    position: relative;
-    z-index: 1;
-  }
 
 //For editing language order in edit_profile 
   .languagelist {
@@ -97,27 +46,11 @@ body { padding-top: 30px; } //Padding for the fixed header
     padding: 1px 0px 1px;
     div {
     padding: 0.2em 0.6em 0.3em;
-      background-color: #DAC8A2;
+      background-color: #a7e0f3;
     }
   }
 
-//Searching CSS
-  #SearchResults #Artists {
-    display: none;
-  }
-  
-  #SearchResults #Sources { 
-    display: none;
-  }
-  
-  #SearchResults #Organizations { 
-    display: none;
-  }
-  
-  #SearchResults #Songs { 
-    display: none;
-  }
-  
+//Searching CSS  
   #SearchTabs {
     border-bottom: none;
     text-align: center;
@@ -125,118 +58,6 @@ body { padding-top: 30px; } //Padding for the fixed header
      float:none;
      display:inline-block; 
     }
-  }
-
-//For seasons and watchlist functionality.
-  #sidebar-nav {
-    overflow-y: auto;
-    margin-bottom: 0;
-    
-    .list-group-item {
-      padding: 0px;
-    }
-    .expand-link {
-      cursor: pointer; 
-      cursor: hand;
-    }
-    
-    .indent {
-      margin-left: 20px;
-    }
-    
-    .floaty {
-      float: left;
-    }
-    
-  }
-  
-  #album-list {
-    overflow-y: auto;
-    padding-left: 0.7%;
-    .album-well {
-      display: none;
-      width: 33%;
-      &.album-well4x {
-        width: 24%
-      }
-      float:left;
-      padding: 0 0.6% 0 0.6%;
-      border-radius: 10px;
-      border: 0px;
-      .enhance {
-        height: 240px;
-        border-radius: 10px;
-        overflow: hidden;
-        z-index: 1;
-        &:hover {
-          img {
-            border-radius:10px;
-            transform: scale(1.3);
-          };
-          .album-footer {
-            background:rgba(0,0,0,1);
-          }
-          .collection-badge {
-            .collected{
-              background:rgba(84,158,65,1);
-            }
-            .ignored{
-              background:rgba(205,18,18,1);
-            }
-            .wishlist{
-              background:rgba(69,41,209,1);
-            }
-          }
-        }    
-        img {
-          transition: all 0.2s ease-in-out;
-          width: 100%;
-        }
-        position:relative;
-        .collection-badge {
-          position:absolute;
-          top: 0;
-          left: 0;
-          margin-left: auto;
-          margin-right: auto;
-          right: 0;
-          color:rgb(255,255,255) ;
-          .collected{
-            background:rgba(84,158,65,0.5);
-          }
-          .ignored{
-            background:rgba(205,18,18,0.5);
-          }
-          .wishlist{
-            background:rgba(69,41,209,0.5);
-          }   
-        }
-        .album-footer {
-          position:absolute;
-          width: 100%;
-          bottom: 0;
-          padding: 0 2% 0 2%;
-          color:rgb(255,255,255) ;
-          background:rgba(0,0,0,0.5);
-          a {
-            color:rgb(255,255,255) ;
-            
-          }
-        }
-      }
-    }
-    .nodisplaynone {
-      //for places where you want the album/dividers to display - maintenance queue and calendar
-      display:inline;
-    }
-    .divider-header {
-      display: none;
-      clear:both;
-      &.nodisplaynone {
-        display:block;
-      }
-    }
-
   }
   
   
@@ -252,23 +73,6 @@ body { padding-top: 30px; } //Padding for the fixed header
     border-color: #66FF66;
   }
 
-
-//dunno what these are for.
-
-a {
-  text-decoration:underline;
-  color: #000;
-  &:visited {
-      color: #666;
-    strong {
-      color: #000;
-    }
-  }
-  &:hover {
-    color: #000;
-  }
-
-}
 
 //Reverses hover-underline logic for these divs (found in show's)
   #People {

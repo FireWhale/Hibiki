@@ -12,14 +12,13 @@ class MaintenanceController < ApplicationController
     def scrape
       authorize! :scrape, Album
       scrapehash = {}
-      scrapehash[:vgmdb_albums] = params[:vgmdb_albums].reject(&:empty?)
       scrapehash[:vgmdb_artists] = params[:vgmdb_artists].reject(&:empty?)
       scrapehash[:vgmdb_organizations] = params[:vgmdb_orgs].reject(&:empty?)
       scrapehash[:vgmdb_albumlist] = params[:vgmdb_albumlist][:text]
       scrapehash[:cdjapan_albums] = params[:cdjapan_albums].reject(&:empty?)
       scrapehash[:manifo_albums] = params[:manifo_albums].reject(&:empty?)
       
-      if scrapehash[:vgmdb_albums].empty? == false || scrapehash[:vgmdb_artists].empty? == false || scrapehash[:vgmdb_organizations].empty? == false || scrapehash[:cdjapan_albums].empty? == false || scrapehash[:vgmdb_albumlist].empty? == false || scrapehash[:manifo_albums].empty? == false
+      if scrapehash[:vgmdb_artists].empty? == false || scrapehash[:vgmdb_organizations].empty? == false || scrapehash[:cdjapan_albums].empty? == false || scrapehash[:vgmdb_albumlist].empty? == false || scrapehash[:manifo_albums].empty? == false
         postmessage = "Scrape started at " + Time.now.to_s + " with inputs: "
         postmessage << "\n\nvgmdb albums: "
         scrapehash[:vgmdb_albumlist].split("\n").reject { |a| a.empty?}.select { |a| a.starts_with?("http://") }.each do |each|
@@ -151,11 +150,5 @@ class MaintenanceController < ApplicationController
     end    
   end
   
-  def addscrapelink
-    authorize! :scrape, Album
-    #This adds a link to the scrape area. 
-    @divid = params[:div_id]
-    @fieldsfor = params[:fields_for]
-  end
       
 end

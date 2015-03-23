@@ -3,26 +3,8 @@ class SongsController < ApplicationController
 
   autocomplete :song, :namehash, :full => true, :extra_data => [:name], :display_value => :format_method  
 
-  def songpreview
-    @song= Song.includes(:related_song_relations1, :related_song_relations2, {artist_songs: :artist}, :sources).find_by_id(params[:songid])   
-    self_relation_helper(@song,@related = {}) #Prepare @related (self_relations)
-    credits_helper(@song,@credits = {})
-    
-    respond_to do |format|
-      format.js
-    end    
-  end
-  
-  def songpreviewhide
-    @id = (params[:id])
-        
-    respond_to do |format|
-      format.js
-    end  
-  end
-  
   def index
-    @songs = Song.all
+    @songs = Song.page(params[:page])
 
     respond_to do |format|
       format.html # index.html.erb

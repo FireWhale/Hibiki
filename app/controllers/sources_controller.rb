@@ -3,17 +3,6 @@ class SourcesController < ApplicationController
 
   autocomplete :source, :namehash, :full => true, :extra_data => [:name, :search_context], 
                :display_value => :autocomplete_format
-  
-  
-  def addsourceforsongform
-    #For normal source adding to a single song
-    @songid = params[:song_id]
-    #For scripted mass adding to all songs
-    if params[:script].nil? == false
-      @songids = params[:script][:div_ids].split(',')
-      @defaultvalue = params[:script][:name]
-    end    
-  end
       
   def index
     @sources = Source.order('lower(name)').includes(albums: :primary_images).page(params[:page])
@@ -25,7 +14,7 @@ class SourcesController < ApplicationController
   end
 
   def show
-    @source = Source.includes(:albums, :organizations, :images).find(params[:id])
+    @source = Source.includes(:organizations, :images, :albums => [:primary_images, :tags]).find(params[:id])
     self_relation_helper(@source,@related = {}) #Prepare @related (self_relations)
 
     @collection = AlbumSource.includes(album: [:related_album_relations1]).where(source_id: @source.id).order("albums.release_date")

@@ -1,0 +1,29 @@
+<% content_for :title do %>Blog<% end %>
+
+<% content_for :header do %>
+  <h2 class="text-center">The Blog</h2>
+  <% unless @tags.nil?%>
+    <h5 class="text-center">Filtered by: <%= @tags.map(&:name).join(", ") %></h5>
+  <% end %>
+<% end %>
+
+<div id="content">
+  <div id="posts">
+    <% @posts.each do |post| %>
+      <%= render "posts/display_post", post: post, :truncate_length => 400%>
+    <% end %>
+  </div>
+
+  <div id="sidebar">
+    <div id="tags">
+      <div class="panel">
+        <div class="panel-heading">Tags</div>
+        <div class="nav nav-pills nav-stacked">
+          <% Tag.model_tags("Post").each do |tag| %>
+            <li><%= link_to "#{tag.name} (#{@all_posts.has_tag(tag.id).count})", posts_path(tags: tag) %></li>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>  

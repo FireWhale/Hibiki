@@ -5,13 +5,25 @@ class PostsController < ApplicationController
     @post = Post.find(params[:id])
   end
   
+  def index
+    @posts = Post.blog_posts
+    @posts = @posts.meets_security(current_user)
+    @all_posts = @posts
+    unless params[:tags].nil?
+      @posts = @posts.has_tag(params[:tags])     
+      @tags = Tag.find(params[:tags])
+      @tags = [@tags] unless @tags.class == Array
+    end
+    @posts = @posts.order(:created_at => :desc).first(5)   
+  end
+  
   def new
     @post = Post.new
 
     respond_to do |format|
       format.html # new.html.erb
       format.json { render json: @album }
-    end    
+    end
   end
   
   def edit

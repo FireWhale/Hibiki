@@ -17,7 +17,7 @@
     </div>
   <% end %>
     <%= f.label :security %>
-    <% Ability::Abilities.each do |ability| %>
+    <% (Ability::Abilities - ["Any"]).each do |ability| %>
       <%= check_box_tag "user[abilities][]", ability, @user.abilities.include?(ability) %> <%= ability %><br>
     <% end %>    <div class="actions">
     <%= f.submit %>

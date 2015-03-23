@@ -24,8 +24,8 @@ module AttributeTests
       end
       
       it "is valid with duplicate names" do
-        expect(create(model, name: "hihi")).to be_valid
-        expect(build(model, name: "hihi")).to be_valid
+        expect(create(model, name: "hihi", reference: {:hi => "ho"})).to be_valid
+        expect(build(model, name: "hihi", reference: {:hey => "hi"})).to be_valid
       end 
    
       it "is valid with duplicate references" do

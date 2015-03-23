@@ -1,13 +1,13 @@
-<% if @model == "Album" %>
-  $('#Albums').html('<%= escape_javascript(render :partial => 'layouts/search/search_album') %>');
-<% elsif @model == "Artist" %>
-  $('#Artists').html('<%= escape_javascript(render :partial => 'layouts/search/search_artist') %>');
-<% elsif @model == "Source" %>
-  $('#Sources').html('<%= escape_javascript(render :partial => 'layouts/search/search_source') %>');
-<% elsif @model == "Organization" %>
-  $('#Organizations').html('<%= escape_javascript(render :partial => 'layouts/search/search_org') %>');
-<% elsif @model == "Song" %>
-  $('#Songs').html('<%= escape_javascript(render :partial => 'layouts/search/search_song') %>');
-<% end %>
+$('#index').html('<%= escape_javascript(render :partial => 'layouts/primary_models/record_list', locals: {records: @records}) %>');
+
+if($('#search-tabs li.<%= @model %>').hasClass('active') == false) {
+  $('#search-tabs li').removeClass('active');
+  $('#search-tabs li.<%= @model %>').addClass('active');
+};
+
+$(".pagination").delegate("a", "click", function() {
+    var state = {searchTerm: $(this).attr('href')};
+    history.pushState( state, '', $(this).attr('href'));
+});
 
 <%= render :partial => "scripts/layouts/lazyload" %>

@@ -8,7 +8,9 @@ class Album < ActiveRecord::Base
     
     serialize :reference
     serialize :namehash
-    
+  
+  #Default Scope
+  
   #Modules
     include FormattingModule
 
@@ -150,7 +152,7 @@ class Album < ActiveRecord::Base
     
       has_many :imagelists, :as => :model
       has_many :images, through: :imagelists, dependent: :destroy
-      has_many :primary_images, through: :imagelists, :source => :image, :conditions => "images.primary_flag = 'Cover'" 
+      has_many :primary_images, -> {where "images.primary_flag = 'Cover'" }, through: :imagelists, source: :image
 
       has_many :postlists, dependent: :destroy, as: :model
       has_many :posts, through: :postlists
@@ -162,8 +164,24 @@ class Album < ActiveRecord::Base
       has_many :collections, dependent: :destroy
       has_many :collectors, through: :collections, source: :user
   
-  #Scopes
+  #Scopes  
     scope :released, -> { where(status: "Released")}
+    scope :date_range, ->(start_date, end_date) {where("albums.release_date > ? and albums.release_date < ? ", start_date, end_date)}
+    scope :filter_by_tag, ->(tag_ids) {joins(:taglists).where('taglists.tag_id IN (?)', tag_ids)}    
+    
+    scope :collections, ->(user_id, relationship) {joins(:collections).where('collections.user_id = (?) and collections.relationship IN (?)', user_id, relationship)}
+    scope :not_in_collection, ->(user_id) {joins("LEFT OUTER JOIN (SELECT * FROM collections WHERE user_id = #{User.sanitize(user_id)}) t1 ON t1.album_id = albums.id").where(:t1 => {:user_id => nil})}
+    scope :col, ->(user_id, relationship) {from("((#{Album.collections(user_id, relationship).to_sql}) union (#{Album.not_in_collection(user_id).to_sql})) #{Album.table_name} ")}
+    
+    scope :album_categories, ->(category) {joins(:related_album_relations1).where('related_albums.category IN (?)', category).uniq}
+    scope :no_categories, ->{joins("LEFT OUTER JOIN (SELECT * FROM related_albums WHERE related_albums.category IN ('Limited Edition', 'Reprint')) t1 ON t1.album1_id = albums.id").where(:t1 => {:id => nil})}
+    scope :album_cats, ->(category) {from("((#{Album.album_categories(category).to_sql}) union (#{Album.no_categories.to_sql})) #{Album.table_name} ")}
+    
+    scope :artists, ->(artist_ids) {joins(:artist_albums).where('artist_albums.artist_id IN (?)', artist_ids)}
+    scope :sources, ->(source_ids) {joins(:album_sources).where('album_sources.source_id IN (?)', source_ids)}
+    scope :organizations, ->(organization_ids) {joins(:album_organizations).where('album_organizations.organization_id IN (?)', organization_ids)}
+    scope :artist_organization_source, ->(artist_ids, organization_ids, source_ids) {from("((#{Album.artists(artist_ids).to_sql}) union (#{Album.sources(source_ids).to_sql}) union (#{Album.organizations(organization_ids).to_sql})) #{Album.table_name} ").references(:artist_albums, :album_sources, :album_organizations)}
+    
     
   #Gem Stuff
     #Pagination
@@ -190,31 +208,7 @@ class Album < ActiveRecord::Base
       self.release_date.beginning_of_year
     end
 
-  #Sees if the album is in a user's collection 
-    def collected?(user)
-      if user.nil?
-        false
-      else
-        self.collections.reject { |a| a.relationship != "Collected"}.map(&:user_id).include?(user.id)        
-      end
-    end
-    
-    def ignored?(user)
-      if user.nil?
-        false
-      else
-        self.collections.reject { |a| a.relationship != "Ignored"}.map(&:user_id).include?(user.id)
-      end
-    end
-  
-    def wishlist?(user)
-      if user.nil?
-        false
-      else
-        self.collections.reject { |a| a.relationship != "Wishlist"}.map(&:user_id).include?(user.id)
-      end
-    end
-  
+  #Sees if the album is in a user's collection   
     def collected_category(user)
       #returns the type of album-user relationship 
       #if not in collection, returns "" (empty)

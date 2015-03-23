@@ -4,7 +4,7 @@ class UserSessionsController < ApplicationController
   end
   
   def create
-    @user_session = UserSession.new(params[:user_session])
+    @user_session = UserSession.new(params[:usersession])
     if @user_session.save
       redirect_to root_path
     else

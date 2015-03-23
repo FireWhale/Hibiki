@@ -1,1 +1,1 @@
-$('#WatchLink').html('Added to Watchlist!');
+$('#user-actions').children().children('div.nav').html('<%= escape_javascript(render :partial => "layouts/primary_models/user_options", :locals => {:record => @watched }) %>');      

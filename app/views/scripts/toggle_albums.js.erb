@@ -1,117 +1,105 @@
-<% # This javascript actually needs comments. %>
-<% # First, we update the left hand side %>
-
-  var flag = '<%= @flag %>'
-  $('#' + flag).toggleClass('list-group-item-success');
-  
+<% # This javascript actually needs comments. %>  
   
 <% #grab and store some variables/functions for later use %>
-  var albumlist = document.getElementById('album-list');
-  var dividers = albumlist.getElementsByClassName('dividers');
+  var grid = document.getElementById('grid-albums');
+  var dividers = grid.getElementsByClassName('dividers');
   var divideritems = Array.prototype.slice.call( dividers );
-  var sort = $('input[name=sort]:checked', '#sorting').val();
-  var filters = $('input[class=filter]:checked', '#filter').map(function() {
-    return this.value;
-  }).get().join(" ");
+  var sort = '<%= @sort %>';
   
-<% #Now we loop through each album and add it %>
-  <% @albums.each do |album| %>
-    <% #Create the Divider if the divider doesn't exist yet %>
-      if(sort === "week") {
-        var dividerid = '<%= album.week.to_s %>' + sort
-        if($('#' + dividerid).length == 0) {
-          addDividerDiv(dividerid);
-          $('#' + dividerid).html('<%= escape_javascript(render :partial => "layouts/albumlist/albumlist_divider", :locals => {:date => album.week, :format => "week" }) %>');
-        };                
-      } else if (sort === "month") {
-        var dividerid = '<%= album.month.to_s %>' + sort
-        if($('#' + dividerid).length == 0) {
-          addDividerDiv(dividerid);
-          $('#' + dividerid ).html('<%= escape_javascript(render :partial => "layouts/albumlist/albumlist_divider", :locals => {:date => album.month, :format => "month" }) %>');
-        };                
-      } else if (sort === "year") {
-        var dividerid = '<%= album.year.to_s %>' + sort
-        if($('#' + dividerid).length == 0) {
-          addDividerDiv(dividerid);
-          $('#' + dividerid).html('<%= escape_javascript(render :partial => "layouts/albumlist/albumlist_divider", :locals => {:date => album.year, :format => "year" }) %>');
-        };                     
-      };
-      
-    <% #Create the album if the album doesn't exist yet %>
-      if($('#' + '<%= album.id %>').length)  {
-        <% #add data-flag if not already present %>
-        flags = $('#' + '<%= album.id %>').data('flags');
-        if(flags.indexOf(flag) == -1) {
-          $('#' + '<%= album.id %>').data('flags', flags + ' ' + flag + 'y')
-        };
-      } else {
-        var dividerlist = document.getElementById(dividerid);
-        var albumwells = dividerlist.getElementsByClassName('album-well');    
-        var albumitems = Array.prototype.slice.call( albumwells );
-        var collected = "";
-        <% if album.collected?(current_user) %>
-          collected =  "collected"
-        <% elsif album.ignored?(current_user)%>
-          collected =  "ignored"
-        <% elsif album.wishlist?(current_user)%>
-          collected =  "wishlist"
-        <% end %>             
-        var limited_edition = "" 
-        <% if album.limited_edition? %>
-          limited_edition = "limitededition"
-        <% end %>
-        var reprint = ""
-        <% if album.reprint? %>
-          reprint = "reprint"
-        <% end %>        
-        addAlbumDiv( '<%= album.id %>', '<%= album.release_date.to_s %>', collected, limited_edition, reprint);
-        $('#' + '<%= album.id %>').html('<%= escape_javascript(render :partial => "layouts/albumlist/albumlist_album_1", :locals => {:album => album}) %>');
-      };
-      
+<% #If sort has changed, fade out all divs %>
+  if($('#grid-albums').data('sort') != sort){
+    $('.dividers').children().fadeOut(500);
+    $('.dividers').fadeOut(500);
+    var fadeCheck = $('.divider-header').promise();
+    $('#grid-albums').data('sort', sort)
+  } else {
+    var fadeCheck = $('#grid-albums').promise();
+  };
 
-      <% #store the albumdiv in a variable for the following functions%>    
-        var album = $('#' + '<%= album.id %>')  
-      <% #Toggle the flag div for on or off, using the status of the artist flag %>
-        if($('#' + flag).hasClass('list-group-item-success')) {
-          toggleflag(album, flag, 'y');
-        }
-        else {
-          toggleflag(album, flag, 'n');
-        };
-      <% #calculate visability %>
-        calcvisibility( album );          
-      <% #finally, add a hidden tag to sort sidebar %>
-        if($('#ids').val().length == 0) {
-            $('#ids').val('<%= album.id %>');  
-        } else {
-          if($('#ids').val().indexOf('|' + '<%= album.id %>' + '|') == -1 && !$('#ids').val().match('^<%= album.id %>') && !$('#ids').val().match('<%= album.id %>$')){
-            $('#ids').val($('#ids').val() + '|' + '<%= album.id %>');    
-          }           
-        };
-
+fadeCheck.done(function() {
+  <% #Now we loop through each album and add it %>
+    var showalbums = [];
+    <% @albums.each do |album| %>
+      <% #Create the Divider if the divider doesn't exist yet %>
+        var dividerid = '<%= "#{album.send(@sort).to_s}#{@sort}" %>';
+        if($('#' + dividerid).length == 0) {
+          addDividerDiv(dividerid);
+          $('#' + dividerid).html('<%= escape_javascript(render :partial => "layouts/grid/divider", :locals => {:date => album.send(@sort), :format => @sort }) %>');      
         
+        };
+      <% #Create the album if the album doesn't exist yet %>
+        if($('#' + '<%= album.id %>').length == 0) {
+          addAlbumDiv( '<%= album.id %>', '<%= album.release_date.to_s %>', '<%= album.popularity %>', dividerid);
+          $('#' + '<%= album.id %>').html('<%= escape_javascript(render :partial => "layouts/grid/album", :locals => {:album => album}) %>');  
+        };
+        var albumdiv = $('#' + '<%= album.id %>');
+      <% #Move the album to the right divider if not present %>
+        if(albumdiv.parent('div#' + dividerid).length == 0) {
+          var album = document.getElementById('<%= album.id %>');
+          var dividerlist = document.getElementById(dividerid);
+          var albumdivs = dividerlist.getElementsByClassName('album');
+          var albumitems = Array.prototype.slice.call( albumdivs );
+          var position = 0;
+          albumitems.push( album );
+          albumitems.sort(function( a, b ) {
+            return a.outerHTML.substr(a.outerHTML.indexOf("data-date") + 11,10).localeCompare( b.outerHTML.substr(b.outerHTML.indexOf("data-date") + 11,10));
+          });
+          position = albumitems.indexOf( album );
+          dividerlist.insertBefore( album, albumdivs[ position ] ); 
 
-  <% end %>
-
-  <% #Call Lazyload%>
+        };
+      <% #Store albumdiv to fade in after loop %>
+        showalbums.push(albumdiv);
+    <% end %>
+    
+  <% #Fade In %>
+  $.each(showalbums, function( index, value ) {
+    value.promise().done(function() {
+      value.parent().fadeIn(1000);
+      value.parent().children('.divider-header').fadeIn(1000);
+      value.fadeIn(1000);
+    });
+  });
+    
+  <% #Fade out any ids not present in id-list %>  
+    var albumIDs = <%= @albums.map(&:id).map(&:to_s).to_json.html_safe %>
+    $('.album:visible').each(function () {
+      if(jQuery.inArray( $(this).attr('id'), albumIDs) == -1) {
+        $(this).fadeOut(500,function(){
+          if($(this).parent().children('.album:visible').length == 0) {
+            $($(this).parent()).hide();
+            $($(this).parent().children('.divider-header')).hide();
+          }
+        });
+      }
+    }).promise().done( function () {
+      $("img:in-viewport").trigger("scroll"); 
+      $('#grid-content').nanoScroller();
+      <%= render :partial => "scripts/layouts/lazyload"  %>
+      
+    });
+  
+  <% #Call Lazyload %>
   <%= render :partial => "scripts/layouts/lazyload"  %>
   
+  <% #update counts %>
+});
+
 <% #some functions used in this js %>
 
-<%= render :partial => "scripts/layouts/add_divider_function"  %>
-<%= render :partial => "scripts/layouts/calc_visibility_function" %>
-
-function addAlbumDiv(albumid,date,collection,limited_edition, reprint) {
+function addAlbumDiv(albumid,date,popularity,divid) {
+    <% #Get list of elements %>
+    var position = 0;
+    var dividerlist = document.getElementById(divid);
+    var albumdivs = dividerlist.getElementsByClassName('album');
+    var albumitems = Array.prototype.slice.call( albumdivs );
+  
     <% #Create the element and set attributes %>
-    var position = 0,
-    newElem = document.createElement('ul');
+    var newElem = document.createElement('ul');
     newElem.setAttribute('id', albumid);
-    newElem.setAttribute("class", "album-well");
-    newElem.setAttribute("data-flags", flag + 'y');
+    newElem.setAttribute("class", "album");
     newElem.setAttribute("data-date", date );
-    newElem.setAttribute("data-collection", collection );
-    newElem.setAttribute("data-le", limited_edition );
-    newElem.setAttribute("data-reprint", reprint );
+    newElem.setAttribute("data-popularity", popularity );
     
     <% # Add it to a list of albums already present in the div, compare the data-date content. kinda hacky slice method used. %>
     albumitems.push( newElem );
@@ -121,13 +109,20 @@ function addAlbumDiv(albumid,date,collection,limited_edition, reprint) {
     
     <% #Finally, add it to the array %>
     position = albumitems.indexOf( newElem );
-    dividerlist.insertBefore( newElem, albumwells[ position ] );   
+    dividerlist.insertBefore( newElem, albumdivs[ position ] );   
 };
   
-function toggleflag(albumdiv, identifier, toggle) {
-  var flagdata = albumdiv.data('flags');
-  var flaglength = identifier.length
-  var index = flagdata.indexOf(identifier);
-  albumdiv.data('flags',flagdata.substr(0, index + flaglength) + toggle + flagdata.substr(index + flaglength + 1));
+
+function addDividerDiv(id) {
+    var position          = 0,
+        newElem           = document.createElement('div');
+        newElem.setAttribute("id", id);
+        newElem.setAttribute("class", "dividers");
+    divideritems.push( newElem );
+    divideritems.sort(function( a, b ) {
+        return a.id.localeCompare( b.id );
+    });
+    position = divideritems.indexOf( newElem );
+    grid.insertBefore( newElem, dividers[ position ] );
 };
 

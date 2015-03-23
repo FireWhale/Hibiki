@@ -1,0 +1,30 @@
+//This contains the color variables for a light blue color scheme
+
+//Primary Colors:
+$color-1: #a7e0f3; //lightest
+$color-2: #74cae7; 
+$color-3: #4d86d9;
+$color-4: #2ca2c9;
+$color-5: #0fa3d3;
+
+//Accents:
+$color-accent-1: #a7e0f3;
+$color-accent-2: #50ee58;
+$color-accent-3: #dce2fd;
+$color-accent-4: #f0ad4e;
+$color-accent-5: #ffc485;
+$color-accent-6: #77e4ce;
+
+//Layout Colors:
+$border-color: #e8e8e8;
+$well-background-color: white;
+$background-color: white;
+$hover-color:#efefef;
+$hover-color-2: #e3e3e3;
+
+//Fonts:
+$font-color: black;
+$font-link: darken($color-5, 9%);
+$font-link-visited: darken($color-accent-6, 20%);
+
+

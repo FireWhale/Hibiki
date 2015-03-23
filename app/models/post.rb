@@ -19,7 +19,7 @@ class Post < ActiveRecord::Base
 
     FormFields = [{type: "text", attribute: :title, label: "Title:"}, 
                   {type: "select", attribute: :category, label: "Category:", categories: Post::Categories},
-                  {type: "select", attribute: :visibility, label: "Visibility", categories: Ability::Abilities},
+                  {type: "select", attribute: :visibility, label: "Visibility:", categories: Ability::Abilities},
                   {type: "select", attribute: :status, label: "Status:", categories: Post::Status},
                   {type: "current_user_id", attribute: :user_id},
                   {type: "images"}, {type: "text_area", attribute: :content, rows: 30, label: "Info:"}]
@@ -36,7 +36,10 @@ class Post < ActiveRecord::Base
     
     has_many :imagelists, as: :model, dependent: :destroy
     has_many :images, through: :imagelists
-    has_many :primary_images, through: :imagelists, source: :image, conditions: "images.primary_flag = 'Primary'" 
+    has_many :primary_images, -> {where "images.primary_flag = 'Primary'" }, through: :imagelists, source: :image
+
+    has_many :taglists, as: :subject
+    has_many :tags, through: :taglists, dependent: :destroy
 
     has_many :albums, through: :postlists, source: :model, source_type: "Album"
     has_many :artists, through: :postlists, source: :model, source_type: "Artist"
@@ -63,6 +66,8 @@ class Post < ActiveRecord::Base
     scope :blog_posts, -> { where(category: 'Blog Post')}
     scope :private_messages, -> { where(category: 'Private Message')}
     scope :destroyed_records, -> { where(status: 'Deleted Records')}
+    scope :has_tag, ->(tag_id) { joins(:tags).where('tags.id IN (?)', tag_id)}
+    scope :meets_security, ->(user) { where('posts.visibility IN (?)', user.nil? ? ["Any"] : user.abilities  )}
     
     def self.scrape_and_rescrape_results
       (scrape_results + rescrape_results)
@@ -87,10 +92,16 @@ class Post < ActiveRecord::Base
             record = info[0].constantize.find_by_id(info[1])
             unless record.nil? || self.send("#{info[0].downcase}s").include?(record)
               self.send("#{info[0].downcase}s") << record
+              self.add_tags(record) unless record.class == Image
             end
           end
         end
       end
+    end
+    
+    def add_tags(record) #auto adds tags according to record's tags
+      valid_tags = record.tags.select { |tag| tag.models.include?("Post") }
+      self.tags << valid_tags
     end
 
 end

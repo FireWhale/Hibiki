@@ -3,13 +3,16 @@
 <% content_for :header do %>
   <div class="text-center">
     <h2>Edit <%= @user.name %>'s Watchlist</h1>
+    <% if current_user == @user %>
+      <%= button_to "Add New Grouping", add_grouping_path, :method => "get", :remote => true  %>
+    <% end %>  
   </div>
 <% end %>
 
 <p id="notice"><%= notice %></p>
 
 <% if current_user == @user %>
-  <%= form_for('watchlist_edit', :url => "update_watchlist", :method => 'put' ) do |f|  %>
+  <%= form_for('watchlist_edit', :url => "update_watchlist", :method => 'patch' ) do |f|  %>
     <div class="actions text-center">
       <%= f.submit "Save Changes" %>
     </div>
@@ -40,8 +43,4 @@
   <% end %>
 <% else %>
   <h4 class="text-center">This isn't yours!</h4>
-<% end %>
-
-<% content_for :usersidebar do %>
-  <%= button_to "Add New Grouping", add_grouping_path, :method => "get", :remote => true  %>
 <% end %>

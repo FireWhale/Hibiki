@@ -8,11 +8,46 @@
 
 <p id="notice"><%= notice %></p>
 
-<p>
-  <b>Destination:</b>
-  <%= @issue.description %>
-</p>
+<div id="content">
+  <div id="issues">
+    <%= render "issues/display_issue", issue: @issue, :truncate_length => 2000 %>
+    <% if can? :edit, Issue %>
+      <div class="issue">
+        <h4>Private Information</h4>
+        <div class="post-meta"></div> 
+        <div class="post-body">
+          <%= @issue.private_info %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+  <div id="sidebar">
+    <div id="categories">
+      <div class="panel">
+        <div class="panel-heading">Category</div>
+        <div class="nav nav-pills nav-stacked">
+          <li><%= link_to "#{@issue.category} (#{Issue.meets_security(current_user).category(@issue.category).count})", issues_path(category: @issue.category)%></li>
+        </div>
+      </div>
+    </div>    
+    <div id="status">
+      <div class="panel">
+        <div class="panel-heading">Status</div>
+        <div class="nav nav-pills nav-stacked">
+          <li><%= link_to "#{@issue.status} (#{Issue.meets_security(current_user).status(@issue.status).count})", issues_path(status: @issue.status)%></li>
+        </div>
+      </div>
+    </div>   
+    <% if can? :edit, Issue %>
+      <div id="admin">
+        <div class="panel">
+          <div class="panel-heading">Admin</div>
+          <div class="nav nav-pills nav-stacked">
+            <li><%= link_to "Edit", edit_issue_path(@issue)%></li>
+          </div>
+        </div>
+      </div>    
+    <% end %>
+  </div>
+</div>
 
-<% if can? :edit, Issue %>
-<%= link_to "Edit", edit_issue_path(@issue)%>
-<% end %>

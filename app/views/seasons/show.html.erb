@@ -2,18 +2,26 @@
 
 <% content_for :header do %>
   <div class="text-center">
-    <h2></h1>
-    <h1><%= @season.name %></h1> 
+    <h2><%= @season.name %></h2>
+    <div class="sublink">Browse other seasons <%= link_to "here", seasons_path%></div>
   </div>
 <% end %>
 
 <p id="notice"><%= notice %></p>
-<%= render 'layouts/albumlist/albumlist_sidebar', :collection  => @sources  %>  
 
 <% content_for :usersidebar do %>
-  <%= render :partial => 'layouts/albumlist/albumlist_sorts'%>
-  <%= render :partial => 'layouts/albumlist/albumlist_filters'%>
   <% if can? :edit, Season %>
     <%= link_to 'Edit', edit_season_path(@season) %>
   <% end %>
 <% end %>
+
+<% content_for :left_sidebar do %>
+    <%= render :partial => 'layouts/grid/selection_sidebar', :locals =>  {:collection => @sources}%>
+<% end %>
+
+<%= render :partial => 'layouts/grid/album_area', :locals => {:sort => "year"} %>  
+
+<% content_for :right_sidebar do %>
+  <%= render :partial => 'layouts/grid/filter_sort_sidebar' %>
+<% end %>
+

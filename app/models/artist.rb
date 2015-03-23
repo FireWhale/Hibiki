@@ -113,7 +113,7 @@ class Artist < ActiveRecord::Base
       
       has_many :imagelists, as: :model, dependent: :destroy  
       has_many :images, through: :imagelists
-      has_many :primary_images, through: :imagelists, source: :image, conditions: "images.primary_flag = 'Primary'" 
+      has_many :primary_images, -> {where "images.primary_flag = 'Primary'" }, through: :imagelists, source: :image
 
       has_many :postlists, dependent: :destroy, as: :model
       has_many :posts, through: :postlists

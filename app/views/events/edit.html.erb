@@ -1,10 +1,1 @@
-<% content_for :title do %>Edit - <%= @event.name %><% end %>
-
-<% content_for :header do %>
-  <div class="text-center">
-    <h2>Edit Album: <%= link_to @event.name, @event %></h2>
-  </div>
-<% end %>
-
-<%= render 'form' %>
-
+<%= render 'layouts/forms/edit', :record => @event %>

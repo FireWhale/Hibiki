@@ -23,5 +23,7 @@ class Issue < ActiveRecord::Base
     scope :bug_reports, -> { where(category: "Bug Report")}
     scope :feature_requests, -> { where(category: "Feature Request")}
     scope :code_changes, -> { where(category: "Code Change")}
-
+    scope :category, ->(category) { where(category: category)}
+    scope :status, ->(status) { where(status: status)}
+    scope :meets_security, ->(user) { where('issues.visibility IN (?)', user.nil? ? ["Any"] : user.abilities  )}
 end

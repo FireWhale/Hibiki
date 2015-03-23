@@ -13,7 +13,7 @@ class ArtistsController < ApplicationController
   end
   
   def show
-    @artist = Artist.includes(:images).find(params[:id])
+    @artist = Artist.includes(:primary_images, :albums => [:primary_images, :tags]).find(params[:id])
     self_relation_helper(@artist,@related = {}, otherids = []) #Prepare @related (self_relations)
     
     @collection = ArtistAlbum.includes(:artist, {album: [:related_album_relations1, :tags]}).where(:artist_id => @artist.id).order("albums.release_date")

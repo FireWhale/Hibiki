@@ -1,0 +1,16 @@
+<div class="enhance">
+  <%= primary_image_helper(album, album, "medium", :album_list => true) %>
+  <% if current_user.nil? == false && current_user.display_settings.include?("AlbumArtOutline") %>
+    <% unless album.collected_category(current_user).empty? %>
+      <div class="collection-badge text-center">
+        <span class="badge <%= album.collected_category(current_user).downcase%>">
+          <%= album.collected_category(current_user) %>
+        </span>
+      </div>
+    <% end %>
+  <% end %>
+  <div class="album-footer text-center">
+    <%= link_to name_language_helper(album,current_user,0), album %>
+    <%= album.release_date.strftime('%B %-d, %Y') %>     
+  </div>
+</div>

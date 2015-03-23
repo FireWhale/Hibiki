@@ -6,20 +6,53 @@
     <%= javascript_include_tag "application" %>
     <%= csrf_meta_tags %>
   </head>
-  <header>
-    <%= render 'layouts/header' %>
-  </header>
+  <%= render 'layouts/structural/header' %>
+  <%= render 'layouts/structural/alerts' %>
   <body>
-    <div class="container-fluid" id="Main">
-      <%= yield :header %> 
-      <div class="row">
-        <div class="col-md-10">
+    <div id="main">
+      <%= yield :header %>
+      <% if content_for?(:left_sidebar) || content_for?(:right_sidebar)%>
+        <div id="large-view">
+          <div id="grid">
+            <% if content_for?(:left_sidebar) %>
+              <div id="left-sidebar" class="sidebar nano">
+                <div class="nano-content">
+                  <%= yield :left_sidebar %>
+                </div>
+              </div>
+            <% end %>
+            <div id="grid-content" class="nano">
+              <div class="nano-content">
+                <%= yield %>
+              </div>
+            </div>  
+            <% if content_for?(:right_sidebar) %>
+              <div id="right-sidebar" class='sidebar nano'>
+                <div class="nano-content">
+                  <%= yield :right_sidebar %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% elsif content_for?(:form_view) %>
+        <div id="super-view">
+          <% if content_for?(:left_sidebar_form_view)%>
+            <div id="left-sidebar-form-view">
+              <%= yield :left_sidebar_form_view %>
+            </div>
+            <div id="form-view">
+          <% end %>
+          <%= yield :form_view %>
+          <% if content_for(:left_sidebar_form_view)%>
+             </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div id="view">
           <%= yield %>
         </div>
-        <div class="col-md-2">
-          <%= render 'layouts/sidebar' %>  
-        </div>  
-      </div>
+      <% end %>
     </div>  
   </body>
 </html>

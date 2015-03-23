@@ -349,4 +349,9 @@ module FixModule
     #easy peasy
   end
   
+  def change_wishlist_to_wishlisted
+    #Performed 3/5/2015
+    Collection.where(relationship: 'Wishlist').update_all(relationship: 'Wishlisted')
+  end
+  
 end

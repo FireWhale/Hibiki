@@ -47,7 +47,7 @@ class User < ActiveRecord::Base
     
     has_many :imagelists,  dependent: :destroy, as: :model
     has_many :images, through: :imagelists
-    has_many :primary_images, through: :imagelists, source: :image, conditions: "images.primary_flag = 'Primary'" 
+    has_many :primary_images, -> {where "images.primary_flag = 'Primary'" }, through: :imagelists, source: :image
     
     has_many :issue_users
   
@@ -69,7 +69,7 @@ class User < ActiveRecord::Base
     
     def abilities
       abilities = Ability::Abilities
-      abilities.reject { |r| ((self.security.to_i || 0 ) & 2**abilities.index(r)).zero? }
+      abilities.reject { |r| ((self.security.to_i || 0 ) & 2**abilities.index(r)).zero? } + ['Any']
     end
     
     def self.get_security_bitmask(abilities)

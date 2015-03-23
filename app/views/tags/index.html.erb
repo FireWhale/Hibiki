@@ -1,31 +1,29 @@
-<h1>Listing tags</h1>
+<% content_for :title do %>Tags<% end %>
 
-<table>
-  <tr>
-    <th>Name</th>
-    <th>Classification</th>
-    <th>Info</th>
-    <th>Synopsis</th>
-    <th>Available models </th>
-    <th></th>
-    <th></th>
-    <th></th>
-  </tr>
-
-<% @tags.each do |tag| %>
-  <tr>
-    <td><%= tag.name %></td>
-    <td><%= tag.classification %></td>
-    <td><%= tag.info %></td>
-    <td><%= tag.synopsis %></td>
-    <td><%= Tag.get_models(tag.model_bitmask).join(", ") %></td>
-    <td><%= link_to 'Show', tag %></td>
-    <td><%= link_to 'Edit', edit_tag_path(tag) %></td>
-    <td><%= link_to 'Destroy', tag, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-  </tr>
+<% content_for :header do %>
+  <h2 class="text-center">Tags</h2>
 <% end %>
-</table>
 
-<br />
+<%= render 'layouts/work_in_progress' %>
+<br>
+<div id="content" class="text-center">
+  Working on making it look better, but here are the tags for now.
+  <% @tags.group_by(&:classification).each_with_index do |(k,v),n| %>
+    <% if n.multiple_of?(4) %>
+      <div class="row">
+    <% end %>
+      <div class="col-md-3">
+        <h4 class="text-center"><%= k %> Tags</h4>
+        <% v.each do |tag| %>
+          <div class="text-center"><%= link_to "#{tag.name} (#{tag.subjects.count})", tag %></div>
+        <% end %>      
+      </div>
+    <% if (n + 1).multiple_of?(4) %>
+      </div>
+    <% end %>  
+    <% if n.multiple_of?(4) && n == @tags.group_by(&:classification).count - 1 %>
+      </div>
+    <% end %>
+  <% end %>
+</div>
 
-<%= link_to 'New Tag', new_tag_path %>

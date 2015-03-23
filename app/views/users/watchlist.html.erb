@@ -2,18 +2,24 @@
 
 <% content_for :header do %>
   <div class="text-center">
-    <h2><%= @user.name %>'s Watchlist</h1>
+    <h2><%= current_user == @user ? "Your" : "#{@user.name}'s" %> Watchlist</h2>
+    <div class="sublink">
+      <% if current_user == @user %>
+          Manage your watchlist <%= link_to "here", watchlist_edit_user_path(:id => current_user.id) %>
+      <% end %>      
+    </div>
   </div>
 <% end %>
 
-<% if current_user == @user || privacy_settings(@user).include?("ShowWatchlist") %>
-  <%= render :partial => 'layouts/albumlist/albumlist_sidebar', :locals => {:collection  => @watched}  %>  
+<% content_for :left_sidebar do %>
+    <%= render :partial => 'layouts/grid/selection_sidebar', :locals =>  {:collection => @watched}%>
 <% end %>
 
-<% content_for :usersidebar do %>
-  <% if current_user == @user%>
-    <%= link_to "Edit Watchlist Groupings", watchlist_edit_user_path(:id => current_user.id) %>
-  <% end %>
-  <%= render :partial => 'layouts/albumlist/albumlist_sorts'%>
-  <%= render :partial => 'layouts/albumlist/albumlist_filters'%>
+<% if current_user == @user || privacy_settings(@user).include?("ShowWatchlist") %>
+  <%= render :partial => 'layouts/grid/album_area', :locals => {:sort => "year"} %>  
 <% end %>
+
+<% content_for :right_sidebar do %>
+  <%= render :partial => 'layouts/grid/filter_sort_sidebar' %>
+<% end %>
+

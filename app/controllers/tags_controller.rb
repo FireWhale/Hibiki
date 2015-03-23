@@ -41,8 +41,9 @@ class TagsController < ApplicationController
   end
 
   def index
-    @tags = Tag.all.sort_by { |tag| tag.classification}
-
+    @tags = Tag.all
+    @tags = @tags.meets_security(current_user)
+    
     respond_to do |format|
       format.html # index.html.erb
       format.json { render json: @tags }

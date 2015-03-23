@@ -1,1 +1,1 @@
-$('#WatchLink').html('Removed!');
+$('#user-actions').children().children('div.nav').html('<%= escape_javascript(render :partial => "layouts/primary_models/user_options", :locals => {:record => @watched }) %>');      

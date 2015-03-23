@@ -1,0 +1,90 @@
+@import "bootstrap/variables";
+@import "bootstrap/mixins";
+@import "colors/light_blue_scheme";
+
+body {
+  background-color: $background-color;
+  background-image: url('backgroundimage.png');
+}
+
+//Width Adjustments
+#view { //For regular content
+  max-width: 1050px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#large-view {
+  max-width: 1300px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#super-view {
+  max-width: 1900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+//Link changes
+a {
+  color: $font-color;
+  &:hover {
+    text-decoration: none;
+    color: $font-color;
+  }
+  &:focus {
+    text-decoration: none;
+    color: $font-color;
+  }
+}
+
+//Grid Styling
+#grid {
+  display: -webkit-box;      /* Safari and Chrome */
+  display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+  display: -ms-flexbox;      /* TWEENER - IE 10 */
+  display: -webkit-flex;     /* NEW - Chrome */
+  display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */  
+
+  #left-sidebar {//Left Side}
+    width: 290px;
+  }
+  
+  #right-sidebar { //Right Side
+    width: 290px;
+  }
+  
+  #grid-content {
+    width: 100%;
+  }
+}
+
+//Pagination Styling
+nav.pagination {
+  text-align: center;
+  clear: both;
+  width: 100%;
+  margin: 8px 0px;
+}
+
+//Content Header Styling
+
+.sublink {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: -10px;
+  text-align: center;
+  a {
+    text-decoration: underline;
+    color: $color-4;
+  }
+  a:hover {
+    color: lighten($color-4, 20%);
+  }
+}
+
+
+
+
+

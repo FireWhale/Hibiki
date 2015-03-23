@@ -32,13 +32,13 @@ module ApplicationHelper
       else
         display_settings = current_user.display_settings
       end
-      if options[:border].nil? == false
+      unless options[:border].nil?
         options[:class] = options[:class] + ' thumbnail-bordered'
       end
-      if options[:margin].nil? == false
+      unless options[:margin].nil? 
         options[:class] = options[:class] + ' thumbnail-margined'        
       end
-      if options[:square].nil? == false
+      unless options[:square].nil?
         options[:class] = options[:class] + ' thumbnail-square'                
       end
       if options[:outline_flag].nil? == false && record.class == Album && 
@@ -50,8 +50,8 @@ module ApplicationHelper
       if record.primary_images[0].nil? 
         if record.class == Album
           #Use a slightly different no cover available picture
-          link_to_if(options[:album_list].nil?, image_tag('no cover.jpg', :title => name_language_helper(record,current_user,0, :no_bold => true), :class => 'lazyload'), path, :class => options[:class]) do
-            link_to(image_tag('cover not available.png', :title => name_language_helper(record,current_user,0, :no_bold => true), :class => 'lazyload'), path, :class => options[:class])            
+          link_to_if(options[:album_list].nil?, image_tag('no cover.jpg', :title => name_language_helper(record,current_user,0, :no_bold => true), lazy: true, class: 'lazyload'), path, :class => options[:class]) do
+            link_to(image_tag('cover not available.png', :title => name_language_helper(record,current_user,0, :no_bold => true), lazy: true, class: 'lazyload'), path, :class => options[:class])            
           end
         else
           link_to_if(options[:nil_image].nil?, name_language_helper(record,current_user,0, :no_bold => true), path, :class => options[:class] + " text-center") do
@@ -76,30 +76,21 @@ module ApplicationHelper
         display_settings = current_user.display_settings
       end      
       if image.rating == "NWS" && display_settings.include?("DisplayNWS") == false && options[:show_nws].nil? == true
-        image_tag('not safe for yayois.png', :title => options[:title], :class => "lazyload")
+        image_tag('not safe for yayois.png', :title => options[:title], lazy: true, :class => "lazyload")
       else  
         #Call for medium => looks for medium path. If no medium path, default to full, which should be smaller than medium.
         if size == 'medium' && image.medium_path.nil? == false && image.medium_path.empty? == false
-          if options[:lazyload].nil?
-            #Don't lazyload
-            x_image_tag("/images/" + image.medium_path, :title => options[:title])
-          else
-            image_tag("/images/" + image.medium_path, :title => options[:title], :class => 'lazyload') 
-          end       
+          path = "/images/" + image.medium_path
         elsif size == 'thumb' && image.thumb_path.nil? == false && image.thumb_path.empty? == false
-          if options[:lazyload].nil?
-            #Don't lazyload
-            x_image_tag("/images/" + image.thumb_path, :title => options[:title])            
-          else
-            image_tag("/images/" + image.thumb_path, :title => options[:title], :class => 'lazyload')
-          end
+          path = "/images/" + image.thumb_path
         else
-          if options[:lazyload].nil?
-            #Don't lazyload
-            x_image_tag("/images/" + image.path, :title => options[:title])
-          else
-            image_tag("/images/" + image.path, :title => options[:title], :class => 'lazyload')
-          end
+          path = "/images/" + image.path
+        end
+        #Lazy load the image
+        if options[:lazyload].nil?
+          image_tag(path, :title => options[:title], data: {ratio: (image.width / image.height.to_f)})
+        else
+          image_tag(path, :title => options[:title], data: {ratio: (image.width / image.height.to_f)}, lazy: true, class: 'lazyload')
         end
       end
     end
@@ -107,7 +98,7 @@ module ApplicationHelper
   #These help format and display information on records
     def attribute_display(record, attribute, text)
       #this can display a record's attribute nicely and cleanly, along with description
-      if record.send(attribute).nil? == false
+      unless record.send(attribute).nil?
         if record.send(attribute).instance_of?(String)
           if record.send(attribute).empty? == false
             (text.empty? ? "" : content_tag(:b, text + ": ")).concat(record.send(attribute)).concat(tag(:br)).html_safe        
@@ -121,46 +112,40 @@ module ApplicationHelper
     end
     
     def linked_attribute_display(collection, text)
-      if collection.empty? == false
+      unless collection.empty?
         (text.empty? ? "" : content_tag(:b, text + ": ")).concat(collection.map{ |record| 
         if record.class == Song
           link_to name_language_helper(record,current_user,0), url_for(record.album)
         elsif record.class == Event
-          link_to record.shorthand, url_for(record)
+          link_to record.name_helper("shorthand", "abbreviation", "name"), url_for(record)
         else
           link_to name_language_helper(record,current_user,0), url_for(record)
         end }.join(', ').html_safe).concat(tag(:br)).html_safe
       end
     end
     
-    def date_helper(record,attribute)
-      #Used to format Release date and Birth Date
-      if record.class == Album && attribute == 'release_date'
-        if record.release_date_bitmask == 6
-          link_to record.send(attribute).year, calendar_url(:date => record.send(attribute))
-        elsif record.release_date_bitmask == 4
-          link_to record.send(attribute).to_formatted_s(:month_and_year), calendar_url(:date => record.send(attribute))
-        else
-          link_to record.send(attribute).to_formatted_s(:long), calendar_url(:date => record.send(attribute))
-        end
-      elsif record.respond_to?(attribute + "_bitmask")
-        if record.send(attribute + '_bitmask') == 6
-          record.send(attribute).year.to_s
-        elsif record.send(attribute + '_bitmask') == 4
-          record.send(attribute).to_formatted_s(:month_and_year)
-        elsif record.send(attribute + '_bitmask') == 1
-          record.send(attribute).to_formatted_s(:month_and_day)
-        else
-          record.send(attribute).to_formatted_s(:long)
-        end
+    def date_helper(record,attribute, options = {})
+      if record.respond_to?("#{attribute}_bitmask") == false
+        string = record.send(attribute).to_formatted_s(:long)
+      elsif record.send(attribute + '_bitmask') == 6
+        string = record.send(attribute).year.to_s
+      elsif record.send(attribute + '_bitmask') == 4
+        string = record.send(attribute).to_formatted_s(:month_and_year)
+      elsif record.send(attribute + '_bitmask') == 1
+        string = record.send(attribute).to_formatted_s(:month_and_day)
       else
-        record.send(attribute).to_formatted_s(:long)
+        string = record.send(attribute).to_formatted_s(:long)
+      end
+      if attribute != 'release_date' || options[:calendar_link] == false 
+        string
+      else
+        link_to string, calendar_url(:date => record.send(attribute))
       end
     end
     
     def reference_helper(record)
       #Well this has a lot of tweaks to the reference symbols to make them presentatble to the public.
-      if record.reference.nil? == false
+      unless record.reference.nil?
         (content_tag(:b) do 
            "References: "
         end).concat(record.reference.map{|k,v| link_to k.to_s.gsub("_", " ").gsub("ppp", ".").split.map(&:camelize).join(' '), v}.join(' | ').html_safe).concat(tag(:br)).html_safe
@@ -169,9 +154,10 @@ module ApplicationHelper
 
   #Form helpers
     def render_form(records, opts = {})
+      records = records.target if records.respond_to?("target") && records.target.class == Array
       multi_flag = true if records.class == Array
       records = [records] unless records.class == Array  
-      render "layouts/forms/form", records: records, url: opts[:url], form_prefix: opts[:form_prefix], fields: opts[:fields], multi_flag: multi_flag
+      render "layouts/forms/form", records: records, url: opts[:url], form_prefix: opts[:form_prefix], fields: opts[:fields], multi_flag: multi_flag, submit_title: opts[:submit_title]
     end
   
     def fields_helper(record, opts = {})
@@ -197,8 +183,13 @@ module ApplicationHelper
       opts[:no_div] == true ? output : content_tag(:div, class: opts[:div_class], id: opts[:div_id]) {output}
     end
 
-  #Post Helper - for parsing a post's content and replacing with hyperlinks and images  
-    def post_content_helper(content)
+  #Post Helper - for parsing a post's content and replacing with hyperlinks and images     
+    def post_content_helper(content, identifier, characters=99999)
+      formatted_content = format_content(content, characters)
+      render "posts/show_content", content: formatted_content, id: identifier
+    end
+    
+    def format_content(content, characters)
       subbed_content = content.gsub(/<record=\"[a-zA-Z]*,\d*.*?\">/) { |text|
         info = text.split("\"")[1..(text.split("\"").count - 2)].join("\"").split(",")
         record = info[0].constantize.find_by_id(info[1])
@@ -212,10 +203,25 @@ module ApplicationHelper
           else
             link = eval("images_#{record.model.class.to_s.downcase}_path(#{record.model.id}, :image => #{record.id})")
           end
-          content_tag(:div, link_to(image_helper(record, size, :title => name_language_helper(record.model,current_user,0)), link), class: "text-center")
+          content_tag(:div, link_to(image_helper(record, size, :title => name_language_helper(record.model,current_user,0)), link), class: "post-img")
         end
       }
-      raw simple_format(subbed_content, nil)
+      truncated_content = truncate_html( simple_format(subbed_content, nil), length: characters, separator: ' ', omission: '<span>...</span>')    
+      (output ||= []) << truncated_content
+      if truncated_content.end_with?("<span>...</span></p>")
+        extra_content = truncate_html( simple_format(subbed_content, nil), length: 99999)
+        extra_content.slice!(truncated_content[0..-21])
+        output << extra_content.split("</p>", 2)
+        output.flatten!
+      elsif truncated_content.end_with?("<span>...</span></a></p>")
+        extra_content = truncate_html( simple_format(subbed_content, nil), length: 99999)
+        extra_content.slice!(truncated_content[0..-25])
+        split_link = extra_content.split("</a>", 2)
+        output << split_link[1].split("</p>", 2)
+        output << split_link.first
+        output.flatten!
+        output.last
+      end
+      output
     end
-  
 end

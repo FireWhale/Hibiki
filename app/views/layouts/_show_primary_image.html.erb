@@ -1,7 +1,0 @@
-<div id="PrimaryImage">
-  <% if record.class == Album %>
-    <%= primary_image_helper(record, albumart_album_path(:image => "cover"), "medium", margin: true, square: true , border: true, nil_image: true) %>
-  <% else %>
-    <%= primary_image_helper(record, eval("images_#{record.class.to_s.downcase}_path(:image => 'cover')"), 'medium', margin: true, square: true , border: true, nil_image: true) %>  
-  <% end %>
-</div>

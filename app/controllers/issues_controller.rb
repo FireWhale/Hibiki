@@ -3,6 +3,10 @@ class IssuesController < ApplicationController
   
   def index
     @issues = Issue.all
+    @issues = @issues.meets_security(current_user)
+    @all_issues = @issues
+    @issues = @issues.category(params[:category]) unless params[:category].nil?
+    @issues = @issues.status(params[:status]) unless params[:status].nil?
   end
   
   def show

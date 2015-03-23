@@ -1,4 +1,4 @@
-<% content_for :title do %><%= "Tags - " + @tag.name %><% end %>
+<% content_for :title do %><%= "Tags - #{@tag.name}" %><% end %>
 
 <% content_for :header do %>
   <h2 class="text-center"><%= @tag.name %></h2>
@@ -6,67 +6,18 @@
 
 <p id="notice"><%= notice %></p>
 
-<% if can? :edit, Tag %>
-
-<p>
-  <b>Category:</b>
-  <%= @tag.classification %>
-</p>
-
-<p>
-  <b>Info:</b>
-  <%= @tag.info %>
-</p>
-
-<p>
-  <b>Synopsis:</b>
-  <%= @tag.synopsis %>
-</p>
-
-<p>
-  <b>Available Models:</b>
-  <% @models.each do |model| %>
-    <%= model %>
-  <% end%>
-</p>
-
-<% if @albums.nil? == false %>
-  <h5>Albums:</h5>
-  <% @albums.each do |album| %>
-    <%= link_to name_language_helper(album,current_user,0), album %><br>
-  <% end %>
+<% if can? :read, @tag %>
+  <div id="content">
+    <%= render 'layouts/work_in_progress' %>
+    <% @tag.subjects.group_by(&:class).each do |k,v| %>
+      <div>
+        <h4><%= k.to_s.pluralize %></h4>
+        <% v.each do |record| %>
+          <li><%= link_to name_language_helper(record, current_user, 0), record %></li>
+        <% end %>        
+      </div>
+    <% end %>
+  </div>
 <% end %>
 
-<% if @artists.nil? == false %>
-  <h5>Artists:</h5>
-  <% @artists.each do |artist| %>
-    <%= link_to name_language_helper(artist,current_user,0), artist %><br>
-  <% end %>
-<% end %>
 
-<% if @organizations.nil? == false %>
-  <h5>Organizations:</h5>
-  <% @organizations.each do |organization| %>
-    <%= link_to name_language_helper(organization,current_user,0), organization %><br>
-  <% end %>
-<% end %>
-
-<% if @sources.nil? == false %>
-  <h5>Sources:</h5>
-  <% @sources.each do |source| %>
-    <%= link_to name_language_helper(source,current_user,0), source %><br>
-  <% end %>
-<% end %>
-
-<% if @songs.nil? == false %>
-  <h5>Songs:</h5>
-  <% @songs.each do |song| %>
-    <%= link_to name_language_helper(song,current_user,0), song %><br>
-  <% end %>
-<% end %>
-
-<% else %>
-<div class="text-center">
-  <%= image_tag('construction.png')%>
-</div>
-<% end %>

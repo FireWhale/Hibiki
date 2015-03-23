@@ -13,7 +13,7 @@ class OrganizationsController < ApplicationController
   end
 
   def show
-    @organization = Organization.includes(:artists, :sources, :images, {album_organizations: {album: :related_album_relations1}}).find(params[:id])
+    @organization = Organization.includes(:artists, :sources, :images, :albums => [:primary_images, :tags]).find(params[:id])
     self_relation_helper(@organization,@related = {}) #Prepare @related (self_relations)
 
     @collection = @organization.album_organizations

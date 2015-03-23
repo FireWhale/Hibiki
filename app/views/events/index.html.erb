@@ -4,37 +4,26 @@
   <h2 class="text-center">Events</h2>
 <% end %>
 
+<div id="events">
+  <% @events.sort.reverse.each do |year| %>
+    <div class="year">
+      <h2><%= year[0] == 0 ? "No Year" : year[0] %></h2>
+      <% year[1].each do |event|%>
+        <div class="event">
+          <%= link_to(event) do %>
+            <div class="name">
+              <h4><%= event.name_helper("abbreviation", "name", "shorthand", "altname") %></h4>
+            </div>
+            <div class="date">
+              <%= "#{event.start_date.strftime('%B')} #{event.start_date.day}" unless event.start_date.nil? || event.end_date.nil?%><%= " to #{event.end_date.strftime('%B')} #{event.end_date.day}" unless event.end_date.nil? || event.end_date == event.start_date %>
+            </div>
+            <div class="albums">
+              <%= "#{event.albums.count} albums" %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>      
+    </div>
 
-<table>
-  <tr>
-    <th>Name</th>
-    <th>Altname</th>
-    <th>Start Date</th>
-    <th>End Date</th>
-    <th>Abbreviation</th>
-    <th>Info</th>
-    <th>Shorthand</th>
-    <th>References</th>
-    <th></th>
-    <th></th>
-    <th></th>
-  </tr>
-
-<% @events.each do |event| %>
-  <tr>
-    <td><%= event.name %></td>
-    <td><%= event.altname %></td>
-    <td><%= event.startdate %></td>
-    <td><%= event.enddate %></td>
-    <td><%= event.abbreviation %></td>
-    <td><%= event.info %></td>
-    <td><%= event.shorthand %></td>
-    <td><%= reference_helper(event) %></td>
-    <td><%= link_to 'Show', event %></td>
-    <% if can? :update, event %>
-    <td><%= link_to 'Edit', edit_event_path(event) %></td>
-    <% end %>
-    <td><%= link_to 'Destroy', event, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-  </tr>
-<% end %>
-</table>
+  <% end %>
+</div>

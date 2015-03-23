@@ -4,25 +4,43 @@
   <h2 class="text-center">Bugs/Feature Tracker</h2>
 <% end %>
 
-<div id="bugreport" >
-  <% @issues.group_by(&:category).each do |k,v| %>
-      <h3 class="text-center"><%= k.pluralize %></h4>
-      <% v.each_with_index do |issue,n| %>
-        <div class="row well">
-            <b ><%= link_to issue.name, issue %></b>
-            <div class='pull-right'><i><%= issue.created_at.strftime("%B %-d, %Y") %></i></div><br><br>
-            <%= truncate(issue.description, length: 300, separator: ' ')%>
+<div id="content">
+  <div id="issues">
+    <% @issues.each do |issue| %>
+      <%= render "issues/display_issue", issue: issue, :truncate_length => 200 %>
+    <% end %>
+  </div>
+  
+  <div id="sidebar">
+    <div id="categories">
+      <div class="panel">
+        <div class="panel-heading">Categories</div>
+        <div class="nav nav-pills nav-stacked">
+          <% Issue::Categories.each do |category| %>
+            <li><%= link_to "#{category} (#{@all_issues.category(category).count})", issues_path(category: category)%></li>
+          <% end %>
         </div>
-      <% end %>
-  <% end %>
+      </div>
+    </div>    
+    <div id="status">
+      <div class="panel">
+        <div class="panel-heading">Status</div>
+        <div class="nav nav-pills nav-stacked">
+          <% Issue::Statuses.each do |status| %>
+            <li><%= link_to "#{status} (#{@all_issues.status(status).count})", issues_path(status: status)%></li>
+          <% end %>
+        </div>
+      </div>
+    </div>      
+    <% if can? :edit, Issue%>
+      <div id="admin">
+        <div class="panel">
+          <div class="panel-heading">Admin Actions</div>
+          <div class="nav nav-pills nav-stacked">
+            <li><%= link_to "New Issue", new_issue_path %></li>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
 </div>
-
-<% if can? :edit, Issue %>
-<%= link_to "New Issue", new_issue_path %>
-<% end %>
-
-<% content_for :usersidebar do %>
-<% end %>
-
-
-

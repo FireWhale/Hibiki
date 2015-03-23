@@ -2,29 +2,43 @@
 
 <% content_for :header do %>
   <div class="text-center">
-    <h2><%= @event.name %> (<%= @event.shorthand%>)</h1>
-    <h4><%= @event.abbreviation %></h3> 
+    <h2><%= @event.name_helper("name", "abbreviation", "altname", "shorthand") %></h1>
   </div>
 <% end %>
 
 <p id="notice"><%= notice %></p>
 
-<div class="row-fluid">
-  <div id="Attributes" class="well">
-    <p>
-      <b>Dates:</b>
-      <%= @event.startdate %> - <%= @event.enddate %>
-    </p>
-
-    <%= reference_helper(@event) %>  
+<div id="content">
+  <div id="sidebar">
+    <div id="attributes">
+      <div class="panel">
+        <div class="panel-heading">Information</div>
+        <div class="panel-body info-list">
+          <%= attribute_display(@event, 'name', "Name") %>
+          <%= attribute_display(@event, 'altname', 'Kanji')%>
+          <%= attribute_display(@event, 'abbreviation', 'Abbreviation')%>
+          <%= attribute_display(@event, 'shorthand', 'Shorthand')%>
+          <%= reference_helper(@event) %>
+          <%= "#{content_tag(:b, 'Dates: ')}#{date_helper(@event, 'start_date')}".html_safe unless @event.start_date.nil?%><%= " to #{date_helper(@event, 'end_date')}" unless @event.end_date.nil? || @event.end_date == @event.start_date%>
+        </div>
+      </div>
+    </div>
   </div>
-  <%= render 'layouts/albums', :divid => 'Albums', :header => 'Albums', :collection => @event.album_events %>
+  <div id="information">
+    <% unless @event.info.nil? || @event.info.empty? %>
+      <div id="info" class="info">
+        <h3>Information</h3>
+        <%= simple_format(@event.info) %>
+      </div>
+    <% end %>
+    
+    <div id="albums" class="info">
+      <h3>Albums (<%= @event.albums.count %>)</h3>
+      <% unless @event.albums.empty? %>
+        <%= render :partial =>  'layouts/primary_models/album_list', :locals => {:albums => @event.albums.sort_by(&:release_date).reverse!} %>
+      <% else %>
+        <%= "This event has no albums" %>
+      <% end %>
+    </div>
+  </div>
 </div>
-
-<% content_for :usersidebar do %>
-  <% if can? :edit, Event %>
-    <%= link_to 'Edit', edit_event_path(@event) %>
-  <% end %>
-<% end %>
-
-

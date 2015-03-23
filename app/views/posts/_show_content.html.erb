@@ -1,0 +1,17 @@
+<div class="post-body">      
+  <%= content[0] %>
+</div>
+<% if content.count != 1 %>
+  <span id="sentence-<%= id %>" class="post-sentence"><%= raw content[1] %></span>
+  <div id="body-<%= id %>" class="post-expand">
+    <%= raw content[2] %>
+  </div>
+  <% unless content[3].nil? %>
+    <span id="link-<%= id%>" class="post-link"><%= raw content[3]%></span>
+  <% end %>
+  <div class="post-footer">
+    <%= link_to "Read More", post_path(id), remote: true, class: "expand-post", data: {id: id} %>
+  </div>
+<% else %>
+  <div class="post-footer"></div>
+<% end %>

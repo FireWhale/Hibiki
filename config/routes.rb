@@ -1,15 +1,16 @@
 Hibiki::Application.routes.draw do
   
   resources :users do
+    post 'add_to_collection'
     member do
       get 'watchlist'
       get 'collection'
       get 'edit_profile'
       get 'edit_security'
-      put 'update_profile'
-      put 'update_security'
+      patch 'update_profile'
+      patch 'update_security'
       get 'watchlist_edit'
-      put 'update_watchlist'
+      patch 'update_watchlist'
     end
   end
   resources :albums do
@@ -74,21 +75,20 @@ Hibiki::Application.routes.draw do
   root :to => 'pages#front_page'
 
   #Unique Pages
-  match '/login', :to => 'user_sessions#new'
-  match '/about', :to => 'pages#info'  
-  match '/randomalbums', :to => 'pages#randomalbums'
-  match '/accessdenied', :to => 'pages#access_denied'
-  match '/search', :to => 'pages#search'
-  match '/changelog', :to => 'pages#changelog'
-  match '/calendar', :to => 'pages#calendar'
-  match '/calendarupdate', :to => 'pages#calendar_update'
-  match '/graphs', :to => 'pages#graphs'
+  get '/login', :to => 'user_sessions#new'
+  get '/about', :to => 'pages#info'  
+  get '/randomalbums', :to => 'pages#randomalbums'
+  get '/accessdenied', :to => 'pages#access_denied'
+  get '/search', :to => 'pages#search'
+  get '/changelog', :to => 'pages#changelog'
+  get '/calendar', :to => 'pages#calendar'
+  get '/calendar_update', :to => 'pages#calendar_update'
+  get '/help', to: 'pages#help'
+  get '/database', to: 'pages#database_landing'
   
   #Scripts
-  match '/updateimage', :to => 'images#updateimage'
-  match '/toggle_albums', :to => 'scripts#toggle_albums'
-  match '/filter_albums', :to => 'scripts#filter_albums'
-  match '/sort_albums', :to => 'scripts#sort_albums'
+  get '/updateimage', :to => 'images#updateimage'
+  get '/toggle_albums', :to => 'scripts#toggle_albums'
   
   #for password resets
   get '/requestpasswordreset', :to => 'users#requestpasswordreset'
@@ -96,85 +96,26 @@ Hibiki::Application.routes.draw do
   get '/resetpassword', :to => 'users#resetpassword'
   put '/passwordreset', :to => 'users#passwordreset'
   
-   
   #Links for js scripts for adding and editing
-  match '/addtag', :to => 'tags#add_tag'
-  match '/removetag', :to => 'tags#remove_tag'
-  match '/addreference', :to => 'scripts#add_reference_form'
-  match '/addmodel', :to => 'scripts#add_model_form'
-  match '/well_toggle', :to => 'scripts#well_toggle'
+  get '/addtag', :to => 'tags#add_tag'
+  get '/removetag', :to => 'tags#remove_tag'
+  get '/addreference', :to => 'scripts#add_reference_form'
+  get '/addmodel', :to => 'scripts#add_model_form'
+  get '/well_toggle', :to => 'scripts#well_toggle'
   
   #links for adding scrape links and albums/artists/sources to posts
-  match '/addscrapelink', :to => 'maintenance#addscrapelink'
-  match '/addtopost', :to => 'posts#addtopost'
+  post '/addscrapelink', :to => 'maintenance#addscrapelink'
   
   #Index js scripts
-  match '/album_preview', :to => 'albums#album_preview'
-  match '/songpreview', :to => 'songs#songpreview'
-  match '/songpreviewhide', :to => 'songs#songpreviewhide'
-  
+  post '/album_preview', :to => 'albums#album_preview'
+  post '/songpreview', :to => 'songs#songpreview'
+  post '/songpreviewhide', :to => 'songs#songpreviewhide'  
   
   #User Functions
-  match '/watch', :to => 'users#watch'
-  match '/unwatch', :to => 'users#unwatch'
-  match '/add_to_collection', :to => 'users#add_to_collection'
-  match '/uncollect', :to => 'users#uncollect'
-  match '/add_grouping', :to => 'users#add_grouping'
+  post '/watch', :to => 'users#watch'
+  post '/unwatch', :to => 'users#unwatch'
+  post '/add_to_collection', :to => 'users#add_to_collection'
+  post '/uncollect', :to => 'users#uncollect'
+  get '/add_grouping', :to => 'users#add_grouping'
     
-  # The priority is based upon order of creation:
-  # first created -> highest priority.
-
-  # Sample of regular route:
-  #   match 'products/:id' => 'catalog#view'
-  # Keep in mind you can assign values other than :controller and :action
-
-  # Sample of named route:
-  #   match 'products/:id/purchase' => 'catalog#purchase', :as => :purchase
-  # This route can be invoked with purchase_url(:id => product.id)
-
-  # Sample resource route (maps HTTP verbs to controller actions automatically):
-  #   resources :products
-
-  # Sample resource route with options:
-  #   resources :products do
-  #     member do
-  #       get 'short'
-  #       post 'toggle'
-  #     end
-  #
-  #     collection do
-  #       get 'sold'
-  #     end
-  #   end
-
-  # Sample resource route with sub-resources:
-  #   resources :products do
-  #     resources :comments, :sales
-  #     resource :seller
-  #   end
-
-  # Sample resource route with more complex sub-resources
-  #   resources :products do
-  #     resources :comments
-  #     resources :sales do
-  #       get 'recent', :on => :collection
-  #     end
-  #   end
-
-  # Sample resource route within a namespace:
-  #   namespace :admin do
-  #     # Directs /admin/products/* to Admin::ProductsController
-  #     # (app/controllers/admin/products_controller.rb)
-  #     resources :products
-  #   end
-
-  # You can have the root of your site routed with "root"
-  # just remember to delete public/index.html.
-  # root :to => 'welcome#index'
-
-  # See how all your routes lay out with "rake routes"
-
-  # This is a legacy wild controller route that's not recommended for RESTful applications.
-  # Note: This route will make all actions in every controller accessible via GET requests.
-  # match ':controller(/:action(/:id))(.:format)'
 end

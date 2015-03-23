@@ -11,12 +11,7 @@
     <div class="col-md-6">
       <div class="well">
         <h4 class="text-center">VGMDB links</h4>
-        <%= fields_for :vgmdb_albums do |f| %>
-          <%= f.label '', 'Album link' %>
-          <%= f.text_field '', :class => 'controls' %>
-        <% end %>
         <div id="VGMDBAlbum"></div>
-        <%= link_to "Add another album link", addscrapelink_path(:fields_for => "vgmdb_albums", :div_id => "#VGMDBAlbum"), :remote => true %></br></br>
         <%= fields_for :vgmdb_artists do |f| %>
           <%= f.label '', 'Artist/Source Link'%>
           <%= f.text_field '', :class => 'controls' %>
@@ -45,8 +40,6 @@
           <%= f.label '', 'Album Link'%>
           <%= f.text_field '', :class => 'controls' %>
         <% end %>
-        <div id="CDJapanAlbum"></div>
-        <%= link_to "Add another album", addscrapelink_path(:fields_for => "cdjapan_albums", :div_id => "#CDJapanAlbum"), :remote => true %></br></br>
       </div>
       <div class="well">
         <h4 class="text-center">Manifo links</h4>
@@ -54,8 +47,6 @@
           <%= f.label '', 'Album Link'%>
           <%= f.text_field '', :class => 'controls' %>
         <% end %>
-        <div id="ManifoAlbum"></div>
-        <%= link_to "Add another album", addscrapelink_path(:fields_for => "manifo_albums", :div_id => "#ManifoAlbum"), :remote => true %></br></br>
       </div>
     </div>  
   </div>

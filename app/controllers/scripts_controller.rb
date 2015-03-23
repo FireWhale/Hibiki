@@ -3,56 +3,67 @@ class ScriptsController < ApplicationController
   #Example: Well toggle, lots of pages use well toggle.
   #Not Included: Image toggle, since that only uses Images
  
-  #Used for sorting/adding albums to Album list on seasons/watchlist
-    def toggle_albums
-      if params[:source_id].nil? == false
-        record = Source.includes({albums: [:collections, :primary_images]}).find(params[:source_id])
-      elsif params[:artist_id].nil? == false
-        record = Artist.includes({albums: [:collections, :primary_images]}).find(params[:artist_id])
-      elsif params[:organization_id].nil? == false
-        record = Organization.includes({albums: [:collections, :primary_images]}).find(params[:organization_id])
+  def toggle_albums #Used for sorting/adding albums to Album list on seasons/watchlist
+    #Check for all albums flag
+    if params[:all_albums] == "true"
+      @albums = Album.includes(:collections).where(nil)
+    else #Get the aos values
+      aos = params[:aos]
+      aos = "" if  aos.nil? 
+      aos_hash = aos.split(",").group_by {|a| a[0] }
+      artist_ids = ( aos_hash["a"].nil? ? nil : aos_hash["a"].map! {|each| each[1..-1]} ) 
+      organization_ids = ( aos_hash["o"].nil? ? nil : aos_hash["o"].map! {|each| each[1..-1]} ) 
+      source_ids = ( aos_hash["s"].nil? ? nil : aos_hash["s"].map! {|each| each[1..-1]} ) 
+      @albums = Album.includes(:collections).artist_organization_source(artist_ids, organization_ids, source_ids)
+      # not used - @total_count = Album.artist_organization_source(artist_ids, organization_ids, source_ids).count
+    end
+    #Get the date
+    date_begin = params[:date1]
+    date_end = params[:date2]
+    unless date_begin.nil? || date_begin.empty? || date_end.nil? || date_end.empty?
+      start_date = Date.new( 1970 + (date_begin.to_i / 12), (date_begin.to_i % 12) + 1)
+      end_date = Date.new( 1970 + (date_end.to_i / 12), (date_end.to_i % 12) + 1).to_time.advance(months: 1).to_date - 1
+      @albums = @albums.date_range(start_date, end_date)
+    end
+    #Get the collection values
+    col = params[:col]
+    unless col.nil? || col.empty?
+      col = col.split(",").map { |a| a == "N" ? "N" : Collection::Relationship[a.to_i] }
+      if col.include?("N")
+        @albums = @albums.col(current_user.id,col) #This unions the collections and non-collected
+      else
+        @albums = @albums.collections(current_user.id, col)
       end
-      
-      if record.nil? == false
-        #We need to build two things to send. Album IDs and the flag to watch for.
-        @albums = record.albums
-        @flag =  record.class.to_s[0].downcase + record.id.to_s
-      end
-      
-      respond_to do |format|
-        if record.nil? == false
-          format.html {redirect_to record }
-        end    
-        format.js
-      end
-        
+    end
+    #Get the release values
+    rel = params[:rel]
+    unless rel.nil? || rel.empty?
+      rel = rel.split(",").map { |a| a == "N" ? "N" : ["Limited Edition", "Reprint"][a.to_i] }
+      if rel.include?("N")
+        @albums = @albums.album_cats(rel) #This unions the categories and none-categories
+      else
+        @albums = @albums.album_categories(rel)
+      end        
+    end
+    #Get the tag values
+    tag = params[:tag]
+    unless tag.nil? || tag.empty?
+      tag = tag.split(",")
+      @albums = @albums.filter_by_tag(tag)
     end
     
-    def sort_albums
-      #Types of sorts:
-      #1. Date (week, month)
-      #2. Title? 
-      @sort = params[:sort]
-      ids = params[:ids]
-      if ids.nil? == false
-        ids = ids.split('|')
-        @albums = Album.find(ids) 
-      end
-      
-      respond_to do |format|
-        format.js
-      end      
+    #Sort? Popularity, Release Date 
+    if ["Week","Month","Year"].include?(params[:sort])
+      @sort = params[:sort].downcase      
+    else
+      @sort = "year"
     end
     
-    def filter_albums
-      #Types of Filters
-      #Collected/Ignored
-      #Limited Editions
-      #Tags?
-      if params[:filters].nil? == false
-        @filters = params[:filters].join(" ")
-      end
+    respond_to do |format|
+      format.js
+      format.json { render :json => @albums }
     end
+  end
   
 
   #These methods help modularize the js adding forms for edit views.

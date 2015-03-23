@@ -1,14 +1,35 @@
 class Image < ActiveRecord::Base
   #Attributes
     attr_accessible :name, :path, :medium_path, :thumb_path, 
+                    :width, :height, :thumb_width, :thumb_height,
+                    :medium_width, :medium_height,
                     :rating, :llimagelink, :primary_flag
-
+                    
   #Callbacks/Hooks
     before_destroy :delete_images
     after_save :create_image_thumbnails
  
   #Constants
     Rating = ["NWS", "SFW"] 
+    PrimaryFlags = ["Cover", "Primary"]
+    
+    FormFields = [{type: "markup", tag_name: "div class='col-md-1'"},{type: "markup", tag_name: "/div"},
+                  {type: "markup", tag_name: "div class='col-md-11'"},
+                  {type: "text", attribute: :name, label: "Name:", field_class: "input-xlarge"},
+                  {type: "select", attribute: :primary_flag,label: "Primary flag:", categories: Image::PrimaryFlags},
+                  {type: "select", attribute: :rating, label: "NWS/SFW:", categories: Image::Rating},
+                  {type: "text", attribute: :llimagelink, label: "ETI Image Link:", field_class: "input-xlarge"},
+                  {type: "text", attribute: :path, label: "Path:", field_class: "input-xlarge"},
+                  {type: "text", attribute: :medium_path, label: "Medium Path:", field_class: "input-xlarge"},
+                  {type: "text", attribute: :thumb_path, label: "Thumb Path:", field_class: "input-xlarge"},
+                  {type: "text", attribute: :width, label: "Width:", no_div: true},
+                  {type: "text", attribute: :height, label: "Height:", no_div: true},
+                  {type: "text", attribute: :medium_width, label: "Medium Width:", no_div: true},
+                  {type: "text", attribute: :medium_height, label: "Medium Height:", no_div: true},
+                  {type: "text", attribute: :thumb_width, label: "Thumb Width:", no_div: true},
+                  {type: "text", attribute: :thumb_height, label: "Thumb Height:", no_div: true},
+                  {type: "markup", tag_name: "/div"},
+                  {type: "markup", tag_name: "div class='col-md-1'"},{type: "markup", tag_name: "/div"},]
     
   #Validation
     validates :name, presence: true
@@ -68,14 +89,17 @@ class Image < ActiveRecord::Base
         #Get the file
         buffer = StringIO.new(File.open(root_path,"rb") { |f| f.read})
         miniimage = MiniMagick::Image.read(buffer) 
+        #We're also going to add dimensions to the record while we're at it.
+        self.update_attribute('width', miniimage["width"]) unless self.width == miniimage["width"]
+        self.update_attribute('height', miniimage["height"]) unless self.height == miniimage["height"]
         #Make a medium image if it satisfies requirements
           if (miniimage["width"] > 500 || miniimage["height"] > 500) & 
           (primary_flag.nil? == false && primary_flag.empty? == false)        
-            self.make_image(miniimage, "500x500", "/m", "medium_path")
+            self.make_image(miniimage, "500x500", "/m", "medium")
           end
         #Make a thumbnail image if it satisfies requirements
           if miniimage["height"] > 225 || miniimage["width"] > 225
-            self.make_image(miniimage, "225x225", "/t", "thumb_path")
+            self.make_image(miniimage, "225x225", "/t", "thumb")
           end
       end    
     end
@@ -88,15 +112,14 @@ class Image < ActiveRecord::Base
         Dir.mkdir(new_path) unless File.exists?(new_path)
         new_full_path = Rails.root.join(new_path,filename)
         stored_path = new_path.split("public/images/")[1] + "/" + filename
-      #If Image doesn't exist, make it
-        unless File.exists?(new_full_path)
-          image.resize size
-          image.write(new_full_path) 
-        end
+      #Check to see if the file exists or dimensions are not stored        
+        image.resize size
+        image.write(new_full_path) unless File.exists?(new_full_path)
+        self.update_attribute("#{attribute}_width", image["width"]) unless self.send("#{attribute}_width") ==  image["width"]
+        self.update_attribute("#{attribute}_height", image["height"]) unless self.send("#{attribute}_height") ==  image["height"]
       #If the path isn't right, update it
-        if self.send(attribute) != stored_path
-          self.update_attribute(attribute, stored_path)
+        if self.send("#{attribute}_path") != stored_path
+          self.update_attribute("#{attribute}_path", stored_path)
         end
     end
-     
 end

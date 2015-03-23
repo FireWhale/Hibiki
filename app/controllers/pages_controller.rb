@@ -1,107 +1,53 @@
 class PagesController < ApplicationController
     
   def front_page
-    @albums= Album.order("RAND()").includes(:primary_images, :collections).first(6).shuffle
-    
-    @albumtotal = Album.count
-    @artisttotal = Artist.count
-    @sourcetotal = Source.count
-    @orgtotal = Organization.count
-    @songtotal = Song.count
-    @imagetotal = Image.count
-    @relationships = Imagelist.count +
-      AlbumOrganization.count +
-      AlbumEvent.count +
-      ArtistAlbum.count +
-      AlbumSource.count +
-      ArtistOrganization.count +
-      ArtistSong.count +
-      SongSource.count +
-      SourceOrganization.count + 
-      RelatedArtists.count +
-      RelatedSources.count +
-      RelatedOrganizations.count +
-      RelatedAlbums.count +
-      Song.count
+    @posts = Post.blog_posts.meets_security(current_user).order(:created_at => :desc).first(5)
+    @albums = Album.order("RAND()").includes(:primary_images, :collections).first(8).shuffle
   end
-  
+
+  def help
+    
+  end
+   
   def search
     authorize! :read, Album
-    @query = params[:search]
+    @query = truncate(params[:search], length: 400)
+    @model = (params[:model].nil? ? nil : params[:model]) 
+    @records = nil
+    @search = {:search => @query, :utf8 => params[:utf8]}
     
-    if params[:model].nil? == false
-      @model = params[:model]
-    end
-    
-    if params[:model].nil? or params[:model] == "Album"
-      albumresults = Album.search(:include => [:primary_images])  do
-        fulltext params[:search]
-        order_by(:release_date)
-        paginate :page => params[:albumpage]
-      end
-      @albums = albumresults.results
+    respond_to do |format|
+      format.html { @models = ["album", "artist", "source", "organization", "song"]}
+      format.js { @models = (@model.nil? ? ["album", "artist", "source", "organization", "song"] : [@model])}
     end
     
-    if params[:model].nil? or params[:model] == "Artist"
-      artistresults = Artist.search(:include => [albums: :primary_images])  do
-        fulltext params[:search]
-        paginate :page => params[:artistpage]
+    @models.each do |model|
+      #set up eager loading hash
+      includes = [:tags]
+      if model == "artist" || model == "organization" || model == "source"
+        includes.push(:watchlists)
       end
-      @artists = artistresults.results
-    end
-    
-    if params[:model].nil? or params[:model] == "Source"
-      sourceresults = Source.search(:include => [albums: :primary_images])   do
+      search = model.capitalize.constantize.search(:include => includes) do
         fulltext params[:search]
-        paginate :page => params[:sourcepage]
+        order_by(:release_date) if model == "album"
+        paginate :page => params["#{model}_page".to_sym]
+      end      
+      instance_variable_set("@#{model}_count", search.total)
+      if search.total > 0 && @model.nil?
+        @model = model
       end
-      @sources = sourceresults.results
+      @records = search.results if @model == model && @reccrds.nil? 
     end
-          
-    if params[:model].nil? or params[:model] == "Organization"
-      orgresults = Organization.search(:include => [albums: :primary_images])  do
-        fulltext params[:search]
-        paginate :page => params[:orgpage]
-      end
-      @organizations = orgresults.results
-    end
-      
-    if params[:model].nil? or params[:model] == "Song"
-      songresults = Song.search(:include => [album: :primary_images])  do
-        fulltext params[:search]
-        paginate :page => params[:songpage]
-      end
-      @songs = songresults.results
-    end
-     
-  end
-  
+    @model = "any cateogorie" if @model.nil? #text for if there were no results at all
+  end 
+   
   def calendar
     authorize! :read, Album
-    
-    date = params[:date]
-    if date.nil? == false
-      date = Date.parse(date)
-    else
-      date ||= Date.today
+    respond_to do |format|
+      format.html
     end
-    enddate = date + 30
-    @albums = Album.where(:release_date => date..enddate).includes(:primary_images)
   end
   
-  def calendar_update
-    authorize! :read, Album
-    
-    date = params[:datepicker][:date]
-    if date.nil?
-      date = Date.today
-    else
-      date = Date.strptime(date, '%m/%d/%Y')
-    end
-    enddate = date + 30
-    
-    @albums = Album.where(:release_date => date..enddate).includes(:primary_images)
-  end
   
   def randomalbums #Just a fun side-project to display   
     authorize! :read, Album

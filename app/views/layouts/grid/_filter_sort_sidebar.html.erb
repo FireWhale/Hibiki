@@ -1,0 +1,72 @@
+<div id="filter-sort-sidebar"> 
+  <div class="sort-group" id="sorting">
+    <div class="sort-name">Sorting</div>
+    <div class="sort-items">
+      <% ["Week","Month","Year"].each do |each| %>
+        <div class="sort-item">
+          <%= link_to "By #{each}", nil, data: {:sort => each}, class: 'sort-link', remote: true%>
+        </div>
+      <% end %>      
+    </div>
+  </div>
+  
+  <div class="filter-group" id="collections">
+    <div class="filter-name">Collections</div>
+    <div class="filter-items">
+      <% unless current_user.nil? %>
+        <% Collection::Relationship.each_with_index do |rel,n| %>
+          <div class="filter-item">
+            <span class="glyphicon"></span>
+            <%= link_to "#{rel} Albums", collection_user_path(id: current_user.id), data: {:col => n}, remote: true %>  
+          </div>
+        <% end %>
+        <div class="filter-item">
+          <span class="glyphicon"></span>
+          <%= link_to "Not in any collection", '', data: {:col => 'N'}, remote: true%>
+        </div>
+      <% else %>
+        <div class="sign-in-item">
+          <%= link_to "Sign in to compare against your collection!", login_path %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="filter-group">
+    <div class="filter-name">Release Date</div>
+    <div class="date-controls">
+      <div id="date-slider"></div>
+      <span id="date-begin" class="slider-display"></span>
+      <span id="date-end" class="slider-display"></span>      
+    </div>
+  </div>
+  
+  <div class="filter-group" id="releases">
+    <div class="filter-name">Special Releases</div>
+    <div class="filter-items">
+      <% ["Limited Edition", "Reprint"].each_with_index do |rel,n| %>
+        <div class="filter-item">
+          <span class="glyphicon"></span>
+          <%= link_to rel, nil, data: {:rel => n}, remote: true %>
+        </div>
+      <% end %>
+      <div class="filter-item">
+        <span class="glyphicon"></span>
+        <%= link_to "Not a special release", nil, data: {:rel => "N"}, remote: true %>
+      </div>
+    </div>
+  </div>
+    
+  <div class="filter-group" id="tags">
+    <div class="filter-name">Tags</div>
+    <div class="filter-items">
+      <% Tag.model_tags("Album").meets_security(current_user).each do |tag| %>
+        <div class="filter-item">
+          <span class="glyphicon"></span>
+          <%= link_to tag.name, tag, data: {:tag => tag.id}, remote: true %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+</div>

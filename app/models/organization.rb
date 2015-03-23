@@ -86,7 +86,7 @@ class Organization < ActiveRecord::Base
     #Secondary Associations
       has_many :imagelists, as: :model, dependent: :destroy  
       has_many :images, through: :imagelists
-      has_many :primary_images, through: :imagelists, :source => :image, :conditions => "images.primary_flag = 'Primary'" 
+      has_many :primary_images, -> {where "images.primary_flag = 'Primary'" }, through: :imagelists, source: :image
     
       has_many :taglists, as: :subject, dependent: :destroy
       has_many :tags, through: :taglists

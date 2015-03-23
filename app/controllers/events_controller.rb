@@ -2,7 +2,7 @@ class EventsController < ApplicationController
   load_and_authorize_resource
     
   def index
-    @events = Event.all.sort_by { |e| e.shorthand }
+    @events = Event.order(:start_date).group_by {|e| e.start_date.nil? ? 0 : e.start_date.year}
   end
   
   def new

@@ -1,0 +1,77 @@
+
+@import "colors/light_blue_scheme";
+
+//Search Form
+  #search-form {
+    background: white; 
+    border: 1px inset; //Maybe solid?
+    border-radius: 6px;
+    -moz-border-radius: 6px;
+    margin: 8px 0px 8px 0px;    
+    #search-box {
+      border: 0;
+      background: transparent;
+    }
+    #search-button {
+      display: inline;
+      background: transparent;
+      background-image: url('/assets/search.png');
+      background-repeat: no-repeat;
+      background-size: 100%;
+      background-position: center;
+      border: 0;        
+      padding-left: 10px;
+      padding-top: 1px;
+      padding-bottom: 1px;
+      
+    }
+  }
+    
+//Menu
+  #header {
+    background: linear-gradient(45deg, $color-4, $color-1 );
+    min-height: 0;
+    border: 0;
+    #logo {
+      font-family: 'Pacifico', cursive;
+    }
+    #head-wrapper {
+      max-width: 1050px;
+      margin-left: auto;
+      margin-right: auto;
+      .user-links {
+        float: right;
+      }
+      > li {
+        > a:hover, a:focus {
+          background-color: $color-5;
+        }
+      }
+    }
+    
+    li {
+      
+      a {
+        color: white;
+        text-decoration: none;
+      }
+      
+    }
+    
+    .dropdown-menu{
+      margin-top: -1px;
+      background-color: $color-5;
+      a:hover, a:focus {
+        background: linear-gradient(45deg, $color-1, $color-4 );
+      }
+    }
+
+    .dropdown:hover .dropdown-menu{
+      display: block;
+    }
+  }
+
+//Alerts
+  #alerts {
+    margin-top: 50px;
+  }

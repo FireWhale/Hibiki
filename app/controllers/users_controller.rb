@@ -2,10 +2,12 @@ class UsersController < ApplicationController
   load_and_authorize_resource
   
   def watch
-    @user = current_user
-    
-    @user.watchlists.create(:watched_type => params[:watched_type], :watched_id => params[:watched_id])
+    user = current_user
     @watched = params[:watched_type].constantize.find(params[:watched_id])
+    unless user.nil? || @watched.nil?
+      user.watchlists.create(:watched_type => @watched.class.to_s, :watched_id => @watched.id)
+    end
+
     respond_to do |format| 
       format.html { redirect_to @watched, notice: 'Successfully added to watchlist' }
       format.js
@@ -14,15 +16,15 @@ class UsersController < ApplicationController
   
   def unwatch
     watchlist = Watchlist.where(:user_id => current_user.id, :watched_id => params[:watched_id], :watched_type => params[:watched_type]).first
-    watched = params[:watched_type].constantize.find(params[:watched_id])
+    @watched = params[:watched_type].constantize.find(params[:watched_id])
 
     respond_to do |format|
       if watchlist.nil? == false
         watchlist.destroy
-        format.html { redirect_to watched, notice: 'Successfully removed from watchlist' }
+        format.html { redirect_to @watched, notice: 'Successfully removed from watchlist' }
         format.js
       else
-        format.html { redirect_to watched, notice: 'Request failed!' }
+        format.html { redirect_to @watched, notice: 'Request failed!' }
         format.js        
       end
     end
@@ -30,23 +32,9 @@ class UsersController < ApplicationController
 
   def add_to_collection
     user = current_user
-    @album = Album.find(params[:album_id])
-    if user.nil? == false && @album.nil? == false
-      user.collections.create(:album_id => @album.id, :relationship => params[:relationship])
-    end
+    @album = Album.find_by_id(params[:album_id])
+    user.collections.create(:album_id => @album.id, :relationship => params[:relationship]) unless user.nil? || @album.nil?
     
-    #Formating response text
-    if params[:relationship] == "Collected"
-      @text = "Added!"
-      @noticetext = 'added to collection'
-    elsif params[:relationship] == "Ignored"
-      @text = "Ignored!"
-      @noticetext = 'added to ignore list' 
-    elsif params[:relationship] == "Wishlist"
-      @text = "Added!"
-      @noticetext = 'added to wishlist' 
-    end
-
     respond_to do |format|
       format.html { redirect_to @album, notice: "Successfully " + @noticetext }
       format.js
@@ -54,32 +42,31 @@ class UsersController < ApplicationController
   end
   
   def uncollect
-    collection = Collection.where(:user_id => params[:user_id], :album_id => params[:album_id]).first
-    album = Album.find(params[:album_id])
-    if collection.nil? == false
-      collection.destroy
-    end
+    collection = Collection.where(:user_id => current_user.id, :album_id => params[:album_id]).first
+    @album = Album.find_by_id(params[:album_id])
+    collection.destroy unless collection.nil?
     
     respond_to do |format|
-      format.html { redirect_to album, notice: 'Successfully removed!' }
+      format.html { redirect_to @album, notice: 'Successfully removed!' }
       format.js
     end
   end
 
   def watchlist
     #Using albums instead of the albumartist/albumorg/albumsource because well, it's simpler code
-    @user = User.includes({watchlists: {watched: :albums}}).find(params[:id])
-
+    @user = User.includes(:watchlists).find(params[:id])
+    
     #group, format, and sort what the user is watching
-      @watched = @user.watchlists.group_by(&:grouping_category)
-      @watched.each do |k,v|
-        @watched[k].sort_by! {|a| name_language_helper(a.watched,current_user,0, :no_bold => true).downcase}
-        @watched[k].sort_by! {|a| a.position || 100000 }      
-        @watched[k] = v.map(&:watched)
-      end  
+    @watched = @user.watchlists.group_by(&:grouping_category)
+    @watched.each do |k,v|
+      @watched[k].sort_by! {|a| name_language_helper(a.watched,current_user,0, :no_bold => true).downcase}
+      @watched[k].sort_by! {|a| a.position || 100000 }      
+      @watched[k] = v.map(&:watched)
+    end  
 
     respond_to do |format|
       format.html # show.html.erb
+      format.js { }
     end
   end
   
@@ -231,11 +218,7 @@ class UsersController < ApplicationController
     #Update Language Settings
     @user.language_settings = params[:languagesettings].join(",")
     @user.artist_language_settings = params[:artistlanguagesettings] .join(",")
-    
-    #Tracklist Export options
-    tracklistarray = Album::TracklistOptions.map {|k,v| k.to_s}
-    @user.tracklist_export_bitmask = (params[:tracklist_export_settings] & tracklistarray).map { |r| 2**tracklistarray.index(r) }.sum
-    
+        
     respond_to do |format|
       if @user.save
         format.html { redirect_to edit_profile_user_path(:id => params[:id]), notice: 'Profile was successfully updated.' }

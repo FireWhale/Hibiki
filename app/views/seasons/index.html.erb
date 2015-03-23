@@ -1,29 +1,21 @@
-<% content_for :title do %>Seasons<% end %>
+<% content_for :title do %>Seasonal Anime<% end %>
 
 <% content_for :header do %>
-  <h2 class="text-center">Seasons</h2>
+  <h2 class="text-center">Seasonal Anime</h2>
 <% end %>
 
-<div>
-  <% @seasons.each do |season| %>
-    <div class="row well well-xsmall">
-      <div class="col-md-2">
-        <h4><%= link_to season.name, season %></h4>
-        <h6><%= season.start_date %></h6>
-        <% if can? :edit, Season %>
-          <%= link_to 'Edit', edit_season_path(season) %>
-        <% end %>
+<div id="seasons">
+  <% @seasons.sort.reverse.each do |year| %>
+    <div class="year">
+      <h2><%= year[0] %></h2>
+      <% year[1].each do |season| %>
+      <div class="season">
+        <div class="enhance">
+          <%= primary_image_helper(season, season, 'medium') %>
+          <div class="name"><h3><%= link_to season.name, season %></h3></div>
+        </div>
       </div>
-      <div class="col-md-10">
-        <%= linked_attribute_display(season.sources, "Anime") %>
-      </div>
+      <% end %>
     </div>
   <% end %>
 </div>
-
-<% content_for :usersidebar do %>
-  <% if can? :edit, Season %>
-    <%= link_to 'New Season', new_season_path %>
-  <% end %>
-<% end %>
-

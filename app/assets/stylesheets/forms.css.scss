@@ -1,0 +1,41 @@
+@import "bootstrap/variables";
+@import "bootstrap/mixins";
+@import "colors/light_blue_scheme";
+
+//Forms
+
+#super-view {
+  @include make-row();
+  #left-sidebar-form-view{
+    @include make-sm-column(4);
+  }
+  #form-view {
+    @include make-sm-column(8);
+  }
+  a {
+    color: $link-color;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+  .form-horizontal select {
+    margin-left: 8px;
+    width: 25%;
+  }
+  
+  .input-xmini {
+   width: 5%;
+  }    
+  
+  .input-xlarge {
+    width: 35%;
+  }
+
+  .input-xsmall {
+   width: 10% !important;
+  }
+  
+  .field_with_errors {
+    display: inline-block;
+  }

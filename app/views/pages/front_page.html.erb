@@ -1,34 +1,49 @@
 <% content_for :title do %>Main Page<% end %>
 
 <% content_for :header do %>
-  <h2 class="text-center">Welcome</h2>
+  <h2 class="text-center">Welcome to Hibiki</h2>
+  <h5 class="text-center">A Japanese Music Database</h5>
 <% end %>
 
-<div>
-  <div>
-    <h4>Site Stats:</h3>
-    <b>Albums:</b> <%= link_to(@albumtotal, albums_path) %><br>
-    <b>Artists:</b> <%= link_to(@artisttotal, artists_path) %><br>
-    <b>Sources:</b> <%= link_to(@sourcetotal, sources_path) %><br>
-    <b>Organizations:</b> <%= link_to(@orgtotal, organizations_path) %><br>
-    <b>Songs:</b> <%= @songtotal %><br>
-    <b>Images:</b> <%= @imagetotal %><br>
-    <b>Number of connections:</b> <%= @relationships %>
-  </div>
-  <br>
-  <%= link_to 'Changelog', changelog_path %><br>
-  <%= link_to 'Calendar', calendar_path %><br>
-  <%= link_to 'Seasonal Anime Releases', seasons_path %>
-  <br>
-  <br>
-  <div class="well well-xsmall">
-    <h4 class="text-center">6 Random Albums</h4>
-    <div class="row">
-    <% @albums.each do |album| %>
-      <div class="col-md-2">
-        <%= primary_image_helper(album, album, "medium", :outline_flag => true, :square => true) %>
-      </div>
+<div id="content">
+  <div id="posts">
+    <% @posts.each do |post| %>
+      <%= render "posts/display_post", post: post, :truncate_length => 400%>
     <% end %>
+  </div>
+  <div id="sidebar">
+    <div id="intro" >
+      <div class="panel">
+        <div class="panel-heading">About the author</div>
+        <div class="panel-body">
+          The author loves anime music so much, he learned how
+          to program just to build a database of it.
+        </div>
+      </div>
+    </div>
+    <div id="database">
+      <div class="panel">
+        <div class="panel-heading">Albums from the database</div>
+        <div class="panel-body">
+          <% @albums.each_with_index do |album,n| %>
+            <% if n.even? %>
+              <div class='album-row'>
+            <% end %>
+            <div class='album-column'>
+              <%= link_to primary_image_helper(album, album, "thumb", square: true) %>
+            </div>
+            <% if n.odd? %>
+              </div><br>
+            <% end %> 
+            <% if n.even? and n == @albums.count - 1 %>     
+              </div>
+            <% end %>    
+          <% end %>
+        </div>
+      </div>
+    </div>    
+    
+    <div id="new-albums">
     </div>
   </div>
 </div>
