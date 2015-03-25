@@ -12,6 +12,8 @@ class User < ActiveRecord::Base
     validates :email, uniqueness: { :case_sensitive => false }, allow_blank: true
     validates :crypted_password, presence: true
     validates :password_salt, presence: true
+    validates_format_of :password, without: ->(user) {/#{user.name}/}, message: "must not contain username"
+    validates_format_of :password, with: /(?=.*[A-Za-z])(?=.*[0-9])[A-Za-z0-9]+/, message: "must contain at least one letter and one number"
     validates :security, presence: true, inclusion: Array(0..(2**Ability::Abilities.count - 1)).map(&:to_s)
     validates :birth_date, presence: true, unless: -> {self.birth_date_bitmask.nil?}
     validates :birth_date_bitmask, presence: true, unless: -> {self.birth_date.nil?}
@@ -20,6 +22,10 @@ class User < ActiveRecord::Base
     acts_as_authentic do |c|
       c.login_field = :name
       c.perishable_token_valid_for = 3.hour
+      c.merge_validates_length_of_password_field_options :minimum => 8
+      c.merge_validates_length_of_password_confirmation_field_options :allow_blank => true
+      c.transition_from_crypto_providers = [Authlogic::CryptoProviders::Sha512]
+      c.crypto_provider = Authlogic::CryptoProviders::SCrypt
     end
   
   #Display Settings constants

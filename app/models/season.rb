@@ -1,12 +1,12 @@
 class Season < ActiveRecord::Base
-  attr_accessible :name, :start_date, :end_date
+  #Attributes
+    attr_accessible :name, :start_date, :end_date  
   
   #Modules
     include FormattingModule
   
   #Constants
     FullUpdateFields = {images: ["id", "seasonimages/", "Primary"],
-                        dates: ["start_date", "end_date"],
                         relations_by_id: {source: [:new_source_ids, :new_source_categories, :update_source_seasons, :remove_source_seasons, SourceSeason, "source_seasons"]}}  
   
     FormFields = [{type: "text", attribute: :name, label: "Name"},
@@ -16,10 +16,8 @@ class Season < ActiveRecord::Base
                   {type: "images"}]
   
   #Validations
-    validates :start_date, presence: true, unless: -> {self.start_date_bitmask.nil?}
-    validates :start_date_bitmask, presence: true, unless: -> {self.start_date.nil?}
-    validates :end_date, presence: true, unless: -> {self.end_date_bitmask.nil?}
-    validates :end_date_bitmask, presence: true, unless: -> {self.end_date.nil?}
+    validates :start_date, presence: true
+    validates :end_date, presence: true
     validates :name, presence: true
     
   #Associations

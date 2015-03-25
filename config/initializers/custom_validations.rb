@@ -1,5 +1,3 @@
-# Be sure to restart your server when you modify this file.
-
 ActiveRecord::Base.class_eval do
   def self.validates_unique_combination(*attr_names)
     options = attr_names.extract_options!

@@ -6,6 +6,9 @@
 
 #super-view {
   @include make-row();
+  form#new_user_session {
+    text-align: center;
+  }
   #left-sidebar-form-view{
     @include make-sm-column(4);
   }

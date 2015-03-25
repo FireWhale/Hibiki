@@ -10,30 +10,33 @@
 <%= form_for @user, :html => {:class => "form-horizontal"} do |f| %>
   <% if @user.errors.any? %>
     <div id="error_explanation">
-      <h2><%= pluralize(@user.errors.count, "error") %> prohibited this user from being saved:</h2>
+      <h4>Registration Unsuccessful:</h4>
 
       <ul>
-      <% @user.errors.full_messages.each do |msg| %>
-        <li><%= msg %></li>
+      <% @cleaned_errors = @user.errors.to_hash.except!(:crypted_password, :password_salt) %>
+      <% @cleaned_errors.each do |k,v| %>
+        <% v.uniq.each do |error| %>
+          <li><%= "#{k.to_s.humanize.capitalize} #{error}" %></li>
+        <% end %>
       <% end %>
       </ul>
     </div>
   <% end %>
 
     <div class="control-group">
-      <%= f.label :name, :class => "control-label"  %>
+      <%= f.label :name, "Username: ", :class => "control-label"  %>
       <%= f.text_field :name, :class => "controls input-medium" %>
     </div>
     <div class="control-group">
-      <%= f.label :email, :class => "control-label" %>
+      <%= f.label :email, "Email: ", :class => "control-label" %>
       <%= f.text_field :email, :class => "controls input-medium" %>
     </div>
     <div class="control-group">
-      <%= f.label :password, :class => "control-label" %>
+      <%= f.label :password, "Password: ", :class => "control-label" %>
       <%= f.password_field :password, :class => "controls input-medium" %>
     </div>
     <div class="control-group">
-      <%= f.label :password_confirmation, :class => "control-label" %>
+      <%= f.label :password_confirmation, "Password Confirmation: ", :class => "control-label" %>
       <%= f.password_field :password_confirmation, :class => "controls input-medium" %>
     </div>    
   <div class="actions">

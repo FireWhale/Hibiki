@@ -229,7 +229,7 @@ module AssociationTests
       end
       
       it "is invalid without a real #{association}" do
-        expect(build(model, "#{association}_type" => example.capitalize, "#{association}_id" => 9999999999)).to_not be_valid      
+        expect(build(model, "#{association}_type" => example.capitalize, "#{association}_id" => 2147483647)).to_not be_valid      
       end
       
       it "is valid with unique #{polymodel}/#{association}_type combinations" do

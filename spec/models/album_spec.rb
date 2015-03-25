@@ -117,22 +117,7 @@ describe Album do
         @user = create(:user)
         collection = create(:collection, album: @album1, user: @user, relationship: "Collected")
         collection = create(:collection, album: @album2, user: @user, relationship: "Ignored")
-        collection = create(:collection, album: @album3, user: @user, relationship: "Wishlist")
-      end
-      
-      it "returns collection" do
-        expect(@album1.collected?(@user)).to be true
-        expect(@album2.collected?(@user)).to be false
-      end
-      
-      it "returns ignored" do
-        expect(@album2.ignored?(@user)).to be true
-        expect(@album3.ignored?(@user)).to be false
-      end
-            
-      it "returns wishlist" do
-        expect(@album3.wishlist?(@user)).to be true
-        expect(@album2.wishlist?(@user)).to be false
+        collection = create(:collection, album: @album3, user: @user, relationship: "Wishlisted")
       end
     
       it "returns the right collection type" do
@@ -140,7 +125,7 @@ describe Album do
         expect(album.collected_category(@user)).to eq("")
         expect(@album1.collected_category(@user)).to eq("Collected")
         expect(@album2.collected_category(@user)).to eq("Ignored")
-        expect(@album3.collected_category(@user)).to eq("Wishlist")
+        expect(@album3.collected_category(@user)).to eq("Wishlisted")
       end
     end
       
@@ -594,6 +579,7 @@ describe Album do
     
   #Scope Tests
     it_behaves_like "it reports released records", :album
+    it "returns the scopes properly (TO DO)"
     
 end
 

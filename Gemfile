@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '4.0'
+gem 'rails', '4.2.1'
 gem 'yaml_db'
 gem 'authlogic'
 gem 'bcrypt', '~> 3.1.7' #needed for authlogic 3.4.1
@@ -31,6 +31,7 @@ group :development, :test do
   gem 'rspec-rails'
   gem 'factory_girl_rails'
   gem 'uglifier', '>= 1.0.3'
+  gem 'tzinfo-data', platforms: [:mingw, :mswin]
 end
 
 group :test do

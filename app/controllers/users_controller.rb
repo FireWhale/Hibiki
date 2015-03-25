@@ -268,13 +268,9 @@ class UsersController < ApplicationController
     end
     
     respond_to do |format|
-      if user.nil? == false
-        format.html { redirect_to requestpasswordreset_path, notice: 'Thank you! Please check your email for a link to reset your password.'  }
+        format.html { redirect_to requestpasswordreset_path, notice: "Thank you! An email has been sent to #{truncate(params[:email][0], length: 50)} with instructions to recover your password. If you do not receive an email, please contact support."  }
         format.json { head :no_content }
-      else
-        format.html { redirect_to requestpasswordreset_path, notice: 'The email entered was not registered to any account!' }
-        format.json { head :no_content }
-      end
+
     end 
   end
   

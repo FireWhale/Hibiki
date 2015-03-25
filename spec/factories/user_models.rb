@@ -6,8 +6,8 @@ FactoryGirl.define do
     factory :user do 
       name {Faker::Lorem.characters(10)}
       email {Faker::Internet.email}
-      password "hehepassword"
-      password_confirmation "hehepassword"
+      password "hehepassword1"
+      password_confirmation "hehepassword1"
       security "2"
       
       factory :admin do

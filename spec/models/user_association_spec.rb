@@ -55,7 +55,6 @@ describe Watchlist do
       expect(build(:watchlist, watched: song)).to_not be_valid      
     end
       
-    include_examples "is valid with or without an attribute", :watchlist, :status, "Complete"
     include_examples "is valid with or without an attribute", :watchlist, :position, 5
     include_examples "is valid with or without an attribute", :watchlist, :grouping_category, "Anime"
          

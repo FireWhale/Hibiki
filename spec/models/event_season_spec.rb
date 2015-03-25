@@ -29,20 +29,16 @@ describe Event do
     it_behaves_like "it has a serialized attribute", :event, :reference
      
   #Instance Method Tests
-    it "returns the shorthand first with shorthand_or_name" do
-      expect(create(:event, name: "hi", shorthand: "this one!").shorthand_or_name).to eq("this one!")
+    it "returns the right name with name_helper" do
+      expect(create(:event, name: "hi", shorthand: "this one!").name_helper("shorthand", "name")).to eq("this one!")
     end
     
-    it "returns the name first with name_or_shorthand" do
-      expect(create(:event, name: "hi", shorthand: "not this one").name_or_shorthand).to eq("hi")
+    it "returns nil if no name_helper name matches" do
+      expect(create(:event, name: "hi", shorthand: "this one!").name_helper("nope", "nada")).to eq(nil)
     end
     
-    it "returns the name if shorthand is nil" do
-      expect(create(:event, name: "hey", shorthand: nil).shorthand_or_name).to eq("hey")
-    end
-    
-    it "returns the shorthand if name is nil" do
-      expect(create(:event, name: nil, shorthand: "ahahah").name_or_shorthand).to eq("ahahah")      
+    it "skips non-eligable names with name_helper" do
+      expect(create(:event, name: "hi", shorthand: "this one!").name_helper("hi", "shorthand", "name")).to eq("this one!")
     end
     
     it "returns the date range" 
@@ -70,7 +66,7 @@ describe Season do
     include_examples "is invalid without an attribute", :season, :name
     include_examples "is invalid without an attribute", :season, :start_date
     include_examples "is invalid without an attribute", :season, :end_date
-    
+
     it "is valid with overlapping dates" do
       create(:season, start_date: Date.new(2012, 1, 1), end_date: Date.new(2013,1,1))
       expect(build(:season, start_date: Date.new(2012, 1, 1), end_date: Date.new(2013,1,1))).to be_valid

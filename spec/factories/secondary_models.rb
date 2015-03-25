@@ -4,9 +4,9 @@ require 'faker'
 FactoryGirl.define do
   #Secondary Models - Seasons, Events, Tags, Images, Posts, Issues
     factory :season do
-      name {Faker::Lorem.word}
-      start_date {Faker::Date.between(2.years.ago, Date.today)}      
-      end_date {Faker::Date.between(2.years.ago, Date.today)}    
+      name {Faker::Lorem.word}  
+      start_date {Faker::Date.between(2.years.ago, Date.today)}
+      end_date {Faker::Date.between(2.years.ago, Date.today)} 
 
       trait :with_source_season do
         after(:create) do |season|

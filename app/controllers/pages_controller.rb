@@ -55,7 +55,6 @@ class PagesController < ApplicationController
     @numberofalbums = 100
     @slice = (@numberofalbums / 6.0).ceil
     @albums= Album.order("RAND()").includes(:primary_images).first(@numberofalbums).shuffle
-    # @albums= Album.includes(:covers).last(@numberofalbums)
   end  
 
 end

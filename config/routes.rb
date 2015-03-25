@@ -82,7 +82,6 @@ Hibiki::Application.routes.draw do
   get '/search', :to => 'pages#search'
   get '/changelog', :to => 'pages#changelog'
   get '/calendar', :to => 'pages#calendar'
-  get '/calendar_update', :to => 'pages#calendar_update'
   get '/help', to: 'pages#help'
   get '/database', to: 'pages#database_landing'
   
@@ -105,11 +104,6 @@ Hibiki::Application.routes.draw do
   
   #links for adding scrape links and albums/artists/sources to posts
   post '/addscrapelink', :to => 'maintenance#addscrapelink'
-  
-  #Index js scripts
-  post '/album_preview', :to => 'albums#album_preview'
-  post '/songpreview', :to => 'songs#songpreview'
-  post '/songpreviewhide', :to => 'songs#songpreviewhide'  
   
   #User Functions
   post '/watch', :to => 'users#watch'

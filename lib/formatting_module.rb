@@ -142,7 +142,7 @@ module FormattingModule
       unless fields[:sources_for_song].nil?
         #Update
           song_sources = values.delete :update_song_sources
-          SongSource.update(song_sources.keys, song_sources.values) unless song_sources.nil? || song_sources.keys.empty?
+          SongSource.update(song_sources.keys.map(&:to_s), song_sources.values) unless song_sources.nil? || song_sources.keys.empty?
         #Destroy
           remove_song_sources = values.delete :remove_song_sources
           self.delete_records(remove_song_sources, SongSource) unless remove_song_sources.nil?
@@ -295,7 +295,7 @@ module FormattingModule
     model = self.class.to_s.downcase
     ids.zip(categories).each do |each|
       if each[0].empty? == false
-        exists = self.class.find_by_id(each[0])
+        exists = self.class.find_by_id(each[0].to_s)
         if exists.nil? == false
           if each[1].starts_with?("-")
             category = each[1].slice(1..-1)
@@ -325,17 +325,17 @@ module FormattingModule
     values = [values] if values.class != Array
     keys.zip(values).each do |relation|
       if relation[1][:category].starts_with?("-")
-        relatedmodel = ("Related" + model.capitalize + "s").constantize.find_by_id(relation[0])
+        relatedmodel = ("Related" + model.capitalize + "s").constantize.find_by_id(relation[0].to_s)
         relation[1][(model + '1_id').to_sym] = relatedmodel.send(model + "2_id")
         relation[1][(model + '2_id').to_sym] = relatedmodel.send(model + "1_id")
         relation[1][:category] = relation[1][:category].slice(1..-1) #takes off the "-" 
       end
-      ("Related" + model.capitalize + "s").constantize.update(relation[0], relation[1])
+      ("Related" + model.capitalize + "s").constantize.update(relation[0].to_s, relation[1])
     end
   end
   
   def update_primary_relation(records, model) 
-    records.each { |k,v| model.find_by_id(k).update_attributes(v) unless v[:category].empty? }
+    records.each { |k,v| model.find_by_id(k.to_s).update_attributes(v) unless v[:category].empty? }
   end
   
   def delete_records(ids, model)
@@ -430,7 +430,7 @@ module FormattingModule
   
   def update_artists(records, model)
     records.each do |k,v|
-      record = "Artist#{model.capitalize}".constantize.find_by_id(k)
+      record = "Artist#{model.capitalize}".constantize.find_by_id(k.to_s)
       unless record.nil?
         bitmask = Artist.get_bitmask(v)
         bitmask == 0 ? record.destroy : "Artist#{model.capitalize}".constantize.update(record.id, category: bitmask)
@@ -440,7 +440,7 @@ module FormattingModule
   
   def update_language_record(records, model)
     records.each do |k,v|
-      record = model.find_by_id(k)
+      record = model.find_by_id(k.to_s)
       record.update_attributes(v) unless record.nil?
     end
   end

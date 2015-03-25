@@ -23,7 +23,7 @@ class ArtistsController < ApplicationController
  
     otheridcollection.each  {|relation| @collection << relation unless collectionids.include?(relation.album_id) }
     
-    @collection.sort! { |a,b| a.album.release_date <=> b.album.release_date }
+    @collection.to_a.sort! { |a,b| a.album.release_date <=> b.album.release_date }
     #Take out reprints and alternate printings
     @collection = filter_albums(@collection)
         

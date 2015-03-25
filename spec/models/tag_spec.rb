@@ -88,7 +88,7 @@ describe Tag do
     end
     
     it "returns models when queried" do
-      expect(build(:tag, model_bitmask: 31).models).to match_array(Tag::ModelBitmask)
+      expect(build(:tag, model_bitmask: 63).models).to match_array(Tag::ModelBitmask)
     end
    
   #Class Method Tests

@@ -44,6 +44,7 @@
             <div id="form-view">
           <% end %>
           <%= yield :form_view %>
+          <%= yield %>
           <% if content_for(:left_sidebar_form_view)%>
              </div>
           <% end %>
