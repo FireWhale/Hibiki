@@ -62,14 +62,12 @@ class MaintenanceController < ApplicationController
       @post.content.force_encoding("UTF-8")
       @post.content.scan(/\[FAILED\]\[[a-z0-9\.:\/]+\]\[\d{1,5}\]/).each do |each|
         @album = Album.find_by_id(each.split("][")[2].chomp("]"))
-        if @album.nil? == false
-          @failedurls << [each.split("][")[1], @album ]
-        end
+        @failedurls << [each.split("][")[1], @album ] unless @album.nil?
       end
       @post.content.scan(/\[PASSED\]\[\d{1,5}\]/).each do |each|
         albumids << each[9..-1].chomp("]")
       end
-      @albums = Album.find_all_by_id(albumids)
+      @albums = Album.find(albumids)
       @count = @failedurls.count + @albums.count
     end  
 
