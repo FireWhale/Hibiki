@@ -12,7 +12,7 @@
       <div class="well well-xsmall">
         <h5 class='text-center'>Artist List<%= render partial: 'layouts/forms/well_toggle', locals: {div_id: "ArtistList", toggle_id: "ArtistToggle"} %></h5>
         <div id="ArtistList">
-          <% @album.artists.sort_by! {|a| name_language_helper(a,current_user,0)}.each do |artist| %>
+          <% @album.artists.to_a.sort_by! {|a| name_language_helper(a,current_user,0)}.each do |artist| %>
             <%= artist.id %> - <%= name_language_helper(artist,current_user,0) %><br>
           <% end %>
         </div>
@@ -20,7 +20,7 @@
       <div class="well well-xsmall">
         <h5 class='text-center'>Source List<%= render partial: 'layouts/forms/well_toggle', locals: {div_id: "SourceList", toggle_id: "SourceToggle"} %></h5>
         <div id="SourceList">
-          <% @album.sources.sort_by! {|a| name_language_helper(a,current_user,0) }.each do |source| %>
+          <% @album.sources.to_a.sort_by! {|a| name_language_helper(a,current_user,0) }.each do |source| %>
             <%= source.id %> - <%= name_language_helper(source,current_user,0) %><br>
           <% end %>
         </div>
