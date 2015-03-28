@@ -26,11 +26,11 @@ class Artist < ActiveRecord::Base
         #Hidden - Actually hidden from viewing. redirects to alias. E.G. maaya -> maaya sakamoto
     #Credits/CreditsAbbr are used for ArtistSong and ArtistAlbum credits
       #Database categories
-        Credits = %w[Composer Arranger Performer Lyricist FeatComposer FeatArranger FeatPerformer Chorus Instrumentals]  
+        Credits = %w[Composer Arranger Performer Lyricist FeatComposer FeatArranger FeatPerformer Chorus Instrumentals FeatLyricist]  
       #Abbreviations for edting
-        CreditsAbbr = %w[Comp Arr Perf Lyr FComp FArr FPerf Chorus Instr.]  
+        CreditsAbbr = %w[Comp Arr Perf Lyr FComp FArr FPerf Chorus Instr. FLyr]  
       #Fulls for display
-        CreditsFull = {'Composer' =>'Composers', 'Arranger' => 'Arrangers', 'Performer' => 'Performers', 'Lyricist' =>'Lyricists', 'FeatComposer' => 'Featured Composers', 'FeatArranger' => 'Featured Arrangers', 'FeatPerformer' => 'Featured Performers', 'Chorus' => 'Chorus', 'Instrumentals' => 'Instrumentals'}
+        CreditsFull = {'Composer' =>'Composers', 'Arranger' => 'Arrangers', 'Performer' => 'Performers', 'Lyricist' =>'Lyricists', 'FeatComposer' => 'Featured Composers', 'FeatArranger' => 'Featured Arrangers', 'FeatPerformer' => 'Featured Performers', 'FeatLyricist' => 'Featured Lyricist', 'Chorus' => 'Chorus', 'Instrumentals' => 'Instrumentals'}
   
     SelfRelationships = [['is an alias of', '-Alias'],
     ['has an alias called', 'Aliases', 'Aliases', true, true, 'Alias'],
