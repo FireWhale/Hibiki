@@ -269,6 +269,11 @@
 }
 
 #seasons {
+  .year {
+    h2 {
+      clear: both;
+    }
+  }
   .season {
     display: block;
     width: 25%;
