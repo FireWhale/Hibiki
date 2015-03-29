@@ -67,7 +67,7 @@ class MaintenanceController < ApplicationController
       @post.content.scan(/\[PASSED\]\[\d{1,5}\]/).each do |each|
         albumids << each[9..-1].chomp("]")
       end
-      @albums = Album.find(albumids)
+      @albums = Album.where(id: albumids)
       @count = @failedurls.count + @albums.count
     end  
 
