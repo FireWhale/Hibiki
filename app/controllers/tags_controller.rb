@@ -90,13 +90,8 @@ class TagsController < ApplicationController
   end
 
   def create
-    @tag = Tag.new(params[:tag])
-    models = params[:tag].delete :models
-    @tag.model_bitmask =  Tag.get_bitmask(models)  unless models.nil?
-
-
     respond_to do |format|
-      if @tag.save
+      if true
         format.html { redirect_to @tag, notice: 'Tag was successfully created.' }
         format.json { render json: @tag, status: :created, location: @tag }
       else
@@ -108,11 +103,9 @@ class TagsController < ApplicationController
 
   def update
     @tag = Tag.find(params[:id])
-    models = params[:tag].delete :models
-    @tag.model_bitmask =  Tag.get_bitmask(models) unless models.nil?
-
+    
     respond_to do |format|
-      if @tag.update_attributes(params[:tag])
+      if @tag.full_update_attributes(params[:tag])
         format.html { redirect_to @tag, notice: 'Tag was successfully updated.' }
         format.json { head :no_content }
       else

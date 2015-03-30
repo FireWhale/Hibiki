@@ -1,7 +1,13 @@
 class Tag < ActiveRecord::Base
-  attr_accessible :classification, :info, :name, :synopsis, :model_bitmask, :visibility
+  attr_accessible :name, :info, :synopsis, 
+                  :classification, :model_bitmask, :visibility
   
-  ModelBitmask = %w[Album Artist Organization Song Source Post]
+  #Modules
+    include FormattingModule
+  
+  #Constants
+    ModelBitmask = %w[Album Artist Organization Song Source Post]
+    FullUpdateFields = {tag_models: :models}
   
   #Validation
     validates :name, presence: true , uniqueness: {scope: :model_bitmask}

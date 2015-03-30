@@ -31,20 +31,21 @@ module FormattingModule
       values = values.deep_symbolize_keys   
     #Get a new_values hash without all non-accessible attributes from the values hash
       acc_attrs = self.class.accessible_attributes - ["reference"]
-      new_values = values.reject {|k,v| v.empty? || acc_attrs.include?(k) }
+      new_values = values.reject {|k,v| v.empty? || acc_attrs.include?(k) == false }
     #Get fields
       fields = self.class::FullUpdateFields
-    #Reference
-      references = new_values.delete :reference
-      self.format_references_hash(references) if fields[:reference] == true && references.nil? == false
-    #Dates
-      fields[:dates].each {|date| self.format_date_helper(date,new_values)} unless fields[:dates].nil?
-    #Namehash
-      namehash = new_values.delete :namehash
-      if self.respond_to?("namehash") && namehash.nil? == false
-        namehash.delete_if { |key,value| value.empty?}
-        new_values[:namehash] = namehash
-      end    
+    #We now remove all the accessible attributes that are still processed with full_update
+      #Reference
+        references = new_values.delete :reference
+        self.format_references_hash(references) if fields[:reference] == true && references.nil? == false
+      #Dates
+        fields[:dates].each {|date| self.format_date_helper(date,new_values)} unless fields[:dates].nil?
+      #Namehash
+        namehash = new_values.delete :namehash
+        if self.respond_to?("namehash") && namehash.nil? == false
+          namehash.delete_if { |key,value| value.empty?}
+          new_values[:namehash] = namehash
+        end    
     #Save
       if self.save
         #If the required info is correct, the save will go through and we can call full_update
@@ -217,6 +218,11 @@ module FormattingModule
           remove_seasons = values.delete :remove_seasons #Removing
           remove_seasons.each {|season_id| self.seasons.delete(Season.find_by_id(season_id))} unless remove_seasons.nil?
         end
+    #Tag
+      unless fields[:tag_models].nil?
+        tag_models = values.delete fields[:tag_models]
+        self.model_bitmask = Tag.get_bitmask(tag_models) unless tag_models.nil? || tag_models.empty?
+      end
     #Finally, update with attr_accessible values
       self.update_attributes(values)
   end

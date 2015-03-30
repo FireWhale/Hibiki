@@ -20,7 +20,7 @@ Hibiki::Application.routes.draw do
     member do
       get 'albumart', :action => 'album_art'
       get 'tracklist_edit', :action => 'edit_tracklist'
-      put 'tracklist_edit', :action => 'update_tracklist'
+      patch 'tracklist_edit', :action => 'update_tracklist'
       get 'tracklist_export', :action => 'tracklist_export'
       post 'rescrape', action: 'rescrape'
       get 'rescrape', action: 'rescrape'

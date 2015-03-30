@@ -1,4 +1,4 @@
-<% content_for :title do %><%= @event.name %><% end %>
+<% content_for :title do %><%= @event.name_helper("name", "abbreviation", "altname", "shorthand") %><% end %>
 
 <% content_for :header do %>
   <div class="text-center">
