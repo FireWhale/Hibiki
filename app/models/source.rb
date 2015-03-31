@@ -15,6 +15,7 @@ class Source < ActiveRecord::Base
   #Modules
     include FormattingModule
     include WatchlistModule
+    include SearchModule
 
   #Callbacks/Hooks
     

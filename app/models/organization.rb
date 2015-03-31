@@ -12,6 +12,7 @@ class Organization < ActiveRecord::Base
   #Modules
     include FormattingModule
     include WatchlistModule
+    include SearchModule
   
   #Categories
     Activity = ["Active", "Hiatus", "Dissolved"]

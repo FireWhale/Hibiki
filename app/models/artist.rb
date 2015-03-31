@@ -13,6 +13,7 @@ class Artist < ActiveRecord::Base
   #Modules
     include FormattingModule
     include WatchlistModule
+    include SearchModule
 
   #Cateogires
     Categories = ['Group','Person','Unit','Synthesized']

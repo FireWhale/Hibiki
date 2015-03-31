@@ -14,7 +14,7 @@ gem 'mechanize' #Scraping/Posting
 gem 'puma', '2.6.0'
 gem 'jquery-rails'
 gem 'jquery-ui-rails'
-gem 'rails3-jquery-autocomplete'
+gem 'rails-jquery-autocomplete'
 gem 'mini_magick', '3.5.0' #Image manipulation
 gem 'sunspot_rails', github: "betam4x/sunspot" # , '2.1.1'
 gem 'sunspot_solr', github: "betam4x/sunspot" # '2.1.1'

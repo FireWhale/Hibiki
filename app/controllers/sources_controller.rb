@@ -1,8 +1,8 @@
 class SourcesController < ApplicationController
   load_and_authorize_resource
 
-  autocomplete :source, :namehash, :full => true, :extra_data => [:name, :search_context], 
-               :display_value => :autocomplete_format
+  autocomplete :source, :namehash, :full => true, :extra_data => [:name], 
+               :display_value => :format_method
       
   def index
     @sources = Source.order('lower(name)').includes(albums: :primary_images).page(params[:page])

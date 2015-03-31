@@ -11,6 +11,7 @@ class Song < ActiveRecord::Base
     
   #Modules
     include FormattingModule
+    include SearchModule
 
   #Callbacks/Hooks
     before_save :format_track_number

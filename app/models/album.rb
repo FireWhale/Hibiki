@@ -13,6 +13,7 @@ class Album < ActiveRecord::Base
   
   #Modules
     include FormattingModule
+    include SearchModule
 
   #Callbacks/Hooks
     
