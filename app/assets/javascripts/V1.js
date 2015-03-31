@@ -5,11 +5,7 @@ $(document).ready(function(){
   //Sortable list for languages
   $('#languages').sortable();
   $('#artistlanguages').sortable();  
- 
-  //Date picker for calendar  
-  $('#datepicker').datepicker();
-
-  
+   
   //sortable list for editing watchlists
   $('.sortableGroup').sortable({
       connectWith: $(".sortableGroup"),
