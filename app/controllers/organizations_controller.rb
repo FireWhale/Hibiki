@@ -2,7 +2,7 @@ class OrganizationsController < ApplicationController
   load_and_authorize_resource
   
   autocomplete :organization, :namehash, :full => true, :extra_data => [:name], 
-               :display_value => :format_method
+               :display_value => :edit_format
 
   def index
     @organizations = Organization.order(:name).includes({album_organizations: {album: :primary_images}}).page(params[:page])

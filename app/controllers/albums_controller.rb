@@ -2,7 +2,7 @@ class AlbumsController < ApplicationController
   load_and_authorize_resource
   
   autocomplete :album, :namehash, :full => true, :extra_data => [:name], 
-               :display_value => :format_method  
+               :display_value => :edit_format
     
   def index
     @albums = Album.includes(:primary_images).order(:release_date).page(params[:page])

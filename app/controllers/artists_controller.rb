@@ -2,7 +2,7 @@ class ArtistsController < ApplicationController
   load_and_authorize_resource
   
   autocomplete :artist, :namehash, :full => true, :extra_data => [:name], 
-               :display_value => :format_method  
+               :display_value => :edit_format  
 
   def index
     @artists = Artist.order(:name).includes({artist_albums: {album: [:primary_images, :collections]}}).page(params[:page])

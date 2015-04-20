@@ -2,7 +2,7 @@ class SongsController < ApplicationController
   load_and_authorize_resource
 
   autocomplete :song, :namehash, :full => true, :extra_data => [:name], 
-               :display_value => :format_method  
+               :display_value => :edit_format  
 
   def index
     @songs = Song.page(params[:page])

@@ -1,7 +1,11 @@
 module AutocompletionModule
   
-  def format_method #for autocomplete
+  def edit_format #for autocomplete
     "#{self.id} - #{self.name}"
-  end    
+  end
+  
+  def search_format
+    "#{self.name}"
+  end
       
 end
