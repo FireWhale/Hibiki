@@ -5,7 +5,9 @@ class User < ActiveRecord::Base
                   :language_settings, :artist_language_settings
 
   #Modules
-    include FormattingModule
+  
+    #Association Modules
+      include ImageModule
   
   #Validation
     validates :name, presence: true, length: { minimum: 3, maximum: 20}
@@ -51,10 +53,6 @@ class User < ActiveRecord::Base
     has_many :ratings, dependent: :destroy
     has_many :songs, through: :ratings
     
-    has_many :imagelists,  dependent: :destroy, as: :model
-    has_many :images, through: :imagelists
-    has_many :primary_images, -> {where "images.primary_flag = 'Primary'" }, through: :imagelists, source: :image
-    
     has_many :issue_users
   
   def deliver_password_reset_instructions!
@@ -82,7 +80,6 @@ class User < ActiveRecord::Base
       abilities = [abilities] if abilities.class != Array
       (abilities & Ability::Abilities).map { |r| 2**(Ability::Abilities).index(r) }.sum
     end
-  
   
   #Update Method
     def update_security(values)

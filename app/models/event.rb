@@ -7,7 +7,8 @@ class Event < ActiveRecord::Base
     serialize :reference
   
   #Modules
-    include FormattingModule
+    include FullUpdateModule
+    include LanguageModule
     
   #Constants
     FullUpdateFields = {reference: true}    

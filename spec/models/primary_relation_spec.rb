@@ -1,9 +1,9 @@
 require 'rails_helper'
 
-shared_examples "it has a category" do |model_symbol, attribute, category|
+shared_examples "it has a category" do |attribute, category|
   #Validation
-    it_behaves_like "is invalid without an attribute", model_symbol, attribute.to_sym
-    it_behaves_like "is invalid without an attribute in a category", model_symbol, attribute.to_sym, category
+    it_behaves_like "is invalid without an attribute", attribute
+    it_behaves_like "is invalid without an attribute in a category", attribute, category
         
 end
 
@@ -24,56 +24,41 @@ shared_examples "it has an artist bitmask" do |model_symbol|
 end
 
 describe AlbumOrganization do
-  #Gutcheck Test
-    it "has a valid factory" do
-      instance = create(:album_organization)
-      expect(instance).to be_valid
-    end
+  include_examples "global model tests" #Global Tests
+  
   #Shared Examples
-    it_behaves_like "a join table", :album_organization, "album", "organization", AlbumOrganization
-    it_behaves_like "it has a category", :album_organization, "category", AlbumOrganization::Categories
+    it_behaves_like "a join table", Album, Organization
+    it_behaves_like "it has a category", :category, AlbumOrganization::Categories
 end
 
 describe AlbumSource do
-  #Gutcheck Test
-    it "has a valid factory" do
-      instance = create(:album_source)
-      expect(instance).to be_valid
-    end
+  include_examples "global model tests" #Global Tests
+  
   #Shared Examples
-    it_behaves_like "a join table", :album_source, "album", "source", AlbumSource
+    it_behaves_like "a join table", Album, Source
 end
 
 describe ArtistAlbum do
-  #Gutcheck Test
-    it "has a valid factory" do
-      instance = create(:artist_album)
-      expect(instance).to be_valid
-    end
+  include_examples "global model tests" #Global Tests
+  
   #Shared Examples
-    it_behaves_like "a join table", :artist_album, "artist", "album", ArtistAlbum
+    it_behaves_like "a join table", Artist, Album
     it_behaves_like "it has an artist bitmask", :artist_album
 end
 
 describe ArtistOrganization do
-  #Gutcheck Test
-    it "has a valid factory" do
-      instance = create(:artist_organization)
-      expect(instance).to be_valid
-    end
+  include_examples "global model tests" #Global Tests
+  
   #Shared Examples
-    it_behaves_like "a join table", :artist_organization, "artist", "organization", ArtistOrganization
-    it_behaves_like "it has a category", :artist_organization, "category", ArtistOrganization::Categories
+    it_behaves_like "a join table", Artist, Organization
+    it_behaves_like "it has a category", :category, ArtistOrganization::Categories
 end  
 
 describe ArtistSong do
-  #Gutcheck Test
-    it "has a valid factory" do
-      instance = create(:artist_song)
-      expect(instance).to be_valid
-    end
+  include_examples "global model tests" #Global Tests
+  
   #Shared Examples
-    it_behaves_like "a join table", :artist_song, "artist", "song", ArtistSong
+    it_behaves_like "a join table", Artist, Song
     it_behaves_like "it has an artist bitmask", :artist_song
   
   #Callbacks
@@ -84,20 +69,24 @@ describe ArtistSong do
       song_source = create(:artist_song, song: song, artist: artist)
       expect(album.artists).to match_array([artist])
     end
+    
+    it "does not add the artist if there is no album" do
+      song = create(:song)
+      artist = create(:artist)
+      expect{create(:artist_song, song: song, artist: artist)}.to change(ArtistAlbum, :count).by(0)
+    end
+    
 end
     
 describe SongSource do
-  #Gutcheck Test
-    it "has a valid factory" do
-      instance = create(:song_source)
-      expect(instance).to be_valid
-    end
+  include_examples "global model tests" #Global Tests
+  
   #Shared Examples
-    it_behaves_like "a join table", :song_source, "song", "source", SongSource
-    include_examples "is valid with or without an attribute", :song_source, :classification, "OP"
-    include_examples "is valid with or without an attribute", :song_source, :op_ed_number, "5"
-    include_examples "is valid with or without an attribute", :song_source, :ep_numbers, "23-49"
-    it_behaves_like "is invalid without an attribute in a category", :song_source, :classification, SongSource::Relationship
+    it_behaves_like "a join table", Song, Source
+    include_examples "is valid with or without an attribute", :classification, "OP"
+    include_examples "is valid with or without an attribute", :op_ed_number, "5"
+    include_examples "is valid with or without an attribute", :ep_numbers, "23-49"
+    it_behaves_like "is invalid without an attribute in a category", :classification, SongSource::Relationship
     
   #Callbacks    
     it "adds the source to the album as well" do
@@ -107,20 +96,23 @@ describe SongSource do
       song_source = create(:song_source, song: song, source: source)
       expect(album.sources).to match_array([source])
     end
+
+    it "does not add the source if there is no album" do
+      song = create(:song)
+      source = create(:source)
+      expect{create(:song_source, song: song, source: source)}.to change(AlbumSource, :count).by(0)
+    end
     
   #More Validation
-    include_examples "is valid with or without an attribute", :song_source, :op_ed_number, "some op number"
-    include_examples "is valid with or without an attribute", :song_source, :ep_numbers, "some episode numbers"
+    include_examples "is valid with or without an attribute", :op_ed_number, "some op number"
+    include_examples "is valid with or without an attribute", :ep_numbers, "some episode numbers"
 
 end
 
 describe SourceOrganization do
-  #Gutcheck Test
-    it "has a valid factory" do
-      instance = create(:source_organization)
-      expect(instance).to be_valid
-    end
+  include_examples "global model tests" #Global Tests
+  
   #Shared Examples
-    it_behaves_like "a join table", :source_organization, "source", "organization", SourceOrganization
-    it_behaves_like "it has a category", :source_organization, "category", SourceOrganization::Categories
+    it_behaves_like "a join table", Source, Organization
+    it_behaves_like "it has a category", :category, SourceOrganization::Categories
 end

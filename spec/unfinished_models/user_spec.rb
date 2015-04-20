@@ -12,13 +12,13 @@ describe User do
     it "has many watchlists"
     it "has many Ratings"
     it "has many IssueUsers"
-    it_behaves_like "it has images", :user, User
+    it_behaves_like "it has images"
     it "has many posts as user"
     it "has many posts as recipient"
       
   #Validation Tests
-    include_examples "is invalid without an attribute", :user, :name
-    include_examples "is invalid without an attribute", :user, :email  
+    include_examples "is invalid without an attribute", :name
+    include_examples "is invalid without an attribute", :email  
     
     it "is invalid without an crypted_password" do
       expect(build(:user, :crypted_password => nil)).not_to be_valid  

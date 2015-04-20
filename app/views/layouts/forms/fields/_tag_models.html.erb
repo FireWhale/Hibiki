@@ -1,0 +1,5 @@
+<%= fields_for form_prefix, record do |f| %>
+  <% Tag::ModelBitmask.each do |model| %>
+    <%= check_box_tag 'tag[models][]', model, Tag.get_models(@tag.model_bitmask).include?(model) %> <%= model %><br>
+  <% end %>
+<% end %>

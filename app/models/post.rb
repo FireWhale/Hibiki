@@ -3,8 +3,12 @@ class Post < ActiveRecord::Base
     attr_accessible :title, :content,
                     :category, :timestampe,  :visibility, :status,
                     :user_id, :recipient_id, :user_info
+                    
   #Modules
-    include FormattingModule
+    include FullUpdateModule
+    #Association Modules
+      include ImageModule
+      include TagModule
 
   #Callbacks/Hooks
     before_save :parse_content
@@ -28,27 +32,19 @@ class Post < ActiveRecord::Base
     validates :user, presence: true, if: ->(post){post.category == "Blog Post" || post.category == "Private Message"}
     validates :recipient, presence: true, if: ->(post){post.category == "Private Message"}
     validates :category, inclusion: Post::Categories
-    validates :visibility, presence: true
+    validates :visibility, presence: true, inclusion: Ability::Abilities
     validates :status, inclusion: Post::Status
     
   #Associations
     has_many :postlists, dependent: :destroy
-    
-    has_many :imagelists, as: :model, dependent: :destroy
-    has_many :images, through: :imagelists
-    has_many :primary_images, -> {where "images.primary_flag = 'Primary'" }, through: :imagelists, source: :image
-
-    has_many :taglists, as: :subject
-    has_many :tags, through: :taglists, dependent: :destroy
-
     has_many :albums, through: :postlists, source: :model, source_type: "Album"
     has_many :artists, through: :postlists, source: :model, source_type: "Artist"
     has_many :organizations, through: :postlists, source: :model, source_type: "Organization"
     has_many :songs, through: :postlists, source: :model, source_type: "Song"
     has_many :sources, through: :postlists, source: :model, source_type: "Source"
     
-    def primary_records
-      albums + artists + organizations + songs + sources
+    def models
+      postlists.map(&:model)
     end
     
     def records
@@ -59,22 +55,11 @@ class Post < ActiveRecord::Base
     belongs_to :recipient, class_name: "User" 
 
   #Scopes
-    scope :scrape_results, -> { where(category: 'Scrape Result')}
-    scope :rescrape_results, -> { where(category: 'Rescrape Result')}
-    scope :luelinks_posts, -> { where(category: 'Luelinks Post')}
-    scope :records, -> { where(category: 'Records')}
-    scope :blog_posts, -> { where(category: 'Blog Post')}
-    scope :private_messages, -> { where(category: 'Private Message')}
-    scope :destroyed_records, -> { where(status: 'Deleted Records')}
-    scope :has_tag, ->(tag_id) { joins(:tags).where('tags.id IN (?)', tag_id)}
+    scope :with_category, ->(categories) { where('category IN (?)', categories)}
+    scope :with_status, ->(statuses) {where('status IN (?)', statuses)}
     scope :meets_security, ->(user) { where('posts.visibility IN (?)', user.nil? ? ["Any"] : user.abilities  )}
-    
-    def self.scrape_and_rescrape_results
-      (scrape_results + rescrape_results)
-    end
-    
+        
   #Instance Methods
-  
   
   #Class Methods    
     def self.cut_messages_for_ll(messages)

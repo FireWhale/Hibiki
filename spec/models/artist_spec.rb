@@ -1,57 +1,55 @@
 require 'rails_helper'
 
 describe Artist do
-  #Gutcheck Test
-    it "has a valid factory" do
-      instance = create(:artist)
-      expect(instance).to be_valid
-    end
+  include_examples "global model tests" #Global Tests
   
-  #Shared Examples
-    it_behaves_like "it has images", :artist, Artist
-    it_behaves_like "it has tags", :artist, Artist
-    it_behaves_like "it has posts", :artist, Artist
-    it_behaves_like "it has watchlists", :artist, Artist
-    it_behaves_like "it can be searched", :artist, Artist
-    it_behaves_like "it can be autocompleted", :artist
-    it_behaves_like "it has pagination", "artist"
-
+  #Module Tests
+    it_behaves_like "it has a language field", "name"
+    it_behaves_like "it can be solr-searched"
+    it_behaves_like "it can be autocompleted"
+    it_behaves_like "it has pagination"
+    it_behaves_like "it has form_fields"
+    
   #Association Tests
-    it_behaves_like "it has self-relations", :artist, "artist", RelatedArtists
-    it_behaves_like "it has a primary relation", :artist, "album", ArtistAlbum, :artist_album
-    it_behaves_like "it has a primary relation", :artist, "organization", ArtistOrganization, :artist_organization
-    it_behaves_like "it has a primary relation", :artist, "song", ArtistSong, :artist_song
+    it_behaves_like "it has images"
+    it_behaves_like "it has posts"
+    it_behaves_like "it has tags"
+    it_behaves_like "it has watchlists"
+    it_behaves_like "it has self-relations"
+    
+    include_examples "it has a primary relation", Album, ArtistAlbum
+    include_examples "it has a primary relation", Organization, ArtistOrganization
+    include_examples "it has a primary relation", Song, ArtistSong
         
   #Validation Tests
-    include_examples "is invalid without an attribute", :artist, :name
-    include_examples "is invalid without an attribute", :artist, :status
-    include_examples "name/reference combinations", :artist
+    include_examples "is invalid without an attribute", :name
+    include_examples "is invalid without an attribute", :status
+    include_examples "name/reference combinations"
 
-    include_examples "is invalid without an attribute in a category", :artist, :status, Album::Status, "Album::Status"
-    include_examples "is invalid without an attribute in a category", :artist, :db_status, Artist::DatabaseStatus, "Artist::DatabaseStatus"
-    include_examples "is invalid without an attribute in a category", :artist, :activity, Artist::Activity, "Artist::Activity"
-    include_examples "is invalid without an attribute in a category", :artist, :category, Artist::Categories, "Artist::Categories"
+    include_examples "is invalid without an attribute in a category", :status, Album::Status, "Album::Status"
+    include_examples "is invalid without an attribute in a category", :db_status, Artist::DatabaseStatus, "Artist::DatabaseStatus"
+    include_examples "is invalid without an attribute in a category", :activity, Artist::Activity, "Artist::Activity"
+    include_examples "is invalid without an attribute in a category", :category, Artist::Categories, "Artist::Categories"
 
-    include_examples "redirects to a new record when db_status is hidden", :artist, "something"
+    include_examples "redirects to a new record when db_status is hidden", "something"
     
-    include_examples "is valid with or without an attribute", :artist, :altname, "hi"
-    include_examples "is valid with or without an attribute", :artist, :db_status, "Complete"
-    include_examples "is valid with or without an attribute", :artist, :activity, Artist::Activity.sample
-    include_examples "is valid with or without an attribute", :artist, :category, Artist::Categories.sample
-    include_examples "is valid with or without an attribute", :artist, :info, "this is sum info"
-    include_examples "is valid with or without an attribute", :artist, :private_info, "this is sum private_info"
-    include_examples "is valid with or without an attribute", :artist, :synopsis, "this is a short description!"
-    include_examples "is valid with or without an attribute", :artist, :gender, "male I think"
-    include_examples "is valid with or without an attribute", :artist, :blood_type, "b+!"
-    include_examples "is valid with or without an attribute", :artist, :birth_place, "maybe okinawa?"
-    include_examples "is valid with or without an attribute", :artist, :popularity, 3
+    include_examples "is valid with or without an attribute", :altname, "hi"
+    include_examples "is valid with or without an attribute", :db_status, "Complete"
+    include_examples "is valid with or without an attribute", :activity, Artist::Activity.sample
+    include_examples "is valid with or without an attribute", :category, Artist::Categories.sample
+    include_examples "is valid with or without an attribute", :info, "this is sum info"
+    include_examples "is valid with or without an attribute", :private_info, "this is sum private_info"
+    include_examples "is valid with or without an attribute", :synopsis, "this is a short description!"
+    include_examples "is valid with or without an attribute", :gender, "male I think"
+    include_examples "is valid with or without an attribute", :blood_type, "b+!"
+    include_examples "is valid with or without an attribute", :birth_place, "maybe okinawa?"
+    include_examples "is valid with or without an attribute", :popularity, 3
     
-    it_behaves_like "it has a partial date", :artist, :birth_date
-    it_behaves_like "it has a partial date", :artist, :debut_date
-    
-  #Serialization Tests
-    it_behaves_like "it has a serialized attribute", :artist, :reference
-    it_behaves_like "it has a serialized attribute", :artist, :namehash
+  #Attribute Tests
+    it_behaves_like "it has a partial date", :birth_date
+    it_behaves_like "it has a partial date", :debut_date
+    it_behaves_like "it has a serialized attribute", :reference
+    it_behaves_like "it has a serialized attribute", :namehash
        
   #Instance Method Tests
     it "responds to get_bitmask" do
@@ -61,10 +59,10 @@ describe Artist do
     it "returns a bitmask that is within the right number range" do
       number = Array(1..Artist::Credits.count).sample
       categories = Artist::Credits.sample(number)
-      expect(Artist.get_bitmask(categories)).to be < 512
+      expect(Artist.get_bitmask(categories)).to be < 2**(Artist::Credits.count)
     end
     
-    it "accepts a single credit in get_bitmask" do
+    it "accepts a single credit as a string in get_bitmask" do
       expect(Artist.get_bitmask("Performer")).to eq(4)
     end
     
@@ -93,21 +91,26 @@ describe Artist do
     
   #Class Method Tests    
     context "hass a full update method" do
-      include_examples "updates with keys and values", :artist
-      include_examples "updates the reference properly", :artist     
-      include_examples "can upload an image", :artist
-      include_examples "updates namehash properly", :artist
-      include_examples "can update a primary relationship", :artist, :organization, ArtistOrganization, "artist_organization"
-      include_examples "can update self-relations", :artist
-      include_examples "updates dates properly", :artist, "birth_date"
-      include_examples "updates dates properly", :artist, "debut_date"
-      include_examples "updates with normal attributes", :artist
+      include_examples "updates with keys and values"
+      include_examples "updates the reference properly"    
+      include_examples "can upload an image"
+      include_examples "updates namehash properly"
+      include_examples "can update a primary relationship", Organization, ArtistOrganization
+      include_examples "can update self-relations"
+      include_examples "updates dates properly", "birth_date"
+      include_examples "updates dates properly", "debut_date"
+      include_examples "updates with normal attributes"
       
     end       
     
-  #Scope Tests
-    it_behaves_like "it reports released records", :artist
-    
+  describe "Scoping" do 
+    it_behaves_like "filters by status", Album::Status
+    it_behaves_like "filters by category", Artist::Categories
+    it_behaves_like "filters by activity", Artist::Activity
+    it_behaves_like "filters by tag"
+    it_behaves_like "filters by watchlist"    
+    it_behaves_like "filters by self relation categories"
+  end
 end
 
 

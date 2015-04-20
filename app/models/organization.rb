@@ -10,9 +10,16 @@ class Organization < ActiveRecord::Base
     serialize :namehash
       
   #Modules
-    include FormattingModule
-    include WatchlistModule
-    include SearchModule
+    include FullUpdateModule
+    include SolrSearchModule
+    include AutocompletionModule
+    include LanguageModule
+    #Association Modules
+      include SelfRelationModule
+      include ImageModule
+      include PostModule
+      include TagModule
+      include WatchlistModule
   
   #Categories
     Activity = ["Active", "Hiatus", "Dissolved"]
@@ -61,20 +68,7 @@ class Organization < ActiveRecord::Base
     validates :established_bitmask, presence: true, unless: -> {self.established.nil?}
   
   #Associations
-    #Primary Associations
-      has_many :related_organization_relations1, class_name: "RelatedOrganizations", foreign_key: 'organization1_id', dependent: :destroy
-      has_many :related_organization_relations2, class_name: "RelatedOrganizations", foreign_key: 'organization2_id', dependent: :destroy
-      has_many :related_organizations1, through: :related_organization_relations1, source: :organization2
-      has_many :related_organizations2, through: :related_organization_relations2, source: :organization1      
-      
-      def related_organization_relations
-        related_organization_relations1 + related_organization_relations2
-      end
-
-      def related_organizations
-        related_organizations1 + related_organizations2
-      end
-      
+    #Primary Associations      
       has_many :album_organizations
       has_many :albums, through: :album_organizations, dependent: :destroy
 
@@ -83,24 +77,11 @@ class Organization < ActiveRecord::Base
            
       has_many :source_organizations
       has_many :sources, through: :source_organizations, dependent: :destroy
-
-    #Secondary Associations
-      has_many :imagelists, as: :model, dependent: :destroy  
-      has_many :images, through: :imagelists
-      has_many :primary_images, -> {where "images.primary_flag = 'Primary'" }, through: :imagelists, source: :image
-    
-      has_many :taglists, as: :subject, dependent: :destroy
-      has_many :tags, through: :taglists
-
-      has_many :postlists, dependent: :destroy, as: :model
-      has_many :posts, through: :postlists
-      
-    #User Associations
-      has_many :watchlists, as: :watched, dependent: :destroy  
-      has_many :watchers, through: :watchlists, source: :user
   
   #Scopes
-    scope :released, -> { where(status: "Released")}
+    scope :with_category, ->(categories) { where('category IN (?)', categories)}
+    scope :with_status, ->(statuses) {where('status IN (?)', statuses)}
+    scope :with_activity, ->(activities) {where('activity IN (?)', activities)} 
     
   #Gem Stuff
     #Pagination

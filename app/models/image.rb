@@ -45,13 +45,18 @@ class Image < ActiveRecord::Base
     has_many :songs, through: :imagelists, source: :model, source_type: 'Song'
     has_many :users, through: :imagelists, source: :model, source_type: 'User'
     has_many :posts, through: :imagelists, source: :model, source_type: 'Post'
+    has_many :seasons, through: :imagelists, source: :model, source_type: 'Season'
+
+    def models
+      imagelists.map(&:model)
+    end
 
     def model
-      (albums + artists + organizations + sources + songs + users).first
+      models.first
     end
   
   #Scopes
-    scope :primary_images, -> { where("primary_flag <>''")}
+    scope :primary_images, -> { where("primary_flag <> ''")}
     
   #Gem Stuff
     #Pagination

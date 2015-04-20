@@ -1,9 +1,12 @@
-<% content_for :title do %><%= @user.name %>'s collection<% end %>
+<% content_for :title do %><%= (current_user == @user or privacy_settings(@user).include? "ShowCollection" ) ? "#{@user.name}'s Collection"  : "A Collection" %><% end %>
 
 <% content_for :header do %>
-  <div class="text-center">
-    <h2></h1>
-    <h1><%= @user.name %>'s Collection</h1> 
+  <div class="text-center">    
+    <% if current_user == @user or privacy_settings(@user).include? "ShowCollection"  %>
+      <h2><%= current_user == @user ? "Your" : "#{@user.name}'s" %> Collection</h2>
+    <% else %>
+       <h2>Some User's Collection</h2>
+    <% end %>
   </div>
 <% end %>
 
@@ -12,7 +15,7 @@
   <%= render 'layouts/albums', :divid => 'Wishlist', :header => 'Wishlist Albums', :collection => @wishlist %>
   <%= render 'layouts/albums', :divid => 'Ignorelist', :header => 'Ignored Albums', :collection => @ignorelist %>
 <% else %>
-  <h4 class="text-center">This isn't your collection!</h4>
+  <h4 class="text-center">This collection has been set to private</h4>
 <% end%>
 
 

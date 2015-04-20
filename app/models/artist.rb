@@ -11,9 +11,16 @@ class Artist < ActiveRecord::Base
     serialize :namehash
   
   #Modules
-    include FormattingModule
-    include WatchlistModule
-    include SearchModule
+    include FullUpdateModule
+    include SolrSearchModule
+    include AutocompletionModule
+    include LanguageModule
+    #Association Modules
+      include SelfRelationModule
+      include ImageModule
+      include PostModule
+      include TagModule
+      include WatchlistModule
 
   #Cateogires
     Categories = ['Group','Person','Unit','Synthesized']
@@ -86,19 +93,6 @@ class Artist < ActiveRecord::Base
   
   #Associations
     #Primary Associations
-      has_many :related_artist_relations1, class_name: 'RelatedArtists', foreign_key: 'artist1_id', :dependent => :destroy
-      has_many :related_artist_relations2, class_name: 'RelatedArtists', foreign_key: 'artist2_id', :dependent => :destroy
-      has_many :related_artists1, :through => :related_artist_relations1, :source => :artist2
-      has_many :related_artists2, :through => :related_artist_relations2, :source => :artist1
- 
-      def related_artist_relations
-        related_artist_relations1 + related_artist_relations2
-      end
-
-      def related_artists
-        related_artists1 + related_artists2
-      end    
-            
       has_many :artist_albums, dependent: :destroy
       has_many :albums, through: :artist_albums
       
@@ -108,24 +102,11 @@ class Artist < ActiveRecord::Base
       has_many :artist_songs, dependent: :destroy
       has_many :songs, through: :artist_songs
     
-    #Secondary Associations    
-      has_many :taglists, as: :subject
-      has_many :tags, through: :taglists, dependent: :destroy
-      
-      has_many :imagelists, as: :model, dependent: :destroy  
-      has_many :images, through: :imagelists
-      has_many :primary_images, -> {where "images.primary_flag = 'Primary'" }, through: :imagelists, source: :image
-
-      has_many :postlists, dependent: :destroy, as: :model
-      has_many :posts, through: :postlists
-         
-   #User Associations
-      has_many :watchlists, as: :watched, dependent: :destroy
-      has_many :watchers, through: :watchlists, source: :user
-
   #Scopes
-    scope :released, -> { where(status: "Released")}
-    
+    scope :with_category, ->(categories) { where('category IN (?)', categories)}
+    scope :with_status, ->(statuses) {where('status IN (?)', statuses)}
+    scope :with_activity, ->(activities) {where('activity IN (?)', activities)} 
+       
   #Gem Stuff
     #Pagination
       paginates_per 50

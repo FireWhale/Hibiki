@@ -1,67 +1,67 @@
 require 'rails_helper'
 
 describe Source do
-  #Gutcheck Test
-    it "has a valid factory" do
-      instance = create(:source)
-      expect(instance).to be_valid
-    end
+  include_examples "global model tests" #Global Tests
   
-  #Shared Examples
-    it_behaves_like "it has images", :source, Source
-    it_behaves_like "it has tags", :source, Source
-    it_behaves_like "it has posts", :source, Source
-    it_behaves_like "it has watchlists", :source, Source
-    it_behaves_like "it can be searched", :source, Source
-    it_behaves_like "it can be autocompleted", :source
-    it_behaves_like "it has pagination", "source"
+  describe "Module Tests" do
+    it_behaves_like "it has a language field", "name"
+    it_behaves_like "it can be solr-searched"
+    it_behaves_like "it can be autocompleted"
+    it_behaves_like "it has pagination"
+    it_behaves_like "it has form_fields"
+  end
   
-  #Association Tests - a lot of em ( ﾟдﾟ)
-    it_behaves_like "it has self-relations", :source, "source", RelatedSources
-    it_behaves_like "it has a primary relation", :source, "album", AlbumSource, :album_source
-    it_behaves_like "it has a primary relation", :source, "organization", SourceOrganization, :source_organization
-    it_behaves_like "it has a primary relation", :source, "song", SongSource, :song_source
+  #Association Tests
+    it_behaves_like "it has images"
+    it_behaves_like "it has posts"
+    it_behaves_like "it has tags"
+    it_behaves_like "it has watchlists"
+    it_behaves_like "it has self-relations"
 
-    it_behaves_like "it has_many", :source, "season", "source_season", SourceSeason, :with_source_season
+    it_behaves_like "it has a primary relation", Album, AlbumSource
+    it_behaves_like "it has a primary relation", Organization, SourceOrganization
+    it_behaves_like "it has a primary relation", Song, SongSource
+    it_behaves_like "it has_many through", Season, SourceSeason, :with_source_season
       
   #Validation Tests
-    include_examples "is invalid without an attribute", :source, :name
-    include_examples "is invalid without an attribute", :source, :status
-    include_examples "name/reference combinations", :source
+    include_examples "is invalid without an attribute", :name
+    include_examples "is invalid without an attribute", :status
+    include_examples "name/reference combinations"    
     
-    include_examples "is invalid without an attribute in a category", :source, :status, Album::Status, "Album::Status"
-    include_examples "is invalid without an attribute in a category", :source, :db_status, Artist::DatabaseStatus, "Artist::DatabaseStatus"
-    include_examples "is invalid without an attribute in a category", :source, :activity, Source::Activity, "Source::Activity"
-    include_examples "is invalid without an attribute in a category", :source, :category, Source::Categories, "Source::Categories"
+    include_examples "is invalid without an attribute in a category", :status, Album::Status, "Album::Status"
+    include_examples "is invalid without an attribute in a category", :db_status, Artist::DatabaseStatus, "Artist::DatabaseStatus"
+    include_examples "is invalid without an attribute in a category", :activity, Source::Activity, "Source::Activity"
+    include_examples "is invalid without an attribute in a category", :category, Source::Categories, "Source::Categories"
     
-    include_examples "redirects to a new record when db_status is hidden", :source, "something"
+    include_examples "redirects to a new record when db_status is hidden", "something"
     
-    include_examples "is valid with or without an attribute", :source, :altname, "hi"
-    include_examples "is valid with or without an attribute", :source, :db_status, "Complete"
-    include_examples "is valid with or without an attribute", :source, :activity, Source::Activity.sample
-    include_examples "is valid with or without an attribute", :source, :category, Source::Categories.sample
-    include_examples "is valid with or without an attribute", :source, :info, "this is sum info"
-    include_examples "is valid with or without an attribute", :source, :private_info, "this is sum private_info"
-    include_examples "is valid with or without an attribute", :source, :synopsis, "this is a short description!"
-    include_examples "is valid with or without an attribute", :source, :plot_summary, "this is a plot summary"
-    include_examples "is valid with or without an attribute", :source, :popularity, 3
+    include_examples "is valid with or without an attribute", :altname, "hi"
+    include_examples "is valid with or without an attribute", :db_status, "Complete"
+    include_examples "is valid with or without an attribute", :activity, Source::Activity.sample
+    include_examples "is valid with or without an attribute", :category, Source::Categories.sample
+    include_examples "is valid with or without an attribute", :info, "this is sum info"
+    include_examples "is valid with or without an attribute", :private_info, "this is sum private_info"
+    include_examples "is valid with or without an attribute", :synopsis, "this is a short description!"
+    include_examples "is valid with or without an attribute", :plot_summary, "this is a plot summary"
+    include_examples "is valid with or without an attribute", :popularity, 3
         
-    it_behaves_like "it has a partial date", :source, :release_date
-    it_behaves_like "it has a partial date", :source, :end_date
     
   #Serialization Tests
-    it_behaves_like "it has a serialized attribute", :source, :reference
-    it_behaves_like "it has a serialized attribute", :source, :namehash
+    it_behaves_like "it has a partial date", :release_date
+    it_behaves_like "it has a partial date", :end_date
+    it_behaves_like "it has a serialized attribute", :reference
+    it_behaves_like "it has a serialized attribute", :namehash
     
   #Instance Method Tests
         
   #Class Method Tests    
     context "has a full update method" do
-      include_examples "updates with keys and values", :source
-      include_examples "updates the reference properly", :source
-      include_examples "can upload an image", :source
-      include_examples "can update a primary relationship", :source, :organization, SourceOrganization, "source_organization"
-      include_examples "can update self-relations", :organization
+      include_examples "updates with keys and values"
+      include_examples "updates the reference properly"
+      include_examples "can upload an image"
+      include_examples "can update a primary relationship", Organization, SourceOrganization
+      include_examples "can update self-relations"
+      
       context "it full updates seasons" do 
         it "adds an season" do
           source = create(:source)
@@ -138,16 +138,23 @@ describe Source do
           expect{source.full_update_attributes(attributes)}.to change(SourceSeason, :count).by(-2)
         end
       end
-      include_examples "updates dates properly", :source, "release_date"
-      include_examples "updates dates properly", :source, "end_date"
-      include_examples "updates namehash properly", :source
-      include_examples "updates with normal attributes", :source
+      
+      include_examples "updates dates properly", "release_date"
+      include_examples "updates dates properly", "end_date"
+      include_examples "updates namehash properly"
+      include_examples "updates with normal attributes"
       
     end
-        
-  #Scope Tests
-    it_behaves_like "it reports released records", :source
-        
+    
+  describe "Scoping" do 
+    it_behaves_like "filters by status", Album::Status
+    it_behaves_like "filters by category", Source::Categories
+    it_behaves_like "filters by activity", Source::Activity
+    it_behaves_like "filters by date range", "release_date"
+    it_behaves_like "filters by tag"
+    it_behaves_like "filters by watchlist"    
+    it_behaves_like "filters by self relation categories"
+  end
 end
 
 

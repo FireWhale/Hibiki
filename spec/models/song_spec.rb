@@ -1,42 +1,29 @@
 require 'rails_helper'
 
 describe Song do
-  #Gutcheck Test
-    it "has a valid factory" do
-      instance = create(:song)
-      expect(instance).to be_valid
-    end
-
-  #Shared Examples
-    it_behaves_like "it has images", :song, Song
-    it_behaves_like "it has tags", :song, Song
-    it_behaves_like "it has posts", :song, Song
-    it_behaves_like "it can be searched", :song, Song
-    it_behaves_like "it can be autocompleted", :song
-    it_behaves_like "it has pagination", "song"
-
+  include_examples "global model tests" #Global Tests
+  
+  #Module Tests
+    it_behaves_like "it has a language field", "name"
+    it_behaves_like "it has a language field", "lyric"
+    it_behaves_like "it can be solr-searched"
+    it_behaves_like "it can be autocompleted"
+    it_behaves_like "it has pagination"
+    it_behaves_like "it has form_fields"
+    
   #Association Tests
-    it_behaves_like "it has self-relations", :song, "song", RelatedSongs
-    it_behaves_like "it has a primary relation", :song, "source", SongSource, :song_source
-    it_behaves_like "it has a primary relation", :song, "artist", ArtistSong, :artist_song
-      
-
-    it "has many lyrics" do
-      expect(create(:song, :with_lyric).lyrics.first).to be_a Lyric
-      expect(Song.reflect_on_association(:lyrics).macro).to eq(:has_many)  
-    end
-    
-    it "destroys it's songs when destroyed" do
-      song = create(:song, :with_lyric)
-      expect{song.destroy}.to change(Lyric, :count).by(-1)
-    end
-    
+    it_behaves_like "it has images"
+    it_behaves_like "it has posts"
+    it_behaves_like "it has tags"
+    it_behaves_like "it has self-relations"
+    it_behaves_like "it has a primary relation", Source, SongSource
+    it_behaves_like "it has a primary relation", Artist, ArtistSong
+          
   #Validation Tests
-    include_examples "is invalid without an attribute", :song, :name
-    include_examples "is invalid without an attribute", :song, :status
-    include_examples "name/reference combinations", :song
-
-    include_examples "is invalid without an attribute in a category", :song, :status, Album::Status, "Album::Status"
+    include_examples "is invalid without an attribute", :name
+    include_examples "is invalid without an attribute",  :status
+    include_examples "name/reference combinations"
+    include_examples "is invalid without an attribute in a category", :status, Album::Status, "Album::Status"
 
     context "does not belong to an album" do
       it "is valid if it does not belong to an album" do
@@ -66,37 +53,23 @@ describe Song do
       
     end
 
-    it "is valid with lyrics" do
-      song = create(:song)
-      lyric1 = create(:lyric, :language => "English", song: song)
-      lyric2 = create(:lyric, :language => "Japanese", song: song)
-      expect(song.lyrics).to match_array([lyric1, lyric2])
-    end
-    
-    it "is valid without lyrics" do
-      #well the factory doesn't come with songs
-      expect(create(:song)).to be_valid
-    end
+    include_examples "is valid with or without an attribute", :altname, "hi"
+    include_examples "is valid with or without an attribute", :track_number, "hi"
+    include_examples "is valid with or without an attribute", :disc_number, "hi"
+    include_examples "is valid with or without an attribute", :length, 12323
+    include_examples "is valid with or without an attribute", :info, "DANCE"
+    include_examples "is valid with or without an attribute", :private_info, "DANCE"
 
-    include_examples "is valid with or without an attribute", :song, :altname, "hi"
-    include_examples "is valid with or without an attribute", :song, :track_number, "hi"
-    include_examples "is valid with or without an attribute", :song, :disc_number, "hi"
-    include_examples "is valid with or without an attribute", :song, :length, 12323
-    include_examples "is valid with or without an attribute", :song, :info, "DANCE"
-    include_examples "is valid with or without an attribute", :song, :private_info, "DANCE"
-
-    it_behaves_like "it has a partial date", :song, :release_date
     
     it "does not respond to op_ed_number" do
       expect(build(:song)).to_not respond_to("op_ed_number")
       expect(build(:song)).to_not respond_to("op_ed_number=")      
-    end
-        
-     
+    end    
       
   #Serialization Tests
-    it_behaves_like "it has a serialized attribute", :song, :reference
-    it_behaves_like "it has a serialized attribute", :song, :namehash
+    it_behaves_like "it has a partial date", :release_date
+    it_behaves_like "it has a serialized attribute", :reference
+    it_behaves_like "it has a serialized attribute", :namehash
     
   #Instance Method Tests
     context "op/ed/insert method" do 
@@ -120,16 +93,53 @@ describe Song do
         expect(song.op_ed_insert).to be_empty
         expect(song.op_ed_insert).to be_a Array
       end
-      
     end
+    
+    it "returns it's length as time" do
+      #The method used is Time.at(x).utc.strf..., so we are doing it manually in the test.
+      time = Array(1..999).sample
+      song = create(:song, length: time)
+      expect(song.length_as_time).to eq("#{time / 60}:#{(time % 60).to_s.rjust(2, '0')}") 
+    end
+    
+    describe "has a disc_track_number method" do
+      it "returns a disc and track number" do
+        song = create(:song, disc_number: "1", track_number: "10")
+        expect(song.disc_track_number).to eq("1.10")
+      end
+      
+      it "doesn't return a disc number if disc_number is nil" do
+        song = create(:song, disc_number: nil, track_number: "10")
+        expect(song.disc_track_number).to eq("10")
+      end
+      
+      it "doesn't return a disc number if disc_number is 0" do
+        song = create(:song, disc_number: "0", track_number: "10")
+        expect(song.disc_track_number).to eq("10")
+      end
+      
+      it "doesn't return anything is track number is nil" do
+        song = create(:song, disc_number: "1", track_number: nil)
+        expect(song.disc_track_number).to eq("")
+      end
+      
+      it "doesn't returns 0 if track number is 0" do
+        song = create(:song, disc_number: "1", track_number: "0")
+        expect(song.disc_track_number).to eq("1.00")
+      end
+    end 
+    
     
   #Callback Tests   
     
     context "has a full update method" do
-      include_examples "updates with keys and values", :song
-      include_examples "updates the reference properly", :song
-      include_examples "can upload an image", :song
-      include_examples "can update a language record", :song, "lyric", "lyrics"
+      include_examples "updates with keys and values"
+      include_examples "updates the reference properly"
+      include_examples "can upload an image"
+     
+      it "can update lyrics and/or names" #placeholder test
+      #Note: Need to add it to all other relevant fields still
+      #like album.name and source.name and event.name
       
       context "updates artists" do
         it "creates an artist_song" do
@@ -373,10 +383,10 @@ describe Song do
         end      
           
       end
-      include_examples "can update self-relations", :song
-      include_examples "updates namehash properly", :song
-      include_examples "updates dates properly", :song, "release_date"
-      include_examples "updates with normal attributes", :song
+      include_examples "can update self-relations"
+      include_examples "updates namehash properly"
+      include_examples "updates dates properly", "release_date"
+      include_examples "updates with normal attributes"
      
     end       
     
@@ -389,8 +399,8 @@ describe Song do
     
     it "formats a track number of <10 into a disc_number and track_number" do
       song = create(:song)
-      song.update_attributes(:track_number => "4.39")
-      expect(song.track_number).to eq("39")
+      song.update_attributes(:track_number => "4.9")
+      expect(song.track_number).to eq("09")
       expect(song.disc_number).to eq("4")      
     end
         
@@ -403,14 +413,116 @@ describe Song do
     end
     
   #Scope Tests
+    it_behaves_like "filters by status", Album::Status
+    it_behaves_like "filters by tag"   
+    it_behaves_like "filters by date range", "release_date"
+    it_behaves_like "filters by self relation categories"
+    
+    describe "filters by rating" do
+      let(:song1) {create(:song)}
+      let(:song2) {create(:song)}
+      let(:song3) {create(:song)}
+      let(:song4) {create(:song)}
+      let(:song5) {create(:song)}
+      let(:song6) {create(:song)}
+      let(:user1) {create(:user)} #rated songs 1 and 2 (2 with string)
+      let(:user2) {create(:user)} #rated song 3
+      let(:user3) {create(:user)} #rated song 1 and 3 (with string)
+      let(:user4) {create(:user)} #no songs
+      before(:each) do
+        create(:rating, song: song1, user: user1, favorite: "good")
+        create(:rating, song: song2, user: user1)
+        create(:rating, song: song3, user: user2)
+        create(:rating, song: song4, user: user2, favorite: "eat")
+        create(:rating, song: song1, user: user3, favorite: "good")
+        create(:rating, song: song3, user: user3, favorite: "great")
+        create(:rating, song: song4, user: user3, favorite: "great")
+        create(:rating, song: song5, user: user3, favorite: "neat")
+        create(:rating, song: song6, user: user3, favorite: "eat")
+      end
+      
+      describe "has a rating record" do
+        #method(user.id,favorite string)
+        it "filters by having a rating record" do
+          expect(Song.with_rating(user1.id)).to match_array([song1, song2])
+        end
+        
+        it "returns no results if there are no matches" do
+          expect(Song.with_rating(user4.id)).to match_array([])
+        end
+        
+        it "filters by favorite string" do
+          expect(Song.with_rating(user3.id, "great")).to match_array([song3, song4])
+        end
+         
+        it "accepts multiple users (what's the point, though?)" do
+          expect(Song.with_rating([user1.id, user2.id])).to match_array([song1, song2, song3, song4])
+        end      
+  
+        it "accepts multiple users 2" do
+          expect(Song.with_rating([user1.id, user3.id])).to match_array([song1, song2, song3, song4, song5, song6])
+        end      
+        
+        it "only accepts full matches" do
+          expect(Song.with_rating(user3.id, "eat")).to match_array([song6])
+        end
+        
+        it "accepts an array of favorite strings" do
+          expect(Song.with_rating(user3.id, ["neat", "eat"])).to match_array([song5, song6])
+        end
+        
+        it "returns all if nil is provided" do
+          expect(Song.with_rating(nil)).to match_array([song1, song2, song3, song4, song5, song6])
+        end
+
+        it "ignores the second param if nil is the first" do
+          expect(Song.with_rating(nil, "eat")).to match_array([song1, song2, song3, song4, song5, song6])
+        end
+        
+        
+        it "ignores a nil favorite string" do
+          expect(Song.with_rating(user1.id, nil)).to match_array([song1, song2])
+        end
+        
+        it "is an active record relation" do
+          expect(Song.with_rating(user3.id,"eat").class).to_not be_a(Array)
+        end
+      end
+      
+      describe "does not have a rating record" do
+        it "removes records that are in the users rating" do
+          expect(Song.without_rating(user1.id)).to match_array([song3, song4, song5, song6])          
+        end
+        
+        it "removes records that are attached to any of many users" do
+          expect(Song.without_rating([user1.id, user2.id])).to match_array([song5, song6])          
+        end
+        
+        it "removes records based on either user" do
+          create(:rating, song: song5, user: user1)
+          expect(Song.without_rating([user1.id, user2.id])).to match_array([song6])          
+        end
+        
+        it "returns all records if nil is passed in" do
+          expect(Song.without_rating(nil)).to match_array([song1, song2, song3, song4, song5, song6])
+        end
+
+        it "is an active record relation" do
+          expect(Song.without_rating(user3.id).class).to_not be_a(Array)
+        end
+      end
+      
+      #Maybe have another merged (UNION) scope here?
+      
+    end    
+    
     it "returns a list of songs with no albums" do
       songlist = create_list(:song, 6, album: nil)
       songlist2 = create_list(:song, 3, :with_album)
       expect(Song.no_album).to eq(songlist)
     end
+     
     
-    it_behaves_like "it reports released records", :song
-
 end
 
 

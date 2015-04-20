@@ -60,7 +60,7 @@
   <div class="filter-group" id="tags">
     <div class="filter-name">Tags</div>
     <div class="filter-items">
-      <% Tag.model_tags("Album").meets_security(current_user).each do |tag| %>
+      <% Tag.with_model("Album").meets_security(current_user).each do |tag| %>
         <div class="filter-item">
           <span class="glyphicon"></span>
           <%= link_to tag.name, tag, data: {:tag => tag.id}, remote: true %>

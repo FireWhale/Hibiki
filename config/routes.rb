@@ -93,7 +93,7 @@ Hibiki::Application.routes.draw do
   get '/requestpasswordreset', :to => 'users#requestpasswordreset'
   post '/passwordresetrequest', :to => 'users#passwordresetrequest'
   get '/resetpassword', :to => 'users#resetpassword'
-  put '/passwordreset', :to => 'users#passwordreset'
+  patch '/passwordreset', :to => 'users#passwordreset'
   
   #Links for js scripts for adding and editing
   get '/addtag', :to => 'tags#add_tag'

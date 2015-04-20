@@ -1,7 +1,5 @@
-module FormattingModule
-  def self.included(base)
-    base.extend ClassMethods
-  end
+module FullUpdateModule
+  extend ActiveSupport::Concern
   
   module ClassMethods
     def full_update(keys,values)
@@ -17,21 +15,20 @@ module FormattingModule
     
     def full_create(values)
       #Push em into arrays if it's just one
-      keys = [keys] if keys.class != Array
       values = [values] if values.class != Array
-      keys.zip(values).each do |info|
+      values.each do |info|
         record = self.new
-        record.full_save(info[1])     
+        record.full_save(info)     
       end      
     end
   end
   
-  def full_save(values)
+ def full_save(values)
     #Deep symbolize everything!
       values = values.deep_symbolize_keys   
     #Get a new_values hash without all non-accessible attributes from the values hash
       acc_attrs = self.class.accessible_attributes - ["reference"]
-      new_values = values.reject {|k,v| v.empty? || acc_attrs.include?(k) == false }
+      new_values = values.reject {|k,v| acc_attrs.include?(k) == false }
     #Get fields
       fields = self.class::FullUpdateFields
     #We now remove all the accessible attributes that are still processed with full_update
@@ -196,36 +193,37 @@ module FormattingModule
           self.add_artists(nil,new_artist_names,new_artist_categories_scraped, "album") unless new_artist_names.nil? || new_artist_categories_scraped.nil?
       end
     #Lengths - Song Only
-      unless fields[:lengths].nil?
-        length = values.delete :length
-        values[:length] = ( length.include?(":") ? (length.split(":")[0].to_i * 60 + length.split(":")[1].to_i ) : length) unless length.nil?
-        duration = values.delete :duration #Format the duration into seconds if it includes ":"
-        values[:length] = ( duration.include?(":") ? (duration.split(":")[0].to_i * 60 + duration.split(":")[1].to_i ) : duration) unless duration.nil?
-      end
-    #Events/Season
-      #Events - Albums only
-        unless fields[:events].nil?
-          new_events = values.delete :new_event_shorthands #Adding
-          self.add_events(new_events) unless new_events.nil?
-          remove_events = values.delete :remove_events  #Removing
-          remove_events.each {|event_id| self.events.delete(Event.find_by_id(event_id))} unless remove_events.nil?
+        unless fields[:lengths].nil?
+          length = values.delete :length
+          values[:length] = ( length.include?(":") ? (length.split(":")[0].to_i * 60 + length.split(":")[1].to_i ) : length) unless length.nil?
+          duration = values.delete :duration #Format the duration into seconds if it includes ":"
+          values[:length] = ( duration.include?(":") ? (duration.split(":")[0].to_i * 60 + duration.split(":")[1].to_i ) : duration) unless duration.nil?
         end
-      #Seasons - Sources only
-        unless fields[:seasons].nil?
-          new_season_names = values.delete :new_season_names #Adding
-          new_season_categories = values.delete :new_season_categories 
-          self.add_seasons(new_season_names, new_season_categories) unless new_season_names.nil? || new_season_categories.nil?
-          remove_seasons = values.delete :remove_seasons #Removing
-          remove_seasons.each {|season_id| self.seasons.delete(Season.find_by_id(season_id))} unless remove_seasons.nil?
+      #Events/Season
+        #Events - Albums only
+          unless fields[:events].nil?
+            new_events = values.delete :new_event_shorthands #Adding
+            self.add_events(new_events) unless new_events.nil?
+            remove_events = values.delete :remove_events  #Removing
+            remove_events.each {|event_id| self.events.delete(Event.find_by_id(event_id))} unless remove_events.nil?
+          end
+        #Seasons - Sources only
+          unless fields[:seasons].nil?
+            new_season_names = values.delete :new_season_names #Adding
+            new_season_categories = values.delete :new_season_categories 
+            self.add_seasons(new_season_names, new_season_categories) unless new_season_names.nil? || new_season_categories.nil?
+            remove_seasons = values.delete :remove_seasons #Removing
+            remove_seasons.each {|season_id| self.seasons.delete(Season.find_by_id(season_id))} unless remove_seasons.nil?
+          end
+      #Tag
+        unless fields[:tag_models].nil?
+          tag_models = values.delete fields[:tag_models]
+          self.model_bitmask = Tag.get_bitmask(tag_models) unless tag_models.nil? || tag_models.empty?
         end
-    #Tag
-      unless fields[:tag_models].nil?
-        tag_models = values.delete fields[:tag_models]
-        self.model_bitmask = Tag.get_bitmask(tag_models) unless tag_models.nil? || tag_models.empty?
-      end
-    #Finally, update with attr_accessible values
-      self.update_attributes(values)
-  end
+      #Finally, update with attr_accessible values
+        self.update_attributes(values)
+    end    
+ 
 
 #-----------------------------------------#
 #These are the methods used in full update!

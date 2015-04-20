@@ -10,8 +10,15 @@ class Song < ActiveRecord::Base
     serialize :reference
     
   #Modules
-    include FormattingModule
-    include SearchModule
+    include FullUpdateModule
+    include SolrSearchModule
+    include AutocompletionModule
+    include LanguageModule
+    #Association Modules
+      include SelfRelationModule
+      include ImageModule
+      include PostModule
+      include TagModule
 
   #Callbacks/Hooks
     before_save :format_track_number
@@ -82,46 +89,28 @@ class Song < ActiveRecord::Base
   #Asscoiations
     #Primary Associations
       belongs_to :album
-      
-      has_many :related_song_relations1, class_name: 'RelatedSongs', foreign_key: 'song1_id', dependent: :destroy
-      has_many :related_song_relations2, class_name: 'RelatedSongs', foreign_key: 'song2_id', dependent: :destroy
-      has_many :related_songs1, through: :related_song_relations1, source: :song2
-      has_many :related_songs2, through: :related_song_relations2, source: :song1
-    
-      def related_song_relations
-        related_song_relations1 + related_song_relations2
-      end
-      
-      def related_songs
-        related_songs1 + related_songs2
-      end
-      
+           
       has_many :artist_songs, dependent: :destroy
       has_many :artists, through: :artist_songs
       
       has_many :song_sources, dependent: :destroy
       has_many :sources, through: :song_sources
     
-    #Secondary Associations
-      has_many :taglists, dependent: :destroy, as: :subject
-      has_many :tags, through: :taglists
-
-      has_many :imagelists, dependent: :destroy, as: :model
-      has_many :images, through: :imagelists
-      has_many :primary_images, -> {where "images.primary_flag = 'Primary'" }, through: :imagelists, source: :image
-
-      has_many :postlists, dependent: :destroy, as: :model
-      has_many :posts, through: :postlists
-      
-      has_many :lyrics, dependent: :destroy
-      
     #User Associations
       has_many :ratings, dependent: :destroy
       has_many :raters, through: :ratings
   
   #Scopes
+    scope :with_status, ->(statuses) {where('status IN (?)', statuses)}
     scope :no_album, -> { where(album_id: nil)}
-    scope :released, -> { where(status: "Released")}
+    scope :in_date_range, ->(start_date, end_date) {where("songs.release_date >= ? and songs.release_date <= ? ", start_date, end_date)}
+    
+    scope :with_rating, ->(userids, *favorite_strings) {first_pass = joins(:ratings).where("ratings.user_id IN (?)", userids).uniq unless userids.nil?
+                                                        favorite_strings.empty? || favorite_strings == [nil] ? first_pass : first_pass.where("ratings.favorite IN (?)", favorite_strings.flatten) unless userids.nil?}
+    scope :without_rating, ->(userids) {joins("LEFT OUTER JOIN(#{Rating.where("ratings.user_id IN (?)", userids).to_sql}) t1 ON t1.song_id = songs.id").where(:t1 => {:id => nil}) unless userids.nil?}
+    #Maybe have another merged (UNION) scope that combines with_rating and without_rating here?
+    #It really only makes sense if we have firm favorite strings or let users filter by their favorite strings.
+    #Then you could join certain favorites + all not rated songs. 
     
   #Gem Stuff
     #Pagination
@@ -131,33 +120,7 @@ class Song < ActiveRecord::Base
       searchable do
         text :name, :namehash
       end
-  
-  #Recursive Lazy Loading for Self Relations
-    #First, we need a method to call
-    # def related_song_tree
-      # #Initialize a hash
-      # list = {:song_ids => [self.id], :relation_ids => []}
-      # #Start recursively building the list
-      # self.related_song_relations.map do |rel|
-        # rel.recursive_grabber(list)
-      # end
-      # #dump out the list that's created
-      # list
-    # end
-#     
-    # #This is the recursive method, we have to keep track of songs and songids we've used
-    # def recursive_grabber(list)
-      # related_song_relations.map do |rel|
-        # if rel.category = "Same Song"
-        # #I don't actually need to load any songs yet. 
-          # if rel.song1.id == self.id
-          # else
-          # end
-        # end
-      # end    
-    # end
-#   
-  
+    
   def op_ed_insert
     #Returns an array if the song is OP/ED/Insert
     self.song_sources.map { |rel| rel.classification }
@@ -177,7 +140,11 @@ class Song < ActiveRecord::Base
   end
   
   def disc_track_number
-    "#{(self.disc_number + ".") unless self.disc_number.nil?}#{self.track_number}"
+    unless self.track_number.nil?
+      "#{(self.disc_number + ".") unless self.disc_number.nil? || self.disc_number == "0"}#{self.track_number}"
+    else
+      ""
+    end    
   end
   
   def length_as_time

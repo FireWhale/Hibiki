@@ -1,142 +1,150 @@
 require 'rails_helper'
 
 describe Album do
-  #Gutcheck Test
-    it "has a valid factory" do
-      instance = create(:album)
-      expect(instance).to be_valid
-    end
-
-  #Shared Examples
-    it_behaves_like "it has images", :album, Album
-    it_behaves_like "it has tags", :album, Album
-    it_behaves_like "it has posts", :album, Album
-    it_behaves_like "it can be searched", :album, Album
-    it_behaves_like "it can be autocompleted", :album
-    it_behaves_like "it has pagination", "artist"  
+  include_examples "global model tests" #Global Tests
   
-  #Association Tests
-    it_behaves_like "it has self-relations", :album, "album", RelatedAlbums
-    it_behaves_like "it has a primary relation", :album, "artist", ArtistAlbum, :artist_album
-    it_behaves_like "it has a primary relation", :album, "organization", AlbumOrganization, :album_organization
-    it_behaves_like "it has a primary relation", :album, "source", AlbumSource, :album_source
-         
-    it "has many songs" do
-      expect(create(:album, :with_songs).songs.first).to be_a Song
-      expect(Album.reflect_on_association(:songs).macro).to eq(:has_many)  
+  describe "Module Tests" do
+    it_behaves_like "it has a language field", "name"
+    it_behaves_like "it can be solr-searched"
+    it_behaves_like "it can be autocompleted"
+    it_behaves_like "it has pagination"
+    it_behaves_like "it has form_fields"
+  end
+    
+  describe "Association Tests" do
+    it_behaves_like "it has images"
+    it_behaves_like "it has posts"
+    it_behaves_like "it has tags"
+    it_behaves_like "it has self-relations"
+    
+    include_examples "it has a primary relation", Artist, ArtistAlbum
+    include_examples "it has a primary relation", Organization, AlbumOrganization
+    include_examples "it has a primary relation", Source, AlbumSource
+    include_examples "it has_many through", Event, AlbumEvent, :with_album_event
+    include_examples "it has_many through", User, Collection, :with_collection
+    
+    describe "it has a relationship with songs" do   
+      it "has many songs" do
+        expect(create(:album, :with_songs).songs.first).to be_a Song
+        expect(Album.reflect_on_association(:songs).macro).to eq(:has_many)  
+      end
+      
+      it "destroys it's songs when destroyed" do
+        album = create(:album, :with_song)
+        expect{album.destroy}.to change(Song, :count).by(-1)
+      end
+      
+      it "is valid with songs" do
+        album = create(:album)
+        list = create_list(:song, 5, album: album)
+        expect(album.songs).to match_array(list)
+      end
+      
+      it "is valid without songs" do
+        #well the factory doesn't come with songs
+        expect(create(:album)).to be_valid
+      end
     end
-    
-    it "destroys it's songs when destroyed" do
-      album = create(:album, :with_song)
-      expect{album.destroy}.to change(Song, :count).by(-1)
-    end
-    
-    it "has many collections" do
-      expect(create(:album, :with_collection).collections.first).to be_a Collection
-      expect(Album.reflect_on_association(:collections).macro).to eq(:has_many)
-    end
-    
-    it "has many collectors" do
-      expect(create(:album, :with_collection).collectors.first).to be_a User
-      expect(Album.reflect_on_association(:collectors).macro).to eq(:has_many)
-    end
-    
-    it "destroys collections when destroyed" do
-      record = create(:album, :with_collection)
-      expect{record.destroy}.to change(Collection, :count).by(-1)
-    end
-    
-    it "does not destroy users when destroyed" do
-      record = create(:album, :with_collection)
-      expect{record.destroy}.to change(User, :count).by(0)
-    end    
-    
-    it_behaves_like "it has_many", :album, "event", "album_event", AlbumEvent, :with_album_event
+  end
     
   #Validation Tests
-    it "is valid with songs" do
-      album = create(:album)
-      list = create_list(:song, 5, album: album)
-      expect(album.songs).to match_array(list)
-    end
+    include_examples "is invalid without an attribute", :name
+    include_examples "is invalid without an attribute", :status
+    include_examples "is invalid without an attribute", :catalog_number
+    include_examples "name/reference combinations"
     
-    it "is valid without songs" do
-      #well the factory doesn't come with songs
-      expect(create(:album)).to be_valid
-    end
-
-    context "Collectors Validations" do
-      it "is invalid without a real user" do
-        record = create(:album)
-        expect(build(:collection, :album => record, :user_id => 999999)).to_not be_valid
-      end
+    include_examples "is valid with or without an attribute", :altname, "hi"
+    include_examples "is valid with or without an attribute", :info, "Hi this is info"
+    include_examples "is valid with or without an attribute", :private_info, "Hi this is private info"
+    include_examples "is valid with or without an attribute", :classification, "classification!"
           
-      it "is valid with multiple collections" do
-        record = create(:album)
-        number = Array(3..10).sample
-        list = create_list(:collection, number, :album => record)
-        expect(record.collections).to match_array(list)
-        expect(record).to be_valid
-      end
-      
-      it "is valid with multiple collectors" do
-        record = create(:album)
-        number = Array(3..10).sample
-        list = create_list(:collection, number, :album => record)
-        expect(record.collectors.count).to eq(number)
-        expect(record).to be_valid
-      end  
-    end
-        
-    include_examples "is invalid without an attribute", :album, :name
-    include_examples "is invalid without an attribute", :album, :status
-    include_examples "is invalid without an attribute", :album, :catalog_number
-    include_examples "name/reference combinations", :album
-    
-    include_examples "is valid with or without an attribute", :album, :altname, "hi"
-    include_examples "is valid with or without an attribute", :album, :info, "Hi this is info"
-    include_examples "is valid with or without an attribute", :album, :private_info, "Hi this is private info"
-    include_examples "is valid with or without an attribute", :album, :classification, "classification!"
-    
-    it_behaves_like "it has a partial date", :album, :release_date
-      
-  #Serialization Tests
-    it_behaves_like "it has a serialized attribute", :album, :reference
-    it_behaves_like "it has a serialized attribute", :album, :namehash
+  #Attribute Tests
+    include_examples "it has a partial date", :release_date
+    it_behaves_like "it has a serialized attribute", :reference
+    it_behaves_like "it has a serialized attribute", :namehash
     
   #Instance Method Tests
-    it "returns the right day/week/year" 
-    
-    it "handles variable dates from day/week/year"
-    
-    context "Collection Methods" do
-      before(:each) do 
-        @album1 = create(:album)
-        @album2 = create(:album)
-        @album3 = create(:album)
-        @user = create(:user)
-        collection = create(:collection, album: @album1, user: @user, relationship: "Collected")
-        collection = create(:collection, album: @album2, user: @user, relationship: "Ignored")
-        collection = create(:collection, album: @album3, user: @user, relationship: "Wishlisted")
+    describe "returns the right week/month/year" do
+      let(:album) {create(:album, release_date: Date.today, release_date_bitmask: 6)}
+      
+      it "returns the right week" do
+        expect(album.week).to eq(Date.today.beginning_of_week(:sunday))
       end
+      
+      it "takes in a different starting day for the week" do
+        expect(album.week("monday")).to eq(Date.today.beginning_of_week(:monday))
+      end
+      
+      it "returns the right month" do
+        expect(album.month).to eq(Date.today.beginning_of_month)
+      end
+      
+      it "returns the right year" do
+        expect(album.year).to eq(Date.today.beginning_of_year)
+      end
+      
+      it "returns nil if there is no release_date" do
+        album_no_date = create(:album, release_date: nil)
+        expect(album_no_date.week).to be_nil
+        expect(album_no_date.month).to be_nil
+        expect(album_no_date.year).to be_nil
+      end
+      
+      # it "handles variable dates from day/week/year" 
+      #Thought about it for an hour, and can't see any way these interact.
+    end 
     
-      it "returns the right collection type" do
+    
+    it "returns the right collection type" do
+      album1 = create(:album)
+      album2 = create(:album)
+      album3 = create(:album)
+      album4 = create(:album)
+      user = create(:user)
+      collection = create(:collection, album: album1, user: user, relationship: "Collected")
+      collection = create(:collection, album: album2, user: user, relationship: "Ignored")
+      collection = create(:collection, album: album3, user: user, relationship: "Wishlisted")
+      expect(album4.collected_category(user)).to eq("")
+      expect(album1.collected_category(user)).to eq("Collected")
+      expect(album2.collected_category(user)).to eq("Ignored")
+      expect(album3.collected_category(user)).to eq("Wishlisted")
+      expect(album1.collected_category(nil)).to eq("")
+    end
+    
+    describe "tests for certain self_relations" do
+      it "responds to limited_edition?" do
         album = create(:album)
-        expect(album.collected_category(@user)).to eq("")
-        expect(@album1.collected_category(@user)).to eq("Collected")
-        expect(@album2.collected_category(@user)).to eq("Ignored")
-        expect(@album3.collected_category(@user)).to eq("Wishlisted")
+        album2 = create(:album)
+        related_album = create(:related_albums, album1: album, album2: album2, category: "Limited Edition")
+        expect(album.limited_edition?).to be_truthy
+        expect(album2.limited_edition?).to be_falsey
+      end
+      
+      it "responds to reprint?" do
+        album = create(:album)
+        album2 = create(:album)
+        related_album = create(:related_albums, album1: album, album2: album2, category: "Reprint")
+        expect(album.reprint?).to be_truthy
+        expect(album2.reprint?).to be_falsey
+      end
+      
+      it "responds to alternate_printing?" do
+        album = create(:album)
+        album2 = create(:album)
+        related_album = create(:related_albums, album1: album, album2: album2, category: "Alternate Printing")
+        expect(album.alternate_printing?).to be_truthy
+        expect(album2.alternate_printing?).to be_falsey
       end
     end
       
   #Class Method Tests    
-    context "has a full update method" do
-      include_examples "updates with keys and values", :album
-      include_examples "updates the reference properly", :album   
-      include_examples "can upload an image", :album
-      include_examples "updates namehash properly", :album
+    describe "has a full update method" do
+      include_examples "updates with keys and values"
+      include_examples "updates the reference properly" 
+      include_examples "can upload an image"
+      include_examples "updates namehash properly"
 
-      context "updates artists" do
+      context "updates artists by id" do
         it "creates an album_artist" do
           album = create(:album)
           attributes = attributes_for(:album)
@@ -296,7 +304,8 @@ describe Album do
           expect{album.full_update_attributes(attributes)}.to change(AlbumSource, :count).by(-2)
         end
       end
-      
+
+      include_examples "can update a primary relationship", Organization, AlbumOrganization
       
       context "updates artists through names" do
         it "creates an album_artist" do
@@ -357,8 +366,6 @@ describe Album do
           attributes.merge!(:new_artist_categories_scraped => ['Performer', 'Composer', 'New Artist', 'Performer', 'New Artist', 'Composer', 'New Artist', 'Composer', 'New Artist'])
           expect{album.full_update_attributes(attributes)}.to change(Artist, :count).by(2)               
         end
-        
-        
       end
       
       context "updates sources through names" do
@@ -397,8 +404,7 @@ describe Album do
           expect(album.sources.first.name).to eq("hihi")          
         end
       end
-      include_examples "can update a primary relationship", :album, :organization, AlbumOrganization, "album_organization"
-
+      
       context "adds organizations through names" do
         it "creates an album_organization" do       
           album = create(:album)
@@ -493,7 +499,6 @@ describe Album do
         
       end
 
-
       context "it full updates events" do 
         it "adds an event" do
           album = create(:album)
@@ -571,15 +576,230 @@ describe Album do
           expect{album.full_update_attributes(attributes)}.to change(AlbumEvent, :count).by(-2)
         end
       end
-      include_examples "can update self-relations", :album
-      include_examples "updates dates properly", :album, "release_date"
-      include_examples "updates with normal attributes", :album
+      
+      include_examples "can update self-relations"
+      include_examples "updates dates properly", "release_date"
+      include_examples "updates with normal attributes"
       
     end
     
   #Scope Tests
-    it_behaves_like "it reports released records", :album
-    it "returns the scopes properly (TO DO)"
+  describe "Scoping" do 
+    it_behaves_like "filters by status", Album::Status
+    it_behaves_like "filters by tag"    
+    it_behaves_like "filters by date range", "release_date"
+    it_behaves_like "filters by self relation categories"
+    
+    describe "filters by collection" do
+      let(:album1) {create(:album)}
+      let(:album2) {create(:album)}
+      let(:album3) {create(:album)}
+      let(:album4) {create(:album)}
+      let(:album5) {create(:album)}
+      let(:album6) {create(:album)}
+      let(:user1) {create(:user)} # Basic
+      let(:user2) {create(:user)} # Tests types of favorites
+      let(:user3) {create(:user)} # has a mix of favorites
+      let(:user4) {create(:user)} # Does not have any collections
+      
+      before(:each) do
+        create(:collection, user: user1, album: album1, relationship: "Collected")
+        create(:collection, user: user1, album: album2, relationship: "Collected")
+        create(:collection, user: user1, album: album3, relationship: "Wishlisted")
+        create(:collection, user: user2, album: album1, relationship: "Collected")
+        create(:collection, user: user2, album: album4, relationship: "Ignored")
+        create(:collection, user: user2, album: album5, relationship: "Wishlisted")
+        create(:collection, user: user2, album: album6, relationship: "Collected")
+        create(:collection, user: user3, album: album1, relationship: "Collected")
+        create(:collection, user: user3, album: album5, relationship: "Ignored")
+        create(:collection, user: user3, album: album2, relationship: "Ignored")
+      end
+      
+      describe "it filters by collection" do
+        it "matches a single user" do
+          expect(Album.in_collection(user1)).to match_array([album1,album2, album3])
+        end
+        
+        it "matches several users" do
+          expect(Album.in_collection([user1,user2])).to match_array([album1,album2,album3,album4, album5,album6])
+        end
+        
+        it "matches a category" do
+          expect(Album.in_collection(user1, "Collected")).to match_array([album1,album2])          
+        end
+        
+        it "matches multiple categories" do
+          expect(Album.in_collection(user2, ["Collected", "Wishlisted"])).to match_array([album1,album5, album6])          
+        end
+        
+        it "returns all if user is nil" do
+          expect(Album.in_collection(nil)).to match_array([album1,album2, album3, album4, album5, album6])          
+        end
+        
+        it "ignores the second parameter if users are nil" do
+          expect(Album.in_collection(nil, "Collected")).to match_array([album1,album2, album3, album4, album5, album6])                   
+        end
+        
+        it "ignores a nil favorite string" do
+          expect(Album.in_collection(user3, nil)).to match_array([album1,album2, album5])          
+        end
+        
+        it "is an active record relation" do
+          expect(Album.in_collection(user3.id).class).to_not be_a(Array)
+        end
+      end
+      
+      describe "it filters by not in collection" do
+        it "removes albums that are in the user's collection" do
+          expect(Album.not_in_collection(user1)).to match_array([album4,album5, album6])
+        end
+        
+        it "removes albums that are in any of the users' collection" do
+          expect(Album.not_in_collection([user3.id, user2.id])).to match_array([album3])
+        end
+        
+        it "removes records based on either user" do
+          expect(Album.not_in_collection([user1.id, user3.id])).to match_array([album4, album6])
+        end
+        
+        it "returns all records if nil is passed in" do
+          expect(Album.not_in_collection(nil)).to match_array([album1,album2, album3, album4, album5, album6])
+        end
+        
+        it "is an active record relation" do
+          expect(Album.not_in_collection(user3.id).class).to_not be_a(Array)
+        end
+      end
+      
+      describe "it joints the two and returns any albums that match" do
+        it "returns records that match either filter" do
+          expect(Album.collection_filter(user2.id, ['Collected'], user3.id)).to match_array([album1,album3,album4,album6])          
+        end
+        
+        it "will return records that are filtered by the other" do
+          expect(Album.collection_filter(user1.id, ['Wishlisted'], user1.id)).to match_array([album5,album3,album4,album6])                    
+        end
+        
+        it "returns all records if nil is passed into user1" do
+          expect(Album.collection_filter(nil, ['Collected', 'Ignored', 'Wishlisted'], user2.id)).to match_array([album1,album2,album3,album4,album5,album6])
+        end
+        
+        it "returns all records if nil is passed into user2" do
+          expect(Album.collection_filter(user1.id, ['Collected', 'Ignored', 'Wishlisted'], nil)).to match_array([album1,album2,album3,album4,album5,album6])         
+        end
+        
+        it "returns all records if [c, i, w] is passed in with the same user" do
+          expect(Album.collection_filter(user1.id, ['Collected', 'Ignored', 'Wishlisted'], user1.id)).to match_array([album1,album2,album3,album4,album5,album6])
+        end
+        
+        it "returns an active record relation" do
+          expect(Album.collection_filter(user1.id, 'Collected', user2.id).class).to_not be_a(Array)
+        end
+        
+      end
+    end
+    
+    describe "filters by AOS" do
+      let(:album1) {create(:album)} 
+      let(:album2) {create(:album)}
+      let(:album3) {create(:album)}
+      let(:album4) {create(:album)}
+      
+      ["artist", "source", "organization"].each do |model|
+        describe "by #{model}" do
+          join_table_symbol = (model == "artist" ? :artist_album : "album_#{model}".to_sym)
+          let(:record1) {create(model.to_sym)} #album1, album2
+          let(:record2) {create(model.to_sym)} #album1
+          let(:record3) {create(model.to_sym)} #album2
+          let(:record4) {create(model.to_sym)} #album3
+          let(:record5) {create(model.to_sym)} 
+          before(:each) do 
+            create(join_table_symbol, album: album1, model.to_sym => record1) 
+            create(join_table_symbol, album: album1, model.to_sym => record2) 
+            create(join_table_symbol, album: album2, model.to_sym => record1) 
+            create(join_table_symbol, album: album2, model.to_sym => record3)  
+            create(join_table_symbol, album: album3, model.to_sym => record4)               
+          end
+          
+          it "filters by #{model}_id" do
+            expect(Album.send("with_#{model}",record1.id)).to match_array([album1,album2])
+          end
+          
+          it "matches on several ids" do
+            expect(Album.send("with_#{model}",[record2.id, record4.id])).to match_array([album1,album3])
+          end
+
+          it "does not duplicate an album if it matches several times" do
+            expect(Album.send("with_#{model}",[record2.id, record1.id])).to match_array([album1,album2])            
+          end
+          
+          it "can match on nothing" do
+            expect(Album.send("with_#{model}",record5.id)).to match_array([])            
+          end
+                    
+          it "returns all records if nil is passed in" do
+            expect(Album.send("with_#{model}",nil)).to match_array([album1,album2,album3,album4])                        
+          end
+          
+          it "returns an active record relation" do
+            expect(Album.send("with_#{model}",record5.id).class).to_not be_a(Array)               
+          end
+        end
+        
+      end
+      
+      describe "filters by artists, sources, and organizations" do
+        let(:artist1) {create(:artist)} #album1, #album2
+        let(:artist2) {create(:artist)} #album3
+        let(:organization1) {create(:organization)} #album4
+        let(:organization2) {create(:organization)} #album 2
+        let(:organization3) {create(:organization)}
+        let(:source1) {create(:source)} #album2
+        let(:source2) {create(:source)} #album3, album4
+        before(:each) do
+          create(:artist_album, album: album1, artist: artist1)
+          create(:artist_album, album: album2, artist: artist1)
+          create(:artist_album, album: album3, artist: artist2)
+          create(:album_organization, album: album2, organization: organization2)
+          create(:album_organization, album: album4, organization: organization1)
+          create(:album_source, album: album2, source: source1)
+          create(:album_source, album: album3, source: source2)
+          create(:album_source, album: album4, source: source2)
+          
+        end
+        
+        it "filters by artists, sources, and organizations" do
+          expect(Album.with_artist_organization_source(artist1.id, organization1.id, source1.id)).to match_array([album1,album2,album4])
+        end
+        
+        it "matches on several ids" do
+          expect(Album.with_artist_organization_source(artist2.id, [organization1.id, organization2.id], source1.id)).to match_array([album3,album2,album4])
+        end
+        
+        it "does not duplicate album results" do
+          expect(Album.with_artist_organization_source(artist1.id, organization2.id, source1.id)).to match_array([album1,album2])          
+        end
+        
+        it "can match on nothing" do
+          expect(Album.with_artist_organization_source(nil, organization3.id, nil)).to match_array([])                    
+        end
+        
+        it "does not return all if one id is nil" do
+          expect(Album.with_artist_organization_source(artist2.id, nil, [source1.id, source2.id])).to match_array([album2,album4,album3])          
+        end
+        
+        it "returns all if nil is passed into all 3 arguments" do
+          expect(Album.with_artist_organization_source(nil, nil, nil)).to match_array([album1,album2,album3,album4])                    
+        end
+        
+        it "returns an active record relation" do
+          expect(Album.with_artist_organization_source(artist2.id, nil, nil).class).to_not be_a(Array)                  
+        end
+      end
+      
+    end
+    
+  end
     
 end
 

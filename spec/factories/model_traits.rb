@@ -32,5 +32,6 @@ FactoryGirl.define do
     
     trait :with_private_info do
       private_info {Faker::Lorem.paragraphs(2)}
-    end    
+    end
+    
 end

@@ -76,7 +76,6 @@ class TagsController < ApplicationController
 
   def new
     @tag = Tag.new
-    @models = Tag.get_models(@tag.model_bitmask)
     
     respond_to do |format|
       format.html # new.html.erb
@@ -86,7 +85,6 @@ class TagsController < ApplicationController
 
   def edit
     @tag = Tag.find(params[:id])
-    @models = Tag.get_models(@tag.model_bitmask)
   end
 
   def create

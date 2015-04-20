@@ -3,7 +3,9 @@ class Season < ActiveRecord::Base
     attr_accessible :name, :start_date, :end_date  
   
   #Modules
-    include FormattingModule
+    include FullUpdateModule
+    #Association Modules
+      include ImageModule
   
   #Constants
     FullUpdateFields = {images: ["id", "seasonimages/", "Primary"],
@@ -21,10 +23,6 @@ class Season < ActiveRecord::Base
     validates :name, presence: true
     
   #Associations
-    has_many :imagelists, as: :model, dependent: :destroy
-    has_many :images, through: :imagelists
-    has_many :primary_images, -> {where "images.primary_flag = 'Primary'" }, through: :imagelists, source: :image
-
-    has_many :source_seasons
-    has_many :sources, :through => :source_seasons, dependent: :destroy
+    has_many :source_seasons, dependent: :destroy
+    has_many :sources, :through => :source_seasons
 end

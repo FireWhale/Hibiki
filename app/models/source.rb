@@ -10,12 +10,18 @@ class Source < ActiveRecord::Base
     
     serialize :reference
     serialize :namehash
-  
-  
+    
   #Modules
-    include FormattingModule
-    include WatchlistModule
-    include SearchModule
+    include FullUpdateModule
+    include SolrSearchModule
+    include AutocompletionModule
+    include LanguageModule
+    #Association Modules
+      include SelfRelationModule
+      include ImageModule
+      include PostModule
+      include TagModule
+      include WatchlistModule
 
   #Callbacks/Hooks
     
@@ -78,20 +84,7 @@ class Source < ActiveRecord::Base
     validates :end_date_bitmask, presence: true, unless: -> {self.end_date.nil?}
   
   #Associations
-    #Primary Aassociations
-      has_many :related_source_relations1, class_name: "RelatedSources", foreign_key: 'source1_id', :dependent => :destroy
-      has_many :related_source_relations2, class_name: "RelatedSources", foreign_key: 'source2_id', :dependent => :destroy
-      has_many :related_sources1, :through => :related_source_relations1, :source => :source2
-      has_many :related_sources2, :through => :related_source_relations2, :source => :source1
-      
-      def related_source_relations
-        related_source_relations1 + related_source_relations2
-      end
-      
-      def related_sources
-        related_sources1 + related_sources2
-      end
-    
+    #Primary Aassociations    
       has_many :album_sources, dependent: :destroy
       has_many :albums, through: :album_sources
       
@@ -102,25 +95,14 @@ class Source < ActiveRecord::Base
       has_many :songs, through: :song_sources
         
     #Secondary Associations
-      has_many :taglists, dependent: :destroy, as: :subject
-      has_many :tags, through: :taglists
-      
-      has_many :imagelists, dependent: :destroy, as: :model
-      has_many :images, through: :imagelists
-      has_many :primary_images, -> {where "images.primary_flag = 'Primary'" }, through: :imagelists, source: :image
-    
-      has_many :postlists, dependent: :destroy, as: :model
-      has_many :posts, through: :postlists
-    
       has_many :source_seasons, dependent: :destroy
       has_many :seasons, through: :source_seasons
     
-    #User Associations
-      has_many :watchlists, as: :watched, dependent: :destroy
-      has_many :watchers, through: :watchlists, source: :user
-      
   #Scopes
-    scope :released, -> { where(status: "Released")}
+    scope :with_category, ->(categories) { where('category IN (?)', categories)}
+    scope :with_status, ->(statuses) {where('status IN (?)', statuses)}
+    scope :with_activity, ->(activities) {where('activity IN (?)', activities)} 
+    scope :in_date_range, ->(start_date, end_date) {where("sources.release_date >= ? and sources.release_date <= ? ", start_date, end_date)}
       
   #Gem Stuff
     #Pagination    

@@ -1,11 +1,1 @@
-<% content_for :title do %>New Issue<% end %>
-
-<% content_for :header do %>
-  <div class="text-center">
-    <h2>New Issue</h2>
-  </div>
-<% end %>
-
-<%= render 'form' %>
-
-<%= link_to 'Back', issues_path %>
+<%= render 'layouts/forms/new', :record => @issue %>

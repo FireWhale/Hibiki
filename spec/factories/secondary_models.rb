@@ -30,8 +30,8 @@ FactoryGirl.define do
     factory :tag do
       name {Faker::Lorem.sentence}
       classification {Faker::Lorem.word}
-      model_bitmask 31
-      visibility {Faker::Lorem.word}
+      model_bitmask 63
+      visibility {Ability::Abilities.sample}
       
       trait :with_taglist_album do
         after(:create) do |tag|
@@ -63,9 +63,15 @@ FactoryGirl.define do
         end        
       end  
       
+      trait :with_taglist_post do
+        after(:create) do |tag|
+          create(:taglist, :with_post, tag: tag)
+        end        
+      end  
+      
       trait :with_multiple_taglists do
         after(:create) do |tag|
-          [:with_album, :with_artist, :with_organization, :with_song, :with_source].each do |model|
+          [:with_album, :with_artist, :with_organization, :with_song, :with_source, :with_post].each do |model|
             create(:taglist, model, tag: tag)
           end
         end
@@ -118,9 +124,15 @@ FactoryGirl.define do
         end        
       end 
 
+      trait :with_imagelist_season do
+        after(:create) do |image|
+          create(:imagelist, :with_season, image: image)
+        end        
+      end 
+      
       trait :with_multiple_imagelists do
         after(:create) do |image|
-          [:with_album, :with_artist, :with_organization, :with_user, :with_song, :with_source].each do |model|
+          [:with_album, :with_artist, :with_organization, :with_user, :with_song, :with_source, :with_season, :with_post].each do |model|
             create(:imagelist, model, image: image)
           end
         end
@@ -129,7 +141,7 @@ FactoryGirl.define do
   
     factory :post do
       category "Rescrape Result"
-      visibility {Faker::Lorem.word}
+      visibility {Ability::Abilities.sample}
       status {Post::Status.sample}
       
       trait :by_user do
@@ -171,10 +183,10 @@ FactoryGirl.define do
       end    
       
       trait :with_multiple_postlists do
-        after(:create) do |tag|
+        after(:create) do |post|
           [:with_album, :with_artist, :with_organization, 
-            :with_song, :with_source, :with_image].each do |model|
-            create(:taglist, model, tag:tag)
+            :with_song, :with_source].each do |model|
+            create(:postlist, model, post: post)
           end
         end
       end        
@@ -183,10 +195,10 @@ FactoryGirl.define do
     factory :issue do
       name {Faker::Lorem.sentence}
       category {Issue::Categories.sample}
-      visibility {Faker::Lorem.word}
-      status {Issue::Statuses.sample}
+      visibility {Ability::Abilities.sample}
+      status {Issue::Status.sample}
       
-      trait :with_comments do
+      trait :with_issue_user do
         after(:create) do |issue|
           create(:issue_user, issue: issue)
         end
@@ -196,7 +208,7 @@ FactoryGirl.define do
         visibility "Admin"
       end
     end
-        
+
   #Secondary Join Table Models
     factory :imagelist do
       association :image
@@ -228,6 +240,10 @@ FactoryGirl.define do
       
       trait :with_post do
         association :model, factory: :post
+      end
+      
+      trait :with_season do
+        association :model, factory: :season
       end
             
     end
@@ -281,8 +297,13 @@ FactoryGirl.define do
       trait :with_source do
         association :subject, factory: :source
       end
+      
+      trait :with_post do
+        association :subject, factory: :post
+      end
+      
     end
-    
+        
     factory :album_event do
       association :album
       association :event
@@ -294,9 +315,4 @@ FactoryGirl.define do
       association :season
     end
     
-    factory :lyric do
-      language {User::Languages.split(",").sample}
-      association :song
-      lyrics {Faker::Lorem.paragraph}
-    end
 end

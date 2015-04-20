@@ -4,7 +4,6 @@ class Album < ActiveRecord::Base
                     :status, :classification,
                     :reference, :info, :private_info, 
                     :release_date, :release_date_bitmask #bitmask is needed for scraping
-    attr_accessor   :flag, :list_text
     
     serialize :reference
     serialize :namehash
@@ -12,8 +11,15 @@ class Album < ActiveRecord::Base
   #Default Scope
   
   #Modules
-    include FormattingModule
-    include SearchModule
+    include FullUpdateModule
+    include SolrSearchModule
+    include AutocompletionModule
+    include LanguageModule
+    #Association Modules
+      include SelfRelationModule
+      include ImageModule
+      include PostModule
+      include TagModule
 
   #Callbacks/Hooks
     
@@ -78,23 +84,6 @@ class Album < ActiveRecord::Base
                   {type: "namehash", title: "Languages", div_class: "well", sub_div_id: "Languages"}, {type: "songs", title: "Songs", div_class: "well", sub_div_id: "Songs"},
                   {type: "markup", tag_name: "/div"}]
 
-
-    #Tracklist options is a tricky variable
-    #It needs to be stored in the user's preference as a bitmask, so add only to the end.
-    #I have 2 fields within each value. 
-    #Params options: What is sent in params <--key value (only one short enough xd)
-    #Description: What is displayed to the user as a description of the option
-    #In the controller, we'll match the params options to what it corresponds to in 
-    #Hibiki's database and what it corresponds to in foobar
-    TracklistOptions = {:disc_number => 'Disc numbers', :track_number => 'Track numbers',
-      :title => 'Titles', :performers => 'Performers as artists (requires split artist)',
-      :composers => 'Composers (requires split composers)',
-      :performer_field => 'Performers as performers (requires split performer)',
-      :album => "Album name", :sources => 'Source Material (requires split source)', 
-      :year => 'Date (yyyy)', :full_date => 'Date (yyyy-mm-dd)', 
-      :op => 'OP/ED/Insert Field', :genres => 'Genres', :catalog_number => 'Catalog Number',
-      :events => 'Events (requires split event)', :arrangers => "Arrangers (requires split arrangers)"
-      }
     #Artistreplace is used to replace names with IDs when adding artists by name to an album.
     #Since adding by name only applies to scrapes, we need a way to differeniate artists
     #with the same name. This will give a "default" ID to use, as well as keep track of
@@ -122,20 +111,7 @@ class Album < ActiveRecord::Base
     validates :release_date_bitmask, presence: true, unless: -> {self.release_date.nil?}
    
   #associations
-    #Primary Associations
-      has_many :related_album_relations1, class_name: 'RelatedAlbums', foreign_key: 'album1_id', :dependent => :destroy
-      has_many :related_album_relations2, class_name: 'RelatedAlbums', foreign_key: 'album2_id', :dependent => :destroy
-      has_many :related_albums1, through: :related_album_relations1, :source => :album2
-      has_many :related_albums2, through: :related_album_relations2, :source => :album1
-     
-      def related_album_relations
-        related_album_relations1 + related_album_relations2
-      end
-
-      def related_albums
-        related_albums1 + related_albums2
-      end
-              
+    #Primary Associations                 
       has_many :album_sources
       has_many :sources, through: :album_sources, dependent: :destroy
       
@@ -148,16 +124,6 @@ class Album < ActiveRecord::Base
       has_many :songs, dependent: :destroy
       
     #Secondary Associations
-      has_many :taglists, :as => :subject
-      has_many :tags, through: :taglists, dependent: :destroy
-    
-      has_many :imagelists, :as => :model
-      has_many :images, through: :imagelists, dependent: :destroy
-      has_many :primary_images, -> {where "images.primary_flag = 'Cover'" }, through: :imagelists, source: :image
-
-      has_many :postlists, dependent: :destroy, as: :model
-      has_many :posts, through: :postlists
-            
       has_many :album_events
       has_many :events, through: :album_events, dependent: :destroy
       
@@ -166,23 +132,23 @@ class Album < ActiveRecord::Base
       has_many :collectors, through: :collections, source: :user
   
   #Scopes  
-    scope :released, -> { where(status: "Released")}
-    scope :date_range, ->(start_date, end_date) {where("albums.release_date > ? and albums.release_date < ? ", start_date, end_date)}
-    scope :filter_by_tag, ->(tag_ids) {joins(:taglists).where('taglists.tag_id IN (?)', tag_ids)}    
+    scope :with_status, ->(statuses) {where('status IN (?)', statuses)}
+    scope :in_date_range, ->(start_date, end_date) {where("albums.release_date >= ? and albums.release_date <= ? ", start_date, end_date)}
     
-    scope :collections, ->(user_id, relationship) {joins(:collections).where('collections.user_id = (?) and collections.relationship IN (?)', user_id, relationship)}
-    scope :not_in_collection, ->(user_id) {joins("LEFT OUTER JOIN (SELECT * FROM collections WHERE user_id = #{User.sanitize(user_id)}) t1 ON t1.album_id = albums.id").where(:t1 => {:user_id => nil})}
-    scope :col, ->(user_id, relationship) {from("((#{Album.collections(user_id, relationship).to_sql}) union (#{Album.not_in_collection(user_id).to_sql})) #{Album.table_name} ")}
+    scope :in_collection, ->(userids, *relationships) {first_pass = joins(:collections).where("collections.user_id IN (?)", userids).uniq unless userids.nil?
+                                                        relationships.empty? || relationships == [nil] ? first_pass : first_pass.where("collections.relationship IN (?)", relationships.flatten) unless userids.nil?}
+    scope :not_in_collection, ->(userids) {joins("LEFT OUTER JOIN(#{Collection.where("collections.user_id IN (?)", userids).to_sql}) t1 ON t1.album_id = albums.id").where(:t1 => {:id => nil}) unless userids.nil?}
+    scope :collection_filter, ->(user1_id, relationship, user2_id) {from("((#{Album.in_collection(user1_id, relationship).to_sql}) union (#{Album.not_in_collection(user2_id).to_sql})) #{Album.table_name} ")}
     
-    scope :album_categories, ->(category) {joins(:related_album_relations1).where('related_albums.category IN (?)', category).uniq}
-    scope :no_categories, ->{joins("LEFT OUTER JOIN (SELECT * FROM related_albums WHERE related_albums.category IN ('Limited Edition', 'Reprint')) t1 ON t1.album1_id = albums.id").where(:t1 => {:id => nil})}
-    scope :album_cats, ->(category) {from("((#{Album.album_categories(category).to_sql}) union (#{Album.no_categories.to_sql})) #{Album.table_name} ")}
+    #These following three scopes are necessary because with_aos handles nil differently
+    scope :artist_proc, ->(artist_ids) {joins(:artist_albums).where('artist_albums.artist_id IN (?)', artist_ids).uniq}
+    scope :source_proc, ->(source_ids) {joins(:album_sources).where('album_sources.source_id IN (?)', source_ids).uniq}
+    scope :organization_proc, ->(organization_ids) {joins(:album_organizations).where('album_organizations.organization_id IN (?)', organization_ids).uniq}
     
-    scope :artists, ->(artist_ids) {joins(:artist_albums).where('artist_albums.artist_id IN (?)', artist_ids)}
-    scope :sources, ->(source_ids) {joins(:album_sources).where('album_sources.source_id IN (?)', source_ids)}
-    scope :organizations, ->(organization_ids) {joins(:album_organizations).where('album_organizations.organization_id IN (?)', organization_ids)}
-    scope :artist_organization_source, ->(artist_ids, organization_ids, source_ids) {from("((#{Album.artists(artist_ids).to_sql}) union (#{Album.sources(source_ids).to_sql}) union (#{Album.organizations(organization_ids).to_sql})) #{Album.table_name} ").references(:artist_albums, :album_sources, :album_organizations)}
-    
+    scope :with_artist, ->(artist_ids) { artist_proc(artist_ids) unless artist_ids.nil?}
+    scope :with_source, ->(source_ids) { source_proc(source_ids) unless source_ids.nil?}
+    scope :with_organization, ->(organization_ids) {organization_proc(organization_ids) unless organization_ids.nil?}
+    scope :with_artist_organization_source, ->(artist_ids, organization_ids, source_ids) {from("((#{Album.artist_proc(artist_ids).to_sql}) union (#{Album.source_proc(source_ids).to_sql}) union (#{Album.organization_proc(organization_ids).to_sql})) #{Album.table_name} ").references(:artist_albums, :album_sources, :album_organizations) unless artist_ids.nil? && organization_ids.nil? && source_ids.nil?}
     
   #Gem Stuff
     #Pagination
@@ -197,16 +163,16 @@ class Album < ActiveRecord::Base
         
 
   #For sorting albums
-    def week #For sorting by week
-      self.release_date.beginning_of_week(start_day = :sunday)
+    def week(start_day = "sunday") #For sorting by week
+      self.release_date? ? self.release_date.beginning_of_week(start_day.to_sym) : nil
     end
     
     def month #For sorting by month
-      self.release_date.beginning_of_month
+      self.release_date? ? self.release_date.beginning_of_month : nil
     end
     
     def year
-      self.release_date.beginning_of_year
+      self.release_date? ? self.release_date.beginning_of_year : nil
     end
 
   #Sees if the album is in a user's collection   
@@ -219,7 +185,6 @@ class Album < ActiveRecord::Base
         self.collections.select { |a| a.user_id == user.id}[0].relationship
       end
     end
-  
   
   #Limited Edition and reprint check
     def limited_edition?

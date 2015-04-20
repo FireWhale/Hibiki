@@ -26,11 +26,11 @@
       <% end %>
     </div>
     <div id="records">
-      <% unless @post.primary_records.empty? %>
+      <% unless @post.models.empty? %>
         <div class="panel">
           <div class="panel-heading">Records Mentioned in This Post</div>
           <div class="nav nav-pills nav-stacked">
-            <% @post.primary_records.each do |record| %>
+            <% @post.models.each do |record| %>
               <li><%= link_to (raw "#{record.class.to_s}: #{name_language_helper(record, current_user, 0)}"), record %></li>
             <% end %>
           </div>

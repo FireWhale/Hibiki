@@ -1,32 +1,36 @@
 require 'rails_helper'
 
 describe Event do
-  #Gutcheck Test
-    it "has a valid factory" do
-      instance = create(:event)
-      expect(instance).to be_valid
-    end
+  include_examples "global model tests" #Global Tests
   
-  #Association Test
-    it_behaves_like "it has_many", :event, "album", "album_event", AlbumEvent, :with_album_event
+  describe "Module Tests" do
+    it_behaves_like "it has a language field", "name"
+    it_behaves_like "it has form_fields"
+  end
+  
+  describe "Association Tests" do
+    describe "Album Events" do
+      include_examples "it has_many through", Album, AlbumEvent, :with_album_event
+    end
+  end
   
   #Validation Tests
-    it_behaves_like "is valid with or without an attribute", :event, :name, "name"
-    it_behaves_like "is valid with or without an attribute", :event, :shorthand, "name"
-    it_behaves_like "is valid with or without an attribute", :event, :start_date, Date.new(2132,1,4)
-    it_behaves_like "is valid with or without an attribute", :event, :end_date, Date.new(2032,3,12)
+    it_behaves_like "is valid with or without an attribute", :name, "name"
+    it_behaves_like "is valid with or without an attribute", :shorthand, "name"
+    it_behaves_like "is valid with or without an attribute", :start_date, Date.new(2132,1,4)
+    it_behaves_like "is valid with or without an attribute", :end_date, Date.new(2032,3,12)
         
     it "is invalid if it does not have a name or shorthand" do
       expect(build(:event, name: nil, shorthand: nil)).to_not be_valid
     end
     
-    it "is valid with overlapping dates" do
+    it "is valid with the same start and end dates" do
       create(:event, start_date: Date.new(2012, 1, 1), end_date: Date.new(2013,1,1))
       expect(build(:event, start_date: Date.new(2012, 1, 1), end_date: Date.new(2013,1,1))).to be_valid
     end
 
   #Serialization Tests
-    it_behaves_like "it has a serialized attribute", :event, :reference
+    it_behaves_like "it has a serialized attribute", :reference
      
   #Instance Method Tests
     it "returns the right name with name_helper" do
@@ -44,60 +48,61 @@ describe Event do
     it "returns the date range" 
       #instance = create(:event, start_date: Date.new(2014, 1, 1), end_date: Date.new(2014, 1, 1))
 
-    #Full Update
-      context "has a full update method" do
-        include_examples "updates with keys and values", :event
-        include_examples "updates the reference properly", :event
-        include_examples "updates with normal attributes", :event
-      end
+  #Full Update
+    context "has a full update method" do
+      include_examples "updates with keys and values"
+      include_examples "updates the reference properly"
+      include_examples "updates with normal attributes"
+    end
 end
 
 describe Season do
-  #Gutcheck Test
-    it "has a valid factory" do
-      instance = create(:season)
-      expect(instance).to be_valid
-    end
+  include_examples "global model tests" #Global Tests
+  
+  describe "Module Tests" do
+    it_behaves_like "it has form_fields"
+  end
   
   #Association Test
-    it_behaves_like "it has_many", :season, "source", "source_season", SourceSeason, :with_source_season
+    it_behaves_like "it has images"
+    it_behaves_like "it has_many through", Source, SourceSeason, :with_source_season
   
   #Validation Tests  
-    include_examples "is invalid without an attribute", :season, :name
-    include_examples "is invalid without an attribute", :season, :start_date
-    include_examples "is invalid without an attribute", :season, :end_date
+    include_examples "is invalid without an attribute", :name
+    include_examples "is invalid without an attribute", :start_date
+    include_examples "is invalid without an attribute", :end_date
 
     it "is valid with overlapping dates" do
       create(:season, start_date: Date.new(2012, 1, 1), end_date: Date.new(2013,1,1))
       expect(build(:season, start_date: Date.new(2012, 1, 1), end_date: Date.new(2013,1,1))).to be_valid
     end
+
+  context "has a full update method" do
+    include_examples "updates with keys and values"
+    include_examples "can upload an image"
+    include_examples "can update a primary relationship", Source, SourceSeason
+    include_examples "updates with normal attributes"
+  end
     
 end
 
 describe AlbumEvent do
-  #Gutcheck Test
-    it "has a valid factory" do
-      expect(create(:album_event)).to be_valid
-    end
+  include_examples "global model tests" #Global Tests
     
   #Association Test
-    it_behaves_like "a join table", :album_event, "album", "event", AlbumEvent
+    it_behaves_like "a join table", Album, Event
     
 end
 
 describe SourceSeason do
-  #Gutcheck Test
-    it "has a valid factory" do
-      instance = create(:source_season)
-      expect(instance).to be_valid
-    end
+  include_examples "global model tests" #Global Tests
     
   #Association Test
-    it_behaves_like "a join table", :source_season, "source", "season", SourceSeason
+    it_behaves_like "a join table", Source, Season
   
   #Validation Tests  
-    include_examples "is invalid without an attribute", :source_season, :category
-    include_examples "is invalid without an attribute in a category", :source_season, :category, SourceSeason::Categories, "SourceSeason::Categories"
+    include_examples "is invalid without an attribute", :category
+    include_examples "is invalid without an attribute in a category", :category, SourceSeason::Categories, "SourceSeason::Categories"
 
   
 end
