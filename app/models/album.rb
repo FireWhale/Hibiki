@@ -139,7 +139,7 @@ class Album < ActiveRecord::Base
                                                         relationships.empty? || relationships == [nil] ? first_pass : first_pass.where("collections.relationship IN (?)", relationships.flatten) unless userids.nil?}
     scope :not_in_collection, ->(userids) {joins("LEFT OUTER JOIN(#{Collection.where("collections.user_id IN (?)", userids).to_sql}) t1 ON t1.album_id = albums.id").where(:t1 => {:id => nil}) unless userids.nil?}
     scope :collection_filter, ->(user1_id, relationship, user2_id) {from("((#{Album.in_collection(user1_id, relationship).to_sql}) union (#{Album.not_in_collection(user2_id).to_sql})) #{Album.table_name} ")}
-    
+        
     #These following three scopes are necessary because with_aos handles nil differently
     scope :artist_proc, ->(artist_ids) {joins(:artist_albums).where('artist_albums.artist_id IN (?)', artist_ids).uniq}
     scope :source_proc, ->(source_ids) {joins(:album_sources).where('album_sources.source_id IN (?)', source_ids).uniq}
@@ -149,6 +149,9 @@ class Album < ActiveRecord::Base
     scope :with_source, ->(source_ids) { source_proc(source_ids) unless source_ids.nil?}
     scope :with_organization, ->(organization_ids) {organization_proc(organization_ids) unless organization_ids.nil?}
     scope :with_artist_organization_source, ->(artist_ids, organization_ids, source_ids) {from("((#{Album.artist_proc(artist_ids).to_sql}) union (#{Album.source_proc(source_ids).to_sql}) union (#{Album.organization_proc(organization_ids).to_sql})) #{Album.table_name} ").references(:artist_albums, :album_sources, :album_organizations) unless artist_ids.nil? && organization_ids.nil? && source_ids.nil?}
+    
+    #User Settings
+    scope :filter_by_user_settings, ->(user) {collection_filter(user.id, Collection::Relationship - user.album_filter, user.id).without_self_relation_categories(user.album_filter) unless user.nil?}
     
   #Gem Stuff
     #Pagination

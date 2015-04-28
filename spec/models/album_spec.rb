@@ -1,5 +1,6 @@
 require 'rails_helper'
 
+
 describe Album do
   include_examples "global model tests" #Global Tests
   
@@ -47,7 +48,7 @@ describe Album do
     end
   end
     
-  #Validation Tests
+  describe "Validation Tests" do
     include_examples "is invalid without an attribute", :name
     include_examples "is invalid without an attribute", :status
     include_examples "is invalid without an attribute", :catalog_number
@@ -57,13 +58,15 @@ describe Album do
     include_examples "is valid with or without an attribute", :info, "Hi this is info"
     include_examples "is valid with or without an attribute", :private_info, "Hi this is private info"
     include_examples "is valid with or without an attribute", :classification, "classification!"
-          
+  end
+      
   #Attribute Tests
     include_examples "it has a partial date", :release_date
     it_behaves_like "it has a serialized attribute", :reference
     it_behaves_like "it has a serialized attribute", :namehash
     
-  #Instance Method Tests
+  describe "Instance Method Tests" do
+    
     describe "returns the right week/month/year" do
       let(:album) {create(:album, release_date: Date.today, release_date_bitmask: 6)}
       
@@ -136,7 +139,8 @@ describe Album do
         expect(album2.alternate_printing?).to be_falsey
       end
     end
-      
+  end
+  
   #Class Method Tests    
     describe "has a full update method" do
       include_examples "updates with keys and values"
@@ -799,6 +803,67 @@ describe Album do
       
     end
     
+    describe "filters by user_settings" do
+      let(:user1) {create :user}
+      let(:user2) {create :user}
+      let(:album1) {create :album} #ignored album from user 1
+      let(:album2) {create :album} #ignored album from user 2 
+      let(:album3) {create :album} #limited edition of album 1
+      let(:album4) {create :album} #reprint of album 2
+      let(:album5) {create :album} #ignored album from user 1
+      let(:album6) {create :album} #Watched album from user 1
+      let(:album7) {create :album} #no relations, should always return
+      before(:each) do
+        create(:collection, user: user1, album: album1, relationship: "Ignored")
+        create(:collection, user: user2, album: album2, relationship: "Ignored")
+        create(:collection, user: user1, album: album5, relationship: "Ignored")
+        create(:collection, user: user1, album: album6, relationship: "Wishlisted")
+        create(:related_albums, album1: album3, album2: album1, category: "Limited Edition")
+        create(:related_albums, album1: album4, album2: album2, category: "Reprint")
+      end
+      
+      #1 is show LE
+      #4 is show ignored
+      #64 is show reprints
+      
+      it "filters out ignored albums" do
+        user1.update_attribute("display_bitmask", 65) 
+        expect(Album.filter_by_user_settings(user1)).to match_array([album2,album3,album4,album6,album7])
+      end
+      
+      it "filters out reprints" do
+        user1.update_attribute("display_bitmask", 5) 
+        expect(Album.filter_by_user_settings(user1)).to match_array([album1,album2,album3,album5,album6,album7])        
+      end
+      
+      it "filters out limited editions" do
+        user1.update_attribute("display_bitmask", 68) 
+        expect(Album.filter_by_user_settings(user1)).to match_array([album1,album2,album4,album5,album6,album7])        
+      end
+      
+      it "filters an album out if it matches on LE but not reprint" do
+        user1.update_attribute("display_bitmask", 64) 
+        album8 = create(:album)
+        create(:related_albums, album1: album8, album2: album2, category: "Reprint")
+        create(:related_albums, album1: album4, album2: album1, category: "Limited Edition")
+        expect(Album.filter_by_user_settings(user1)).to match_array([album2,album6,album7,album8])        
+      end
+      
+      it "filters an album out if it matches on ignored but not LE" do
+        user1.update_attribute("display_bitmask", 1)
+        create(:collection, user: user1, album: album3, relationship: "Ignored")
+        create(:related_albums, album1: album6, album2: album1, category: "Limited Edition")
+        expect(Album.filter_by_user_settings(user1)).to match_array([album2,album6,album7])        
+      end
+      
+      it "returns all if nil is passed in" do
+        expect(Album.filter_by_user_settings(nil)).to match_array([album1,album2,album3,album4,album5,album6,album7])                
+      end
+      
+      it "returns an active scope relation" do
+        expect(Album.filter_by_user_settings(user1).class).to_not be_a(Array)     
+      end
+    end
   end
     
 end

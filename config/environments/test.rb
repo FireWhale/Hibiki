@@ -35,5 +35,11 @@ Hibiki::Application.configure do
   config.eager_load = false
   
   #In Rails 5.0, tests will be executed randomly. to opt in (yes we are opting in),
-  config.active_support.test_order = :ranndom
+  config.active_support.test_order = :random
+  
+  config.after_initialize do
+    Bullet.enable = true
+    Bullet.bullet_logger = true
+    Bullet.raise = true
+  end
 end

@@ -106,19 +106,19 @@ module ScopingTests
     let(:user3) {create(:user, security: User.get_security_bitmask([security1, security2]))}
     
     it "should return if it matches the security" do
-      expect(described_class.meets_security(user1)).to eq([record1, record4])
+      expect(described_class.meets_security(user1)).to match_array([record1, record4])
     end
     
     it "should return if it matches the security 2" do
-      expect(described_class.meets_security(user2)).to eq([record2, record3, record4])
+      expect(described_class.meets_security(user2)).to match_array([record2, record3, record4])
     end
     
     it "should take handle multiple securities" do
-      expect(described_class.meets_security(user3)).to eq([record1, record2, record3, record4])
+      expect(described_class.meets_security(user3)).to match_array([record1, record2, record3, record4])
     end
     
     it "should take a nil user, but only returns records with 'Any' Security" do
-      expect(described_class.meets_security(nil)).to eq([record4])
+      expect(described_class.meets_security(nil)).to match_array([record4])
     end
     
     it "should be an active record relation" do

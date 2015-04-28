@@ -59,8 +59,10 @@ class Post < ActiveRecord::Base
     scope :with_status, ->(statuses) {where('status IN (?)', statuses)}
     scope :meets_security, ->(user) { where('posts.visibility IN (?)', user.nil? ? ["Any"] : user.abilities  )}
         
-  #Instance Methods
-  
+  #Gem Stuff
+    #Pagination
+    paginates_per 10
+      
   #Class Methods    
     def self.cut_messages_for_ll(messages)
       #Takes in an array of messages and makes sure they are less than 9000 characters    

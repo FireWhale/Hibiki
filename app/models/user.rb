@@ -30,10 +30,10 @@ class User < ActiveRecord::Base
       c.crypto_provider = Authlogic::CryptoProviders::SCrypt
     end
   
-  #Display Settings constants
+  #Display Settings constants - add to end
     Languages = "English,Japanese,Romaji,Korean,Romanized Korean,Chinese,Pinyin,Chinese (Traditional)"
     DefaultLanguages = "English,Romaji,RomanizedKorean,Pinyin,Japanese,Korean,Chinese,Chinese (Traditional)"
-    DisplaySettings = %w[DisplayLEs DisplayNWS DisplayIgnored AlbumArtOutline Bolding EditMode] 
+    DisplaySettings = %w[DisplayLEs DisplayNWS DisplayIgnored OutlineAlbumArt BoldAOS BoldForEditing DisplayReprints] 
     PrivacySettings = %w[ShowWatchlist ShowCollection]
     DefaultDisplaySettings = %w[DisplayLEs DisplayIgnored]
     
@@ -60,12 +60,7 @@ class User < ActiveRecord::Base
     Notifier.password_reset_instructions(self).deliver
   end
   
-  #Bitmask Methods
-    def tracklist_settings
-      settings = Album::TracklistOptions.map {|k,v| k.to_s}
-      settings.reject { |r| ((self.tracklist_export_bitmask || 0 ) & 2**settings.index(r)).zero?}    
-    end
-    
+  #Bitmask Methods    
     def display_settings
       displayarray = User::DisplaySettings    
       displayarray.reject { |r| ((self.display_bitmask || 0 ) & 2**displayarray.index(r)).zero?}    
@@ -79,6 +74,15 @@ class User < ActiveRecord::Base
     def self.get_security_bitmask(abilities)
       abilities = [abilities] if abilities.class != Array
       (abilities & Ability::Abilities).map { |r| 2**(Ability::Abilities).index(r) }.sum
+    end
+    
+    def album_filter #Used in an album scope 'filter_by_user_settings' to filter things out of view
+      #["Limited Edition", "Reprint", "Ignored"] will be passed in to filter it out
+      array = []
+      array << "Limited Edition" unless self.display_settings.include?("DisplayLEs")
+      array << "Reprint" unless self.display_settings.include?("DisplayReprints")
+      array << "Ignored" unless self.display_settings.include?("DisplayIgnored")
+      array
     end
   
   #Update Method

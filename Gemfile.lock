@@ -61,6 +61,9 @@ GEM
     bootstrap-sass (3.2.0.2)
       sass (~> 3.2)
     builder (3.2.2)
+    bullet (4.14.5)
+      activesupport (>= 3.0.0)
+      uniform_notifier (~> 1.9.0)
     cancan (1.6.10)
     capybara (2.4.4)
       mime-types (>= 1.16)
@@ -296,6 +299,7 @@ GEM
     unf (0.1.4-java)
     unf_ext (0.0.6)
     unf_ext (0.0.6-x86-mingw32)
+    uniform_notifier (1.9.0)
     webrobots (0.1.1)
     whenever (0.9.4)
       chronic (>= 0.6.3)
@@ -315,6 +319,7 @@ DEPENDENCIES
   authlogic
   bcrypt (~> 3.1.7)
   bootstrap-sass (~> 3.2.0.2)
+  bullet
   cancan
   capybara
   factory_girl_rails

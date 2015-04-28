@@ -5,7 +5,7 @@ class SongsController < ApplicationController
                :display_value => :edit_format  
 
   def index
-    @songs = Song.page(params[:page])
+    @songs = Song.includes(:tags, album: [:primary_images]).page(params[:page])
 
     respond_to do |format|
       format.html # index.html.erb
@@ -15,17 +15,34 @@ class SongsController < ApplicationController
 
   def show
     @song = Song.find(params[:id])
-
+    self_relation_helper(@song,@related = {}) #Prepare @related (self_relations) 
+    credits_helper(@song,@credits = {}) #prepares the credits
+    
     respond_to do |format|
       format.html # show.html.erb
       format.json { render json: @song }
     end
   end
 
+  def show_images
+    @song = Song.includes(:images).find_by_id(params[:id])
+    if params[:image] == "cover"
+      @image = @song.primary_images.first
+    elsif @song.images.map(&:id).map(&:to_s).include?(params[:image])
+      @image = Image.find_by_id(params[:image])
+    else
+      @image = @song.images.first
+    end
+
+    respond_to do |format|
+      format.html 
+      format.json { render json: @song.images }
+    end
+  end
+
   def new
     @song = Song.new
     @song.namehash = @song.namehash || {}
-
 
     respond_to do |format|
       format.html # new.html.erb
@@ -35,6 +52,12 @@ class SongsController < ApplicationController
 
   def edit
     @song = Song.find(params[:id])
+    @song.namehash = @song.namehash || {}
+    
+    respond_to do |format|
+      format.html # edit.html.erb
+      format.json { render json: @song }
+    end
   end
 
   def create

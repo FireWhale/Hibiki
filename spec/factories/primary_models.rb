@@ -7,6 +7,11 @@ FactoryGirl.define do
       name {Faker::Lorem.sentence}
       status {Album::Status.sample}
       catalog_number {Faker::Lorem.word}
+      
+      trait :with_release_date do
+        release_date {Faker::Date.backward(1000)}
+        release_date_bitmask {0}
+      end
 
       trait :with_self_relation do
         after(:create) do |record|
@@ -70,6 +75,19 @@ FactoryGirl.define do
           create(:artist_song, artist: record)
         end            
       end
+      
+      trait :with_albums do
+        after(:create) do |record|
+          5.times do
+            album = create(:album, :with_release_date)
+            create(:artist_album, artist: record, album: album)
+          end
+        end
+      end
+      
+      trait :invalid do
+        name ""
+      end
     end
     
     factory :organization do 
@@ -89,6 +107,19 @@ FactoryGirl.define do
           create(:artist_organization, organization: record)
           create(:source_organization, organization: record)
         end            
+      end
+      
+      trait :with_albums do
+        after(:create) do |record|
+          5.times do
+            album = create(:album, :with_release_date)
+            create(:album_organization, organization: record, album: album)
+          end
+        end
+      end
+            
+      trait :invalid do
+        name ""
       end
     end
     
@@ -115,6 +146,19 @@ FactoryGirl.define do
         after(:create) do |record|
           create(:source_season, source: record)
         end
+      end
+            
+      trait :with_albums do
+        after(:create) do |record|
+          5.times do
+            album = create(:album, :with_release_date)
+            create(:album_source, source: record, album: album)
+          end
+        end
+      end
+      
+      trait :invalid do
+        name ""
       end
     end
     
@@ -144,6 +188,10 @@ FactoryGirl.define do
         after(:create) do |record|
           create(:lyric, song: record)
         end
+      end
+      
+      trait :invalid do
+        name ""
       end
     end
 end

@@ -3,9 +3,10 @@ class ArtistsController < ApplicationController
   
   autocomplete :artist, :namehash, :full => true, :extra_data => [:name], 
                :display_value => :edit_format  
+               
 
   def index
-    @artists = Artist.order(:name).includes({artist_albums: {album: [:primary_images, :collections]}}).page(params[:page])
+    @artists = Artist.order(:name).includes([:watchlists, :tags, artist_albums: {album: [:primary_images]}]).page(params[:page])
     
     respond_to do |format|
       format.html # index.html.erb
@@ -14,21 +15,13 @@ class ArtistsController < ApplicationController
   end
   
   def show
-    @artist = Artist.includes(:primary_images, :albums => [:primary_images, :tags]).find(params[:id])
-    self_relation_helper(@artist,@related = {}, otherids = []) #Prepare @related (self_relations)
-    
-    @collection = ArtistAlbum.includes(:artist, {album: [:related_album_relations1, :tags]}).where(:artist_id => @artist.id).order("albums.release_date")
-    collectionids = @collection.map(&:album_id)
-    
-    otheridcollection = ArtistAlbum.includes(:album).where(:artist_id => otherids).order("albums.release_date")
- 
-    otheridcollection.each  {|relation| @collection << relation unless collectionids.include?(relation.album_id) }
-    
-    @collection.to_a.sort! { |a,b| a.album.release_date <=> b.album.release_date }
-    #Take out reprints and alternate printings
-    @collection = filter_albums(@collection)
+    @artist = Artist.includes(:primary_images, :organizations => [:watchlists]).find(params[:id])
+    self_relation_helper(@artist,@related = {}) #Prepare @related (self_relations)
         
+    @albums = @artist.albums.includes(:primary_images, :tags).filter_by_user_settings(current_user).order('release_date DESC').page(params[:album_page])
+    
     respond_to do |format|
+      format.js
       format.html # show.html.erb
       format.json { render json: @artist }
     end
@@ -42,6 +35,11 @@ class ArtistsController < ApplicationController
       @image = Image.find_by_id(params[:image])
     else
       @image = @artist.images.first
+    end
+
+    respond_to do |format|
+      format.html 
+      format.json { render json: @artist.images }
     end
   end
   
@@ -58,6 +56,11 @@ class ArtistsController < ApplicationController
   def edit
     @artist = Artist.find(params[:id])
     @artist.namehash = @artist.namehash || {}
+    
+    respond_to do |format|
+      format.html # edit.html.erb
+      format.json { render json: @artist }
+    end
   end
 
   def create

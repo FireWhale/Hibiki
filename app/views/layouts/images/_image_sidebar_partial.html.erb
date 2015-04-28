@@ -5,8 +5,8 @@
           <div class="image-row">
         <% end %>
         <div class="image-column">
-          <%= link_to image_helper(image, "thumb"), updateimage_path(:id => image.id), remote: true, class: "thumbnail thumbnail-bordered" %>
-          <div class="image-text-link"><%= link_to image.name, updateimage_path(:id => image.id ), remote: true %></div>
+          <%= link_to image_helper(image, "thumb"), update_image_path(:id => image.id), remote: true, class: "thumbnail thumbnail-bordered" %>
+          <div class="image-text-link"><%= link_to image.name, update_image_path(:id => image.id ), remote: true %></div>
         </div>
         <% if n.odd? %>
           </div>
@@ -17,8 +17,8 @@
       <% end %>
     <% else %>
       <% record.images.each do |image| %>    
-        <%= link_to image_helper(image, "thumb"), updateimage_path(:id => image.id), remote: true, class: "thumbnail thumbnail-bordered"  %>
-        <div class="image-text-link"><%= link_to image.name, updateimage_path(:id => image.id ), remote: true %></div>
+        <%= link_to image_helper(image, "thumb"), update_image_path(:id => image.id), remote: true, class: "thumbnail thumbnail-bordered"  %>
+        <div class="image-text-link"><%= link_to image.name, update_image_path(:id => image.id ), remote: true %></div>
       <% end %>      
     <% end %>
   </div>

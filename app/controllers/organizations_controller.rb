@@ -17,13 +17,10 @@ class OrganizationsController < ApplicationController
     @organization = Organization.includes(:artists, :sources, :images, :albums => [:primary_images, :tags]).find(params[:id])
     self_relation_helper(@organization,@related = {}) #Prepare @related (self_relations)
 
-    @collection = @organization.album_organizations
-    @collection.to_a.sort! { |a,b| a.album.release_date <=> b.album.release_date }
+    @albums = @organization.albums.includes(:primary_images, :tags).filter_by_user_settings(current_user).order('release_date DESC').page(params[:album_page])
 
-    #Take out reprints and alternate printings
-    @collection = filter_albums(@collection)
-    
     respond_to do |format|
+      format.js
       format.html # show.html.erb
       format.json { render json: @organization }
     end
@@ -38,10 +35,13 @@ class OrganizationsController < ApplicationController
     else
       @image = @organization.images.first
     end  
+    
+    respond_to do |format|
+      format.html 
+      format.json { render json: @organization.images }
+    end
   end
-  
-  # GET /organizations/new
-  # GET /organizations/new.json
+
   def new
     @organization = Organization.new
     @organization.namehash = @organization.namehash || {}
@@ -52,10 +52,14 @@ class OrganizationsController < ApplicationController
     end
   end
 
-  # GET /organizations/1/edit
   def edit
     @organization = Organization.find(params[:id])
     @organization.namehash = @organization.namehash || {}
+    
+    respond_to do |format|
+      format.html # edit.html.erb
+      format.json { render json: @organization }
+    end
   end
 
   def create
@@ -84,8 +88,6 @@ class OrganizationsController < ApplicationController
     end
   end
 
-  # DELETE /organizations/1
-  # DELETE /organizations/1.json
   def destroy
     @organization = Organization.find(params[:id])
     @organization.destroy

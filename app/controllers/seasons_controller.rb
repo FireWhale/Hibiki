@@ -2,7 +2,7 @@ class SeasonsController < ApplicationController
   load_and_authorize_resource
 
   def index
-    @seasons = Season.order(:start_date).group_by { |e| e.start_date.year }
+    @seasons = Season.order(:start_date)
 
     respond_to do |format|
       format.html # index.html.erb
@@ -11,30 +11,33 @@ class SeasonsController < ApplicationController
   end
 
   def show
-    @season = Season.includes({source_seasons: {source: {album_sources: {album: [:primary_images, {songs: :song_sources}]}}}}).find(params[:id])
+    @season = Season.includes(source_seasons: :source).find(params[:id])
 
-    #First grab relations with albums that fall within our season's dates
-    relations = @season.source_seasons.map(&:source).map(&:album_sources).flatten
-
-    #@sources it not originally a list of sources. Rather, it is a list of source_seasons
-    #It turns into sources within one line, though. 
-      @sources = @season.source_seasons.group_by(&:category)
-      @sources.each do |k,v|
-        @sources[k] = v.map(&:source)
-        @sources[k].sort_by! { |a| name_language_helper(a,current_user,0, :no_bold => true).downcase}
-      end
-      
-      #We need to count how many relations are in each source.
-      groupedrelations = relations.group_by(&:source_id)
-      @sources.values.flatten.each do |source|
-        if groupedrelations[source.id].nil? == false
-          source.album_count = groupedrelations[source.id].count
-        end
-      end
+    @sources = @season.source_seasons.group_by(&:category)
+    @sources.each do |k,v|
+      @sources[k] = v.map(&:source)
+      @sources[k].sort_by! { |a| name_language_helper(a,current_user,0, :no_bold => true).downcase}
+    end
       
     respond_to do |format|
       format.html # show.html.erb
       format.json { render json: @season }
+    end
+  end
+
+ def show_images
+    @season = Season.includes(:images).find_by_id(params[:id])
+    if params[:image] == "cover"
+      @image = @season.primary_images.first
+    elsif @season.images.map(&:id).map(&:to_s).include?(params[:image])
+      @image = Image.find_by_id(params[:image])
+    else
+      @image = @season.images.first
+    end
+
+    respond_to do |format|
+      format.html 
+      format.json { render json: @season.images }
     end
   end
 
@@ -49,6 +52,11 @@ class SeasonsController < ApplicationController
 
   def edit
     @season = Season.find(params[:id])
+
+    respond_to do |format|
+      format.html # edit.html.erb
+      format.json { render json: @season }
+    end
   end
 
   def create

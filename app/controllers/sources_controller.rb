@@ -5,7 +5,7 @@ class SourcesController < ApplicationController
                :display_value => :edit_format
       
   def index
-    @sources = Source.order('lower(name)').includes(albums: :primary_images).page(params[:page])
+    @sources = Source.order('lower(name)').includes([:watchlists, :tags, albums: :primary_images]).page(params[:page])
 
     respond_to do |format|
       format.html # index.html.erb
@@ -14,17 +14,15 @@ class SourcesController < ApplicationController
   end
 
   def show
-    @source = Source.includes(:organizations, :images, :albums => [:primary_images, :tags]).find(params[:id])
+    @source = Source.includes([:watchlists, :albums => [:primary_images, :tags]]).find(params[:id])
     self_relation_helper(@source,@related = {}) #Prepare @related (self_relations)
-
-    @collection = AlbumSource.includes(album: [:related_album_relations1]).where(source_id: @source.id).order("albums.release_date")
     
-    #Take out reprints and alternate printings
-    @collection = filter_albums(@collection)
+    @albums = @source.albums.includes(:primary_images, :tags).filter_by_user_settings(current_user).order('release_date DESC').page(params[:album_page])
     
     respond_to do |format|
       format.html # show.html.erb
       format.json { render json: @source }
+      format.js
     end
   end
 
@@ -37,6 +35,11 @@ class SourcesController < ApplicationController
     else
       @image = @source.images.first
     end  
+    
+    respond_to do |format|
+      format.html
+      format.json { render json: @source.images }
+    end
   end
 
   def new
@@ -53,9 +56,15 @@ class SourcesController < ApplicationController
     @source = Source.find(params[:id])
     @source.namehash = @source.namehash || {}
     
+    respond_to do |format|
+      format.html # edit.html.erb
+      format.json { render json: @source }
+    end
   end
 
   def create    
+    @source = Source.new(params[:source])
+    
     respond_to do |format|
       if @source.full_save(params[:source])
         format.html { redirect_to @source, notice: 'Source was successfully created.' }

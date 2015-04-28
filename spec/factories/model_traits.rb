@@ -34,4 +34,8 @@ FactoryGirl.define do
       private_info {Faker::Lorem.paragraphs(2)}
     end
     
+    trait :with_reference do
+      reference {{:VGMdb => Faker::Internet.url('vgmdb.net')}}
+    end
+        
 end

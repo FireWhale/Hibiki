@@ -1,7 +1,15 @@
 require 'rails_helper'
 
-describe ArtistsController do
-
+describe UsersController do
+  #DON'T DELETE UNTIL TEST IS ADDED
+  #test the post update_profile to make sure no one, not even admins
+  #can post to a different user. The GETS are already filtered out for admins
+  #in the HTML, but the posts still need to be filtered out, maybe at the controller
+  #level such as:
+  #@user = User.find(params[:id])
+  #if current_user == @user
+  #do stuff
+  #end
 
   shared_examples "can add_an_artist_to_song" do |valid|
     

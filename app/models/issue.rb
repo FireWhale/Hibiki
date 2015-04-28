@@ -40,4 +40,8 @@ class Issue < ActiveRecord::Base
     scope :with_priority, ->(priorities) {where('priority IN (?)', priorities)}
     scope :with_difficulty, ->(difficulties) {where('difficulty IN (?)', difficulties)}
     scope :meets_security, ->(user) { where('issues.visibility IN (?)', user.nil? ? ["Any"] : user.abilities  )}
+
+  #Gem Stuff
+    #Pagination
+    paginates_per 10
 end

@@ -12,29 +12,6 @@ class ApplicationController < ActionController::Base
   rescue_from ActiveRecord::RecordNotFound do |exception|
     render "pages/record_not_found"
   end
-
- def filter_albums(collection)
-  #This filters out reprints and alternate prints
-  newcollection = []
-  collection.map {|relationship|
-    #Filter out alternate printings
-    if current_user.nil?
-      newcollection << relationship
-    else
-      if current_user.display_settings.include?("DisplayLEs")
-        newcollection << relationship
-      else
-        if relationship.album.limited_edition? == false &&
-          #and reprints/alternate printings
-          relationship.album.reprint? == false && relationship.album.alternate_printing? == false
-          #put it into a new collection array
-          newcollection << relationship
-        end
-      end
-    end
-    }
-  newcollection
-  end
   
   #User methods!
   def name_language_helper(record,user,priority, opts = {})

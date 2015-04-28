@@ -34,6 +34,9 @@ Hibiki::Application.routes.draw do
   end
   resources :songs do
     get :autocomplete_song_namehash, :on => :collection
+    member do
+      get 'images', :action => 'show_images'
+    end
   end
   resources :organizations do
     get :autocomplete_organization_namehash, :on => :collection
@@ -48,11 +51,20 @@ Hibiki::Application.routes.draw do
     end
   end
   
+  resources :posts do
+    member do
+      get 'images', :action => 'show_images'
+    end
+  end
+  
+  resources :seasons do
+    member do
+      get 'images', :action => 'show_images'
+    end    
+  end
   resources :images
   resources :tags
-  resources :posts
   resources :events
-  resources :seasons
   resources :issues
   match "user_sessions/destroy" => "user_sessions#destroy", via: [:get]
   resource :user_session 
@@ -86,7 +98,7 @@ Hibiki::Application.routes.draw do
   get '/database', to: 'pages#database_landing'
   
   #Scripts
-  get '/updateimage', :to => 'images#updateimage'
+  get '/update_image', :to => 'images#update_image'
   get '/toggle_albums', :to => 'scripts#toggle_albums'
   
   #for password resets
@@ -96,8 +108,8 @@ Hibiki::Application.routes.draw do
   patch '/passwordreset', :to => 'users#passwordreset'
   
   #Links for js scripts for adding and editing
-  get '/addtag', :to => 'tags#add_tag'
-  get '/removetag', :to => 'tags#remove_tag'
+  get '/add_tag', :to => 'scripts#add_tag'
+  get '/remove_tag', :to => 'scripts#remove_tag'
   get '/addreference', :to => 'scripts#add_reference_form'
   get '/addmodel', :to => 'scripts#add_model_form'
   get '/well_toggle', :to => 'scripts#well_toggle'

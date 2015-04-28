@@ -516,6 +516,81 @@ describe Song do
       
     end    
     
+    describe "filters by user_settings" do
+      describe "filters by albums" do
+        it "wow this is gonna be some test"
+      # let(:user1) {create :user}
+      # let(:user2) {create :user}
+      # let(:song1) {create :song, :with_album} #ignored album from user 1
+      # let(:song2) {create :song, :with_album} #ignored album from user 2 
+      # let(:song3) {create :song, :with_album} #limited edition of album 1
+      # let(:song4) {create :song, :with_album} #reprint of album 2
+      # let(:song5) {create :song, :with_album} #ignored album from user 1
+      # let(:song6) {create :song, :with_album} #Watched album from user 1
+      # let(:song7) {create :song, :with_album} #no relations, should always return
+      # let(:song8) {create :song} #no album, should always return
+      # before(:each) do
+        # create(:collection, user: user1, album: song1.album, relationship: "Ignored")
+        # create(:collection, user: user2, album: song2.album, relationship: "Ignored")
+        # create(:collection, user: user1, album: song5.album, relationship: "Ignored")
+        # create(:collection, user: user1, album: song6.album, relationship: "Wishlisted")
+        # create(:related_albums, album1: song3.album, album2: song1.album, category: "Limited Edition")
+        # create(:related_albums, album1: song4.album, album2: song2.album, category: "Reprint")        
+      # end
+      # #Testing song.album data
+      # it "filters out songs belonging to an ignored album" do
+        # user1.update_attribute("display_bitmask", 65) 
+        # expect(Song.filter_by_user_settings(user1)).to match_array([song2,song3,song4,song6,song7,song8])
+      # end
+#       
+      # it "filters out songs beloning to a album reprint" do
+        # user1.update_attribute("display_bitmask", 5) 
+        # expect(Song.filter_by_user_settings(user1)).to match_array([song1,song2,song3,song5,song6,song7,song8])        
+      # end
+#       
+      # it "filters out songs belong to a limited edition album" do
+        # user1.update_attribute("display_bitmask", 68) 
+        # expect(Song.filter_by_user_settings(user1)).to match_array([song1,song2,song4,song5,song6,song7,song8])        
+      # end
+#       
+      # it "filters out songs matching on LE but not reprint" do
+        # user1.update_attribute("display_bitmask", 64) 
+        # song9 = create(:album)
+        # create(:related_albums, album1: song9.album, album2: song2.album, category: "Reprint")
+        # create(:related_albums, album1: song4.album, album2: song1.album, category: "Limited Edition")
+        # expect(Song.filter_by_user_settings(user1)).to match_array([song2,song6,song7,song8,song9])        
+      # end
+#       
+      # it "filters out songs matching on ignored but not le" do
+        # user1.update_attribute("display_bitmask", 1)
+        # create(:collection, user: user1, album: song3.album, relationship: "Ignored")
+        # create(:related_albums, album1: song6.album, album2: song1.album, category: "Limited Edition")
+        # expect(Song.filter_by_user_settings(user1)).to match_array([song2,song6,song7,song8])        
+      # end
+#             
+      # it "returns all if nil is passed in" do
+        # expect(Song.filter_user_settings(nil)).to match_array([song1,song2,song3,song4,song5,song6,song7,song8])
+      # end
+#       
+      # #testing song.data
+      # it 
+      
+      
+#       
+#       
+      # it "returns an active scope relation" do
+        # expect(Song.filter_by_user_settings(user1).class).to_not be_a(Array)
+      # end
+
+        
+      end
+      
+      describe "filters by song data" do
+        
+      end
+    
+    end
+    
     it "returns a list of songs with no albums" do
       songlist = create_list(:song, 6, album: nil)
       songlist2 = create_list(:song, 3, :with_album)

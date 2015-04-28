@@ -13,23 +13,44 @@ FactoryGirl.define do
           create(:source_season, season: season)
         end
       end 
+      
+      trait :invalid do
+        name ""
+      end
     end
     
     factory :event do
       name {Faker::Lorem.word}
       shorthand {Faker::Lorem.word}
-                  
+                 
+      trait :with_start_date do
+        start_date {Faker::Date.between(5.years.ago, Date.today)}  
+      end
+       
       trait :with_album_event do
         after(:create) do |event|
           create(:album_event, event: event)
         end
       end 
- 
+      
+      trait :with_albums do
+        after(:create) do |record|
+          5.times do
+            album = create(:album, :with_release_date)
+            create(:album_event, event: record, album: album)
+          end
+        end
+      end
+      
+      trait :invalid do
+        name ""
+        shorthand ""
+      end
     end
     
     factory :tag do
       name {Faker::Lorem.sentence}
-      classification {Faker::Lorem.word}
+      classification {Faker::Lorem.words(3)}
       model_bitmask 63
       visibility {Ability::Abilities.sample}
       
@@ -76,6 +97,10 @@ FactoryGirl.define do
           end
         end
       end  
+      
+      trait :invalid do
+        visibility {"haha"}
+      end
     end
     
     factory :image do 
@@ -136,7 +161,11 @@ FactoryGirl.define do
             create(:imagelist, model, image: image)
           end
         end
-      end           
+      end     
+      
+      trait :invalid do
+        path {""}
+      end      
     end
   
     factory :post do
@@ -189,7 +218,11 @@ FactoryGirl.define do
             create(:postlist, model, post: post)
           end
         end
-      end        
+      end     
+      
+      trait :invalid do
+        status {"eife"}
+      end         
     end
   
     factory :issue do
@@ -207,6 +240,10 @@ FactoryGirl.define do
       trait :admin_only do
         visibility "Admin"
       end
+      
+      trait :invalid do
+        status {"eife"}
+      end         
     end
 
   #Secondary Join Table Models

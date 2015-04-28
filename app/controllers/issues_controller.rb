@@ -2,19 +2,43 @@ class IssuesController < ApplicationController
   load_and_authorize_resource
   
   def index
-    @issues = Issue.all
-    @issues = @issues.meets_security(current_user)
+    @issues = Issue.meets_security(current_user)
     @all_issues = @issues
-    @issues = @issues.category(params[:category]) unless params[:category].nil?
-    @issues = @issues.status(params[:status]) unless params[:status].nil?
+    @issues = @issues.with_category(params[:category]) unless params[:category].nil?
+    @issues = @issues.with_status(params[:status]) unless params[:status].nil?
+    @issues = @issues.page(params[:page])
+    
+    respond_to do |format|
+      format.html # index.html.erb
+      format.json { render json: @issues }
+    end    
   end
   
   def show
     @issue = Issue.find(params[:id])
+    
+    respond_to do |format|
+      format.html # show.html.erb
+      format.json { render json: @issue }
+    end
   end
 
   def new
     @issue = Issue.new
+    
+    respond_to do |format|
+      format.html # new.html.erb
+      format.json { render json: @issue }
+    end
+  end
+    
+  def edit
+    @issue = Issue.find(params[:id])
+    
+    respond_to do |format|
+      format.html # edit.html.erb
+      format.json { render json: @issue }
+    end
   end
     
   def create
@@ -31,10 +55,6 @@ class IssuesController < ApplicationController
     end
   end
   
-  def edit
-    @issue = Issue.find(params[:id])
-  end
-    
   def update
     @issue = Issue.find(params[:id])
     

@@ -50,6 +50,9 @@ $(window).load(function(){
             };
             //Change the element's text
             ($(this).text() === "Read More") ? $(this).text("Collapse") : $(this).text("Read More");
+            
+            //Return false
+            return false;
         });
     };
 

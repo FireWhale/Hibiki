@@ -5,7 +5,7 @@
 <% end %>
 
 <div id="seasons">
-  <% @seasons.sort.reverse.each do |year| %>
+  <% @seasons.group_by { |e| e.start_date.year }.sort.reverse.each do |year| %>
     <div class="year">
       <h2><%= year[0] %></h2>
       <% year[1].each do |season| %>

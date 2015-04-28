@@ -138,12 +138,13 @@
       </div>
     <% end %>
     
-
     <% if record.class == Artist || record.class == Source || record.class == Organization %>
       <div id="albums" class="info">
-        <h3>Albums (<%= record.albums.count %>)</h3>
+        <h3>Albums (<%= record.albums.filter_by_user_settings(current_user).count %>) <%= "(#{record.albums.count - record.albums.filter_by_user_settings(current_user).count} Hidden)" unless record.albums.filter_by_user_settings(current_user).count == record.albums.count %> </h3>
         <% unless record.albums.empty? %>
-          <%= render :partial =>  'layouts/primary_models/album_list', :locals => {:albums => record.albums.sort_by(&:release_date).reverse!} %>
+          <div id="albums-list">
+            <%= render :partial =>  'layouts/primary_models/album_list', :locals => {:albums => @albums } %>
+          </div>
         <% else %>
           <%= "This #{record.class.to_s.downcase} has no albums" %>
         <% end %>

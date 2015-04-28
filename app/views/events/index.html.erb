@@ -5,7 +5,7 @@
 <% end %>
 
 <div id="events">
-  <% @events.sort.reverse.each do |year| %>
+  <% @events.group_by {|e| e.start_date.nil? ? 0 : e.start_date.year}.sort.reverse.each do |year| %>
     <div class="year">
       <h2><%= year[0] == 0 ? "No Year" : year[0] %></h2>
       <% year[1].each do |event|%>

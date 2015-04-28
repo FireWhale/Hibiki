@@ -1,8 +1,8 @@
 class PagesController < ApplicationController
     
   def front_page
-    @posts = Post.blog_posts.meets_security(current_user).order(:created_at => :desc).first(5)
-    @albums = Album.order("RAND()").includes(:primary_images, :collections).first(8).shuffle
+    @posts = Post.with_category("Blog Post").meets_security(current_user).order(:created_at => :desc).first(5)
+    @albums = Album.order("RAND()").includes(:primary_images).first(8).shuffle
   end
 
   def help

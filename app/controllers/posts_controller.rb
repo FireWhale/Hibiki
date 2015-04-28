@@ -1,33 +1,63 @@
 class PostsController < ApplicationController
   load_and_authorize_resource
-  
-  def show
-    @post = Post.find(params[:id])
-  end
-  
+   
   def index
-    @posts = Post.blog_posts
-    @posts = @posts.meets_security(current_user)
+    @posts = Post.with_category('Blog Post').meets_security(current_user)
     @all_posts = @posts
     unless params[:tags].nil?
-      @posts = @posts.has_tag(params[:tags])     
+      @posts = @posts.with_tag(params[:tags])     
       @tags = Tag.find(params[:tags])
       @tags = [@tags] unless @tags.class == Array
     end
-    @posts = @posts.order(:created_at => :desc).first(5)   
+    @posts = @posts.order(:id => :desc).page(params[:page])
+    
+    respond_to do |format|
+      format.html # index.html.erb
+      format.json { render json: @posts }
+    end
   end
-  
+   
+  def show
+    @post = Post.find(params[:id])
+
+    respond_to do |format|
+      format.html # show.html.erb
+      format.json { render json: @post }
+    end
+  end
+
+  def show_images
+    @post = Post.includes(:images).find_by_id(params[:id])
+    if params[:image] == "cover"
+      @image = @post.primary_images.first
+    elsif @post.images.map(&:id).map(&:to_s).include?(params[:image])
+      @image = Image.find_by_id(params[:image])
+    else
+      @image = @post.images.first
+    end
+
+    respond_to do |format|
+      format.html 
+      format.json { render json: @post.images }
+    end
+  end
+    
   def new
     @post = Post.new
 
     respond_to do |format|
       format.html # new.html.erb
-      format.json { render json: @album }
+      format.json { render json: @post }
     end
   end
   
   def edit
     @post = Post.find(params[:id])
+    
+    respond_to do |format|
+      format.html # edit.html.erb
+      format.json { render json: @post }
+    end
   end
     
   def create
@@ -55,6 +85,16 @@ class PostsController < ApplicationController
       end
     end
     
+  end
+
+  def destroy
+    @post = Post.find(params[:id])
+    @post.destroy
+
+    respond_to do |format|
+      format.html { redirect_to posts_url }
+      format.json { head :no_content }
+    end
   end
   
 end

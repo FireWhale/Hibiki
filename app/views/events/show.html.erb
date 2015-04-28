@@ -33,9 +33,11 @@
     <% end %>
     
     <div id="albums" class="info">
-      <h3>Albums (<%= @event.albums.count %>)</h3>
+      <h3>Albums (<%= @event.albums.filter_by_user_settings(current_user).count %>) <%= "(#{@event.albums.count - @event.albums.filter_by_user_settings(current_user).count} Hidden)" unless @event.albums.filter_by_user_settings(current_user).count == @event.albums.count %> </h3>
       <% unless @event.albums.empty? %>
-        <%= render :partial =>  'layouts/primary_models/album_list', :locals => {:albums => @event.albums.sort_by(&:release_date).reverse!} %>
+        <div id="albums-list">
+          <%= render :partial =>  'layouts/primary_models/album_list', :locals => {:albums => @albums } %>
+        </div>
       <% else %>
         <%= "This event has no albums" %>
       <% end %>

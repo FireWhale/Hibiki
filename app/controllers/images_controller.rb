@@ -1,7 +1,7 @@
 class ImagesController < ApplicationController  
   load_and_authorize_resource
 
-  def updateimage
+  def update_image
     #This is used for showalbumart and other 'show images for primary models' pages
     @image = Image.find(params[:id])
     @show_nws = params[:show_nws]
@@ -24,14 +24,16 @@ class ImagesController < ApplicationController
       format.json { render json: @image }
     end
   end
-
-  # GET /images/1/edit
+  
   def edit
     @image = Image.find(params[:id])
+    
+    respond_to do |format|
+      format.html # edit.html.erb
+      format.json { render json: @image }
+    end
   end
 
-  # PUT /images/1
-  # PUT /images/1.json
   def update
     @image = Image.find(params[:id])
 
@@ -45,9 +47,7 @@ class ImagesController < ApplicationController
       end
     end
   end
-
-  # DELETE /images/1
-  # DELETE /images/1.json
+  
   def destroy
     @image = Image.find(params[:id])
     if @image.imagelists.empty? == false

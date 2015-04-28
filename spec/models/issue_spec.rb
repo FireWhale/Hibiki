@@ -7,6 +7,9 @@ describe Issue do
     it_behaves_like "it has form_fields"
   end
   
+  #Module Tests
+    it_behaves_like "it has pagination"
+  
   #Association Tests
     it_behaves_like "it has_many through", User, IssueUser, :with_issue_user
 

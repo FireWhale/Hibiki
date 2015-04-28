@@ -54,7 +54,7 @@ class UsersController < ApplicationController
 
   def watchlist
     #Using albums instead of the albumartist/albumorg/albumsource because well, it's simpler code
-    @user = User.includes(:watchlists).find(params[:id])
+    @user = User.includes(:watchlists => [:watched]).find(params[:id])
     
     #group, format, and sort what the user is watching
     @watched = @user.watchlists.group_by(&:grouping_category)

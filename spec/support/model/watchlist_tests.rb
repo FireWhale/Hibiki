@@ -32,7 +32,7 @@ module WatchlistTests
     #Validations
       it "is valid with multiple watchlists" do
         record = create(model_symbol)
-        number = Array(3..10).sample
+        number = Array(3..5).sample
         list = create_list(:watchlist, number, watched: record)
         expect(record.watchlists).to match_array(list)
         expect(record).to be_valid
@@ -40,7 +40,7 @@ module WatchlistTests
       
       it "is valid with multiple watchers" do
         record = create(model_symbol)
-        number = Array(3..10).sample
+        number = Array(3..5).sample
         list = create_list(:watchlist, number, watched: record)    
         expect(record.watchers.count).to eq(number)    
         expect(record).to be_valid

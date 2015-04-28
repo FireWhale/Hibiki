@@ -35,17 +35,17 @@ describe User do
       expect(build(:user, :security => "")).to_not be_valid  
     end
 
-    include_examples "is invalid without an attribute in a category", :user, :security, Array(1..(2**Ability::Abilities.count - 1)).map(&:to_s), "Security bitmask"
+    include_examples "is invalid without an attribute in a category", :security, Array(1..(2**Ability::Abilities.count - 1)).map(&:to_s), "Security bitmask"
     
-    include_examples "is valid with or without an attribute", :user, :profile, "hi"
-    include_examples "is valid with or without an attribute", :user, :sex, "73"
-    include_examples "is valid with or without an attribute", :user, :privacy, "hi"
-    include_examples "is valid with or without an attribute", :user, :usernames, "hi"
-    include_examples "is valid with or without an attribute", :user, :display_bitmask, "hi"
-    include_examples "is valid with or without an attribute", :user, :language_settings, "hi"
-    include_examples "is valid with or without an attribute", :user, :artist_language_settings, "hi"
+    include_examples "is valid with or without an attribute", :profile, "hi"
+    include_examples "is valid with or without an attribute", :sex, "73"
+    include_examples "is valid with or without an attribute", :privacy, "hi"
+    include_examples "is valid with or without an attribute", :usernames, "hi"
+    include_examples "is valid with or without an attribute", :display_bitmask, "hi"
+    include_examples "is valid with or without an attribute", :language_settings, "hi"
+    include_examples "is valid with or without an attribute", :artist_language_settings, "hi"
   
-    it_behaves_like "it has a partial date", :user, :birth_date
+    it_behaves_like "it has a partial date", :birth_date
       
   #Serialization Tests
     #None

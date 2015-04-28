@@ -11,23 +11,22 @@ gem 'sass-rails',   '>= 3.2'
 gem 'bootstrap-sass', '~> 3.2.0.2' #bootstrap
 gem 'nokogiri' #Scraping
 gem 'mechanize' #Scraping/Posting
-gem 'puma', '2.6.0'
 gem 'jquery-rails'
 gem 'jquery-ui-rails'
 gem 'rails-jquery-autocomplete'
+gem 'lazyload-rails'
 gem 'mini_magick', '3.5.0' #Image manipulation
 gem 'sunspot_rails', github: "betam4x/sunspot" # , '2.1.1'
 gem 'sunspot_solr', github: "betam4x/sunspot" # '2.1.1'
-gem 'protected_attributes'
 gem 'sidekiq', '2.16.1'
 gem 'mysql2', '0.3.15'
-gem 'whenever', :require => false
-gem 'lazyload-rails'
+gem 'whenever', :require => false #Cron job gem
+gem 'protected_attributes'
 gem 'truncate_html'
 
-#gem 'did_you_mean', group: [:development, :test] #Thanks shard
-
 group :development, :test do
+  gem 'bullet', platforms: [:mingw, :mswin]
+  gem 'puma', '2.6.0'
   gem 'rspec-rails'
   gem 'factory_girl_rails'
   gem 'uglifier', '>= 1.0.3'

@@ -19,7 +19,7 @@
       <div class="panel">
         <div class="panel-heading">Tags</div>
         <div class="nav nav-pills nav-stacked">
-          <% Tag.model_tags("Post").each do |tag| %>
+          <% Tag.with_model("Post").each do |tag| %>
             <li><%= link_to "#{tag.name} (#{@all_posts.has_tag(tag.id).count})", posts_path(tags: tag) %></li>
           <% end %>
         </div>
