@@ -6,7 +6,7 @@ class ArtistsController < ApplicationController
                
 
   def index
-    @artists = Artist.order(:name).includes([:watchlists, :tags, artist_albums: {album: [:primary_images]}]).page(params[:page])
+    @artists = Artist.order(:name).includes([:watchlists, :tags, albums: :primary_images]).page(params[:page])
     
     respond_to do |format|
       format.html # index.html.erb

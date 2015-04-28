@@ -5,7 +5,7 @@ class OrganizationsController < ApplicationController
                :display_value => :edit_format
 
   def index
-    @organizations = Organization.order(:name).includes({album_organizations: {album: :primary_images}}).page(params[:page])
+    @organizations = Organization.order(:name).includes(:watchlists, :tags, albums: :primary_images).page(params[:page])
 
     respond_to do |format|
       format.html # index.html.erb
@@ -14,10 +14,10 @@ class OrganizationsController < ApplicationController
   end
 
   def show
-    @organization = Organization.includes(:artists, :sources, :images, :albums => [:primary_images, :tags]).find(params[:id])
+    @organization = Organization.includes(:watchlists, [artists: :watchlists], :sources, :images, :albums => [:primary_images, :tags]).find(params[:id])
     self_relation_helper(@organization,@related = {}) #Prepare @related (self_relations)
 
-    @albums = @organization.albums.includes(:primary_images, :tags).filter_by_user_settings(current_user).order('release_date DESC').page(params[:album_page])
+    @albums = @organization.albums.filter_by_user_settings(current_user).order('release_date DESC').page(params[:album_page])
 
     respond_to do |format|
       format.js

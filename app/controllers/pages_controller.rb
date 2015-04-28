@@ -26,7 +26,13 @@ class PagesController < ApplicationController
       includes = [:tags]
       if model == "artist" || model == "organization" || model == "source"
         includes.push(:watchlists)
+        includes.push(albums: :primary_images)
+      elsif model == "song"
+        includes.push(album: :primary_images)
+      elsif model == "album"
+        includes.push(:primary_images)
       end
+      
       search = model.capitalize.constantize.search(:include => includes) do
         fulltext params[:search]
         order_by(:release_date) if model == "album"

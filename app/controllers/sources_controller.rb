@@ -17,7 +17,7 @@ class SourcesController < ApplicationController
     @source = Source.includes([:watchlists, :albums => [:primary_images, :tags]]).find(params[:id])
     self_relation_helper(@source,@related = {}) #Prepare @related (self_relations)
     
-    @albums = @source.albums.includes(:primary_images, :tags).filter_by_user_settings(current_user).order('release_date DESC').page(params[:album_page])
+    @albums = @source.albums.filter_by_user_settings(current_user).order('release_date DESC').page(params[:album_page])
     
     respond_to do |format|
       format.html # show.html.erb
