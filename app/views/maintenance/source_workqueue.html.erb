@@ -4,13 +4,7 @@
   <h2 class="text-center">Source Material Workqueue (<%= @sources.total_count %>)</h2>
 <% end %>
 
-<div class="row-fluid">
-  <%= paginate @sources %>
-  <div class="well">
-    <%= render 'layouts/artist_org_source_index', :collection => @sources %>
-  </div>
-  <%= paginate @sources %>
+<div id="index">
+  <%= render :partial => 'layouts/primary_models/record_list', locals: {records: @sources} %>
 </div>
-  
-<% content_for :usersidebar do %>
-<% end %>
+

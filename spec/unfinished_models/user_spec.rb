@@ -1,22 +1,18 @@
 require 'rails_helper'
+require 'cancan/matchers'
 
 describe User do
-  #Gutcheck Test
-    it "has a valid factory" do
-      instance = create(:user)
-      expect(instance).to be_valid
-    end
+  include_examples "global model tests" #Global Tests
     
-  #Association tests
-    it "has many collections"
-    it "has many watchlists"
-    it "has many Ratings"
-    it "has many IssueUsers"
+  describe "Association Tests" do
     it_behaves_like "it has images"
-    it "has many posts as user"
-    it "has many posts as recipient"
+    
+    it "has many collections"
+    it "has many watchlists"    
       
-  #Validation Tests
+  end
+  
+  describe "Validation Tests" do
     include_examples "is invalid without an attribute", :name
     include_examples "is invalid without an attribute", :email  
     
@@ -46,18 +42,36 @@ describe User do
     include_examples "is valid with or without an attribute", :artist_language_settings, "hi"
   
     it_behaves_like "it has a partial date", :birth_date
+  end
       
-  #Serialization Tests
-    #None
+  describe "Authentication Tests" do
+    it "acts as authentic"
+  end
     
-  #Instance Method Tests
+  describe "Instance Method Tests" do
     it "can update_profile"
     
     it "can update_security"
-  
-  #Class Method Tests    
     
+    it "can send a password reset form"
     
+    it "can send a user_confirmation email"
+    #it needs to be confirmed to add watchlists/collections? Maybe in the future
+    
+    describe "get data" do
+      it "can get display_settings"
+      
+      it "can get abilities"
+      
+      it "can get album/song filter" do
+        #It returns an array of categories to filter out
+        #parsed from display_settings
+      end
+    end  
+  end
+  describe "Class Method Tests" do  
+    it "can get a security_bitmask"
+  end
     
   #Scope Tests
     

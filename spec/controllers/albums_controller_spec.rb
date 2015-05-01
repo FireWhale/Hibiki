@@ -18,7 +18,7 @@ describe AlbumsController do
         if accessible == true
           expect(response.body).to eq(album.to_json)
         else
-          valid_permissions(:edit_tracklist, accessible)
+          expect(response.status).to eq(403)
         end
       end
        

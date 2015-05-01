@@ -20,6 +20,7 @@ class Album < ActiveRecord::Base
       include ImageModule
       include PostModule
       include TagModule
+      include CollectionModule
 
   #Callbacks/Hooks
     
@@ -126,19 +127,10 @@ class Album < ActiveRecord::Base
     #Secondary Associations
       has_many :album_events
       has_many :events, through: :album_events, dependent: :destroy
-      
-    #User Aassociations
-      has_many :collections, dependent: :destroy
-      has_many :collectors, through: :collections, source: :user
-  
+        
   #Scopes  
     scope :with_status, ->(statuses) {where('status IN (?)', statuses)}
     scope :in_date_range, ->(start_date, end_date) {where("albums.release_date >= ? and albums.release_date <= ? ", start_date, end_date)}
-    
-    scope :in_collection, ->(userids, *relationships) {first_pass = joins(:collections).where("collections.user_id IN (?)", userids).uniq unless userids.nil?
-                                                        relationships.empty? || relationships == [nil] ? first_pass : first_pass.where("collections.relationship IN (?)", relationships.flatten) unless userids.nil?}
-    scope :not_in_collection, ->(userids) {joins("LEFT OUTER JOIN(#{Collection.where("collections.user_id IN (?)", userids).to_sql}) t1 ON t1.album_id = albums.id").where(:t1 => {:id => nil}) unless userids.nil?}
-    scope :collection_filter, ->(user1_id, relationship, user2_id) {from("((#{Album.in_collection(user1_id, relationship).to_sql}) union (#{Album.not_in_collection(user2_id).to_sql})) #{Album.table_name} ")}
         
     #These following three scopes are necessary because with_aos handles nil differently
     scope :artist_proc, ->(artist_ids) {joins(:artist_albums).where('artist_albums.artist_id IN (?)', artist_ids).uniq}

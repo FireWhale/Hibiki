@@ -29,11 +29,7 @@ class Issue < ActiveRecord::Base
     validates :category, presence: true, inclusion: Issue::Categories
     validates :visibility, presence: true, inclusion: Ability::Abilities
     validates :status, presence: true, inclusion: Issue::Status
-    
-  #Associations
-    has_many :issue_users, dependent: :destroy
-    has_many :users, through: :issue_users
-    
+        
   #Scope
     scope :with_category, ->(categories) { where('category IN (?)', categories)}
     scope :with_status, ->(statuses) {where('status IN (?)', statuses)}

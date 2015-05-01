@@ -28,12 +28,6 @@ FactoryGirl.define do
         end            
       end
 
-      trait :with_collection do
-        after(:create) do |record|
-          create(:collection, album: record)
-        end
-      end
-
       trait :with_album_event do
         after(:create) do |record|
           create(:album_event, album: record)

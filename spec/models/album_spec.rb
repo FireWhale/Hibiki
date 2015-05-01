@@ -17,12 +17,12 @@ describe Album do
     it_behaves_like "it has posts"
     it_behaves_like "it has tags"
     it_behaves_like "it has self-relations"
+    it_behaves_like "it has collections"
     
     include_examples "it has a primary relation", Artist, ArtistAlbum
     include_examples "it has a primary relation", Organization, AlbumOrganization
     include_examples "it has a primary relation", Source, AlbumSource
     include_examples "it has_many through", Event, AlbumEvent, :with_album_event
-    include_examples "it has_many through", User, Collection, :with_collection
     
     describe "it has a relationship with songs" do   
       it "has many songs" do
@@ -104,9 +104,9 @@ describe Album do
       album3 = create(:album)
       album4 = create(:album)
       user = create(:user)
-      collection = create(:collection, album: album1, user: user, relationship: "Collected")
-      collection = create(:collection, album: album2, user: user, relationship: "Ignored")
-      collection = create(:collection, album: album3, user: user, relationship: "Wishlisted")
+      collection = create(:collection, collected: album1, user: user, relationship: "Collected")
+      collection = create(:collection, collected: album2, user: user, relationship: "Ignored")
+      collection = create(:collection, collected: album3, user: user, relationship: "Wishlisted")
       expect(album4.collected_category(user)).to eq("")
       expect(album1.collected_category(user)).to eq("Collected")
       expect(album2.collected_category(user)).to eq("Ignored")
@@ -593,116 +593,8 @@ describe Album do
     it_behaves_like "filters by tag"    
     it_behaves_like "filters by date range", "release_date"
     it_behaves_like "filters by self relation categories"
-    
-    describe "filters by collection" do
-      let(:album1) {create(:album)}
-      let(:album2) {create(:album)}
-      let(:album3) {create(:album)}
-      let(:album4) {create(:album)}
-      let(:album5) {create(:album)}
-      let(:album6) {create(:album)}
-      let(:user1) {create(:user)} # Basic
-      let(:user2) {create(:user)} # Tests types of favorites
-      let(:user3) {create(:user)} # has a mix of favorites
-      let(:user4) {create(:user)} # Does not have any collections
-      
-      before(:each) do
-        create(:collection, user: user1, album: album1, relationship: "Collected")
-        create(:collection, user: user1, album: album2, relationship: "Collected")
-        create(:collection, user: user1, album: album3, relationship: "Wishlisted")
-        create(:collection, user: user2, album: album1, relationship: "Collected")
-        create(:collection, user: user2, album: album4, relationship: "Ignored")
-        create(:collection, user: user2, album: album5, relationship: "Wishlisted")
-        create(:collection, user: user2, album: album6, relationship: "Collected")
-        create(:collection, user: user3, album: album1, relationship: "Collected")
-        create(:collection, user: user3, album: album5, relationship: "Ignored")
-        create(:collection, user: user3, album: album2, relationship: "Ignored")
-      end
-      
-      describe "it filters by collection" do
-        it "matches a single user" do
-          expect(Album.in_collection(user1)).to match_array([album1,album2, album3])
-        end
+    it_behaves_like "filters by collection"
         
-        it "matches several users" do
-          expect(Album.in_collection([user1,user2])).to match_array([album1,album2,album3,album4, album5,album6])
-        end
-        
-        it "matches a category" do
-          expect(Album.in_collection(user1, "Collected")).to match_array([album1,album2])          
-        end
-        
-        it "matches multiple categories" do
-          expect(Album.in_collection(user2, ["Collected", "Wishlisted"])).to match_array([album1,album5, album6])          
-        end
-        
-        it "returns all if user is nil" do
-          expect(Album.in_collection(nil)).to match_array([album1,album2, album3, album4, album5, album6])          
-        end
-        
-        it "ignores the second parameter if users are nil" do
-          expect(Album.in_collection(nil, "Collected")).to match_array([album1,album2, album3, album4, album5, album6])                   
-        end
-        
-        it "ignores a nil favorite string" do
-          expect(Album.in_collection(user3, nil)).to match_array([album1,album2, album5])          
-        end
-        
-        it "is an active record relation" do
-          expect(Album.in_collection(user3.id).class).to_not be_a(Array)
-        end
-      end
-      
-      describe "it filters by not in collection" do
-        it "removes albums that are in the user's collection" do
-          expect(Album.not_in_collection(user1)).to match_array([album4,album5, album6])
-        end
-        
-        it "removes albums that are in any of the users' collection" do
-          expect(Album.not_in_collection([user3.id, user2.id])).to match_array([album3])
-        end
-        
-        it "removes records based on either user" do
-          expect(Album.not_in_collection([user1.id, user3.id])).to match_array([album4, album6])
-        end
-        
-        it "returns all records if nil is passed in" do
-          expect(Album.not_in_collection(nil)).to match_array([album1,album2, album3, album4, album5, album6])
-        end
-        
-        it "is an active record relation" do
-          expect(Album.not_in_collection(user3.id).class).to_not be_a(Array)
-        end
-      end
-      
-      describe "it joints the two and returns any albums that match" do
-        it "returns records that match either filter" do
-          expect(Album.collection_filter(user2.id, ['Collected'], user3.id)).to match_array([album1,album3,album4,album6])          
-        end
-        
-        it "will return records that are filtered by the other" do
-          expect(Album.collection_filter(user1.id, ['Wishlisted'], user1.id)).to match_array([album5,album3,album4,album6])                    
-        end
-        
-        it "returns all records if nil is passed into user1" do
-          expect(Album.collection_filter(nil, ['Collected', 'Ignored', 'Wishlisted'], user2.id)).to match_array([album1,album2,album3,album4,album5,album6])
-        end
-        
-        it "returns all records if nil is passed into user2" do
-          expect(Album.collection_filter(user1.id, ['Collected', 'Ignored', 'Wishlisted'], nil)).to match_array([album1,album2,album3,album4,album5,album6])         
-        end
-        
-        it "returns all records if [c, i, w] is passed in with the same user" do
-          expect(Album.collection_filter(user1.id, ['Collected', 'Ignored', 'Wishlisted'], user1.id)).to match_array([album1,album2,album3,album4,album5,album6])
-        end
-        
-        it "returns an active record relation" do
-          expect(Album.collection_filter(user1.id, 'Collected', user2.id).class).to_not be_a(Array)
-        end
-        
-      end
-    end
-    
     describe "filters by AOS" do
       let(:album1) {create(:album)} 
       let(:album2) {create(:album)}
@@ -814,10 +706,10 @@ describe Album do
       let(:album6) {create :album} #Watched album from user 1
       let(:album7) {create :album} #no relations, should always return
       before(:each) do
-        create(:collection, user: user1, album: album1, relationship: "Ignored")
-        create(:collection, user: user2, album: album2, relationship: "Ignored")
-        create(:collection, user: user1, album: album5, relationship: "Ignored")
-        create(:collection, user: user1, album: album6, relationship: "Wishlisted")
+        create(:collection, user: user1, collected: album1, relationship: "Ignored")
+        create(:collection, user: user2, collected: album2, relationship: "Ignored")
+        create(:collection, user: user1, collected: album5, relationship: "Ignored")
+        create(:collection, user: user1, collected: album6, relationship: "Wishlisted")
         create(:related_albums, album1: album3, album2: album1, category: "Limited Edition")
         create(:related_albums, album1: album4, album2: album2, category: "Reprint")
       end
@@ -851,7 +743,7 @@ describe Album do
       
       it "filters an album out if it matches on ignored but not LE" do
         user1.update_attribute("display_bitmask", 1)
-        create(:collection, user: user1, album: album3, relationship: "Ignored")
+        create(:collection, user: user1, collected: album3, relationship: "Ignored")
         create(:related_albums, album1: album6, album2: album1, category: "Limited Edition")
         expect(Album.filter_by_user_settings(user1)).to match_array([album2,album6,album7])        
       end

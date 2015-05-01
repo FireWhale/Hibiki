@@ -13,7 +13,9 @@ class Event < ActiveRecord::Base
   #Constants
     FullUpdateFields = {reference: true}    
     
-    FormFields = [{type: "text", attribute: :name, label: "Name:"}, 
+    FormFields = [{type: "markup", tag_name: "div class='row'"},{type: "markup", tag_name: "div class='col-md-2'"},{type: "markup", tag_name: "/div"},
+                  {type: "markup", tag_name: "div class='col-md-8'"},
+                  {type: "text", attribute: :name, label: "Name:"}, 
                   {type: "text", attribute: :altname, label: "Alt Name:"},
                   {type: "text", attribute: :abbreviation, label: "Abbreviation:"},
                   {type: "text", attribute: :shorthand, label: "Shorthand:"}, 
@@ -21,8 +23,8 @@ class Event < ActiveRecord::Base
                   {type: "date", attribute: :start_date, label: "Start Date:"}, 
                   {type: "date", attribute: :end_date, label: "End Date:"}, 
                   {type: "references"},
-                  {type: "text_area", attribute: :info, rows: 4, label: "Info:"},
-                  ] 
+                  {type: "text_area", attribute: :info, rows: 4, label: "Info:"},{type: "markup", tag_name: "/div"},
+                  {type: "markup", tag_name: "div class='col-md-2'"},{type: "markup", tag_name: "/div"},{type: "markup", tag_name: "/div"}] 
     
   #Associations
     has_many :album_events, dependent: :destroy  

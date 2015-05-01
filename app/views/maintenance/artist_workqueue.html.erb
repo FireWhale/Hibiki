@@ -4,14 +4,7 @@
   <h2 class="text-center">Artists Workqueue</h2>
 <% end %>
 
-<div>
-  <%= paginate @artists %>
-  <div class="well">
-    <%= render 'layouts/artist_org_source_index', :collection => @artists %>
-  </div>
-  <%= paginate @artists %>
+<div id="index">
+  <%= render :partial => 'layouts/primary_models/record_list', locals: {records: @artists} %>
 </div>
-
-<% content_for :usersidebar do %>
-<% end %>
 

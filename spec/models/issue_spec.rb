@@ -9,9 +9,6 @@ describe Issue do
   
   #Module Tests
     it_behaves_like "it has pagination"
-  
-  #Association Tests
-    it_behaves_like "it has_many through", User, IssueUser, :with_issue_user
 
   #Validation Tests
     include_examples "is invalid without an attribute", :name

@@ -7,8 +7,8 @@
 <h5>Created at: <%= @post.created_at %></h5>
 <h5>Last 58 characters: <%= @post.content[-58..-1] %></h5>
 <div>
-  <%= link_to "Previous Post", maintenance_scraperesults_path(:post_id => @post.id - 1) %>
-  <%= link_to "Next Post", maintenance_scraperesults_path(:post_id => @post.id + 1) %>
+  <%= link_to "Previous Post", maintenance_scrape_results_path(:post_id => @post.id - 1) %>
+  <%= link_to "Next Post", maintenance_scrape_results_path(:post_id => @post.id + 1) %>
 </div>
 
 <div class='row'>

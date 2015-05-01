@@ -11,30 +11,9 @@ describe Post do
   #Association Test
     it_behaves_like "it is a polymorphically-linked class", Postlist, [Album, Artist, Organization, Source, Song], "model"
   
-    it "can belong to a user" do
-      expect(create(:post, :by_user).user).to be_a User
-      expect(Post.reflect_on_association(:user).macro).to eq(:belongs_to)
-    end
-    
-    it "can go to a recipient" do
-      expect(create(:post, :to_recipient).recipient).to be_a User
-      expect(Post.reflect_on_association(:recipient).macro).to eq(:belongs_to)      
-    end
-        
-    it "does not destroy users when destroyed" do
-      post = create(:post, :by_user)
-      expect{post.destroy}.to change(User, :count).by(0)      
-    end
-    
-    it "does not destroy recipients when destroyed" do
-      post = create(:post, :to_recipient)
-      expect{post.destroy}.to change(User, :count).by(0)      
-    end
-    
     it "returns a full list of records back (with records)"
     
-    it "returns records back as an activerecord association"
-    
+    it "returns records back as an activerecord association"    
     
   #Validation Tests
     include_examples "is invalid without an attribute", :category
@@ -47,35 +26,9 @@ describe Post do
 
     include_examples "is valid with or without an attribute", :title, "hi"
     include_examples "is valid with or without an attribute", :content, "haha this is content!"
-    include_examples "is valid with or without an attribute", :user_info, "User:, Recipient:"
    
     it "is valid with multiple postlists" do
        expect(build(:post, :with_multiple_postlists)).to be_valid
-    end
-
-    it "is valid without a user" do
-      expect(build(:post, user_id: nil, category: "Scrape Result")).to be_valid
-    end
-    
-    it "is invalid without a user if category is Blog Post" do
-      expect(build(:post, user_id: nil, category: "Blog Post")).to_not be_valid
-    end
-
-    it "is invalid without a real user if category is Blog Post" do
-      expect(build(:post, user_id: 999999999, category: "Blog Post")).to_not be_valid
-    end
-    
-    it "is invalid without a real user and recipient if category is Private Message" do
-      expect(build(:post, user_id: nil, category: "Private Message")).to_not be_valid
-      expect(build(:post, user_id: 999999999, category: "Private Message")).to_not be_valid
-      expect(build(:post, recipient_id: nil, category: "Blog Post")).to_not be_valid
-      expect(build(:post, recipient_id: 999999999, category: "Blog Post")).to_not be_valid
-    end
-                
-    it "is valid even with all fields duplicated" do
-      @user = create(:user)
-      expect(create(:post, user: @user, recipient: @user, title: "hi")).to be_valid
-      expect(build(:post, user: @user, recipient: @user, title: "hi")).to be_valid
     end
     
   #Scoping Tests
@@ -124,12 +77,7 @@ describe Post do
       it "uploads an image"
        
       it "associates an image found on another model"
-      
-      it "associates the user"
-      
-      it "associates the recipient"
-      
-      it "adds the user and recipient to the recipient field" #in case the user or recipient is destroyed
+            
     end
   
   

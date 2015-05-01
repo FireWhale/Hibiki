@@ -30,8 +30,8 @@
           Admin<%= content_tag(:b, "", class: 'caret') %>
         <% end %>
         <ul class="dropdown-menu">
-          <li id="admin-scrape"><%= link_to "Scrape", maintenance_scrapeanalbum_path %></li>
-          <li id="admin-scrape"><%= link_to "Scrape Results", maintenance_scraperesults_path %></li>
+          <li id="admin-scrape"><%= link_to "Scrape", maintenance_new_scrape_path %></li>
+          <li id="admin-scrape"><%= link_to "Scrape Results", maintenance_scrape_results_path %></li>
         </ul>
       </li>      
     <% end %>

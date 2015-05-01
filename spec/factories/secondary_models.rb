@@ -172,15 +172,7 @@ FactoryGirl.define do
       category "Rescrape Result"
       visibility {Ability::Abilities.sample}
       status {Post::Status.sample}
-      
-      trait :by_user do
-        association :user, factory: :user 
-      end
-      
-      trait :to_recipient do
-        association :recipient, factory: :user
-      end
-      
+            
       trait :with_postlist_album do
         after(:create) do |post|
           create(:postlist, :with_album, post: post)
@@ -230,13 +222,7 @@ FactoryGirl.define do
       category {Issue::Categories.sample}
       visibility {Ability::Abilities.sample}
       status {Issue::Status.sample}
-      
-      trait :with_issue_user do
-        after(:create) do |issue|
-          create(:issue_user, issue: issue)
-        end
-      end
-      
+            
       trait :admin_only do
         visibility "Admin"
       end

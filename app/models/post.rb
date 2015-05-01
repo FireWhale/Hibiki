@@ -1,8 +1,7 @@
 class Post < ActiveRecord::Base
   #Attributes
     attr_accessible :title, :content,
-                    :category, :timestampe,  :visibility, :status,
-                    :user_id, :recipient_id, :user_info
+                    :category, :timestampe,  :visibility, :status
                     
   #Modules
     include FullUpdateModule
@@ -21,16 +20,17 @@ class Post < ActiveRecord::Base
 
     FullUpdateFields = {images: ["id", "postimages/", "Primary"]}  
 
-    FormFields = [{type: "text", attribute: :title, label: "Title:"}, 
+    FormFields = [{type: "markup", tag_name: "div class='row'"},{type: "markup", tag_name: "div class='col-md-2'"},{type: "markup", tag_name: "/div"},
+                  {type: "markup", tag_name: "div class='col-md-8'"},
+                  {type: "text", attribute: :title, label: "Title:"}, 
                   {type: "select", attribute: :category, label: "Category:", categories: Post::Categories},
                   {type: "select", attribute: :visibility, label: "Visibility:", categories: Ability::Abilities},
                   {type: "select", attribute: :status, label: "Status:", categories: Post::Status},
                   {type: "current_user_id", attribute: :user_id},
-                  {type: "images"}, {type: "text_area", attribute: :content, rows: 30, label: "Info:"}]
+                  {type: "images"}, {type: "text_area", attribute: :content, rows: 20, label: "Info:"},{type: "markup", tag_name: "/div"},
+                  {type: "markup", tag_name: "div class='col-md-2'"},{type: "markup", tag_name: "/div"},{type: "markup", tag_name: "/div"}]
     
   #Validation
-    validates :user, presence: true, if: ->(post){post.category == "Blog Post" || post.category == "Private Message"}
-    validates :recipient, presence: true, if: ->(post){post.category == "Private Message"}
     validates :category, inclusion: Post::Categories
     validates :visibility, presence: true, inclusion: Ability::Abilities
     validates :status, inclusion: Post::Status

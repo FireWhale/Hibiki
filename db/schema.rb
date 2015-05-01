@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150330222346) do
+ActiveRecord::Schema.define(version: 20150430220306) do
 
   create_table "album_events", force: :cascade do |t|
     t.integer  "album_id",   limit: 4
@@ -141,15 +141,20 @@ ActiveRecord::Schema.define(version: 20150330222346) do
   add_index "artists", ["status"], name: "index_artists_on_status", using: :btree
 
   create_table "collections", force: :cascade do |t|
-    t.integer  "user_id",      limit: 4
-    t.integer  "album_id",     limit: 4
-    t.integer  "rating",       limit: 4
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
-    t.string   "relationship", limit: 255
+    t.integer  "user_id",               limit: 4
+    t.integer  "collected_id",          limit: 4
+    t.integer  "rating",                limit: 4
+    t.datetime "created_at",                        null: false
+    t.datetime "updated_at",                        null: false
+    t.string   "relationship",          limit: 255
+    t.string   "collected_type",        limit: 255
+    t.string   "user_comment",          limit: 255
+    t.date     "date_obtained"
+    t.integer  "date_obtained_bitmask", limit: 4
   end
 
-  add_index "collections", ["album_id"], name: "index_collections_on_album_id", using: :btree
+  add_index "collections", ["collected_id"], name: "index_collections_on_collected_id", using: :btree
+  add_index "collections", ["collected_type"], name: "index_collections_on_collected_type", using: :btree
   add_index "collections", ["rating"], name: "index_collections_on_rating", using: :btree
   add_index "collections", ["relationship"], name: "index_collections_on_relationship", using: :btree
   add_index "collections", ["user_id"], name: "index_collections_on_user_id", using: :btree
@@ -207,18 +212,6 @@ ActiveRecord::Schema.define(version: 20150330222346) do
 
   add_index "images", ["primary_flag"], name: "index_images_on_category", using: :btree
   add_index "images", ["rating"], name: "index_images_on_rating", using: :btree
-
-  create_table "issue_users", force: :cascade do |t|
-    t.integer  "issue_id",   limit: 4
-    t.integer  "user_id",    limit: 4
-    t.text     "comment",    limit: 65535
-    t.string   "vote",       limit: 255
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
-  end
-
-  add_index "issue_users", ["issue_id"], name: "index_issue_users_on_issue_id", using: :btree
-  add_index "issue_users", ["user_id"], name: "index_issue_users_on_user_id", using: :btree
 
   create_table "issues", force: :cascade do |t|
     t.string   "name",         limit: 255
@@ -295,38 +288,19 @@ ActiveRecord::Schema.define(version: 20150330222346) do
   add_index "postlists", ["post_id"], name: "index_postlists_on_post_id", using: :btree
 
   create_table "posts", force: :cascade do |t|
-    t.string   "category",     limit: 255
-    t.binary   "content",      limit: 16777215
-    t.integer  "user_id",      limit: 4
-    t.string   "visibility",   limit: 255
-    t.integer  "recipient_id", limit: 4
-    t.string   "user_info",    limit: 255
+    t.string   "category",   limit: 255
+    t.binary   "content",    limit: 16777215
+    t.string   "visibility", limit: 255
     t.datetime "timestamp"
-    t.datetime "created_at",                    null: false
-    t.datetime "updated_at",                    null: false
-    t.string   "title",        limit: 255
-    t.string   "status",       limit: 255
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+    t.string   "title",      limit: 255
+    t.string   "status",     limit: 255
   end
 
   add_index "posts", ["category"], name: "index_posts_on_category", using: :btree
-  add_index "posts", ["recipient_id"], name: "index_posts_on_recipient_id", using: :btree
   add_index "posts", ["status"], name: "index_posts_on_status", using: :btree
-  add_index "posts", ["user_id"], name: "index_posts_on_user_id", using: :btree
   add_index "posts", ["visibility"], name: "index_posts_on_visibility", using: :btree
-
-  create_table "ratings", force: :cascade do |t|
-    t.integer  "user_id",    limit: 4
-    t.string   "song_id",    limit: 255
-    t.integer  "rating",     limit: 4
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
-    t.string   "favorite",   limit: 255
-  end
-
-  add_index "ratings", ["favorite"], name: "index_ratings_on_favorite", using: :btree
-  add_index "ratings", ["rating"], name: "index_ratings_on_rating", using: :btree
-  add_index "ratings", ["song_id"], name: "index_ratings_on_song_id", using: :btree
-  add_index "ratings", ["user_id"], name: "index_ratings_on_user_id", using: :btree
 
   create_table "related_albums", force: :cascade do |t|
     t.integer  "album1_id",  limit: 4

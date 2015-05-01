@@ -37,31 +37,39 @@ RSpec.configure do |config|
   config.include LanguageTests, type: :model
   config.include PaginationTests, type: :model
   config.include PostTests, type: :model
+  config.include ScopingTests, type: :model
   config.include SearchTests, type: :model
   config.include TagTests, type: :model
   config.include WatchlistTests, type: :model
+  
+  #database cleaner
+  config.before(:suite) do
+    DatabaseCleaner.strategy = :transaction
+    DatabaseCleaner.clean_with(:truncation)
+  end
+  
+  config.before(:each) do
+    DatabaseCleaner.start
+  end
+  
+  config.after(:each) do
+    DatabaseCleaner.clean
+  end
+  
   # If you're not using ActiveRecord, or you'd prefer not to run each of your
   # examples within a transaction, remove the following line or assign false
   # instead of true.
   config.use_transactional_fixtures = true
 
+  #Using expect and/or should
   config.expect_with :rspec do |c|
-    # ...or explicitly enable both
-    c.syntax = [:should, :expect]
+    # Just use expect
+    c.syntax = :expect
   end
+  
+  #Capybara wait time
+  Capybara.default_wait_time = 5
 
-  # RSpec Rails can automatically mix in different behaviours to your tests
-  # based on their file location, for example enabling you to call `get` and
-  # `post` in specs under `spec/controllers`.
-  #
-  # You can disable this behaviour by removing the line below, and instead
-  # explicitly tag your specs with their type, e.g.:
-  #
-  #     RSpec.describe UsersController, :type => :controller do
-  #       # ...
-  #     end
-  #
-  # The different available types are documented in the features, such as in
-  # https://relishapp.com/rspec/rspec-rails/docs
+  #automatically tags controllers as controllers and so forth
   config.infer_spec_type_from_file_location!
 end

@@ -26,6 +26,12 @@ FactoryGirl.define do
       end    
     end
     
+    trait :with_collector do
+      after(:create) do |record|
+        create(:collection, collected: record)
+      end
+    end
+    
     trait :with_info do
       info {Faker::Lorem.paragraphs(2)}
     end

@@ -22,23 +22,28 @@
     }
   }
 }
-  .form-horizontal select {
-    margin-left: 8px;
-    width: 25%;
-  }
-  
-  .input-xmini {
-   width: 5%;
-  }    
-  
-  .input-xlarge {
-    width: 35%;
-  }
 
-  .input-xsmall {
-   width: 10% !important;
-  }
-  
-  .field_with_errors {
-    display: inline-block;
-  }
+.form-horizontal select {
+  margin-left: 8px;
+  width: 25%;
+}
+
+.input-xmini {
+ width: 5%;
+}    
+
+.input-xlarge {
+  width: 35%;
+}
+
+.input-xsmall {
+ width: 10% !important;
+}
+
+.field_with_errors {
+  display: inline-block;
+}
+
+.submit {
+  text-align: center;
+}

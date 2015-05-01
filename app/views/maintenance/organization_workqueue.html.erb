@@ -1,0 +1,9 @@
+<% content_for :title do %>Organizations Workqueue<% end %>
+
+<% content_for :header do %>
+  <h2 class="text-center">Organizations Workqueue</h2>
+<% end %>
+
+<div id="index">
+  <%= render :partial => 'layouts/primary_models/record_list', locals: {records: @organizations} %>
+</div>

@@ -6,11 +6,17 @@ class ApplicationController < ActionController::Base
   helper_method :current_user_session, :current_user, :name_language_helper, :watched?
   
   rescue_from CanCan::AccessDenied do |exception|
-    render "pages/access_denied" 
+    respond_to do |format|
+      format.html { render "pages/access_denied" }
+      format.json { head :forbidden }
+    end
   end
   
   rescue_from ActiveRecord::RecordNotFound do |exception|
-    render "pages/record_not_found"
+    respond_to do |format|
+      format.html { render "pages/record_not_found" }
+      format.json { head :not_found }      
+    end
   end
   
   #User methods!

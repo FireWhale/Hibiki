@@ -17,23 +17,18 @@ FactoryGirl.define do
     
     factory :collection do 
       relationship {Collection::Relationship.sample}
-      association :album
+      association :collected, factory: :album
       association :user
+      
+      trait :with_album do
+        association :collected, factory: :album
+      end
+      
+      trait :with_song do
+        association :collected, factory: :song
+      end
     end
-    
-    factory :issue_user do
-      comment {Faker::Lorem.paragraph}
-      vote {Faker::Number.digit}
-      association :issue
-      association :user
-    end
-    
-    factory :rating do
-      rating {[1.100].sample}
-      association :song
-      association :user
-    end
-    
+            
     factory :watchlist do
       association :user
       association :watched, factory: :artist

@@ -4,7 +4,6 @@ class ArtistsController < ApplicationController
   autocomplete :artist, :namehash, :full => true, :extra_data => [:name], 
                :display_value => :edit_format  
                
-
   def index
     @artists = Artist.order(:name).includes([:watchlists, :tags, albums: :primary_images]).page(params[:page])
     

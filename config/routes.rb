@@ -71,14 +71,18 @@ Hibiki::Application.routes.draw do
 
   namespace :maintenance do
     get '/', :action => 'index'
-    get 'scrapeanalbum'
-    get 'scraperesults'
+    get 'new_scrape'
     post 'scrape'
-    get 'new_scrapes'
+    get 'scrape_results'
+    get 'generate_urls'
     post 'update_scrape_number'
+    
     get 'artist_workqueue'
     get 'source_workqueue'
-    get 'updated_albums'
+    get 'organization_workqueue'
+    
+    get 'update_available_albums'
+    
     get 'le_workqueue'
     get 'released_review'
     get 'released_review_drill'
@@ -89,7 +93,7 @@ Hibiki::Application.routes.draw do
   #Unique Pages
   get '/login', :to => 'user_sessions#new'
   get '/about', :to => 'pages#info'  
-  get '/randomalbums', :to => 'pages#randomalbums'
+  get '/random_albums', :to => 'pages#random_albums'
   get '/accessdenied', :to => 'pages#access_denied'
   get '/search', :to => 'pages#search'
   get '/changelog', :to => 'pages#changelog'

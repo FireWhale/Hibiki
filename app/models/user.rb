@@ -52,9 +52,7 @@ class User < ActiveRecord::Base
     
     has_many :ratings, dependent: :destroy
     has_many :songs, through: :ratings
-    
-    has_many :issue_users
-  
+      
   def deliver_password_reset_instructions!
     reset_perishable_token!
     Notifier.password_reset_instructions(self).deliver
@@ -89,5 +87,9 @@ class User < ActiveRecord::Base
     def update_security(values)
       abilities = values.delete :abilities
       self.update_attribute(:security, User.get_security_bitmask(abilities).to_s)
+    end
+    
+    def update_profile(values)
+      
     end
 end

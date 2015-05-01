@@ -5,8 +5,9 @@ class Watchlist < ActiveRecord::Base
   validates :watched_type, inclusion: %w[Artist Organization Source]
   validates :user, presence: true
   validates :watched, presence: true
-  validates :grouping_category, length: {maximum: 40}, allow_nil: true, allow_blank: true
   validates_uniqueness_of :user_id, :scope => [:watched_id, :watched_type]
+
+  validates :grouping_category, length: {maximum: 40}, allow_nil: true, allow_blank: true
   
   belongs_to :user
   belongs_to :watched, polymorphic: true

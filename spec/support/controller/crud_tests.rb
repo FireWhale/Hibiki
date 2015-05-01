@@ -13,7 +13,7 @@ module CrudTests
             if model_class == Tag || model_class == Issue
               list = create_list(model_symbol, 10, visibility: ability)
             elsif model_class == Post
-              list = create_list(model_symbol, 10, visibility: ability, category: "Blog Post", user: @user)
+              list = create_list(model_symbol, 10, visibility: ability, category: "Blog Post")
             else
               list = create_list(model_symbol, 10)
             end
@@ -26,7 +26,7 @@ module CrudTests
             if model_class == Tag || model_class == Issue
               list = create_list(model_symbol, 10, visibility: ability)
             elsif model_class == Post
-              list = create_list(model_symbol, 10, visibility: ability, category: "Blog Post", user: @user)
+              list = create_list(model_symbol, 10, visibility: ability, category: "Blog Post")
             elsif model_class == Album
               list = create_list(model_symbol, 10, :with_release_date)
             elsif model_class == Event
@@ -58,14 +58,14 @@ module CrudTests
             if model_class == Tag || model_class == Issue
               list = create_list(model_symbol, 10, visibility: ability)
             elsif model_class == Post
-              list = create_list(model_symbol, 10, visibility: ability, category: "Blog Post", user: @user)
+              list = create_list(model_symbol, 10, visibility: ability, category: "Blog Post")
             elsif model_class == Album
               list = create_list(model_symbol, 10, :with_release_date)
             else
               list = create_list(model_symbol, 10)
             end
             get :index
-            unless model_class == Post
+            unless model_class == Post #Posts have newest first
               expect(assigns("#{model_symbol}s".to_sym)).to eq(list.sort_by!(&sort_method))   
             else
               expect(assigns("#{model_symbol}s".to_sym)).to eq(list.sort_by!(&sort_method).reverse!)   
@@ -77,7 +77,7 @@ module CrudTests
           it "filters out albums with filter_by_user_settings" do
             #create an ignored and set user settings to ignore ignored
             list = create_list(model_symbol, 10)
-            create(:collection, album: list.first, user: @user, relationship: "Ignored")
+            create(:collection, collected: list.first, user: @user, relationship: "Ignored")
             @user.update_attribute(:display_bitmask, 57) #Does not display ignored
             get :index
             expect(assigns("#{model_symbol}s".to_sym)).to match_array(list - [list.first])
@@ -106,7 +106,7 @@ module CrudTests
         if model_class == Tag || model_class == Post || model_class == Issue
           it "filters by security" do
             if model_class == Post
-              list = create_list(model_symbol, 10, category: "Blog Post", user: @user)
+              list = create_list(model_symbol, 10, category: "Blog Post")
             else
               list = create_list(model_symbol, 10)
             end
@@ -140,7 +140,7 @@ module CrudTests
           it "populates the all_#{model_symbol} instance variable" do
             ability = (@user.abilities).sample
             if model_class == Post
-              list = create_list(model_symbol, 10, visibility: ability, category: "Blog Post", user: @user)
+              list = create_list(model_symbol, 10, visibility: ability, category: "Blog Post")
             else
               list = create_list(model_symbol, 10, visibility: ability)
             end
@@ -152,7 +152,7 @@ module CrudTests
         if model_class == Post
           it 'filters by tags' do
             ability = (@user.abilities).sample
-            list = create_list(model_symbol, 10, :with_tag, visibility: ability, category: "Blog Post", user: @user)
+            list = create_list(model_symbol, 10, :with_tag, visibility: ability, category: "Blog Post")
             tag1 = list[0].tags.first
             tag2 = list[1].tags.first
             get :index, tags: [tag1.id, tag2.id]
@@ -161,7 +161,7 @@ module CrudTests
           
           it "populates a tags variable" do
             ability = (@user.abilities).sample
-            list = create_list(model_symbol, 10, :with_tag, visibility: ability, category: "Blog Post", user: @user)
+            list = create_list(model_symbol, 10, :with_tag, visibility: ability, category: "Blog Post")
             tag1 = list[0].tags.first
             tag2 = list[1].tags.first
             get :index, tags: [tag1.id, tag2.id]
@@ -282,7 +282,7 @@ module CrudTests
           it "filters albums by filter_by_user_settings" do
             record = create(model_symbol, :with_albums)
             albums = record.albums
-            create(:collection, album: albums.first, user: @user, relationship: "Ignored")
+            create(:collection, collected: albums.first, user: @user, relationship: "Ignored")
             @user.update_attribute(:display_bitmask, 57) #Does not display ignored
             get :show, id: record
             expect(assigns(:albums)).to match_array(albums - [albums.first])
@@ -326,7 +326,7 @@ module CrudTests
             new_record.namehash = {} if new_record.respond_to?(:namehash)
             expect(response.body).to eq(new_record.to_json)
           else
-            valid_permissions(:new, accessible)
+            expect(response.status).to eq(403)
           end
         end
         
@@ -356,7 +356,7 @@ module CrudTests
             record.namehash = {} if record.respond_to?(:namehash)
             expect(response.body).to eq(record.to_json)
           else
-            valid_permissions(:edit, accessible)
+            expect(response.status).to eq(403)
           end          
         end
         
@@ -530,7 +530,6 @@ module CrudTests
     shared_examples 'can delete a record' do |accessible|
       model_class = described_class.controller_name.classify.constantize
       model_symbol = model_class.model_name.param_key.to_sym
-      
       
       describe 'DELETE #destroy' do
         

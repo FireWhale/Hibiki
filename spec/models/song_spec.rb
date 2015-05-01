@@ -16,6 +16,8 @@ describe Song do
     it_behaves_like "it has posts"
     it_behaves_like "it has tags"
     it_behaves_like "it has self-relations"
+    it_behaves_like "it has collections"
+    
     it_behaves_like "it has a primary relation", Source, SongSource
     it_behaves_like "it has a primary relation", Artist, ArtistSong
           
@@ -417,104 +419,7 @@ describe Song do
     it_behaves_like "filters by tag"   
     it_behaves_like "filters by date range", "release_date"
     it_behaves_like "filters by self relation categories"
-    
-    describe "filters by rating" do
-      let(:song1) {create(:song)}
-      let(:song2) {create(:song)}
-      let(:song3) {create(:song)}
-      let(:song4) {create(:song)}
-      let(:song5) {create(:song)}
-      let(:song6) {create(:song)}
-      let(:user1) {create(:user)} #rated songs 1 and 2 (2 with string)
-      let(:user2) {create(:user)} #rated song 3
-      let(:user3) {create(:user)} #rated song 1 and 3 (with string)
-      let(:user4) {create(:user)} #no songs
-      before(:each) do
-        create(:rating, song: song1, user: user1, favorite: "good")
-        create(:rating, song: song2, user: user1)
-        create(:rating, song: song3, user: user2)
-        create(:rating, song: song4, user: user2, favorite: "eat")
-        create(:rating, song: song1, user: user3, favorite: "good")
-        create(:rating, song: song3, user: user3, favorite: "great")
-        create(:rating, song: song4, user: user3, favorite: "great")
-        create(:rating, song: song5, user: user3, favorite: "neat")
-        create(:rating, song: song6, user: user3, favorite: "eat")
-      end
-      
-      describe "has a rating record" do
-        #method(user.id,favorite string)
-        it "filters by having a rating record" do
-          expect(Song.with_rating(user1.id)).to match_array([song1, song2])
-        end
-        
-        it "returns no results if there are no matches" do
-          expect(Song.with_rating(user4.id)).to match_array([])
-        end
-        
-        it "filters by favorite string" do
-          expect(Song.with_rating(user3.id, "great")).to match_array([song3, song4])
-        end
-         
-        it "accepts multiple users (what's the point, though?)" do
-          expect(Song.with_rating([user1.id, user2.id])).to match_array([song1, song2, song3, song4])
-        end      
-  
-        it "accepts multiple users 2" do
-          expect(Song.with_rating([user1.id, user3.id])).to match_array([song1, song2, song3, song4, song5, song6])
-        end      
-        
-        it "only accepts full matches" do
-          expect(Song.with_rating(user3.id, "eat")).to match_array([song6])
-        end
-        
-        it "accepts an array of favorite strings" do
-          expect(Song.with_rating(user3.id, ["neat", "eat"])).to match_array([song5, song6])
-        end
-        
-        it "returns all if nil is provided" do
-          expect(Song.with_rating(nil)).to match_array([song1, song2, song3, song4, song5, song6])
-        end
-
-        it "ignores the second param if nil is the first" do
-          expect(Song.with_rating(nil, "eat")).to match_array([song1, song2, song3, song4, song5, song6])
-        end
-        
-        
-        it "ignores a nil favorite string" do
-          expect(Song.with_rating(user1.id, nil)).to match_array([song1, song2])
-        end
-        
-        it "is an active record relation" do
-          expect(Song.with_rating(user3.id,"eat").class).to_not be_a(Array)
-        end
-      end
-      
-      describe "does not have a rating record" do
-        it "removes records that are in the users rating" do
-          expect(Song.without_rating(user1.id)).to match_array([song3, song4, song5, song6])          
-        end
-        
-        it "removes records that are attached to any of many users" do
-          expect(Song.without_rating([user1.id, user2.id])).to match_array([song5, song6])          
-        end
-        
-        it "removes records based on either user" do
-          create(:rating, song: song5, user: user1)
-          expect(Song.without_rating([user1.id, user2.id])).to match_array([song6])          
-        end
-        
-        it "returns all records if nil is passed in" do
-          expect(Song.without_rating(nil)).to match_array([song1, song2, song3, song4, song5, song6])
-        end
-
-        it "is an active record relation" do
-          expect(Song.without_rating(user3.id).class).to_not be_a(Array)
-        end
-      end
-      
-      #Maybe have another merged (UNION) scope here?
-      
-    end    
+    it_behaves_like "filters by collection"
     
     describe "filters by user_settings" do
       describe "filters by albums" do
@@ -586,7 +491,7 @@ describe Song do
       end
       
       describe "filters by song data" do
-        
+        it "filters by song data?" #Not sure what I'mt rying to test here
       end
     
     end

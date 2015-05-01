@@ -19,6 +19,7 @@ class Song < ActiveRecord::Base
       include ImageModule
       include PostModule
       include TagModule
+      include CollectionModule
 
   #Callbacks/Hooks
     before_save :format_track_number
@@ -96,22 +97,11 @@ class Song < ActiveRecord::Base
       has_many :song_sources, dependent: :destroy
       has_many :sources, through: :song_sources
     
-    #User Associations
-      has_many :ratings, dependent: :destroy
-      has_many :raters, through: :ratings
-  
   #Scopes
     scope :with_status, ->(statuses) {where('status IN (?)', statuses)}
     scope :no_album, -> { where(album_id: nil)}
     scope :in_date_range, ->(start_date, end_date) {where("songs.release_date >= ? and songs.release_date <= ? ", start_date, end_date)}
-    
-    scope :with_rating, ->(userids, *favorite_strings) {first_pass = joins(:ratings).where("ratings.user_id IN (?)", userids).uniq unless userids.nil?
-                                                        favorite_strings.empty? || favorite_strings == [nil] ? first_pass : first_pass.where("ratings.favorite IN (?)", favorite_strings.flatten) unless userids.nil?}
-    scope :without_rating, ->(userids) {joins("LEFT OUTER JOIN(#{Rating.where("ratings.user_id IN (?)", userids).to_sql}) t1 ON t1.song_id = songs.id").where(:t1 => {:id => nil}) unless userids.nil?}
-    #Maybe have another merged (UNION) scope that combines with_rating and without_rating here?
-    #It really only makes sense if we have firm favorite strings or let users filter by their favorite strings.
-    #Then you could join certain favorites + all not rated songs. 
-    
+        
   #Gem Stuff
     #Pagination
       paginates_per 50
