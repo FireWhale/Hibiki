@@ -23,7 +23,6 @@ Hibiki::Application.routes.draw do
       patch 'tracklist_edit', :action => 'update_tracklist'
       get 'tracklist_export', :action => 'tracklist_export'
       post 'rescrape', action: 'rescrape'
-      get 'rescrape', action: 'rescrape'
     end
   end
   resources :sources do
@@ -117,10 +116,7 @@ Hibiki::Application.routes.draw do
   get '/addreference', :to => 'scripts#add_reference_form'
   get '/addmodel', :to => 'scripts#add_model_form'
   get '/well_toggle', :to => 'scripts#well_toggle'
-  
-  #links for adding scrape links and albums/artists/sources to posts
-  post '/addscrapelink', :to => 'maintenance#addscrapelink'
-  
+    
   #User Functions
   post '/watch', :to => 'users#watch'
   post '/unwatch', :to => 'users#unwatch'
