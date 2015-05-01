@@ -6,18 +6,7 @@
   </div>
 <% end %>
 
-<%= paginate @albums %>
-<div id='album-list'>  
-  <% @albums.each do |album| %>
-    <div id="<%= album.id %>" class="album-well album-well4x nodisplaynone">
-      <%= render :partial => "layouts/albumlist/albumlist_album_1", :locals => {:album => album} %>
-    </div>
-  <% end %>
+<div id="index">
+  <%= render :partial => 'layouts/primary_models/record_list', locals: {records: @albums} %>
 </div>
-<%= paginate @albums %>
-
-<% content_for :usersidebar do %>
-<% end %>
-
-      
   
