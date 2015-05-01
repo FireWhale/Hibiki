@@ -60,11 +60,12 @@ describe Album do
     include_examples "is valid with or without an attribute", :classification, "classification!"
   end
       
-  #Attribute Tests
+  describe "Attribute Tests" do
     include_examples "it has a partial date", :release_date
     it_behaves_like "it has a serialized attribute", :reference
     it_behaves_like "it has a serialized attribute", :namehash
-    
+  end
+  
   describe "Instance Method Tests" do
     
     describe "returns the right week/month/year" do

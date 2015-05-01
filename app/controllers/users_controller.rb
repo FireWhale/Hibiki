@@ -17,16 +17,11 @@ class UsersController < ApplicationController
   def unwatch
     watchlist = Watchlist.where(:user_id => current_user.id, :watched_id => params[:watched_id], :watched_type => params[:watched_type]).first
     @watched = params[:watched_type].constantize.find(params[:watched_id])
-
-    respond_to do |format|
-      if watchlist.nil? == false
-        watchlist.destroy
-        format.html { redirect_to @watched, notice: 'Successfully removed from watchlist' }
-        format.js
-      else
-        format.html { redirect_to @watched, notice: 'Request failed!' }
-        format.js        
-      end
+    watchlist.destroy unless watchlist.nil?
+    
+    respond_to do |format|        
+      format.html { redirect_to @watched, notice: 'Successfully removed from watchlist' }
+      format.js
     end
   end
 
@@ -229,6 +224,7 @@ class UsersController < ApplicationController
       end
     end
   end
+  
   # POST /users
   # POST /users.json
   def create

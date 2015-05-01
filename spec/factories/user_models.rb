@@ -13,6 +13,52 @@ FactoryGirl.define do
       factory :admin do
         security "1"
       end
+      
+      trait :with_watchlist_artist do
+        after(:create) do |user|
+          create(:watchlist, :with_artist, user: user)
+        end        
+      end          
+
+      trait :with_watchlist_organization do
+        after(:create) do |user|
+          create(:watchlist, :with_organization, user: user)
+        end        
+      end     
+      
+      trait :with_watchlist_source do
+        after(:create) do |user|
+          create(:watchlist, :with_source, user: user)
+        end        
+      end  
+      
+      trait :with_multiple_watchlists do
+        after(:create) do |user|
+          [:with_artist, :with_organization, :with_source].each do |trait|
+            create(:watchlist, trait, user: user)
+          end
+        end
+      end
+      
+      trait :with_collection_album do
+        after(:create) do |user|
+          create(:collection, :with_album, user: user)
+        end        
+      end   
+      
+      trait :with_collection_song do
+        after(:create) do |user|
+          create(:collection, :with_song, user: user)
+        end        
+      end            
+
+      trait :with_multiple_collections do
+        after(:create) do |user|
+          [:with_album, :with_song].each do |trait|
+            create(:collection, trait, user: user)
+          end
+        end
+      end
     end
     
     factory :collection do 

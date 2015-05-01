@@ -39,19 +39,21 @@ class User < ActiveRecord::Base
     
   #Associations
     has_many :watchlists, dependent: :destroy
-    has_many :watched_sources, :through => :watchlists, :source => :watched, :source_type => 'Source'
-    has_many :watched_organizations, :through => :watchlists, :source => :watched, :source_type => 'Organization'
-    has_many :watched_artists, :through => :watchlists, :source => :watched, :source_type => 'Artist'
-    
-    def watching
-      watched_sources + watched_organizations + watched_artists
-    end
+    has_many :artists, through: :watchlists, source: :watched, source_type: 'Artist'
+    has_many :organizations, through: :watchlists, source: :watched, source_type: 'Organization'
+    has_many :sources, through: :watchlists, source: :watched, source_type: 'Source'
     
     has_many :collections, dependent: :destroy
-    has_many :albums, through: :collections
+    has_many :albums, through: :collections, source: :collected, source_type: 'Album'
+    has_many :songs, through: :collections, source: :collected, source_type: 'Song'
     
-    has_many :ratings, dependent: :destroy
-    has_many :songs, through: :ratings
+    def watching
+      sources + organizations + artists
+    end
+    
+    def collecting
+      albums + songs
+    end
       
   def deliver_password_reset_instructions!
     reset_perishable_token!
@@ -74,22 +76,35 @@ class User < ActiveRecord::Base
       (abilities & Ability::Abilities).map { |r| 2**(Ability::Abilities).index(r) }.sum
     end
     
+    def self.get_display_bitmask(display_settings)
+      display_settings = [display_settings] if display_settings.class != Array
+      (display_settings & User::DisplaySettings).map { |r| 2**(User::DisplaySettings).index(r) }.sum
+    end
+    
+    def self.get_privacy_bitmask(privacy_settings)
+      privacy_settings = [privacy_settings] if privacy_settings.class != Array
+      (privacy_settings & User::PrivacySettings).map { |r| 2**(User::PrivacySettings).index(r) }.sum      
+    end
+    
     def album_filter #Used in an album scope 'filter_by_user_settings' to filter things out of view
       #["Limited Edition", "Reprint", "Ignored"] will be passed in to filter it out
       array = []
-      array << "Limited Edition" unless self.display_settings.include?("DisplayLEs")
-      array << "Reprint" unless self.display_settings.include?("DisplayReprints")
-      array << "Ignored" unless self.display_settings.include?("DisplayIgnored")
+      array << "Limited Edition" unless self.display_settings.include?("DisplayLEs") #1
+      array << "Reprint" unless self.display_settings.include?("DisplayReprints") #64
+      array << "Ignored" unless self.display_settings.include?("DisplayIgnored") #4
       array
     end
   
   #Update Method
     def update_security(values)
       abilities = values.delete :abilities
-      self.update_attribute(:security, User.get_security_bitmask(abilities).to_s)
+      self.update_attribute(:security, User.get_security_bitmask(abilities).to_s) unless abilities.nil?
     end
     
     def update_profile(values)
-      
+      display_settings = values.delete :display_settings
+      self.update_attribute(:display_bitmask, User.get_display_bitmask(display_settings)) unless display_settings.nil?
+      privacy_settings = values.delete :privacy_settings
+      self.update_attribute(:privacy, User.get_privacy_bitmask(privacy_settings).to_s) unless privacy_settings.nil?
     end
 end

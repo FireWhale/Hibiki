@@ -17,7 +17,7 @@
         <div class="panel-heading">Categories</div>
         <div class="nav nav-pills nav-stacked">
           <% Issue::Categories.each do |category| %>
-            <li><%= link_to "#{category} (#{@all_issues.category(category).count})", issues_path(category: category)%></li>
+            <li><%= link_to "#{category} (#{@all_issues.with_category(category).count})", issues_path(category: category)%></li>
           <% end %>
         </div>
       </div>
@@ -26,8 +26,8 @@
       <div class="panel">
         <div class="panel-heading">Status</div>
         <div class="nav nav-pills nav-stacked">
-          <% Issue::Statuses.each do |status| %>
-            <li><%= link_to "#{status} (#{@all_issues.status(status).count})", issues_path(status: status)%></li>
+          <% Issue::Status.each do |status| %>
+            <li><%= link_to "#{status} (#{@all_issues.with_status(status).count})", issues_path(status: status)%></li>
           <% end %>
         </div>
       </div>

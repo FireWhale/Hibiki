@@ -144,10 +144,23 @@ module AssociationTests
       end
     end
     
-    it "returns a group of records using #{related_class_label}s" do
-      instance = create(linked_symbol, "with_multiple_#{join_model_string}s".to_sym)
-      expect(instance.send("#{related_class_label}s").count).to eq(related_class_array.count)
+    if join_model_class == Watchlist
+      it "returns a group of records using watching" do
+        instance = create(linked_symbol, "with_multiple_#{join_model_string}s".to_sym)
+        expect(instance.watching.count).to eq(related_class_array.count)
+      end
+    elsif join_model_class == Collection
+      it "returns a group of records using collecting" do
+        instance = create(linked_symbol, "with_multiple_#{join_model_string}s".to_sym)
+        expect(instance.collecting.count).to eq(related_class_array.count)
+      end
+    else
+      it "returns a group of records using #{related_class_label}s" do
+        instance = create(linked_symbol, "with_multiple_#{join_model_string}s".to_sym)
+        expect(instance.send("#{related_class_label}s").count).to eq(related_class_array.count)
+      end      
     end
+
     
     #This is not a legit test. That's asking for an activerelation that 
     #has different models in an array fashion. kinda ridiculous.
@@ -165,7 +178,7 @@ module AssociationTests
     join_model_string = join_model_class.model_name.singular
     join_model_symbol = join_model_class.model_name.param_key.to_sym
     class_symbol = described_class.model_name.param_key.to_sym
-    related_class_label = join_model_class == Collection ?  "collectors" : related_class.model_name.plural
+    related_class_label = related_class.model_name.plural
     
     
     #Associations
@@ -205,7 +218,7 @@ module AssociationTests
       it "is valid with multiple #{related_class_string}s" do
         record = create(class_symbol)
         number = Array(3..10).sample
-        if [Imagelist, Postlist, Taglist, Watchlist].include?(join_model_class)
+        if [Imagelist, Postlist, Taglist, Watchlist, Collection].include?(join_model_class)
           join_trait = "with_#{related_class_string}".to_sym
           list = create_list(join_model_symbol, number, join_trait, class_symbol => record)
         else
