@@ -326,7 +326,7 @@ module CrudTests
             new_record.namehash = {} if new_record.respond_to?(:namehash)
             expect(response.body).to eq(new_record.to_json)
           else
-            expect(response.status).to eq(403)
+            expect(response.status).to eq(403) #forbidden
           end
         end
         

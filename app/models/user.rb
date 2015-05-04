@@ -31,7 +31,7 @@ class User < ActiveRecord::Base
     end
   
   #Display Settings constants - add to end
-    Languages = "English,Japanese,Romaji,Korean,Romanized Korean,Chinese,Pinyin,Chinese (Traditional)"
+    Languages = ["english","japanese","romaji","chinese","korean"]
     DefaultLanguages = "English,Romaji,RomanizedKorean,Pinyin,Japanese,Korean,Chinese,Chinese (Traditional)"
     DisplaySettings = %w[DisplayLEs DisplayNWS DisplayIgnored OutlineAlbumArt BoldAOS BoldForEditing DisplayReprints] 
     PrivacySettings = %w[ShowWatchlist ShowCollection]
@@ -86,6 +86,10 @@ class User < ActiveRecord::Base
       (privacy_settings & User::PrivacySettings).map { |r| 2**(User::PrivacySettings).index(r) }.sum      
     end
     
+    def self.get_language_settings(language_settings)
+      language_settings.select {|language| User::Languages.include?(language)}.join(",")
+    end
+    
     def album_filter #Used in an album scope 'filter_by_user_settings' to filter things out of view
       #["Limited Edition", "Reprint", "Ignored"] will be passed in to filter it out
       array = []
@@ -106,5 +110,11 @@ class User < ActiveRecord::Base
       self.update_attribute(:display_bitmask, User.get_display_bitmask(display_settings)) unless display_settings.nil?
       privacy_settings = values.delete :privacy_settings
       self.update_attribute(:privacy, User.get_privacy_bitmask(privacy_settings).to_s) unless privacy_settings.nil?
+      language_settings = values.delete :language_settings
+      self.update_attribute(:language_settings, User.get_language_settings(language_settings).to_s) unless language_settings.nil?
+      artist_language_settings = values.delete :artist_language_settings
+      self.update_attribute(:artist_language_settings, User.get_language_settings(artist_language_settings).to_s) unless artist_language_settings.nil?
     end
+    
+    
 end

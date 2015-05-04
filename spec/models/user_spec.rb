@@ -65,7 +65,17 @@ describe User do
         expect(user.reload.privacy).to eq("2")        
       end
       
-      it "updates language_settings"
+      it "updates language_settings" do
+        input = {language_settings: ["english", "korean", "japanese"]}
+        user.update_profile(input)
+        expect(user.reload.language_settings).to eq("english,korean,japanese")
+      end
+
+      it "updates artist_language_settings" do
+        input = {artist_language_settings: ["english", "korean", "japanese"]}
+        user.update_profile(input)
+        expect(user.reload.artist_language_settings).to eq("english,korean,japanese")
+      end
 
       it "does not update display bitmask to 0 if no display_settings key" do
         user.update_attribute(:display_bitmask, 5)
@@ -81,8 +91,32 @@ describe User do
         expect(user.reload.privacy).to eq("3")        
       end
       
-      it "does not update languages settings if no language key"
-
+      it "does not update languages settings if no language key"  do
+        user.update_attribute(:language_settings, "english,korean,japanese")
+        input = {hwoefhewoifhe: ["hiya!"]}
+        user.update_profile(input)
+        expect(user.reload.language_settings).to eq("english,korean,japanese")
+      end
+      
+      it "filters out none valid languages" do
+        input = {language_settings: ["hiya!"]}
+        user.update_profile(input)
+        expect(user.reload.language_settings).to_not eq("hiya!")
+      end
+      
+      it "does not update artist languages settings if no language key"  do
+        user.update_attribute(:artist_language_settings, "english,korean,japanese")
+        input = {hwoefhewoifhe: ["hiya!"]}
+        user.update_profile(input)
+        expect(user.reload.artist_language_settings).to eq("english,korean,japanese")
+      end
+      
+      it "filters out none valid languages (for artists)" do
+        input = {artist_language_settings: ["hiya!"]}
+        user.update_profile(input)
+        expect(user.reload.artist_language_settings).to_not eq("hiya!")
+      end
+      
       it "filters out other values" do
         input = {name: "ronny"}
         user.update_profile(input)
@@ -146,14 +180,14 @@ describe User do
     it "can get a privacy_bitmask" do
       expect(User.get_privacy_bitmask(["ShowWatchlist"])).to eq(1)      
     end
+    
+    it "can get language_settings" do
+      expect(User.get_language_settings(["hi", "english", "korean", "hoho"])).to eq("english,korean")
+    end
   end
     
   #Scope Tests
     
-    
-  #Other Tests?
-    #Pagination?
-    #Delete images method?
 end
 
 

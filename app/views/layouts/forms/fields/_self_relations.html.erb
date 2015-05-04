@@ -14,6 +14,6 @@
     <% end %>
   <% end %>
   <div id="<%= "SelfRelationFields" + record.id.to_s %>"></div>
-  <%= link_to "Add a Related #{record.class}", addmodel_path(parent_div: "#SelfRelationFields#{record.id.to_s}", self_relationship_model: record.class.to_s, category_field_names: "#{form_prefix}[new_related_#{record.class.to_s.downcase}_categories]", field_names: "#{form_prefix}[new_related_#{record.class.to_s.downcase}_ids]", autocomplete_path: "#{record.class.to_s.downcase}_namehash"), :remote => true %>         
+  <%= link_to "Add a Related #{record.class}", add_model_path(parent_div: "#SelfRelationFields#{record.id.to_s}", self_relationship_model: record.class.to_s, category_field_names: "#{form_prefix}[new_related_#{record.class.to_s.downcase}_categories]", field_names: "#{form_prefix}[new_related_#{record.class.to_s.downcase}_ids]", autocomplete_path: "#{record.class.to_s.downcase}_namehash"), :remote => true %>         
 </div>
 

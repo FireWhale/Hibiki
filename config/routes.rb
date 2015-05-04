@@ -111,10 +111,10 @@ Hibiki::Application.routes.draw do
   patch '/passwordreset', :to => 'users#passwordreset'
   
   #Links for js scripts for adding and editing
-  get '/add_tag', :to => 'scripts#add_tag'
-  get '/remove_tag', :to => 'scripts#remove_tag'
-  get '/addreference', :to => 'scripts#add_reference_form'
-  get '/addmodel', :to => 'scripts#add_model_form'
+  match '/add_tag' => 'scripts#add_tag', via: [:get, :post]
+  match '/remove_tag' => 'scripts#remove_tag', via: [:get, :post]
+  get '/add_reference', :to => 'scripts#add_reference_form'
+  get '/add_model', :to => 'scripts#add_model_form'
   get '/well_toggle', :to => 'scripts#well_toggle'
     
   #User Functions

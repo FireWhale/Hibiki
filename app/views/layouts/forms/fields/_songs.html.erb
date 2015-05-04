@@ -10,6 +10,6 @@
     <% end %>
   <% end %>
   <div id="SongFields"></div>
-  <%= link_to "Add a Song", addmodel_path(parent_div: "#SongFields", field_names: "#{form_prefix}[new_songs][names]", label: "Name:", song_info: "#{form_prefix}[new_songs][track_numbers]"), :remote => true %></br></br>     
+  <%= link_to "Add a Song", add_model_path(parent_div: "#SongFields", field_names: "#{form_prefix}[new_songs][names]", label: "Name:", song_info: "#{form_prefix}[new_songs][track_numbers]"), :remote => true %></br></br>     
 </div>
 

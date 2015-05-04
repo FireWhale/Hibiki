@@ -11,5 +11,5 @@
     </div>
   <% end %>
 <% end %>
-<div id="ReferenceFields"></div>
-<%= link_to "Add a Reference", addreference_path(:fields_for => "#{form_prefix}[reference]"), :remote => true %></br></br>
+<div id="<%= "references-#{record.id}"%>"></div>
+<%= link_to "Add a Reference", add_reference_path(:fields_for => "#{form_prefix}[reference]", div_id: "references-#{record.id}"), :remote => true %></br></br>

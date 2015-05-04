@@ -9,6 +9,7 @@ class ApplicationController < ActionController::Base
     respond_to do |format|
       format.html { render "pages/access_denied" }
       format.json { head :forbidden }
+      format.js {head :forbidden }
     end
   end
   

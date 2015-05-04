@@ -23,8 +23,6 @@ require 'authlogic'
 require 'authlogic/test_case'
 require 'bullet'
 
-
-
 RSpec.configure do |config|
   #Authlogic
   config.include Authlogic::TestCase
@@ -56,7 +54,7 @@ RSpec.configure do |config|
   # Print the 5 slowest examples and example groups at the
   # end of the spec run, to help surface which specs are running
   # particularly slow.
-  config.profile_examples = 5
+  config.profile_examples = 3
 
   # This setting enables warnings. It's recommended, but in some cases may
   # be too noisy due to issues in dependencies.

@@ -18,7 +18,7 @@ class ScriptsController < ApplicationController
       #Don't want to alter base functionality where
       #all nil automatically returns all results.
       #However, we want all nil to return no results. thus: 
-      @albums = Album.none 
+      @albums = Album.none
     else
       @albums = Album.with_artist_organization_source(artist_ids, organization_ids, source_ids)
     end    
@@ -53,6 +53,7 @@ class ScriptsController < ApplicationController
         @albums = @albums.in_collection(current_user.id, col)
       end
     end
+    
     #Get the tag values
     tags = params[:tag]
     unless tags.nil? || tags.empty?
@@ -78,7 +79,12 @@ class ScriptsController < ApplicationController
     def add_reference_form
       authorize! :edit, Album
       #This adds a reference form. @string is the params hash string the form should be under
-      @fieldsfor = params[:fields_for]
+      @div_id = params[:div_id]
+      @fields_for = params[:fields_for]
+      
+      respond_to do |format|
+        format.js
+      end
     end
   
     def add_model_form
@@ -110,30 +116,36 @@ class ScriptsController < ApplicationController
         @song_info = params[:song_info]
       #Get song_source model
         @song_source = params[:song_source]
+        
+      respond_to do |format|
+        format.js
+      end
     end  
     
     def add_tag
       authorize! :edit, Tag
-      tag = Tag.find(params[:tag_id])
+      
+      tag = Tag.find_by_id(params[:tag_id])
       record = params[:subject_type].constantize.find(params[:subject_id])
       
-      if tag.nil? == false && record.nil? == false
-        #Make sure the record is within the tag's allowed models 
-        if Tag.get_models(tag.model_bitmask).include?(record.class.to_s)
-          record.tags << tag
-          @notice = "Successfully added tag"
-          @msg = "Added"
-        else
-          @notice = "This tag does not go with this record class."
-          @msg = "I don't how you added this, but it's an invalid tag"
-        end
-        @recordid = record.id
-        @tagid = tag.id
+      #For locating the div on a js response
+      @record_id = params[:subject_id]
+      @tag_id = params[:tag_id]
+      
+      unless tag.nil? || record.nil?
+        taglist = Taglist.new(tag_id: tag.id, subject_id: record.id, subject_type: record.class.to_s)        
+      else
+        taglist = Taglist.new
       end
       
       respond_to do |format|
-        format.html { redirect_to record, notice: @notice }
-        format.js
+        if taglist.save
+          format.html { redirect_to record, notice: "Successfully added tag"}
+          format.js { @msg = "Added" }
+        else
+          format.html { redirect_to record, notice: "FAILED: #{taglist.errors.full_messages.join(", ")}"}
+          format.js { @msg = "Failed #{taglist.errors.full_messages.join(", ")}" }
+        end
       end
     end
     
@@ -141,23 +153,33 @@ class ScriptsController < ApplicationController
       authorize! :edit, Tag
       taglist = Taglist.where(:tag_id => params[:tag_id], :subject_id => params[:subject_id], :subject_type => params[:subject_type]).first
       
-      if taglist.nil? == false
-        taglist.delete
-        @recordid = params[:subject_id]
-        @tagid = params[:tag_id]
-      end
-  
+      @record_id = params[:subject_id]
+      @tag_id = params[:tag_id]
+      
+      record = params[:subject_type].constantize.find(params[:subject_id])
+      
       respond_to do |format|
-        format.html { redirect_to record, notice: 'Successfully removed tag'}
-        format.js
+        unless taglist.nil?
+          format.html {taglist.destroy
+                       redirect_to record, notice: "Successfully removed tag"}
+          format.js { taglist.destroy
+                      @msg = "Removed"}
+        else
+          format.html { redirect_to record, notice: "Failed to locate taglist"}
+          format.js { @msg = "Failed to locate taglist"}
+        end
       end
     end
   
   #Misc.
     def well_toggle
-      authorize! :show, Album
-      @divid = params[:div_id]
-      @toggleid = params[:toggle_id]
+      authorize! :edit, Album
+      @div_id = params[:div_id]
+      @toggle_id = params[:toggle_id]
+      
+      respond_to do |format|
+        format.js
+      end
     end  
     
 end

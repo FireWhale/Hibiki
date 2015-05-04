@@ -17,7 +17,7 @@
     <% end %>
   <% end %>
   <div id='<%= "Sources" + record.id.to_s %>'></div>
-  <%= link_to "Add a Source", addmodel_path(parent_div: "#Sources#{record.id.to_s}", 
+  <%= link_to "Add a Source", add_model_path(parent_div: "#Sources#{record.id.to_s}", 
                                             field_names: "#{form_prefix}[new_sources][ids]", 
                                             category_field_names: "#{form_prefix}[new_sources][classification]", 
                                             category_select: [""] + SongSource::Relationship, 
