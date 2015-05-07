@@ -9,6 +9,7 @@ describe Artist do
     it_behaves_like "it can be autocompleted"
     it_behaves_like "it has pagination"
     it_behaves_like "it has form_fields"
+    it_behaves_like "it has a custom json method"
     
   #Association Tests
     it_behaves_like "it has images"

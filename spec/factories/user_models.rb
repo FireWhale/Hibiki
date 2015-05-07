@@ -8,10 +8,30 @@ FactoryGirl.define do
       email {Faker::Internet.email}
       password "hehepassword1"
       password_confirmation "hehepassword1"
-      security "2"
+      #security "2" <- this is set on creation
+      
+      #We need to destroy user sessions from created users
+      #for controller testing etc.
+      #If we do want a user session, we'll have to call UserSession.create(user)
+      after(:create) do |user|
+        #Including the conditional UserSession.find.record == user ensures
+        #we aren't destroying already existing user sessions
+        begin
+          UserSession.find.destroy if UserSession.find.record == user
+        rescue Authlogic::Session::Activation::NotActivatedError
+          #This rescue is for models. Since we didn't activate authlogic,
+          #it can't use UserSession.find
+          #This rescue does the same thing as if it met the conditional:
+          #Resucing from the error means that UserSession 
+          #never worked in the first palce
+        end
+      end
       
       factory :admin do
-        security "1"
+        after(:create) do |user|
+          user.security = "1"
+          user.save
+        end
       end
       
       trait :with_watchlist_artist do
@@ -19,7 +39,7 @@ FactoryGirl.define do
           create(:watchlist, :with_artist, user: user)
         end        
       end          
-
+      
       trait :with_watchlist_organization do
         after(:create) do |user|
           create(:watchlist, :with_organization, user: user)

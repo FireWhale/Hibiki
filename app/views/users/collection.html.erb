@@ -1,24 +1,21 @@
-<% content_for :title do %><%= (current_user == @user or privacy_settings(@user).include? "ShowCollection" ) ? "#{@user.name}'s Collection"  : "A Collection" %><% end %>
+<% content_for :title do %><%= "#{@user.name}'s Collection" %><% end %>
 
 <% content_for :header do %>
   <div class="text-center">    
-    <% if current_user == @user or privacy_settings(@user).include? "ShowCollection"  %>
-      <h2><%= current_user == @user ? "Your" : "#{@user.name}'s" %> Collection</h2>
-    <% else %>
-       <h2>Some User's Collection</h2>
-    <% end %>
+    <h2><%= current_user == @user ? "Your" : "#{@user.name}'s" %> Collection</h2>
   </div>
 <% end %>
 
-<% if current_user == @user or privacy_settings(@user).include? "ShowCollection"  %>
-  <%= render 'layouts/albums', :divid => 'Collection', :header => 'Collected Albums', :collection => @collection %>
-  <%= render 'layouts/albums', :divid => 'Wishlist', :header => 'Wishlist Albums', :collection => @wishlist %>
-  <%= render 'layouts/albums', :divid => 'Ignorelist', :header => 'Ignored Albums', :collection => @ignorelist %>
-<% else %>
-  <h4 class="text-center">This collection has been set to private</h4>
-<% end%>
+<div id="collection">
+  <ul id="collection-tabs" class="nav nav-tabs">
+    <% ["collected", "ignored", "wishlisted"].each do |type| %>
+      <li class='<%= "#{type} #{'active' if @type == "#{type}"}" %>'><%= link_to "#{type} (#{instance_variable_get("@#{type}_count")})".titleize, collection_user_path(type: type), remote: true %></li>
+    <% end %>
+  </ul>
+  <div id="index">
+    <%unless @records.nil? %>
+      <%= render :partial => 'layouts/primary_models/record_list', locals: {records: @records}%>
+    <% end %>
+  </div>
+</div>
 
-
-<% content_for :usersidebar do %>
-
-<% end %>

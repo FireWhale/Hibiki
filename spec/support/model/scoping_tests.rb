@@ -101,9 +101,15 @@ module ScopingTests
     let(:record2) {create(model_symbol, :visibility => security2)}
     let(:record3) {create(model_symbol, :visibility => security2)}
     let(:record4) {create(model_symbol, :visibility => "Any")}
-    let(:user1) {create(:user, security: User.get_security_bitmask([security1]))}
-    let(:user2) {create(:user, security: User.get_security_bitmask([security2]))}
-    let(:user3) {create(:user, security: User.get_security_bitmask([security1, security2]))}
+    let(:user1) {create(:user)}
+    let(:user2) {create(:user)}
+    let(:user3) {create(:user)}
+    
+    before(:each) do
+      user1.update_attribute(:security, User.get_security_bitmask([security1]))
+      user2.update_attribute(:security, User.get_security_bitmask([security2]))
+      user3.update_attribute(:security, User.get_security_bitmask([security1, security2]))
+    end
     
     it "should return if it matches the security" do
       expect(described_class.meets_security(user1)).to match_array([record1, record4])

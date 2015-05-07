@@ -7,11 +7,6 @@ describe EventsController do
   end
   
   context 'public access to events' do
-    before :each do
-      @user = create(:user, security: "0")
-      UserSession.create(@user)
-    end
-    
     #Shows
       include_examples 'has an index page', true, :start_date
       include_examples "has a show page", true

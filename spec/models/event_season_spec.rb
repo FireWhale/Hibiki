@@ -6,6 +6,7 @@ describe Event do
   describe "Module Tests" do
     it_behaves_like "it has a language field", "name"
     it_behaves_like "it has form_fields"
+    it_behaves_like "it has a custom json method"
   end
   
   describe "Association Tests" do
@@ -14,7 +15,7 @@ describe Event do
     end
   end
   
-  #Validation Tests
+  describe "Validation Tests" do
     it_behaves_like "is valid with or without an attribute", :name, "name"
     it_behaves_like "is valid with or without an attribute", :shorthand, "name"
     it_behaves_like "is valid with or without an attribute", :start_date, Date.new(2132,1,4)
@@ -28,6 +29,7 @@ describe Event do
       create(:event, start_date: Date.new(2012, 1, 1), end_date: Date.new(2013,1,1))
       expect(build(:event, start_date: Date.new(2012, 1, 1), end_date: Date.new(2013,1,1))).to be_valid
     end
+  end
 
   #Serialization Tests
     it_behaves_like "it has a serialized attribute", :reference
@@ -61,6 +63,7 @@ describe Season do
   
   describe "Module Tests" do
     it_behaves_like "it has form_fields"
+    it_behaves_like "it has a custom json method"
   end
   
   #Association Test

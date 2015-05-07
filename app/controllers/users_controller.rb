@@ -1,22 +1,58 @@
 class UsersController < ApplicationController
   load_and_authorize_resource
   
+  def collect
+    user = current_user
+    @record = params[:record_type].constantize.find_by_id(params[:record_id])
+    unless user.nil? || @record.nil? || params[:relationship].nil?
+      @collection = user.collections.create(collected_id: @record.id, collected_type: @record.class.to_s, :relationship => params[:relationship])
+    end
+    
+    respond_to do |format|
+      unless @collection.nil? #failed to make a collection
+        format.html { redirect_to @record, notice: "Successfully added to collection!" }
+        format.js        
+      else
+        format.html { redirect_to @record, notice: "Failed to add to collection :<" }
+        format.js        
+      end
+
+    end
+  end
+  
   def watch
     user = current_user
     @watched = params[:watched_type].constantize.find(params[:watched_id])
     unless user.nil? || @watched.nil?
-      user.watchlists.create(:watched_type => @watched.class.to_s, :watched_id => @watched.id)
+      @watchlist = user.watchlists.create(:watched_type => @watched.class.to_s, :watched_id => @watched.id)
     end
 
     respond_to do |format| 
-      format.html { redirect_to @watched, notice: 'Successfully added to watchlist' }
+      unless @watchlist.nil?
+        format.html { redirect_to @watched, notice: 'Successfully added to watchlist' }
+        format.js
+      else
+        format.html { redirect_to @watched, notice: 'Failed to add to watchlist' }
+        format.js
+      end
+    end
+  end
+  
+  def uncollect
+    @record = params[:record_type].constantize.find_by_id(params[:record_id])
+    collection = Collection.where(user: current_user, collected: @record).first
+    collection.destroy unless collection.nil?
+    
+    respond_to do |format|
+      format.html { redirect_to @record, notice: 'Successfully removed!' }
       format.js
     end
   end
   
-  def unwatch
-    watchlist = Watchlist.where(:user_id => current_user.id, :watched_id => params[:watched_id], :watched_type => params[:watched_type]).first
-    @watched = params[:watched_type].constantize.find(params[:watched_id])
+  def unwatch    
+    @watched = params[:watched_type].constantize.find_by_id(params[:watched_id])
+
+    watchlist = Watchlist.where(user: current_user, watched: @watched).first
     watchlist.destroy unless watchlist.nil?
     
     respond_to do |format|        
@@ -24,26 +60,36 @@ class UsersController < ApplicationController
       format.js
     end
   end
+  
+  def index
+    @users = User.order(:id).page(params[:page])
 
-  def add_to_collection
-    user = current_user
-    @album = Album.find_by_id(params[:album_id])
-    user.collections.create(:album_id => @album.id, :relationship => params[:relationship]) unless user.nil? || @album.nil?
-    
     respond_to do |format|
-      format.html { redirect_to @album, notice: "Successfully " + @noticetext }
-      format.js
+      format.html # index.html.erb
+      format.json { render json: @users }
     end
   end
-  
-  def uncollect
-    collection = Collection.where(:user_id => current_user.id, :album_id => params[:album_id]).first
-    @album = Album.find_by_id(params[:album_id])
-    collection.destroy unless collection.nil?
+
+  def show
+    @user = User.find(params[:id])
+
+    respond_to do |format|
+      if @user.privacy_settings.include?("Show Profile") || @user == current_user
+        format.html # show.html.erb
+        format.json { render json: @user }
+      else
+        format.html { render 'private_page'}
+        format.json { head :forbidden }
+      end
+    end
+  end
+
+  def overview
+    @user = User.find(params[:id])
     
     respond_to do |format|
-      format.html { redirect_to @album, notice: 'Successfully removed!' }
-      format.js
+      format.html # overview.html.erb
+      format.json { render json: @user }
     end
   end
 
@@ -60,12 +106,89 @@ class UsersController < ApplicationController
     end  
 
     respond_to do |format|
-      format.html # show.html.erb
-      format.js { }
+      if @user.privacy_settings.include?("Show Watchlist") || @user == current_user
+        format.html # watchlist.html.erb
+        format.json { render json: @user.watchlists }
+      else
+        format.html { render 'private_page'}
+        format.json { head :forbidden }        
+      end
+    end
+  end
+    
+  def collection
+    @user = User.find(params[:id])
+    
+    #Get albums
+      collected_albums = Album.in_collection(@user.id, "Collected")
+      ignored_albums = Album.in_collection(@user.id, "Ignored")
+      wishlisted_albums = Album.in_collection(@user.id, "Wishlisted")
+    
+    #get songs
+      collected_songs = Song.in_collection(@user.id, "Collected")
+      ignored_songs = Song.in_collection(@user.id, "Ignored")
+      wishlisted_songs = Song.in_collection(@user.id, "Wishlisted")
+      
+    #combine the two and sort by release date
+      @collected = (collected_albums + collected_songs).sort_by {|a| a.release_date ? a.release_date : Date.new }.reverse!
+      @ignored = (ignored_albums + ignored_songs).sort_by {|a| a.release_date ? a.release_date : Date.new }.reverse!
+      @wishlisted = (wishlisted_albums + wishlisted_songs).sort_by {|a| a.release_date ? a.release_date : Date.new }.reverse!
+      
+    #get counts
+      @collected_count = @collected.count
+      @ignored_count = @ignored.count
+      @wishlisted_count = @wishlisted.count
+    
+    @type = params[:type]
+    
+    if @type.nil? || ["collected", "ignored", "wishlisted"].include?(@type) == false
+      @records = Kaminari.paginate_array(@collected).page(params[:page]).per(30)
+      @type = "collected"
+    else
+      @records = Kaminari.paginate_array(instance_variable_get("@#{@type}")).page(params[:page]).per(30)
+    end
+          
+    respond_to do |format|
+      if @user.privacy_settings.include?("Show Collection") || @user == current_user
+        format.html
+        format.json {render json: @user.collections}
+        format.js
+      else
+        format.html { render 'private_page'}
+        format.json { head :forbidden }
+        format.js {head :forbidden}   
+      end
+    end
+  end
+
+  def new
+    @user = User.new
+
+    respond_to do |format|
+      format.html # new.html.erb
+      format.json { render json: @user }
+    end
+  end
+
+  def edit_security
+    @user = User.find(params[:id])
+    
+    respond_to do |format|
+      format.html # edit_security.html.erb
+      format.json { render json: @user }
+    end
+  end
+
+  def edit_profile
+    @user = User.find(params[:id])
+
+    respond_to do |format|
+      format.html # edit_security.html.erb
+      format.json { render json: @user }      
     end
   end
   
-  def watchlist_edit
+  def edit_watchlist
     @user = User.includes({watchlists: :watched}).find(params[:id])
     
     @watched = @user.watchlists.group_by(&:grouping_category)    
@@ -77,10 +200,59 @@ class UsersController < ApplicationController
     
     respond_to do |format|
       format.html # show.html.erb
+      format.json { render json: @user }
     end    
   end
   
+  def create
+    @user = User.new(params[:user])
+    
+    respond_to do |format|
+      if @user.save
+        format.html { redirect_to({action: 'edit_profile', id: @user.id }, notice: "Welcome to Hibiki! I highly recommend adjusting these settings to your preferences.")}
+        format.json { render json: @user }
+      else
+        format.html { render action: "new" }
+        format.json { render json: @user.errors, status: :unprocessable_entity }
+      end
+    end
+  end
+  
+  def update_security
+    @user = User.find(params[:id])
+    
+    respond_to do |format|
+      if @user.update_security(params[:user])
+        format.html { redirect_to({action: 'overview', id: @user.id}, notice: 'Security was successfully updated.')}
+        format.json { head :no_content }
+      else
+        format.html { render action: "edit_security" }
+        format.json { render json: @user.errors, status: :unprocessable_entity }
+      end
+    end    
+  end
+  
+  def update_profile
+    @user = User.find(params[:id])
+    
+    respond_to do |format|
+      if @user == current_user
+        if @user.update_profile(params[:user])    
+          format.html { redirect_to edit_profile_user_path(:id => params[:id]), notice: 'Profile was successfully updated.' }
+          format.json { head :no_content }
+        else
+          format.html { render action: "edit_profile" }
+          format.json { render json: @user.errors, status: :unprocessable_entity }
+        end
+      else
+        format.html { render "pages/access_denied" }
+        format.json { head :forbidden }
+      end
+    end
+  end
+  
   def update_watchlist
+    @user = User.find(params[:id])
     #Grab the new list of where each watched goes
     watchlist_edit = params[:watchlist_edit]
     #Remove the unsorted, as that will remain unsorted
@@ -101,152 +273,21 @@ class UsersController < ApplicationController
     end    
 
     respond_to do |format|
-      # if @user.save
-        format.html { redirect_to watchlist_edit_user_path(:id => params[:id]), notice: 'Watchlist was successfully updated.' }
-        # format.json { head :no_content }
-      # else
-        # format.html { render action: "edit_profile" }
-        # format.json { render json: @user.errors, status: :unprocessable_entity }
-      # end
+      if @user == current_user
+        if true #if all watchlists pass
+          format.html { redirect_to edit_watchlist_user_path(:id => params[:id]), notice: 'Watchlist was successfully updated.' }
+          format.json { head :no_content }
+        else
+          format.html { render action: "edit_watchlist" }
+          format.json { render json: @user.errors, status: :unprocessable_entity }          
+        end
+      else
+        format.html { render "pages/access_denied" }
+        format.json { head :forbidden }
+      end
     end        
-  end
-  
-  def collection
-    @user = User.find(params[:id])
-    @collection = @user.collections.includes(:album).order("albums.release_date").where(:relationship => "Collected")
-    @ignorelist = @user.collections.includes(:album).order("albums.release_date").where(:relationship => "Ignored")
-    @wishlist = @user.collections.includes(:album).order("albums.release_date").where(:relationship => "Wishlist")
-  end
-  
-  def index
-    @users = User.all
+  end  
 
-    respond_to do |format|
-      format.html # index.html.erb
-      format.json { render json: @users }
-    end
-  end
-
-  def show
-    @user = User.find(params[:id])
-
-    respond_to do |format|
-      format.html # show.html.erb
-      format.json { render json: @user }
-    end
-  end
-
-  def new
-    @user = User.new
-
-    respond_to do |format|
-      format.html # new.html.erb
-      format.json { render json: @user }
-    end
-  end
-
-  def edit_security
-    @user = User.find(params[:id])
-  end
-  
-  def update_security
-    @user = User.find(params[:id])
-    
-    respond_to do |format|
-      if @user.update_security(params[:user])
-        format.html { redirect_to user_path(:id => params[:id]), notice: 'Security was successfully updated.' }
-        format.json { head :no_content }
-      else
-        format.html { render action: "edit_security" }
-        format.json { render json: @user.errors, status: :unprocessable_entity }
-      end
-    end    
-  end
-
-  def edit_profile
-    @user = User.find(params[:id])
-    #display settings
-      displaysettings = @user.display_settings
-      @displayhash = {}
-      edit_profile_helper(displaysettings, @displayhash, "DisplayLEs", :les)
-      edit_profile_helper(displaysettings, @displayhash, "DisplayNWS", :nws)
-      edit_profile_helper(displaysettings, @displayhash, "DisplayIgnored", :ignored)
-      edit_profile_helper(displaysettings, @displayhash, "AlbumArtOutline", :albumart)
-      edit_profile_helper(displaysettings, @displayhash, "Bolding", :bold)
-      edit_profile_helper(displaysettings, @displayhash, "EditMode", :editmode)
-    #privacy settings
-      privacyarray = User::PrivacySettings
-      privacy = privacyarray.reject { |r| ((@user.privacy.to_i || 0 ) & 2**privacyarray.index(r)).zero?}
-      @privacyhash = {}
-      edit_profile_helper(privacy, @privacyhash, "ShowWatchlist", :watchlist)
-      edit_profile_helper(privacy, @privacyhash, "ShowCollection", :collection)
-    #Language Settings
-      if @user.language_settings == nil
-        @languages = User::Languages.split(",")
-      else
-        @languages = (@user.language_settings.split(",") + User::Languages.split(",")).uniq
-      end
-      if @user.artist_language_settings == nil
-        @artistlanguages = User::Languages.split(",")
-      else
-        @artistlanguages = (@user.artist_language_settings.split(",") + User::Languages.split(",")).uniq
-      end
-  end
-
-  def update_profile
-    @user = User.find(params[:id])
-    
-    #Make sure they don't send in security or name changes.
-    if params[:user].nil? == false
-      params[:user].delete :security
-      params[:user].delete :name
-      params[:user].delete :email
-    end
-    #Update Display Settings
-    displayarray = User::DisplaySettings
-    @user.display_bitmask= (params[:displaysettings] & displayarray).map { |r| 2**displayarray.index(r) }.sum
-    
-    #Update Privacy Settings
-    privacyarray = User::PrivacySettings
-    @user.privacy = (params[:privacysettings] & privacyarray).map { |r| 2**privacyarray.index(r) }.sum
-    
-    #Update Language Settings
-    @user.language_settings = params[:languagesettings].join(",")
-    @user.artist_language_settings = params[:artistlanguagesettings] .join(",")
-        
-    respond_to do |format|
-      if @user.save
-        format.html { redirect_to edit_profile_user_path(:id => params[:id]), notice: 'Profile was successfully updated.' }
-        format.json { head :no_content }
-      else
-        format.html { render action: "edit_profile" }
-        format.json { render json: @user.errors, status: :unprocessable_entity }
-      end
-    end
-  end
-  
-  # POST /users
-  # POST /users.json
-  def create
-    @user = User.new(params[:user])
-    
-    #Set Default Language Settings
-    @user.language_settings = User::Languages
-    @user.artist_language_settings = User::Languages
-    @user.security = "2"
-    
-    respond_to do |format|
-      if @user.save
-        format.html { redirect_to :root, notice: 'User was successfully created.' }
-      else
-        format.html { render action: "new" }
-        format.json { render json: @user.errors, status: :unprocessable_entity }
-      end
-    end
-  end
-
-  # DELETE /users/1
-  # DELETE /users/1.json
   def destroy
     @user = User.find(params[:id])
     @user.destroy
@@ -256,52 +297,7 @@ class UsersController < ApplicationController
       format.json { head :no_content }
     end
   end
-  
-  def passwordresetrequest
-    user = User.find_by_email(params[:email])
-    if user.nil? == false
-      user.deliver_password_reset_instructions!
-    end
     
-    respond_to do |format|
-        format.html { redirect_to requestpasswordreset_path, notice: "Thank you! An email has been sent to #{truncate(params[:email][0], length: 50)} with instructions to recover your password. If you do not receive an email, please contact support."  }
-        format.json { head :no_content }
-
-    end 
-  end
-  
-  def resetpassword
-    @token = params[:token]
-    @user = User.find_using_perishable_token(@token)
-    
-    unless @user
-      flash[:error] = "Sorry, but we could not find the associated token"
-      redirect_to :root
-    end
-  end
-  
-  def passwordreset
-    user = User.find_using_perishable_token(params[:user][:token])
-  
-    unless user
-      flash[:error] = "Sorry, but we could not find the associated token"
-      redirect_to :root
-    end    
-    
-    user.password = params[:user][:password]
-    user.password_confirmation = params[:user][:password_confirmation]
-    
-    respond_to do |format|
-      if user.save
-        format.html { redirect_to :root }
-        format.json { head :no_content }
-      else
-        format.html { redirect_to resetpassword_path, notice: 'Failed to reset password' }
-        format.json { head :no_content }
-      end
-    end 
-  end
-  
   private
     def edit_profile_helper(setting, hash, text, symbol)
       #Used in edit_profile

@@ -1,15 +1,15 @@
 Hibiki::Application.routes.draw do
   
   resources :users do
-    post 'add_to_collection'
     member do
       get 'watchlist'
       get 'collection'
+      get 'overview'
       get 'edit_profile'
       get 'edit_security'
+      get 'edit_watchlist'
       patch 'update_profile'
       patch 'update_security'
-      get 'watchlist_edit'
       patch 'update_watchlist'
     end
   end
@@ -105,10 +105,10 @@ Hibiki::Application.routes.draw do
   get '/toggle_albums', :to => 'scripts#toggle_albums'
   
   #for password resets
-  get '/requestpasswordreset', :to => 'users#requestpasswordreset'
-  post '/passwordresetrequest', :to => 'users#passwordresetrequest'
-  get '/resetpassword', :to => 'users#resetpassword'
-  patch '/passwordreset', :to => 'users#passwordreset'
+  get '/forgotten_password', :to => 'pages#forgotten_password'
+  post '/request_password_reset_email', :to => 'pages#request_password_reset_email'
+  get '/reset_password', :to => 'pages#reset_password_page'
+  patch '/reset_password', :to => 'pages#reset_password'
   
   #Links for js scripts for adding and editing
   match '/add_tag' => 'scripts#add_tag', via: [:get, :post]
@@ -118,10 +118,10 @@ Hibiki::Application.routes.draw do
   get '/well_toggle', :to => 'scripts#well_toggle'
     
   #User Functions
-  post '/watch', :to => 'users#watch'
-  post '/unwatch', :to => 'users#unwatch'
-  post '/add_to_collection', :to => 'users#add_to_collection'
-  post '/uncollect', :to => 'users#uncollect'
+  match '/watch', :to => 'users#watch', via: [:get, :post]
+  match '/unwatch', :to => 'users#unwatch', via: [:get, :post]
+  match '/collect', :to => 'users#collect', via: [:get, :post]
+  match '/uncollect', :to => 'users#uncollect', via: [:get, :post]
   get '/add_grouping', :to => 'users#add_grouping'
     
 end

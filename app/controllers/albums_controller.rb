@@ -5,7 +5,7 @@ class AlbumsController < ApplicationController
                :display_value => :edit_format
     
   def index
-    @albums = Album.includes(:primary_images, :tags).filter_by_user_settings(current_user).order(:release_date).page(params[:page])
+    @albums = Album.includes(:primary_images, :tags).order(:release_date).filter_by_user_settings(current_user).page(params[:page])
 
     respond_to do |format|
       format.html # index.html.erb

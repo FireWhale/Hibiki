@@ -1,0 +1,12 @@
+<% content_for :title do %>
+  <%= action_name == "show" ? "Someone's Profile" : "Someone's #{action_name.capitalize}"%>
+<% end %>
+
+<% content_for :header do %>
+  <div class="text-center">
+    <h2><%= action_name == "show" ? "Someone's Profile" : "Someone's #{action_name.capitalize}"%></h2>
+  </div>
+<% end %>
+
+
+<h4 class="text-center">This <%= action_name == "show" ? "profile" : action_name %> has been set to private</h4>

@@ -141,12 +141,7 @@ describe AlbumsController do
     activate_authlogic
   end
   
-  context 'public access to albums' do
-    before :each do
-      @user = create(:user, security: "0")
-      UserSession.create(@user)
-    end
-    
+  context 'public access to albums' do    
     #Ajax
       include_examples "can autocomplete", true, :search
       include_examples "can autocomplete", false, :edit
@@ -168,9 +163,7 @@ describe AlbumsController do
       include_examples "can post rescrape", false
 
     #Delete
-      include_examples "can delete a record", false
-      
-      
+      include_examples "can delete a record", false      
   end
   
   context 'user access to albums' do

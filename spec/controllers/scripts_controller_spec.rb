@@ -73,12 +73,20 @@ describe ScriptsController do
         
         context "collection params" do
           it "handles collection params" do
-            expect(Album).to receive(:in_collection)
+            unless @user.nil?
+              expect(Album).to receive(:in_collection)
+            else
+              expect(Album).to_not receive(:in_collection)
+            end
             xhr :get, :toggle_albums,  :col => "2", format: :js
           end
           
           it "handles N in collection params" do
-            expect(Album).to receive(:collection_filter)
+            unless @user.nil?
+              expect(Album).to receive(:collection_filter)
+            else
+              expect(Album).to_not receive(:collection_filter)
+            end
             xhr :get, :toggle_albums, :col => "N,1,2", format: :js
           end
           
@@ -378,10 +386,6 @@ describe ScriptsController do
   end
   
   context 'public access to artists' do
-    before :each do
-      @user = create(:user, security: "0")
-      UserSession.create(@user)
-    end
     
     #JS 
     include_examples 'get toggle_albums', true

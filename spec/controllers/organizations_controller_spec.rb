@@ -7,11 +7,7 @@ describe OrganizationsController do
   end
   
   context 'public access to organizations' do
-    before :each do
-      @user = create(:user, security: "0")
-      UserSession.create(@user)
-    end
-    
+
     #Ajax
       include_examples "can autocomplete", true, :search
       include_examples "can autocomplete", false, :edit

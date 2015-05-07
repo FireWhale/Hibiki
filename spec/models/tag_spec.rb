@@ -5,6 +5,7 @@ describe Tag do
   
   describe "Module Tests" do
     it_behaves_like "it has form_fields"
+    it_behaves_like "it has a custom json method"
   end
   
   #Association Test    

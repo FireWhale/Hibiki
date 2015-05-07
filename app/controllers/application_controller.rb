@@ -21,12 +21,14 @@ class ApplicationController < ActionController::Base
   end
   
   #User methods!
-  def name_language_helper(record,user,priority, opts = {})
+  def name_language_helper(record,user,priority, opts = {})    
+    #Use if user.nil?
+    
     #options: no_bold: true  
     array = []
     if record.respond_to?(:namehash) && record.namehash.nil? == false && record.namehash.empty? == false
-      if user.nil? #Guest users will be nil
-        languagesettings = User::DefaultLanguages.split(",")
+      if current_user.nil? #Guest users will be nil
+        languagesettings = User::DefaultLanguages
       else
         if record.class.to_s == "Artist" || record.class.to_s == 'Organization'
           languagesettings = user.artist_language_settings.split(",")
@@ -39,17 +41,16 @@ class ApplicationController < ActionController::Base
           array.push(record.namehash[language.to_sym])
         end
       end   
-    else
-      if record.respond_to?(:name) 
-        array.push(record.name)
-        if record.respond_to?(:altname) && record.altname.nil? == false
-          if record.altname.empty? == false
-            array.push(record.altname)
-          end
+    end
+    if record.respond_to?(:name) 
+      array.push(record.name)
+      if record.respond_to?(:altname) && record.altname.nil? == false
+        if record.altname.empty? == false
+          array.push(record.altname)
         end
-      else
-        array.push(record.id.to_s)
       end
+    else
+      array.push(record.id.to_s)
     end
     #If the priority specificed isn't available, we return nil
     if array[priority].nil?
@@ -130,6 +131,6 @@ class ApplicationController < ActionController::Base
 
     def current_user
       return @current_user if defined?(@current_user)
-      @current_user = current_user_session && current_user_session.user
+      @current_user = current_user_session && current_user_session.record
     end
 end

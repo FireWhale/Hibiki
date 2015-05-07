@@ -5,7 +5,7 @@ class Notifier < ActionMailer::Base
   end
   
   def password_reset_instructions(user)
-    @url = Rails.application.secrets.email_url + 'resetpassword?token=' + user.perishable_token
+    @url = "#{Rails.application.secrets.email_url}reset_password?token=#{user.perishable_token}"
     
     mail(to: user.email, 
          subject: "Password Reset Instructions", 

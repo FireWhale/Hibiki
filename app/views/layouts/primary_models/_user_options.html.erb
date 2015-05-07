@@ -1,13 +1,11 @@
-<% if record.class == Album %>
+<% if record.class == Album || record.class == Song %>
   <% unless record.collected_category(current_user).empty?  %>
-    <li><%= link_to "This album is #{record.collected_category(current_user).downcase}. Remove?", uncollect_path(:album_id => @album.id), method: :post, :remote => true %></li>
+    <li><%= link_to "This #{record.class.downcase} is #{record.collected_category(current_user).downcase}. Remove?", uncollect_path(record_id: record.id, record_type: record.class.to_s), method: :post, :remote => true %></li>
   <% else %>
-    <li><%= link_to "Add to Collection", add_to_collection_path( :album_id => @album.id, :relationship => 'Collected'), method: :post, :remote => true %></li>
-    <li><%= link_to "Ignore This Album", add_to_collection_path(:album_id => @album.id, :relationship => 'Ignored'), method: :post, :remote => true %></li>
-    <li><%= link_to "Add to Wishlist", add_to_collection_path( :album_id => @album.id, :relationship => 'Wishlisted'), method: :post, :remote => true %></li>
+    <li><%= link_to "Add to Collection", collect_path(record_id: record.id, record_type: record.class.to_s, :relationship => 'Collected'), method: :post, :remote => true %></li>
+    <li><%= link_to "Ignore This Album", collect_path(record_id: record.id, record_type: record.class.to_s, :relationship => 'Ignored'), method: :post, :remote => true %></li>
+    <li><%= link_to "Add to Wishlist", collect_path(record_id: record.id, record_type: record.class.to_s, :relationship => 'Wishlisted'), method: :post, :remote => true %></li>
   <% end %>
-<% elsif record.class == Song %>
-
 <% else%>
   <% if record.watched?(current_user) %>
     <li><%= link_to "You're watching this #{record.class.to_s.downcase}. Remove?", unwatch_path(:watched_id => record.id, :watched_type => record.class.to_s), method: :post, :remote => true %></li>      

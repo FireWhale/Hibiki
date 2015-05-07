@@ -6,12 +6,7 @@ describe SeasonsController do
     activate_authlogic
   end
   
-  context 'public access to seasons' do
-    before :each do
-      @user = create(:user, security: "0")
-      UserSession.create(@user)
-    end
-    
+  context 'public access to seasons' do    
     #Shows
       include_examples 'has an index page', true, :start_date
       include_examples "has a show page", true

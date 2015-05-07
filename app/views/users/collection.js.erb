@@ -1,0 +1,12 @@
+$('#index').html('<%= escape_javascript(render :partial => 'layouts/primary_models/record_list', locals: {records: @records}) %>');
+<%= render :partial => "scripts/layouts/lazyload" %>
+
+if($('#collection-tabs li.<%= @type %>').hasClass('active') == false) {
+  $('#collection-tabs li').removeClass('active');
+  $('#collection-tabs li.<%= @type %>').addClass('active');
+};
+
+$(".pagination").delegate("a", "click", function() {
+    var state = {statePath: $(this).attr('href')};
+    history.pushState( state, '', $(this).attr('href'));
+});

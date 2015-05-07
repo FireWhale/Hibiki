@@ -8,11 +8,6 @@ describe SongsController do
   end
   
   context 'public access to songs' do
-    before :each do
-      @user = create(:user, security: "0")
-      UserSession.create(@user)
-    end
-    
     #Ajax
       include_examples "can autocomplete", true, :search
       include_examples "can autocomplete", false, :edit

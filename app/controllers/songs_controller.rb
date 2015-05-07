@@ -15,6 +15,7 @@ class SongsController < ApplicationController
 
   def show
     @song = Song.find(params[:id])
+    
     self_relation_helper(@song,@related = {}) #Prepare @related (self_relations) 
     credits_helper(@song,@credits = {}) #prepares the credits
     

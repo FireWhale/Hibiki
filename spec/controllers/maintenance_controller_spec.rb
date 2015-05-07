@@ -229,10 +229,6 @@ describe MaintenanceController do
   end
   
   context 'public access to maintenance' do
-    before :each do
-      @user = create(:user, security: "0")
-      UserSession.create(@user)
-    end
     
     include_examples "can get index", false
     

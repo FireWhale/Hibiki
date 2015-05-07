@@ -8,10 +8,6 @@ describe PostsController do
   end
   
   context 'public access to posts' do
-    before :each do
-      @user = create(:user, security: "0")
-      UserSession.create(@user)
-    end
           
     #Shows
       include_examples 'has an index page', true, :id #id is basically created_at

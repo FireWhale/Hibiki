@@ -9,7 +9,7 @@ module CrudTests
       describe 'GET #index' do
         if accessible == true  
           it "populates a list of #{model_symbol}s" do
-            ability = (@user.abilities).sample
+            ability = @user.nil? ? "Any" : (@user.abilities).sample
             if model_class == Tag || model_class == Issue
               list = create_list(model_symbol, 10, visibility: ability)
             elsif model_class == Post
@@ -18,11 +18,15 @@ module CrudTests
               list = create_list(model_symbol, 10)
             end
             get :index
-            expect(assigns("#{model_symbol}s".to_sym)).to match_array list
+            if model_class == User && @user.nil? == false
+              expect(assigns("#{model_symbol}s".to_sym)).to match_array(list + [@user])
+            else
+              expect(assigns("#{model_symbol}s".to_sym)).to match_array list
+            end
           end
           
           it "returns a json object" do      
-            ability = (@user.abilities).sample
+            ability = @user.nil? ? "Any" : (@user.abilities).sample
             if model_class == Tag || model_class == Issue
               list = create_list(model_symbol, 10, visibility: ability)
             elsif model_class == Post
@@ -30,7 +34,9 @@ module CrudTests
             elsif model_class == Album
               list = create_list(model_symbol, 10, :with_release_date)
             elsif model_class == Event
-              list = create_list(model_symbol, 10, :with_start_date)            
+              list = create_list(model_symbol, 10, :with_start_date)
+            elsif model_class == User && @user.nil? == false
+              list = create_list(model_symbol, 10) + [@user]    
             else
               list = create_list(model_symbol, 10)            
             end
@@ -54,13 +60,15 @@ module CrudTests
           end
                  
           it "sorts by #{sort_method}" do
-            ability = (@user.abilities).sample
+            ability = @user.nil? ? "Any" : (@user.abilities).sample
             if model_class == Tag || model_class == Issue
               list = create_list(model_symbol, 10, visibility: ability)
             elsif model_class == Post
               list = create_list(model_symbol, 10, visibility: ability, category: "Blog Post")
             elsif model_class == Album
               list = create_list(model_symbol, 10, :with_release_date)
+            elsif model_class == User && @user.nil? == false
+              list = create_list(model_symbol, 10) + [@user]    
             else
               list = create_list(model_symbol, 10)
             end
@@ -73,7 +81,8 @@ module CrudTests
           end
         end
         
-        if model_class == Album 
+        if model_class == Album && @user.nil? == false 
+          #the method does nothing if the user is nil anyhow
           it "filters out albums with filter_by_user_settings" do
             #create an ignored and set user settings to ignore ignored
             list = create_list(model_symbol, 10)
@@ -84,7 +93,8 @@ module CrudTests
           end
         end
         
-        if model_class == Song
+        if model_class == Song && @user.nil? == false 
+          #the method does nothing if the user is nil anyhow
           it "filters out albums with filter_by_user_settings" #do
             # list = create_list(model_symbol, 10, :with_album)
             # create(:collection, album: list.first.album, user: @user, relationship: "Ignored")
@@ -110,7 +120,8 @@ module CrudTests
             else
               list = create_list(model_symbol, 10)
             end
-            filtered_list = list.select {|item| @user.abilities.include?(item.visibility)}
+            abilities = @user.nil? ? ["Any"] : @user.abilities
+            filtered_list = list.select {|item| abilities.include?(item.visibility)}
             get :index
             expect(assigns("#{model_symbol}s".to_sym)).to match_array filtered_list
           end
@@ -118,7 +129,7 @@ module CrudTests
         
         if model_class == Issue
           it "filters by status" do
-            ability = (@user.abilities).sample
+            ability = @user.nil? ? "Any" : (@user.abilities).sample
             list = create_list(model_symbol, 10, visibility: ability)
             status = Issue::Status.sample
             filtered_list = list.select { |item| item.status == status}
@@ -127,7 +138,7 @@ module CrudTests
           end
           
           it "filters by category" do
-            ability = (@user.abilities).sample
+            ability = @user.nil? ? "Any" : (@user.abilities).sample
             list = create_list(model_symbol, 10, visibility: ability)
             category = Issue::Categories.sample
             filtered_list = list.select { |item| item.category == category}
@@ -138,7 +149,7 @@ module CrudTests
         
         if model_class == Post || model_class == Issue
           it "populates the all_#{model_symbol} instance variable" do
-            ability = (@user.abilities).sample
+            ability = @user.nil? ? "Any" : (@user.abilities).sample
             if model_class == Post
               list = create_list(model_symbol, 10, visibility: ability, category: "Blog Post")
             else
@@ -151,7 +162,7 @@ module CrudTests
         
         if model_class == Post
           it 'filters by tags' do
-            ability = (@user.abilities).sample
+            ability = @user.nil? ? "Any" : (@user.abilities).sample
             list = create_list(model_symbol, 10, :with_tag, visibility: ability, category: "Blog Post")
             tag1 = list[0].tags.first
             tag2 = list[1].tags.first
@@ -160,7 +171,7 @@ module CrudTests
           end
           
           it "populates a tags variable" do
-            ability = (@user.abilities).sample
+            ability = @user.nil? ? "Any" : (@user.abilities).sample
             list = create_list(model_symbol, 10, :with_tag, visibility: ability, category: "Blog Post")
             tag1 = list[0].tags.first
             tag2 = list[1].tags.first
@@ -189,7 +200,7 @@ module CrudTests
           end
           
           it "returns a json object" do
-            ability = (@user.abilities).sample
+            ability = @user.nil? ? "Any" : (@user.abilities).sample
             if model_class == Tag || model_class == Post || model_class == Issue
               record = create(model_symbol, visibility: ability)
             else
@@ -199,23 +210,48 @@ module CrudTests
             expect(response.headers['Content-Type']).to match 'application/json'
             expect(response.body).to eq(record.to_json)
           end
+        
+        else
+          unless model_class == Image || model_class == Song
+            #both of these classes have callbacks that assign the symbol
+            #So just remove these from the test. it's kind of a useless test anyhow.
+            #more gutcheck than anything.
+            it "does not populate a #{model_symbol} record" do
+              record = create(model_symbol)
+              get :show, id: record     
+              expect(assigns(model_symbol)).to be_nil   
+            end            
+          end
+          
+          it "returns access denied does not populate" do
+            record = create(model_symbol)
+            get :show, id: record
+            expect(response).to render_template("pages/access_denied")
+          end
+          
+          it "returns forbidden with json" do
+            record = create(model_symbol)
+            get :show, id: record, format: :json
+            expect(response.status).to eq(403) #forbidden
+          end
         end
         
         if model_class == Tag || model_class == Post || model_class == Issue
           #These three classes are accessible on a record-to-record basis.
           #It needs custom tests to test for these, obviously. 
           it "renders the :show template if it matches security" do
-            ability = (@user.abilities).sample
+            ability = @user.nil? ? "Any" : (@user.abilities).sample
             record = create(model_symbol, visibility: ability)
             get :show, id: record
             valid_permissions(:show, accessible)
           end
           
           it "does not render the show template if it does not match security" do
-            ability = (Ability::Abilities - @user.abilities).sample
+            abilities = @user.nil? ? ["Any"] : @user.abilities
+            ability = (Ability::Abilities - abilities).sample
             record = create(model_symbol, visibility: ability)
             get :show, id: record
-            if @user.abilities.include?("Admin")
+            if abilities.include?("Admin")
               #This is just an unfortunate result of the way admins have
               #access to all templates
               #Might need to restrict it on the controller level for users
@@ -279,13 +315,15 @@ module CrudTests
             expect(assigns(:albums).to_ary).to eq(record.albums.sort_by(&:release_date).reverse!)
           end
           
-          it "filters albums by filter_by_user_settings" do
-            record = create(model_symbol, :with_albums)
-            albums = record.albums
-            create(:collection, collected: albums.first, user: @user, relationship: "Ignored")
-            @user.update_attribute(:display_bitmask, 57) #Does not display ignored
-            get :show, id: record
-            expect(assigns(:albums)).to match_array(albums - [albums.first])
+          unless @user.nil? #handled in model: if user is nil, method does nothing
+            it "filters albums by filter_by_user_settings" do
+              record = create(model_symbol, :with_albums)
+              albums = record.albums
+              create(:collection, collected: albums.first, user: @user, relationship: "Ignored")
+              @user.update_attribute(:display_bitmask, 57) #Does not display ignored
+              get :show, id: record
+              expect(assigns(:albums)).to match_array(albums - [albums.first])
+            end
           end
           
           it "paginates albums" do
@@ -333,7 +371,7 @@ module CrudTests
         it "renders the :new template" do
           get :new
           valid_permissions(:new, accessible)
-        end
+        end        
       end
     end
     
@@ -356,7 +394,7 @@ module CrudTests
             record.namehash = {} if record.respond_to?(:namehash)
             expect(response.body).to eq(record.to_json)
           else
-            expect(response.status).to eq(403)
+            expect(response.status).to eq(403) #forbidden
           end          
         end
         
@@ -412,7 +450,7 @@ module CrudTests
             
             it "responds to json" do
               post :create, model_symbol => attributes_for(model_symbol, :invalid), format: :json
-              expect(response.status).to eq(422) #aka Unprocessable entity
+              expect(response.status).to eq(422) #aka Unprocessable entity /unprocess
             end
           end
           
@@ -458,7 +496,7 @@ module CrudTests
             
             it "responds to json" do
               put :update, id: record, model_symbol => attributes_for(model_symbol), format: :json
-              expect(response.status).to eq(204) #204 No Content -> ajax success event
+              expect(response.status).to eq(204) #204 No Content no content -> ajax success event
             end
             
             unless model_class == Image || model_class == Issue #image/issue just uses normal update_attributes

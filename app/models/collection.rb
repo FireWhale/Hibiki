@@ -1,5 +1,5 @@
 class Collection < ActiveRecord::Base
-  attr_accessible :album_id, :rating, :relationship, :user_comment, :date_obtained
+  attr_accessible :collected_id, :collected_type, :rating, :relationship, :user_comment, :date_obtained
   
   Relationship = %w[Collected Ignored Wishlisted]
   

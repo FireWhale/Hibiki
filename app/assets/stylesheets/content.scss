@@ -245,8 +245,8 @@
   }
 }
 
-#search {
-  ul#search-tabs {
+#search, #collection {
+  ul#search-tabs, ul#collection-tabs {
     text-align: center;
     margin-bottom: -1px;
     li {

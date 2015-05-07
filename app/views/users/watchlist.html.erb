@@ -1,13 +1,8 @@
-<% content_for :title do %><%= (current_user == @user or privacy_settings(@user).include? "ShowWatchlist" ) ? "#{@user.name}'s Watchlist"  : "A Watchlist" %><% end %>
+<% content_for :title do %><%= "#{@user.name}'s Watchlist" %><% end %>
 
 <% content_for :header do %>
-
   <div class="text-center">
-    <% if current_user == @user or privacy_settings(@user).include? "ShowWatchlist"  %>
-      <h2><%= current_user == @user ? "Your" : "#{@user.name}'s" %> Watchlist</h2>
-    <% else %>
-       <h2>Some User's Watchlist</h2>
-    <% end %>
+    <h2><%= current_user == @user ? "Your" : "#{@user.name}'s" %> Watchlist</h2>
     <div class="sublink">
       <% if current_user == @user %>
           Manage your watchlist <%= link_to "here", watchlist_edit_user_path(:id => current_user.id) %>
@@ -16,18 +11,12 @@
   </div>
 <% end %>
 
-<% if current_user == @user or privacy_settings(@user).include? "ShowWatchlist"  %>
 <% content_for :left_sidebar do %>
     <%= render :partial => 'layouts/grid/selection_sidebar', :locals =>  {:collection => @watched}%>
 <% end %>
 
-<% if current_user == @user || privacy_settings(@user).include?("ShowWatchlist") %>
-  <%= render :partial => 'layouts/grid/album_area', :locals => {:sort => "year"} %>  
-<% end %>
+<%= render :partial => 'layouts/grid/album_area', :locals => {:sort => "year"} %>  
 
 <% content_for :right_sidebar do %>
   <%= render :partial => 'layouts/grid/filter_sort_sidebar' %>
 <% end %>
-<% else %>
-  <h4 class="text-center">This watchlist has been set to private</h4>
-<% end%>

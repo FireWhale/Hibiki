@@ -7,11 +7,7 @@ describe IssuesController do
   end
   
   context 'public access to issues' do
-    before :each do
-      @user = create(:user, security: "0")
-      UserSession.create(@user)
-    end
-          
+              
     #Shows
       include_examples 'has an index page', true, :id
       include_examples "has a show page", true

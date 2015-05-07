@@ -42,12 +42,7 @@ describe ImagesController do
     activate_authlogic
   end
   
-  context 'public access to images' do
-    before :each do
-      @user = create(:user, security: "0")
-      UserSession.create(@user)
-    end
-    
+  context 'public access to images' do    
     #Ajax
       include_examples "has an update_image js", true
     

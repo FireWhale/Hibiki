@@ -6,12 +6,7 @@ describe ArtistsController do
     activate_authlogic
   end
   
-  context 'public access to artists' do
-    before :each do
-      @user = create(:user, security: "0")
-      UserSession.create(@user)
-    end
-    
+  context 'public access to artists' do    
     #Ajax
       include_examples "can autocomplete", true, :search
       include_examples "can autocomplete", false, :edit

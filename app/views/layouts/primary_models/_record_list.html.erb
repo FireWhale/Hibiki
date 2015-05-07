@@ -3,10 +3,12 @@
     Sorry, there were no results <%= "under #{@model}s" unless @model.nil? %>
   </div> 
 <% else %>
-  <% if @model.nil? %>
-    <%= paginate records %>
-  <% else %>
+  <% if @model.nil? == false %>
     <%= paginate records, remote: true, param_name: "#{@model}_page", :params => {model: @model} %>
+  <% elsif @type.nil? == false %>
+    <%= paginate records, remote: true, :params => {type: @type} %>
+  <% else %>
+    <%= paginate records %>
   <% end %>
   <% if records.first.class == Album %>
     <div class="record-container">
@@ -94,9 +96,11 @@
       </div>
     <% end %>
   <% end %>
-  <% if @model.nil? %>
-    <%= paginate records %>
-  <% else %>
+  <% if @model.nil? == false %>
     <%= paginate records, remote: true, param_name: "#{@model}_page", :params => {model: @model} %>
+  <% elsif @type.nil? == false %>
+    <%= paginate records, remote: true, :params => {type: @type} %>
+  <% else %>
+    <%= paginate records %>
   <% end %>
 <% end %>

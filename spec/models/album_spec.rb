@@ -10,6 +10,7 @@ describe Album do
     it_behaves_like "it can be autocompleted"
     it_behaves_like "it has pagination"
     it_behaves_like "it has form_fields"
+    it_behaves_like "it has a custom json method"
   end
     
   describe "Association Tests" do

@@ -70,7 +70,9 @@ module AttributeTests
       end
       
       it "is invalid without a #{attribute.to_s} contained in #{category_name}" do
-        expect(build(class_symbol, attribute => "heheheha")).to_not be_valid      
+        record = create(class_symbol)
+        record.send("#{attribute}=".to_sym, "heheheha")
+        expect(record).to_not be_valid      
       end
     end
     
