@@ -22,50 +22,7 @@
   .languageselect {
     width: 100px;
   }
-
-//For Sortable lists in edit_watchlists
-  .watchlist-form {
-    width: 100%;
-  }
-  .sortableGroup {
-    min-height: 80px;
-  }
   
-  .grouping {
-    display: inline-block;
-    vertical-align: top;
-  }
-  
-  .sortablerecord {
-    font-size: 90%;
-    font-weight: bold;
-    line-height: 1;
-    text-align: center;
-    vertical-align: baseline;
-    color: black;
-    padding: 1px 0px 1px;
-    div {
-    padding: 0.2em 0.6em 0.3em;
-      background-color: #a7e0f3;
-    }
-  }
-
-//Searching CSS  
-  #SearchTabs {
-    border-bottom: none;
-    text-align: center;
-    li {
-     float:none;
-     display:inline-block; 
-    }
-  }
-  
-  
-//for the admin functions under record art
-  .sticky li a {
-    padding: 5px 7px;
-  }
-
 //for drill down tables
   .drilled-table {
     border-style: groove;
@@ -75,23 +32,6 @@
 
 
 //Reverses hover-underline logic for these divs (found in show's)
-  #People {
-    a {
-      text-decoration:none;  
-      &:hover {
-        text-decoration:underline;  
-      }
-    }
-  }
-  
-  #Sources {
-    a {
-      text-decoration:none;  
-      &:hover {
-        text-decoration:underline;  
-      }
-    }
-  }
 
 input[type="file"] {
   display: inline;
@@ -99,14 +39,4 @@ input[type="file"] {
 
 .ui-autocomplete {
   width: 400px;
-}
-
-.tracksong  {
-  border-bottom: 1px solid #DDDDDD;
-  [class*='span'] {
-    min-height: 10px;
-  }
-}
-.ul {
-  background-color: #98ADCA;
 }

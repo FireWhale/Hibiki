@@ -7,6 +7,15 @@ $(document).ready(function(){
         };    
     };
     
+    //sortable list for editing watchlists
+    $('.sortable-records').sortable({
+        connectWith: $(".sortable-records"),
+        update: function(event, ui) {
+            var hidden = ui.item.children().children("input");
+            var grouping = ui.item.parent().parent().parent().parent('.grouping').attr('id');
+            hidden.attr('name', "[watchlists][" + grouping + "][records][]");
+        }
+    });    
     
 });
 

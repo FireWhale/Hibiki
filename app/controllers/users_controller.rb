@@ -254,27 +254,28 @@ class UsersController < ApplicationController
   def update_watchlist
     @user = User.find(params[:id])
     #Grab the new list of where each watched goes
-    watchlist_edit = params[:watchlist_edit]
-    #Remove the unsorted, as that will remain unsorted
-    watchlist_edit.each do |grouping, values|
-      unless grouping.nil? || grouping.empty?
-        if values["records"].nil? == false
-          values["records"].each_with_index do |id,n|
-            watched = Watchlist.find_by_id(id)
-            unless watched.nil?
-              watched.grouping_category = values["name"]
-              #Store position if position is there
-              watched.position = (values["order"] == "1" ?  n : nil )
-              watched.save
+    
+    watchlists = params[:watchlists]
+    unless watchlists.nil?
+      watchlists.each do |grouping, values|
+        unless grouping.nil? || grouping.empty? || values["records"].nil?
+          values["records"].each do |id|
+            watchlist = Watchlist.find_by_id(id)
+            unless watchlist.nil? || values["name"].nil?
+              watchlist.grouping_category = values["name"].truncate(40)
+              watchlist.save
             end
-          end          
+          end
         end
       end
-    end    
+      success = true
+    else
+      success = false
+    end
 
     respond_to do |format|
       if @user == current_user
-        if true #if all watchlists pass
+        if success #if all watchlists pass
           format.html { redirect_to edit_watchlist_user_path(:id => params[:id]), notice: 'Watchlist was successfully updated.' }
           format.json { head :no_content }
         else

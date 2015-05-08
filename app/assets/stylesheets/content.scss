@@ -172,14 +172,15 @@
   }
 }
 
-#index {
+#index, #groupings {
   background-color: $well-background-color;
   border: 1px solid $border-color;
   padding-top: 15px;
-  .record-container {
+  margin-bottom: 15px;
+  .record-container, .grouping {
     padding: 5px 40px;
   }
-  .artist, .organization, .source, .album, .song {
+  .artist, .organization, .source, .album, .song, .group {
     display: -webkit-box;
     display: -ms-flexbox;
     display: -webkit-flex;
@@ -240,6 +241,38 @@
       color: $font-link;
       &:hover {
         text-decoration: underline;
+      }
+    }
+    .grouping-label {
+      width: 20%;
+      text-align: center;
+      input { width: 70%; }
+    }
+    .grouping-records {
+      @include make-row();
+      border-left: 1px solid #DDDDDD;
+      padding-left: 20px;
+      width: 80%;
+      .sortable-records {
+        padding-left: 10px;
+        padding-right: 10px;
+        float: left;
+        width: 20%;
+        position: relative;
+        min-height: 50px;     
+        .sortable-record {
+          font-size: 90%;
+          font-weight: bold;
+          line-height: 1;
+          text-align: center;
+          vertical-align: baseline;
+          color: black;
+          padding: 1px 0px 1px;
+          div {
+            padding: 0.2em 0.6em 0.3em;
+            background-color: #d8f4fd;
+          }
+        }   
       }
     }
   }

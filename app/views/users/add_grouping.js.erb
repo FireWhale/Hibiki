@@ -3,50 +3,29 @@ $('.grouping').each(function() {
     ids.push($(this).attr('id'));
 });
 ids = ids.sort(function (a,b) {
-  return a - b
+    return a - b
 });
 
 var newid = parseInt(ids[ids.length - 1],10) + 1;
 
-console.log(newid);
+var newGrouping = document.createElement('div');
+newGrouping.setAttribute("id", newid );
+newGrouping.setAttribute("class", "grouping");
 
-var newElem = document.createElement('div');
-newElem.setAttribute("id", newid );
-newElem.setAttribute("class", "grouping well xsmall col-md-2 text-center");
+$('#groups').append( newGrouping );
 
-$('#groupings').append( newElem );
+$('#' + newid).html('<%= escape_javascript(render :partial => "users/grouping", :locals => {:index_number => 'place-holder' }) %>');  
 
-var newElem2 = document.createElement('input');
-newElem2.setAttribute("id", "watchlist_edit_" + newid + "_name");
-newElem2.setAttribute("name", "watchlist_edit[" + newid + "][name]");
-newElem2.setAttribute("class", "watchlist-form");
+$('#' + newid).find('input').attr('name', 'watchlists[' + newid + '][name]');
+$('#' + newid).find('input').attr('id', 'watchlists_' + newid + '_name');
 
-var newElem3 = document.createElement('input');
-newElem3.setAttribute("name", "watchlist_edit[" + newid + "][order]");
-newElem3.setAttribute("type", "hidden");
-newElem3.setAttribute("value", "0");
-
-var newElem4 = document.createElement('input');
-newElem4.setAttribute("checked", "checked");
-newElem4.setAttribute("id", "watchlist_edit_" + newid + "_order");
-newElem4.setAttribute("name", "watchlist_edit[" + newid + "][order]");
-newElem4.setAttribute("type", "checkbox");
-newElem4.setAttribute("value", "1");
-
-var newElem5 = document.createElement('div');
-newElem5.setAttribute("class", "sortableGroup ui-sortable");
-
-$('#' + newid ).append( newElem2 );
-$('#' + newid ).append( newElem3 );
-$('#' + newid ).append( newElem4 );
-$('#' + newid ).append( "Keep Order?" );
-$('#' + newid ).append( newElem5 );
-
-console.log($('.sortableGroup').last());
-$('.sortableGroup').sortable({
-  connectWith: $(".sortableGroup")
+$('.sortable-records').sortable({
+    connectWith: $(".sortable-records"),
+    update: function(event, ui) {
+        var hidden = ui.item.children().children("input");
+        var grouping = ui.item.parent().parent().parent().parent('.grouping').attr('id');
+        hidden.attr('name', "[watchlists][" + grouping + "][records][]");
+    }
 })
-
-$('#groupings').sortable();
 
 

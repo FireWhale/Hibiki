@@ -5,17 +5,6 @@ $(document).ready(function(){
   //Sortable list for languages
   $('#languages').sortable();
   $('#artistlanguages').sortable();  
-   
-  //sortable list for editing watchlists
-  $('.sortableGroup').sortable({
-      connectWith: $(".sortableGroup"),
-      update: function(event, ui) {
-          var hidden = ui.item.children().children("input");
-          var grouping = ui.item.parent().parent().attr('id');
-          hidden.attr('name', "[watchlist_edit][" + grouping + "][records][]");
-      }
-  });
-  $('#groupings').sortable();
   
   //For Released Review's drill down
   if ($("#ReleasedTable").length > 0) {

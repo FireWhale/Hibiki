@@ -973,7 +973,7 @@ describe UsersController do
     end
     
     shared_examples "can post update_watchlist" do |accessible|
-      describe 'POST #update_profile' do
+      describe 'POST #update_watchlist' do
         let(:user) {create(:user, :with_multiple_watchlists)}
         
         if accessible == true          

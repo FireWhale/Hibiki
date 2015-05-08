@@ -2,45 +2,52 @@
 
 <% content_for :header do %>
   <div class="text-center">
-    <h2>Edit <%= @user.name %>'s Watchlist</h1>
-    <% if current_user == @user %>
-      <%= button_to "Add New Grouping", add_grouping_path, :method => "get", :remote => true  %>
-    <% end %>  
+    <h2>Edit Your Watchlist</h2>
+    <h4>Drag and drop the stuff you watch into groups</h4>
   </div>
 <% end %>
 
-<p id="notice"><%= notice %></p>
-
-<% if current_user == @user %>
-  <%= form_for('watchlist_edit', :url => "update_watchlist", :method => 'patch' ) do |f|  %>
+<div id="groupings">  
+  <div class="text-center"><%= notice %></div>
+  <%= form_for('watchlists', :url => "update_watchlist", :method => 'patch' ) do |f|  %>
     <div class="actions text-center">
-      <%= f.submit "Save Changes" %>
-    </div>
-    <div id="groupings" class="row">
-      <% @watched.each_with_index do |(k,v),n| %>
-        <%= f.fields_for n.to_s  do |form| %>
-          <div id="<%= n.to_s %>" class="grouping well xsmall col-md-2 text-center">
-            <% if k.nil? %>
-              <h4>Unsorted</h4>
-            <% else %>
-              <%= form.text_field 'name', :value => k, :class => "watchlist-form" %>
-              <%= form.check_box 'order', :value => true, :checked => true %> Keep Order?
+      <%= f.submit "Save Changes" %><br>
+    </div><br>
+    <div id="groups">
+      <% @watched.each_with_index do |(k,v),g| %>
+        <div id="<%= g.to_s %>" class="grouping">
+          <div class="group">
+            <%= f.fields_for g.to_s do |form| %>
+              <div class="grouping-label">
+                <% if k.nil? %>
+                  <h4>Unsorted</h4>
+                <% else %>
+                  <%= form.text_field 'name', :value => k, :class => "watchlist-form" %>
+                <% end %>
+              </div>
+              <div class="grouping-records">
+                <% v.in_groups(5).each do |col| %>
+                  <div class="sortable-records">
+                    <% col.each do |record| %>   
+                      <% unless record.nil? %>
+                        <div class="sortable-record">
+                          <div>
+                            <%= name_language_helper(record.watched,current_user,0, :no_bold => true) %>
+                            <%= hidden_field_tag "[watchlists][#{g}][records][]", record.id, :id => "ID" + record.id.to_s %>
+                          </div>
+                        </div> 
+                      <% end %>
+                    <% end %>     
+                  </div>
+                <% end%>      
+              </div>    
             <% end %>
-            <div class="sortableGroup">
-                <% v.each do |record| %>          
-                  <div class="sortablerecord">
-                    <div>
-                    <%= name_language_helper(record.watched,current_user,0, :no_bold => true) %>
-                    <%= hidden_field_tag '[watchlist_edit][' + n.to_s + '][records][]', record.id, :id => "ID" + record.id.to_s %>
-                    </div>
-                  </div>      
-                <% end%>
-            </div>
           </div>
-        <% end %>
+        </div>
       <% end %>
     </div>
   <% end %>
-<% else %>
-  <h4 class="text-center">This isn't yours!</h4>
-<% end %>
+  <div class="text-center">
+  <%= button_to "Add New Grouping", add_grouping_path, :method => "get", :remote => true  %><br>
+  </div>
+</div>

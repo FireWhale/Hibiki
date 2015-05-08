@@ -1,0 +1,10 @@
+<div class="group">
+  <div class="grouping-label">
+      <%= text_field_tag "placeholder[name]", nil, :placeholder => 'Grouping Name', :class => "watchlist-form" %>
+  </div>
+  <div class="grouping-records">
+    <% 5.times do %>
+      <div class="sortable-records"></div>
+    <% end%>      
+  </div>    
+</div>
