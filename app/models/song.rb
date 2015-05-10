@@ -54,7 +54,7 @@ class Song < ActiveRecord::Base
                   {type: "artist_relations", div_class: "well", title: "Artist Relationships", sub_div_id: "Artists"},
                   {type: "source_relations", div_class: "well", title: "Source Relationships", sub_div_id: "Sources"},
                   {type: "namehash", title: "Languages", div_class: "well", sub_div_id: "Languages"}, 
-                  {type: "language_records", title: "Lyrics", div_class: "well", sub_div_id: "Lyrics", model: "lyric", text_area: "lyrics"},
+                  #{type: "language_records", title: "Lyrics", div_class: "well", sub_div_id: "Lyrics", model: "lyric", text_area: "lyrics"},
                   {type: "markup", tag_name: "/div"}]
     
     TracklistEditFields = [{type: "markup", tag_name: "div class='well well-xsmall'"}, {type: "well_hide"},
@@ -65,7 +65,7 @@ class Song < ActiveRecord::Base
                            {type: "id", no_div: true, label: "ID:"},
                            {type: "markup", tag_name: "div ", add_id: true}, {type: "markup", tag_name: "div class='row'"}, {type: "markup", tag_name: "div class='col-md-4'"}, {type: "markup", tag_name: "br"},
                            {type: "namehash"}, 
-                           {type: "language_records", no_div: true, model: "lyric", text_area: "lyrics"},
+                           #{type: "language_records", no_div: true, model: "lyric", text_area: "lyrics"},
                            {type: "markup", tag_name: "/div"}, 
                            {type: "markup", tag_name: "div class='col-md-8'"}, {type: "markup", tag_name: "br"},
                            {type: "artist_relations", no_div: true}, {type: "source_relations", no_div: true},

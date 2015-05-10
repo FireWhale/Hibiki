@@ -1,6 +1,10 @@
 <% if records.nil? || records.empty? %>
   <div class="no-records">
-    Sorry, there were no results <%= "under #{@model}s" unless @model.nil? %>
+    <% if @type.nil? %>
+      Sorry, there were no results <%= "under #{@model}s" unless @model.nil? %>
+    <% else %>
+      No albums/songs are in this collection. <%= "Find some albums or songs to add!" if @type == "collected" && @user == current_user%>
+    <% end%>
   </div> 
 <% else %>
   <% if @model.nil? == false %>

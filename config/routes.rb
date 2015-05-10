@@ -19,16 +19,16 @@ Hibiki::Application.routes.draw do
     end
     member do
       get 'albumart', :action => 'album_art'
-      get 'tracklist_edit', :action => 'edit_tracklist'
-      patch 'tracklist_edit', :action => 'update_tracklist'
-      get 'tracklist_export', :action => 'tracklist_export'
+      get 'edit_tracklist'
+      patch 'update_tracklist'
+      get 'tracklist_export'
       post 'rescrape', action: 'rescrape'
     end
   end
   resources :sources do
     get :autocomplete_source_namehash, :on => :collection
     member do
-      get 'images', :action => 'show_images'
+      get 'images', action: 'show_images'
     end
   end
   resources :songs do
@@ -122,6 +122,6 @@ Hibiki::Application.routes.draw do
   match '/unwatch', :to => 'users#unwatch', via: [:get, :post]
   match '/collect', :to => 'users#collect', via: [:get, :post]
   match '/uncollect', :to => 'users#uncollect', via: [:get, :post]
-  get '/add_grouping', :to => 'users#add_grouping'
+  get '/add_grouping', :to => 'users#add_grouping' #for edit_watchlist
     
 end

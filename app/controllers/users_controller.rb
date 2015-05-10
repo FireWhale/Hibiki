@@ -256,13 +256,13 @@ class UsersController < ApplicationController
     #Grab the new list of where each watched goes
     
     watchlists = params[:watchlists]
-    unless watchlists.nil?
-      watchlists.each do |grouping, values|
-        unless grouping.nil? || grouping.empty? || values["records"].nil?
-          values["records"].each do |id|
+    unless watchlists.nil? || @user != current_user
+      watchlists.deep_symbolize_keys.each do |grouping, values|
+        unless grouping.nil? || grouping.empty? || values[:records].nil?
+          values[:records].each do |id|
             watchlist = Watchlist.find_by_id(id)
-            unless watchlist.nil? || values["name"].nil?
-              watchlist.grouping_category = values["name"].truncate(40)
+            unless watchlist.nil? || values[:name].nil?
+              watchlist.grouping_category = values[:name].truncate(40)
               watchlist.save
             end
           end
@@ -296,6 +296,12 @@ class UsersController < ApplicationController
     respond_to do |format|
       format.html { redirect_to users_url }
       format.json { head :no_content }
+    end
+  end
+  
+  def add_grouping
+    respond_to do |format|
+      format.js
     end
   end
     

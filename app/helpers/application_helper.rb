@@ -157,7 +157,7 @@ module ApplicationHelper
       records = records.target if records.respond_to?("target") && records.target.class == Array
       multi_flag = true if records.class == Array
       records = [records] unless records.class == Array  
-      render "layouts/forms/form", records: records, url: opts[:url], form_prefix: opts[:form_prefix], fields: opts[:fields], multi_flag: multi_flag, submit_title: opts[:submit_title]
+      render "layouts/forms/form", records: records, url: opts[:url], form_prefix: opts[:form_prefix], fields: opts[:fields], multi_flag: multi_flag, submit_title: opts[:submit_title], no_submit_tag: opts[:no_submit_tag]
     end
   
     def fields_helper(record, opts = {})

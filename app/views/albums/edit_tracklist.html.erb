@@ -25,15 +25,16 @@
           <% end %>
         </div>
       </div>
-      <%= form_for 'source', :html => {:class => "form-horizontal"}, :url => addmodel_path(:autocomplete_path => 'source_namehash'), :method => 'get', :remote => true do |f| %>
+      <%= form_for 'source', :html => {:class => "form-horizontal"}, :url => add_model_path(:autocomplete_path => 'source_namehash'), :method => 'get', :remote => true do |f| %>
         <%= fields_for "div_id_list" do |f| %>
           Add to all songs:
           <%= f.select 'default_value', @album.sources.map { |n| n.id.to_s + " - " + n.name } %>
-          <%= hidden_field_tag 'div_id_list[div_ids]', @album.songs.map(&:id).map {|a| "Sources#{a}"}.join(',') %>
+          <%= hidden_field_tag 'parent_divs', @album.songs.map(&:id).map {|a| "#Sources#{a}"}.join(',') %>
+          <%= hidden_field_tag 'category_select', [""] + SongSource::Relationship %>
           <%= submit_tag 'Add'%>
         <% end %>
       <% end %>
-      <%= form_for 'artist', :html => {:class => "form-horizontal"}, :url => addmodel_path, :method => 'get', :remote => true do |f| %>
+      <%= form_for 'artist', :html => {:class => "form-horizontal"}, :url => add_model_path, :method => 'get', :remote => true do |f| %>
         <%= fields_for "script" do |f| %>
           Add to all songs:
           <%= f.select 'name', @album.artists.map { |n| n.id.to_s + " - " + n.name } %>
@@ -47,5 +48,5 @@
   </div>
 <% end %>
     
-<%= render_form(@album.songs, url: tracklist_edit_album_path(@album), fields: Song::TracklistEditFields) %>
+<%= render_form(@album.songs, url: update_tracklist_album_path(@album), fields: Song::TracklistEditFields) %>
 

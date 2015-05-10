@@ -91,7 +91,9 @@ class ScriptsController < ApplicationController
       authorize! :edit, Album
       #This adds a relational model with a category
       #Params for the div ID/Class it should be attached to
-        @parent_div = params[:parent_div]      
+        #Needs one of two necessary params:
+        @parent_div = params[:parent_div]  
+        @parent_divs = params[:parent_divs].split(',') unless params[:parent_divs].nil?    
       #Check if query qualifies for autocomplete
         autocomplete = params[:autocomplete_path]
         @autocomplete_path = "autocomplete_" + autocomplete + '_' + autocomplete.split('_')[0] + 's_path' unless autocomplete.nil?

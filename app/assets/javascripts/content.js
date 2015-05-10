@@ -15,7 +15,9 @@ $(document).ready(function(){
             var grouping = ui.item.parent().parent().parent().parent('.grouping').attr('id');
             hidden.attr('name', "[watchlists][" + grouping + "][records][]");
         }
-    });    
+    });
+    
+    $('.secondary-languages').sortable();
     
 });
 

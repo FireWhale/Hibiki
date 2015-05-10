@@ -1,2 +1,7 @@
+<% unless @parent_div.nil? %>
 $('<%= @parent_div %>').append('<%= escape_javascript(render :partial => 'layouts/forms/add_model_form') %>');
-
+<% else %>
+  <% @parent_divs.each do |parent_div| %>
+    $('<%= parent_div %>').append('<%= escape_javascript(render :partial => 'layouts/forms/add_model_form') %>');
+  <% end %>
+<% end %>

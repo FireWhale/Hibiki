@@ -984,22 +984,27 @@ describe UsersController do
           
           context "on oneself" do
             context 'with valid params' do
-              it "calls save on a watchlist"
+              before(:each) do
+                create_list(:watchlist, 3, user: @user)
+              end
               
-              it "updates a watchlist"
+              it "updates a watchlist" do
+                post :update_watchlist, id: @user, watchlists: {"0" => {name: "haha", records: @user.watchlists.map(&:id)}}
+                expect(@user.reload.watchlists.first.grouping_category).to eq("haha")                
+              end
               
               it "has a notice" do
-                post :update_watchlist, id: @user
+                post :update_watchlist, id: @user, watchlists: {"0" => {name: "haha", records: @user.watchlists.map(&:id)}}
                 expect(flash[:notice]).to eq('Watchlist was successfully updated.')
               end
               
               it "renders edit_watchlist" do
-                post :update_watchlist, id: @user
-                expect(response).to redirect_to action: :update_watchlist, id: User.last.id
+                post :update_watchlist, id: @user, watchlists: {"0" => {name: "haha", records: @user.watchlists.map(&:id)}}
+                expect(response).to redirect_to action: :edit_watchlist, id: User.last.id
               end
               
               it "renders success as json" do
-                post :update_watchlist, id: @user, format: :json
+                post :update_watchlist, id: @user, watchlists: {"0" => {name: "haha", records: @user.watchlists.map(&:id)}}, format: :json
                 expect(response.status).to eq(204) #204 No Content no content -> ajax success event              
               end
             end
@@ -1021,34 +1026,64 @@ describe UsersController do
           
           context "on another user" do
             it "renders access denied" do
-              post :update_watchlist, id: user, user: {display_settings: ["Show Limited Editions"]}
+              post :update_watchlist, id: user, watchlists: {"0" => {name: "haha", records: user.watchlists.map(&:id)}}
               expect(response).to render_template("pages/access_denied")          
             end
             
             it "renders 403 with json" do
-              post :update_watchlist, id: user, user: {display_settings: ["Show Limited Editions"]}, format: :json
+              post :update_watchlist, id: user, watchlists: {"0" => {name: "haha", records: user.watchlists.map(&:id)}}, format: :json
               expect(response.status).to eq(403) #forbidden
             end    
   
-            it "does not call save on watchlists" 
+            it "does not call save on watchlists" do
+              expect_any_instance_of(Watchlist).to_not receive(:save)
+              post :update_watchlist, id: user, watchlists: {"0" => {name: "haha", records: user.watchlists.map(&:id)}}
+            end
             
-            it "does not update any watchlists" 
+            it "does not update any watchlists" do
+              post :update_watchlist, id: user, watchlists: {"0" => {name: "haha", records: user.watchlists.map(&:id)}}
+              expect(user.reload.watchlists.first.grouping_category).to_not eq("haha")                
+            end
           end
         else
           it "renders access denied" do
-            post :update_watchlist, id: user, user: {display_settings: ["Show Limited Editions"]}
+            post :update_watchlist, id: user, watchlists: {"0" => {name: "haha", records: user.watchlists.map(&:id)}}            
             expect(response).to render_template("pages/access_denied")          
           end
           
           it "renders 403 with json" do
-            post :update_watchlist, id: user, user: {display_settings: ["Show Limited Editions"]}, format: :json
+            post :update_watchlist, id: user, watchlists: {"0" => {name: "haha", records: user.watchlists.map(&:id)}}, format: :json         
             expect(response.status).to eq(403) #forbidden
           end
           
-          it "does not call save on watchlists"
+          it "does not call save on watchlists" do
+            expect_any_instance_of(Watchlist).to_not receive(:save)
+            post :update_watchlist, id: user, watchlists: {"0" => {name: "haha", records: user.watchlists.map(&:id)}}            
+          end
         end
       end      
     end
+  
+  shared_examples "can get a new grouping" do |accessible|
+    describe 'GET #add_grouping' do
+      if accessible == true
+        it "renders js" do
+          xhr :get, :add_grouping, format: :js
+          expect(response).to render_template(:add_grouping)
+        end
+      else
+        it "renders access denied" do
+          get :add_grouping          
+          expect(response).to render_template("pages/access_denied")                    
+        end
+        
+        it "renders forbidden with js" do
+          xhr :get, :add_grouping, format: :js
+          expect(response.status).to eq(403) #forbidden
+        end
+      end
+    end
+  end
 
   #Authenticate
   before :each do
@@ -1072,6 +1107,7 @@ describe UsersController do
     include_examples "has an edit_security page", false
     include_examples "has an edit_profile page", false
     include_examples "has an edit_watchlist page", false
+    include_examples "can get a new grouping", false
     
     #Posts
     include_examples "can post create user", true    
@@ -1106,6 +1142,7 @@ describe UsersController do
     include_examples "has an edit_security page", false
     include_examples "has an edit_profile page", true
     include_examples "has an edit_watchlist page", true
+    include_examples "can get a new grouping", true
     
     #Posts
     include_examples "can post create user", false    
@@ -1140,6 +1177,7 @@ describe UsersController do
     include_examples "has an edit_security page", true
     include_examples "has an edit_profile page", true
     include_examples "has an edit_watchlist page", true
+    include_examples "can get a new grouping", true
     
     #Posts
     include_examples "can post create user", true    

@@ -11,6 +11,11 @@ class User < ActiveRecord::Base
   #Callbacks/Hooks
     before_validation :set_default_settings, on: :create
   
+  #Constants
+    EditProfileFields = [{type: "markup", tag_name: "div id='small-view'"},
+                         {type: "profile_settings"},{type: "markup", tag_name: "/div"}]
+
+  
   #Validation
     validates :name, presence: true, length: { minimum: 3, maximum: 20}
     validates :email, uniqueness: { :case_sensitive => false }, allow_blank: true
@@ -100,7 +105,7 @@ class User < ActiveRecord::Base
     end
     
     def self.get_language_settings(language_settings)
-      language_settings.select {|language| User::Languages.include?(language)}.join(",")
+      language_settings.select {|language| User::Languages.include?(language)}.uniq.join(",")
     end
     
     def album_filter #Used in an album scope 'filter_by_user_settings' to filter things out of view

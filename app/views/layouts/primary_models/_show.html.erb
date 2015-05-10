@@ -75,7 +75,7 @@
           <div class="nav nav-pills nav-stacked">
             <li><%= link_to 'Edit', eval("edit_" + record.class.to_s.downcase + "_path(record)") %></li>
             <% if record.class == Album %>
-              <li><%= link_to "Edit tracklist", tracklist_edit_album_path %></li>
+              <li><%= link_to "Edit tracklist", edit_tracklist_album_path %></li>
             <% end %>
             <li><%= link_to 'Destroy', record, method: :delete, data: { confirm: 'Are you sure?' } %></li>
             <% if record.class == Album %>

@@ -236,6 +236,10 @@ describe User do
     it "can get language_settings" do
       expect(User.get_language_settings(["hi", "english", "korean", "hoho"])).to eq("english,korean")
     end
+    
+    it "removes duplicates from langauge_settings" do
+      expect(User.get_language_settings(["hi", "english", "english", "korean", "english", "hoho"])).to eq("english,korean")
+    end
   end
     
   describe "Callback Tests" do

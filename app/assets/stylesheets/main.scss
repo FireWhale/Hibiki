@@ -24,6 +24,12 @@ body {
   max-width: 1900px;
   margin-left: auto;
   margin-right: auto;
+  //Within forms, you can have a small view
+  #small-view {
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;  
+  }
 }
 
 //Link changes

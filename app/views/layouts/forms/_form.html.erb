@@ -3,9 +3,11 @@
     <% records.each do |record| %>
       <%= fields_helper(record, fields: fields, multi_flag: multi_flag, form_prefix: form_prefix) %>
     <% end %>
-  
-    <div class="actions submit">
-      <%= form.submit submit_title %>
-    </div>
+    
+    <% if no_submit_tag.nil? %>
+      <div class="actions submit">
+        <%= form.submit submit_title %>
+      </div>
+    <% end %>
   <% end %>
 <% end %>

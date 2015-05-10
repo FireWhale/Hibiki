@@ -3,7 +3,7 @@ $(document).ready(function(){
   // scroll function on show pages
   
   //Sortable list for languages
-  $('#languages').sortable();
+  $('#language-sort').sortable();
   $('#artistlanguages').sortable();  
   
   //For Released Review's drill down
