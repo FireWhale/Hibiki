@@ -1,7 +1,7 @@
 class Post < ActiveRecord::Base
   #Attributes
     attr_accessible :title, :content,
-                    :category, :timestampe,  :visibility, :status
+                    :category, :timestampe, :visibility, :status
                     
   #Modules
     include FullUpdateModule
@@ -50,9 +50,6 @@ class Post < ActiveRecord::Base
     def records
       primary_records + images
     end
-    
-    belongs_to :user
-    belongs_to :recipient, class_name: "User" 
 
   #Scopes
     scope :with_category, ->(categories) { where('category IN (?)', categories)}
