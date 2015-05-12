@@ -161,7 +161,7 @@ module ApplicationHelper
     end
   
     def fields_helper(record, opts = {})
-      model = record.class.to_s.downcase
+      model = record.class.model_name.param_key
       fields = opts[:fields] || record.class::FormFields
       form_prefix = opts[:form_prefix] || (opts[:multi_flag] ? "#{model}[#{record.id}]" : model)
       render "layouts/forms/fields", form_prefix: form_prefix, record: record, fields: fields, model: model

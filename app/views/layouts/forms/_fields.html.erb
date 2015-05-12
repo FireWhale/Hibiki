@@ -1,7 +1,7 @@
 <% if record.errors.any? %>
   <div id="error_explanation">
     <% if record.class == UserSession %>
-      <h5>Login Failed: <%= record.errors.full_messages[0]%></h5>
+      <h5>Login Failed: <%= record.errors.map { |k,v| v }.join(", ")%></h5>
     <% else %>
       <h2><%= pluralize(record.errors.count, "error") %> prohibited this <%= record.class.to_s.downcase %> from being saved:</h2>
       <ul>
