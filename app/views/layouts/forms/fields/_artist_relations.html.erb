@@ -4,7 +4,7 @@
   <% unless record.send("artist_#{record.class.to_s.downcase}s").nil?  %>
     <% record.send("artist_#{record.class.to_s.downcase}s").each do |relation| %>
       <div>
-        <%= link_to relation.artist.name, relation.artist %>
+        <%= link_to relation.artist.internal_name, relation.artist %>
         <% categories = Artist.get_credits(relation.category) %>
         <%= hidden_field_tag "#{form_prefix}[update_artist_#{record.class.to_s.downcase}s][#{relation.id.to_s}][]" %>
         <% Artist::Credits.each_with_index do |credit,n| %>

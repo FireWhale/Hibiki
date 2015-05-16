@@ -1,8 +1,8 @@
-<% content_for :title do %><%= name_language_helper(record,current_user,0, :no_bold => true)  %><%= record.class == Album ? " Album Art" : " Images" %><% end %>
+<% content_for :title do %><%= language_helper(record, :name, highlight: false)  %><%= record.class == Album ? " Album Art" : " Images" %><% end %>
 
 <% content_for :header do %>
   <div class="text-center">
-    <h2><%= link_to name_language_helper(record,current_user,0, :no_bold => true), record  %></h2>
+    <h2><%= link_to language_helper(record, :name, highlight: false), record  %></h2>
     <h4><%= record.class == Album ? "Album Art" : "Images" %></h4>
   </div>
 <% end %>

@@ -1,8 +1,8 @@
-<% content_for :title do %>Tracklist Edit - <%= name_language_helper(@album,current_user,0) %><% end %>
+<% content_for :title do %>Tracklist Edit - <%= language_helper(@album,:name, highlight: false) %><% end %>
 
 <% content_for :header do %>
   <div class="text-center">
-    <h2>Editing Tracklist for <%= link_to name_language_helper(@album,current_user,0), @album %></h2>
+    <h2>Editing Tracklist for <%= link_to language_helper(@album,:name, highlight: false), @album %></h2>
   </div>
 <% end %>
 
@@ -12,23 +12,23 @@
       <div class="well well-xsmall">
         <h5 class='text-center'>Artist List<%= render partial: 'layouts/forms/well_toggle', locals: {div_id: "ArtistList", toggle_id: "ArtistToggle"} %></h5>
         <div id="ArtistList">
-          <% @album.artists.to_a.sort_by! {|a| name_language_helper(a,current_user,0)}.each do |artist| %>
-            <%= artist.id %> - <%= name_language_helper(artist,current_user,0) %><br>
+          <% @album.artists.to_a.sort_by! {|a| language_helper(a,:name)}.each do |artist| %>
+            <%= artist.id %> - <%= language_helper(artist,:name) %><br>
           <% end %>
         </div>
       </div>
       <div class="well well-xsmall">
         <h5 class='text-center'>Source List<%= render partial: 'layouts/forms/well_toggle', locals: {div_id: "SourceList", toggle_id: "SourceToggle"} %></h5>
         <div id="SourceList">
-          <% @album.sources.to_a.sort_by! {|a| name_language_helper(a,current_user,0) }.each do |source| %>
-            <%= source.id %> - <%= name_language_helper(source,current_user,0) %><br>
+          <% @album.sources.to_a.sort_by! {|a| language_helper(a,:name) }.each do |source| %>
+            <%= source.id %> - <%= language_helper(source,:name) %><br>
           <% end %>
         </div>
       </div>
       <%= form_for 'source', :html => {:class => "form-horizontal"}, :url => add_model_path(:autocomplete_path => 'source_namehash'), :method => 'get', :remote => true do |f| %>
         <%= fields_for "div_id_list" do |f| %>
           Add to all songs:
-          <%= f.select 'default_value', @album.sources.map { |n| n.id.to_s + " - " + n.name } %>
+          <%= f.select 'default_value', @album.sources.map { |n| n.id.to_s + " - " + n.internal_name } %>
           <%= hidden_field_tag 'parent_divs', @album.songs.map(&:id).map {|a| "#Sources#{a}"}.join(',') %>
           <%= hidden_field_tag 'category_select', [""] + SongSource::Relationship %>
           <%= submit_tag 'Add'%>
@@ -37,7 +37,7 @@
       <%= form_for 'artist', :html => {:class => "form-horizontal"}, :url => add_model_path, :method => 'get', :remote => true do |f| %>
         <%= fields_for "script" do |f| %>
           Add to all songs:
-          <%= f.select 'name', @album.artists.map { |n| n.id.to_s + " - " + n.name } %>
+          <%= f.select 'name', @album.artists.map { |n| n.id.to_s + " - " + n.internal_name } %>
           <%= f.select 'artist_cat', Artist::Credits %>
           <%= hidden_field_tag 'script[div_ids]', @album.songs.map(&:id).join(',') %>
           <%= submit_tag 'Add'%>

@@ -38,7 +38,7 @@
           <%= primary_image_helper(album, album, "thumb", :outline_flag => true, :square => true) %>
         </div>
         <div class="col-md-9">
-          <%= link_to album.name, album %> (ID: <%= album.id %>)  <%= link_to "Edit", edit_album_path(album)  %><br>
+          <%= link_to album.internal_name, album %> (ID: <%= album.id %>)  <%= link_to "Edit", edit_album_path(album)  %><br>
           <%= album.classification %><br>
           <%= album.release_date %> <br>
           <%= link_to album.reference.first[1], album.reference.first[1] %>   

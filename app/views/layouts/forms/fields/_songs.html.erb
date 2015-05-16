@@ -1,11 +1,11 @@
 <%= render :partial => 'layouts/forms/well_toggle', locals: {:div_id => opts[:sub_div_id], :toggle_id => "#{opts[:sub_div_id]}Toggle"} unless opts[:sub_div_id].nil? %>
-<%= content_tag(:h4, class: "text-center") {record.new_record? ? "Songs" : (link_to "#{opts[:title]} (Edit tracklist)", tracklist_edit_album_path)} unless opts[:title].nil? %>
+<%= content_tag(:h4, class: "text-center") {record.new_record? ? "Songs" : (link_to "#{opts[:title]} (Edit tracklist)", edit_tracklist_album_path)} unless opts[:title].nil? %>
 <div<%= ' id="'.html_safe + opts[:sub_div_id] + '"'.html_safe unless opts[:sub_div_id].nil? %>>
   <% if record.songs.nil? == false %>
     <% record.songs.each do |song| %>
       <div>    
         <%= song.track_number %>
-        <%= song.name %>
+        <%= song.internal_name %>
       </div>
     <% end %>
   <% end %>

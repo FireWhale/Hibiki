@@ -1,7 +1,7 @@
-<% content_for :title do %><%= "Tags - #{@tag.name}" %><% end %>
+<% content_for :title do %><%= "Tags - #{language_helper(@tag, :name)}" %><% end %>
 
 <% content_for :header do %>
-  <h2 class="text-center"><%= @tag.name %></h2>
+  <h2 class="text-center"><%= language_helper(@tag, :name) %></h2>
 <% end %>
 
 <p id="notice"><%= notice %></p>
@@ -13,7 +13,7 @@
       <div>
         <h4><%= k.to_s.pluralize %></h4>
         <% v.each do |record| %>
-          <li><%= link_to name_language_helper(record, current_user, 0), record %></li>
+          <li><%= link_to language_helper(record, :name), record %></li>
         <% end %>        
       </div>
     <% end %>

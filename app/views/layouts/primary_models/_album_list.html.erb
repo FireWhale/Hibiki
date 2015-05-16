@@ -3,7 +3,7 @@
   <div class="album">
     <div class="album_art"><%= primary_image_helper(album, album, 'thumb', nil_image: true, square: true)%></div>
     <div class="album_name">
-      <%= link_to name_language_helper(album, current_user, 0), album %>
+      <%= link_to language_helper(album, :name), album %>
       <div class="tags"><%= linked_attribute_display(album.tags, "") %></div>
     </div>
     <div class="album_date"><%= date_helper(album, 'release_date', :calender_link => false)%></div>

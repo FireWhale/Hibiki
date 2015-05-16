@@ -20,7 +20,7 @@
         <% v.each do |record| %>
           <div class="item">
             <span class="glyphicon"></span>
-            <%= link_to (name_language_helper(record,current_user,0, :no_bold => true) + ' (' + record.albums.count.to_s + ')'), record, data: {id: (record.class.to_s.downcase[0] + record.id.to_s)}, :remote => true %>        
+            <%= link_to (language_helper(record, :name, highlight: false) + ' (' + record.albums.count.to_s + ')'), record, data: {id: (record.class.to_s.downcase[0] + record.id.to_s)}, :remote => true %>        
           </div>
         <% end %>
       </div>

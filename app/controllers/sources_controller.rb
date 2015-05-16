@@ -5,7 +5,7 @@ class SourcesController < ApplicationController
                :display_value => :edit_format
       
   def index
-    @sources = Source.order('lower(name)').includes([:watchlists, :tags, albums: :primary_images]).page(params[:page])
+    @sources = Source.order(:internal_name).includes([:translations, :watchlists, :tags, {albums: [:primary_images, :translations]}]).page(params[:page])
 
     respond_to do |format|
       format.html # index.html.erb

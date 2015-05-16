@@ -24,6 +24,7 @@ class Source < ActiveRecord::Base
       include WatchlistModule
 
   #Callbacks/Hooks
+    before_validation :convert_names
     
   #Constants
     Activity = ["Complete", "Ongoing", "Not Yet Aired"]
@@ -51,8 +52,8 @@ class Source < ActiveRecord::Base
                         dates: ["release_date", "end_date"]}
 
     FormFields = [{type: "markup", tag_name: "div class='col-md-6'"},
-                  {type: "text", attribute: :name, label: "Name:"}, 
-                  {type: "text", attribute: :altname, label: "Alternate Name:"}, 
+                  {type: "text", attribute: :internal_name, label: "Internal Name:"},
+                  {type: "text", attribute: :synonyms, label: "Synonyms:"},
                   {type: "select", attribute: :status, label: "Status:", categories: Album::Status},
                   {type: "select", attribute: :db_status, label: "Database Status:", categories: Artist::DatabaseStatus},
                   {type: "select", attribute: :category, label: "Categories:", categories: Source::Categories},
@@ -73,7 +74,7 @@ class Source < ActiveRecord::Base
                   {type: "markup", tag_name: "/div"}]
                   
   #Validation
-    validates :name, presence: true , uniqueness: {scope: [:reference]}
+    validates :internal_name, presence: true , uniqueness: {scope: [:reference]}
     validates :status, presence: true, inclusion: Album::Status
     validates :db_status, inclusion: Artist::DatabaseStatus, allow_nil: true, allow_blank: true
     validates :activity, inclusion: Source::Activity, allow_nil: true, allow_blank: true
@@ -105,13 +106,34 @@ class Source < ActiveRecord::Base
     scope :in_date_range, ->(start_date, end_date) {where("sources.release_date >= ? and sources.release_date <= ? ", start_date, end_date)}
       
   #Gem Stuff
+    #Globalize
+    translates :name, :info
+    
     #Pagination    
       paginates_per 50
       
     #Sunspot Searching
       searchable do
-        text :name, :altname, :namehash, :boost => 5
+        text :internal_name, :synonyms, :namehash, :boost => 5
         text :reference
       end
-   
+
+  private
+  
+  def convert_names
+    @name_hash = self.namehash
+    unless @name_hash.nil?
+      #Convert the ones we want to convert
+      @name_hash.each do |k,v|
+        if [:English, :Romaji, :Japanese].include?(k)
+          self.write_attribute(:name, v, locale: "hibiki_#{k.to_s.downcase[0..1]}".to_sym) unless v.nil?
+          @name_hash.except!(k) #Remove the key from the hash
+        end
+      end
+      self.namehash = (@name_hash.empty? ? nil : @name_hash)
+    end
+    #Remove duplicates from synonym
+    @name_translations = self.name_translations.values
+    self.synonyms = nil if @name_translations.include?(self.synonyms)
+  end   
 end

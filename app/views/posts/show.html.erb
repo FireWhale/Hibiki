@@ -19,7 +19,7 @@
           <div class="panel-heading">Tags</div>
           <div class="nav nav-pills nav-stacked">
             <% @post.tags.each do |tag| %>
-              <li><%= link_to tag.name, posts_path(tags: tag) %></li>
+              <li><%= link_to language_helper(tag, :name), posts_path(tags: tag) %></li>
             <% end %>
           </div>        
         </div>

@@ -23,6 +23,7 @@ class Album < ActiveRecord::Base
       include CollectionModule
 
   #Callbacks/Hooks
+    before_validation :convert_names
     
    
   #Multiple Model Constants - Put here for lack of a better place
@@ -67,8 +68,8 @@ class Album < ActiveRecord::Base
                         dates: ["release_date"]}
                         
     FormFields = [{type: "markup", tag_name: "div class='col-md-6'"},
-                  {type: "text", attribute: :name, label: "Name:"}, 
-                  {type: "text", attribute: :altname, label: "Alternate Name:"}, 
+                  {type: "text", attribute: :internal_name, label: "Internal Name:"},
+                  {type: "text", attribute: :synonyms, label: "Synonyms:"},
                   {type: "text", attribute: :catalog_number, label: "Catalog Number:"}, 
                   {type: "date", attribute: :release_date, label: "Release Date:"}, 
                   {type: "select", attribute: :status, label: "Status:", categories: Album::Status},
@@ -105,9 +106,9 @@ class Album < ActiveRecord::Base
     IgnoredArtistNames = [" ()", ")", "()", " (", '(Elements Garden)', '(Angel Note)', "(CROW'SCLAW)", '(C9)']
     
   #Validation
-    validates :name, presence: true 
+    validates :internal_name, presence: true 
     validates :status, presence: true
-    validates :catalog_number, presence: true, uniqueness: {scope: [:name, :release_date]}
+    validates :catalog_number, presence: true, uniqueness: {scope: [:internal_name, :release_date]}
     validates :release_date, presence: true, unless: -> {self.release_date_bitmask.nil?}
     validates :release_date_bitmask, presence: true, unless: -> {self.release_date.nil?}
    
@@ -146,12 +147,15 @@ class Album < ActiveRecord::Base
     scope :filter_by_user_settings, ->(user) {collection_filter(user.id, Collection::Relationship - user.album_filter, user.id).without_self_relation_categories(user.album_filter) unless user.nil?}
     
   #Gem Stuff
+    #Globalize
+    translates :name, :info
+  
     #Pagination
     paginates_per 50
   
     #Sunspot Searching
     searchable do
-      text :name, :catalog_number, :altname, :namehash 
+      text :internal_name, :synonyms, :catalog_number, :namehash 
       text :reference
       time :release_date
     end
@@ -170,16 +174,6 @@ class Album < ActiveRecord::Base
       self.release_date? ? self.release_date.beginning_of_year : nil
     end
 
-  #Sees if the album is in a user's collection   
-    def collected_category(user)
-      #returns the type of album-user relationship 
-      #if not in collection, returns "" (empty)
-      if user.nil? || self.collections.select { |a| a.user_id == user.id}.empty?
-        ""
-      else
-        self.collections.select { |a| a.user_id == user.id}[0].relationship
-      end
-    end
   
   #Limited Edition and reprint check
     def limited_edition?
@@ -193,5 +187,24 @@ class Album < ActiveRecord::Base
     def alternate_printing?
       self.related_album_relations1.map(&:category).include?("Alternate Printing")      
     end
+
+  private
+
+  def convert_names
+    @name_hash = self.namehash
+    unless @name_hash.nil?
+      #Convert the ones we want to convert
+      @name_hash.each do |k,v|
+        if [:English, :Romaji, :Japanese].include?(k)
+          self.write_attribute(:name, v, locale: "hibiki_#{k.to_s.downcase[0..1]}".to_sym) unless v.nil?
+          @name_hash.except!(k) #Remove the key from the hash
+        end
+      end
+      self.namehash = (@name_hash.empty? ? nil : @name_hash)
+    end
+    #Remove duplicates from synonym
+    @name_translations = self.name_translations.values
+    self.synonyms = nil if @name_translations.include?(self.synonyms)
+  end
   
 end

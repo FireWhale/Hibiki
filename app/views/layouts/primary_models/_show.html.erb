@@ -1,13 +1,13 @@
 <% content_for :title do %>
-  <%= name_language_helper(record,current_user,0, :no_bold => true) %>
+  <%= language_helper(record,:name, highlight: false) %>
 <% end %>
 
 <% content_for :header do %>
   <div class="text-center">
-    <h2><%= name_language_helper(record,current_user,0, :no_bold => true) %></h2>
-    <h4><%= name_language_helper(record,current_user,1, :no_bold => true) %>
-        <% if name_language_helper(record,current_user,2, :no_bold => true).nil? == false %>
-          / <%= name_language_helper(record,current_user,2, :no_bold => true) %>
+    <h2><%= language_helper(record,:name, highlight: false)  %></h2>
+    <h4><%= language_helper(record,:name, highlight: false, priority: 1)  %>
+        <% if language_helper(record,:name, highlight: false, priority: 2).nil? == false %>
+          / <%= language_helper(record,:name, highlight: false, priority: 2) %>
         <% end %>
     </h4> 
   </div>
@@ -54,7 +54,7 @@
             <div class="info-organizations">
               <b>Organization/Label<%= record.artist_organizations.count > 1 ? "s" : "" %>: </b>
               <% record.artist_organizations.each do |org| %>
-                <div><%= link_to name_language_helper(org.organization,current_user,0), org.organization %> (<%= org.category %>)</div>
+                <div><%= link_to language_helper(org.organization,:name), org.organization %> (<%= org.category %>)</div>
               <% end %>
             </div>
           <% end %>  
@@ -114,7 +114,9 @@
         <h3>Credits</h3>
         <div class="info-list">
           <% @credits.each do |k,v| %><%= linked_attribute_display(v,k)%><% end %>
-          <% @organizations.each do |k,v| %><%= linked_attribute_display(v,k)%><% end %>
+          <% if record.class == Album %>
+          	<% @organizations.each do |k,v| %><%= linked_attribute_display(v,k)%><% end %>
+          <% end %>
         </div>
       </div>
       <% unless record.sources.empty? %>
@@ -157,7 +159,7 @@
         <% record.songs.each do |song| %>
           <div class="song">
             <div class="track_number"><%= song.disc_track_number %></div>
-            <div class="track_name"><%= name_language_helper(song, current_user, 0) %></div>
+            <div class="track_name"><%= language_helper(song,:name) %></div>
             <div class="track_duration"><%= song.length_as_time %></div>
           </div>
         <% end %>

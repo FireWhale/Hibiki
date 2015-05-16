@@ -1,6 +1,6 @@
 <% unless record.events.nil? %>
   <% record.events.each do |event| %>
-    <div>Event: <%= check_box_tag "#{form_prefix}[remove_events][]", event.id %> <%= link_to event.shorthand, event %></div>
+    <div>Event: <%= check_box_tag "#{form_prefix}[remove_events][]", event.id %> <%= link_to event.name_helper( "shorthand", "name", "altname", "abbreviation"), event %></div>
   <% end %>
 <% end %>
 <div id="EventFields"></div>

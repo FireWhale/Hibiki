@@ -5,7 +5,7 @@
     <% record.song_sources.each do |song_source| %>
       <div>
         <%= check_box_tag "#{form_prefix}[remove_song_sources][]", song_source.id %>
-        <%= link_to name_language_helper(song_source.source,current_user,0, no_bold: true), song_source.source %>
+        <%= link_to language_helper(song_source.source,:name,highlight: false), song_source.source %>
         <%= fields_for "#{form_prefix}[update_song_sources][]", song_source do |s| %>
           <%= s.select('classification', SongSource::Relationship, {:include_blank => true}, {:class => "controls input-xsmall"})  %>
           <%= s.label 'op_ed_number', "#:" %>

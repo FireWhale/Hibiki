@@ -18,6 +18,8 @@ gem 'lazyload-rails'
 gem 'mini_magick', '3.5.0' #Image manipulation
 gem 'sunspot_rails', github: "betam4x/sunspot" # , '2.1.1'
 gem 'sunspot_solr', github: "betam4x/sunspot" # '2.1.1'
+gem 'globalize'
+gem 'mojinizer'
 gem 'sidekiq', '2.16.1'
 gem 'mysql2', '0.3.15'
 gem 'whenever', :require => false #Cron job gem

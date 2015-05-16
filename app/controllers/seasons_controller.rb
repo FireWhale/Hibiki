@@ -16,7 +16,7 @@ class SeasonsController < ApplicationController
     @sources = @season.source_seasons.group_by(&:category)
     @sources.each do |k,v|
       @sources[k] = v.map(&:source)
-      @sources[k].sort_by! { |a| name_language_helper(a,current_user,0, :no_bold => true).downcase}
+      @sources[k].sort_by! { |a| language_helper(a, :name, highlight: false).downcase}
     end
       
     respond_to do |format|

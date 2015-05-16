@@ -6,9 +6,9 @@
       <div>
         <%= fields_for "#{form_prefix}[update_related_#{record.class.to_s.downcase}s][#{relation.id}]", relation do |f|  %>
           <%= check_box_tag "#{form_prefix}[remove_related_#{record.class.to_s.downcase}s][]", relation.id %>
-          <%= link_to name_language_helper(relation.send("#{record.class.to_s.downcase}1") ,current_user,0), relation.send("#{record.class.to_s.downcase}1") %><%= "(#{relation.send("#{record.class.to_s.downcase}1_id")})" if record.class == Song %>
+          <%= link_to language_helper(relation.send("#{record.class.to_s.downcase}1"),:name), relation.send("#{record.class.to_s.downcase}1") %><%= "(#{relation.send("#{record.class.to_s.downcase}1_id")})" if record.class == Song %>
           <%= f.select :category, record.class::SelfRelationships %>
-          <%= link_to name_language_helper(relation.send("#{record.class.to_s.downcase}2") ,current_user,0), relation.send("#{record.class.to_s.downcase}2") %> <%= "(#{relation.send("#{record.class.to_s.downcase}2_id")})" if record.class == Song %>
+          <%= link_to language_helper(relation.send("#{record.class.to_s.downcase}2"),:name), relation.send("#{record.class.to_s.downcase}2") %> <%= "(#{relation.send("#{record.class.to_s.downcase}2_id")})" if record.class == Song %>
         <% end %>      
       </div>
     <% end %>

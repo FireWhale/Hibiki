@@ -23,6 +23,7 @@ class Song < ActiveRecord::Base
 
   #Callbacks/Hooks
     before_save :format_track_number
+    before_validation :convert_names
   
   #Constants
     SelfRelationships = [['is the same song as', 'Also Appears On', 'Also Appears On', 'Same Song'],
@@ -37,8 +38,8 @@ class Song < ActiveRecord::Base
                         language_records: {:lyric => "lyrics"}}
     
     FormFields = [{type: "markup", tag_name: "div class='col-md-6'"},
-                  {type: "text", attribute: :name, label: "Name:"}, 
-                  {type: "text", attribute: :altname, label: "Alternate Name:"},
+                  {type: "text", attribute: :internal_name, label: "Internal Name:"},
+                  {type: "text", attribute: :synonyms, label: "Synonyms:"},
                   {type: "text", attribute: :album_id, label: "Album ID:"},
                   {type: "select", attribute: :status, label: "Status:", categories: Album::Status},
                   {type: "date", attribute: :release_date, label: "Release Date:"},
@@ -58,7 +59,7 @@ class Song < ActiveRecord::Base
                   {type: "markup", tag_name: "/div"}]
     
     TracklistEditFields = [{type: "markup", tag_name: "div class='well well-xsmall'"}, {type: "well_hide"},
-                           {type: "text", attribute: :name, no_div: true}, 
+                           {type: "text", attribute: :internal_name, no_div: true}, 
                            {type: "text", attribute: :disc_number, no_div: true, field_class: "input-xmini", label: "Disc #:"},
                            {type: "text", attribute: :track_number, no_div: true, field_class: "input-xmini", label: "Track #:"},
                            {type: "text", attribute: :length, no_div: true, label: "Length:"},
@@ -80,9 +81,9 @@ class Song < ActiveRecord::Base
                            ["col", "8"], ["artist_relation", "not nil"], ["sources", "not nil"], ["self-relations", "not nil"], ["tags", "not nil"], ["end"], ["end"], ["end"]]                  
 
   #Validation - Meh, not needed I guess (4/19)
-    validates :name, presence: true
+    validates :internal_name, presence: true
     validates :status, presence: true, inclusion: Album::Status
-    validates :name, uniqueness: {scope: [:reference]}, if: ->(song){song.album.nil?}
+    validates :internal_name, uniqueness: {scope: [:reference]}, if: ->(song){song.album.nil?}
     validates :album, presence: true, unless: ->(song){song.album_id.nil?}
     validates :release_date, presence: true, unless: -> {self.release_date_bitmask.nil?}
     validates :release_date_bitmask, presence: true, unless: -> {self.release_date.nil?}
@@ -103,30 +104,20 @@ class Song < ActiveRecord::Base
     scope :in_date_range, ->(start_date, end_date) {where("songs.release_date >= ? and songs.release_date <= ? ", start_date, end_date)}
         
   #Gem Stuff
+    #Globalize
+    translates :name, :info, :lyrics
+    
     #Pagination
       paginates_per 50
   
     #Sunspot Searching
       searchable do
-        text :name, :namehash
+        text :internal_name, :synonyms, :namehash
       end
     
   def op_ed_insert
     #Returns an array if the song is OP/ED/Insert
     self.song_sources.map { |rel| rel.classification }
-  end
-
-  def format_track_number
-    track_number = self.track_number
-    unless track_number.nil?
-      if track_number.include?(".")
-        self.disc_number = track_number.split(".")[0] 
-        self.track_number = track_number.split(".")[1]
-      end
-      if self.track_number.length < 2
-        self.track_number =  self.track_number.rjust(2,'0')
-      end
-    end    
   end
   
   def disc_track_number
@@ -141,6 +132,48 @@ class Song < ActiveRecord::Base
     unless self.length.nil? || self.length == 0
       Time.at(self.length).utc.strftime("%-M:%S") 
     end
+  end
+  
+  private
+
+  def format_track_number
+    track_number = self.track_number
+    unless track_number.nil?
+      if track_number.include?(".")
+        self.disc_number = track_number.split(".")[0] 
+        self.track_number = track_number.split(".")[1]
+      end
+      if self.track_number.length < 2
+        self.track_number =  self.track_number.rjust(2,'0')
+      end
+    end    
+  end
+
+  def convert_names
+    @name_hash = self.namehash
+    unless @name_hash.nil?
+      #Compare entries in the namehash to remove duplicates
+      unless @name_hash[:English].nil? && @name_hash[:Japanese].nil?
+        if @name_hash[:English] == @name_hash[:Japanese]
+          if @name_hash[:Japanese].contains_japanese?
+            @name_hash[:English] = nil
+          else
+            @name_hash[:Japanese] = nil
+          end
+        end
+      end
+      #Convert the ones we want to convert
+      @name_hash.each do |k,v|
+        if [:English, :Romaji, :Japanese].include?(k)
+          self.write_attribute(:name, v, locale: "hibiki_#{k.to_s.downcase[0..1]}".to_sym) unless v.nil?
+          @name_hash.except!(k) #Remove the key from the hash
+        end
+      end
+      self.namehash = (@name_hash.empty? ? nil : @name_hash)
+    end
+    #Remove duplicates from synonym
+    @name_translations = self.name_translations.values
+    self.synonyms = nil if @name_translations.include?(self.synonyms)
   end
 
 end

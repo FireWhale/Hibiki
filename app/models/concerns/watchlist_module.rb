@@ -9,6 +9,6 @@ module WatchlistModule
   end
   
   def watched?(user)
-    self.watchlists.select {|a| a.user_id == user.id}.empty? == false    
+    self.watchlists.select {|a| a.user_id == user.id}.empty? == false
   end        
 end

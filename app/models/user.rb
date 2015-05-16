@@ -39,10 +39,10 @@ class User < ActiveRecord::Base
   
   #Display Settings constants - add to end
     Languages = ["english","romaji","japanese","chinese","korean"]
-    DisplaySettings = ["Display Limited Editions", "Display NWS", "Display Ignored", "Outline Album Art", "Bold AOS", "Bold For Editing", "Display Reprints"] 
+    DisplaySettings = ["Display Limited Editions", "Display NWS", "Display Ignored", "Outline Album Art", "Bold AOS", "Edit Mode", "Display Reprints"] 
     PrivacySettings = ["Show Watchlist", "Show Collection", "Show Profile"]
     
-    DefaultLanguages = ["english","romaji","japanese","chinese","korean"]
+    DefaultLanguages = []
     DefaultDisplaySettings = ["Display Limited Editions", "Display Ignored", "Display Reprints"]
     DefaultPrivacySettings = []
     

@@ -5,7 +5,7 @@ class ArtistsController < ApplicationController
                :display_value => :edit_format  
                
   def index
-    @artists = Artist.order(:name).includes([:watchlists, :tags, albums: :primary_images]).page(params[:page])
+    @artists = Artist.order(:internal_name).includes([:watchlists, :tags, :translations, {albums: [:primary_images, :translations]}]).page(params[:page])
     
     respond_to do |format|
       format.html # index.html.erb
@@ -17,7 +17,7 @@ class ArtistsController < ApplicationController
     @artist = Artist.includes(:primary_images, :organizations => [:watchlists]).find(params[:id])
     self_relation_helper(@artist,@related = {}) #Prepare @related (self_relations)
         
-    @albums = @artist.albums.includes(:primary_images, :tags).filter_by_user_settings(current_user).order('release_date DESC').page(params[:album_page])
+    @albums = @artist.albums.includes(:primary_images, :tags, :translations).filter_by_user_settings(current_user).order('release_date DESC').page(params[:album_page])
     
     respond_to do |format|
       format.js

@@ -3,7 +3,7 @@ class ApplicationController < ActionController::Base
   
   include ActionView::Helpers::TextHelper
 
-  helper_method :current_user_session, :current_user, :name_language_helper, :watched?
+  helper_method :current_user_session, :current_user, :language_helper, :watched?
   
   rescue_from CanCan::AccessDenied do |exception|
     respond_to do |format|
@@ -21,66 +21,28 @@ class ApplicationController < ActionController::Base
   end
   
   #User methods!
-  def name_language_helper(record,user,priority, opts = {})    
-    #Use if user.nil?
-    
-    #options: no_bold: true  
-    array = []
-    if record.respond_to?(:namehash) && record.namehash.nil? == false && record.namehash.empty? == false
-      if current_user.nil? #Guest users will be nil
-        languagesettings = User::DefaultLanguages
-      else
-        if record.class.to_s == "Artist" || record.class.to_s == 'Organization'
-          languagesettings = user.artist_language_settings.split(",")
-        else
-          languagesettings = user.language_settings.split(",")
-        end  
-      end
-      languagesettings.each do |language|
-        unless record.namehash[language.to_sym].nil? || record.namehash[language.to_sym].empty?
-          array.push(record.namehash[language.to_sym])
-        end
-      end   
-    end
-    if record.respond_to?(:name) 
-      array.push(record.name)
-      if record.respond_to?(:altname) && record.altname.nil? == false
-        if record.altname.empty? == false
-          array.push(record.altname)
-        end
-      end
+  def language_helper(record, field, opts = {})
+    #takes priority and highlight as opts
+    if record.respond_to?("read_#{field}")
+      value = record.send("read_#{field}", current_user)[(opts[:priority] ? opts[:priority] : 0)]
     else
-      array.push(record.id.to_s)
+      value = record.name
     end
-    #If the priority specificed isn't available, we return nil
-    if array[priority].nil?
-      return nil
-    end
-    #Now we get the correct name of the record. 
-    if opts[:no_bold].nil? == false || user.nil? || ["Album","Artist","Organization","Source"].include?(record.class.to_s) == false 
-      #I'm not sure why I listed out all these cases where it's not the case.
-      #It's kind of backwards, but it's how I developed it and it's a good footnote. 
-      #If: no bold is present
-      #If: no user is logged in
-      #If: record is not an artist/org/source
-      array[priority]        
-    elsif ["Artist","Organization","Source"].include?(record.class.to_s) && record.watched?(user) && user.display_settings.include?("Bolding")
-      if user.security == 'Admin' && record.status == 'Released' && user.display_settings.include?("EditMode")
-        highlight(array[priority], array[priority], :highlighter => '<em><strong>\1</strong></em>')
-      else
-        highlight(array[priority], array[priority], :highlighter => '<strong>\1</strong>')
-      end
-    elsif user.security == 'Admin' && record.status == 'Released' && user.display_settings.include?("EditMode") && ["Artist","Organization","Source"].include?(record.class.to_s)
-      highlight(array[priority], array[priority], :highlighter => '<em>\1</em>')        
-    elsif user.security == 'Admin' && user.display_settings.include?("EditMode") && record.class.to_s == 'Album' && record.private_info.starts_with?('UPDATE AVAILABLE')
-      highlight(array[priority], array[priority], :highlighter => '<em>\1</em>')  
+    if opts[:highlight] == false || current_user.nil?
+      value #Do not highlight
     else
-      #If nothing catches, it goes here!
-      array[priority]
+      highlighter = "\\1"
+      if [Artist, Organization, Source].include?(record.class) && record.watched?(current_user) && current_user.display_settings.include?("Bold AOS")
+        highlighter = "<strong>#{highlighter}</strong>"
+      end
+      if current_user.abilities.include?("Admin") && current_user.display_settings.include?("Edit Mode") &&
+        ((record.class == Album && record.tags.map(&:name).include?("Update Available")) || 
+        ([Artist, Organization, Source].include?(record.class) && record.status == "Released"))
+        highlighter = "<em>#{highlighter}</em>"
+      end
+      highlight(value, value, :highlighter => highlighter)
     end
-
-    
-  end    
+  end
    
   def self_relation_helper(record,relatedhash,ids=nil)
     #This method prepares a @related hash with all of the self_relations of a record

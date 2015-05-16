@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150430220306) do
+ActiveRecord::Schema.define(version: 20150512225910) do
 
   create_table "album_events", force: :cascade do |t|
     t.integer  "album_id",   limit: 4
@@ -45,9 +45,21 @@ ActiveRecord::Schema.define(version: 20150430220306) do
   add_index "album_sources", ["album_id"], name: "index_album_sources_on_album_id", using: :btree
   add_index "album_sources", ["source_id"], name: "index_album_sources_on_source_id", using: :btree
 
+  create_table "album_translations", force: :cascade do |t|
+    t.integer  "album_id",   limit: 4,     null: false
+    t.string   "locale",     limit: 255,   null: false
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
+    t.string   "name",       limit: 255
+    t.text     "info",       limit: 65535
+  end
+
+  add_index "album_translations", ["album_id"], name: "index_album_translations_on_album_id", using: :btree
+  add_index "album_translations", ["locale"], name: "index_album_translations_on_locale", using: :btree
+
   create_table "albums", force: :cascade do |t|
-    t.string   "name",                 limit: 255
-    t.string   "altname",              limit: 255
+    t.string   "internal_name",        limit: 255
+    t.string   "synonyms",             limit: 255
     t.string   "status",               limit: 255
     t.text     "info",                 limit: 65535
     t.text     "private_info",         limit: 65535
@@ -62,13 +74,13 @@ ActiveRecord::Schema.define(version: 20150430220306) do
     t.integer  "release_date_bitmask", limit: 4
   end
 
-  add_index "albums", ["altname"], name: "index_albums_on_altname", using: :btree
   add_index "albums", ["catalog_number"], name: "index_albums_on_catalognumber", using: :btree
   add_index "albums", ["classification"], name: "index_albums_on_classification", using: :btree
-  add_index "albums", ["name"], name: "index_albums_on_name", using: :btree
+  add_index "albums", ["internal_name"], name: "index_albums_on_internal_name", using: :btree
   add_index "albums", ["popularity"], name: "index_albums_on_popularity", using: :btree
   add_index "albums", ["release_date"], name: "index_albums_on_releasedate", using: :btree
   add_index "albums", ["status"], name: "index_albums_on_status", using: :btree
+  add_index "albums", ["synonyms"], name: "index_albums_on_synonyms", using: :btree
 
   create_table "artist_albums", force: :cascade do |t|
     t.integer  "artist_id",  limit: 4
@@ -106,9 +118,21 @@ ActiveRecord::Schema.define(version: 20150430220306) do
   add_index "artist_songs", ["category"], name: "index_artist_songs_on_category", using: :btree
   add_index "artist_songs", ["song_id"], name: "index_artist_songs_on_song_id", using: :btree
 
+  create_table "artist_translations", force: :cascade do |t|
+    t.integer  "artist_id",  limit: 4,     null: false
+    t.string   "locale",     limit: 255,   null: false
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
+    t.string   "name",       limit: 255
+    t.text     "info",       limit: 65535
+  end
+
+  add_index "artist_translations", ["artist_id"], name: "index_artist_translations_on_artist_id", using: :btree
+  add_index "artist_translations", ["locale"], name: "index_artist_translations_on_locale", using: :btree
+
   create_table "artists", force: :cascade do |t|
-    t.string   "name",               limit: 255
-    t.string   "altname",            limit: 255
+    t.string   "internal_name",      limit: 255
+    t.string   "synonyms",           limit: 255
     t.string   "status",             limit: 255
     t.string   "db_status",          limit: 255
     t.string   "activity",           limit: 255
@@ -131,14 +155,14 @@ ActiveRecord::Schema.define(version: 20150430220306) do
   end
 
   add_index "artists", ["activity"], name: "index_artists_on_activity", using: :btree
-  add_index "artists", ["altname"], name: "index_artists_on_altname", using: :btree
   add_index "artists", ["birth_date"], name: "index_artists_on_birthdate", using: :btree
   add_index "artists", ["category"], name: "index_artists_on_category", using: :btree
   add_index "artists", ["db_status"], name: "index_artists_on_dbcomplete", using: :btree
   add_index "artists", ["debut_date"], name: "index_artists_on_debutdate", using: :btree
-  add_index "artists", ["name"], name: "index_artists_on_name", using: :btree
+  add_index "artists", ["internal_name"], name: "index_artists_on_internal_name", using: :btree
   add_index "artists", ["popularity"], name: "index_artists_on_popularity", using: :btree
   add_index "artists", ["status"], name: "index_artists_on_status", using: :btree
+  add_index "artists", ["synonyms"], name: "index_artists_on_synonyms", using: :btree
 
   create_table "collections", force: :cascade do |t|
     t.integer  "user_id",               limit: 4
@@ -247,9 +271,21 @@ ActiveRecord::Schema.define(version: 20150430220306) do
   add_index "lyrics", ["language"], name: "index_lyrics_on_language", using: :btree
   add_index "lyrics", ["song_id"], name: "index_lyrics_on_song_id", using: :btree
 
+  create_table "organization_translations", force: :cascade do |t|
+    t.integer  "organization_id", limit: 4,     null: false
+    t.string   "locale",          limit: 255,   null: false
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+    t.string   "name",            limit: 255
+    t.text     "info",            limit: 65535
+  end
+
+  add_index "organization_translations", ["locale"], name: "index_organization_translations_on_locale", using: :btree
+  add_index "organization_translations", ["organization_id"], name: "index_organization_translations_on_organization_id", using: :btree
+
   create_table "organizations", force: :cascade do |t|
-    t.string   "name",                limit: 255
-    t.string   "altname",             limit: 255
+    t.string   "internal_name",       limit: 255
+    t.string   "synonyms",            limit: 255
     t.string   "status",              limit: 255
     t.string   "db_status",           limit: 255
     t.string   "activity",            limit: 255
@@ -267,13 +303,13 @@ ActiveRecord::Schema.define(version: 20150430220306) do
   end
 
   add_index "organizations", ["activity"], name: "index_organizations_on_activity", using: :btree
-  add_index "organizations", ["altname"], name: "index_organizations_on_altname", using: :btree
   add_index "organizations", ["category"], name: "index_organizations_on_category", using: :btree
   add_index "organizations", ["db_status"], name: "index_organizations_on_dbcomplete", using: :btree
   add_index "organizations", ["established"], name: "index_organizations_on_established", using: :btree
-  add_index "organizations", ["name"], name: "index_organizations_on_name", using: :btree
+  add_index "organizations", ["internal_name"], name: "index_organizations_on_internal_name", using: :btree
   add_index "organizations", ["popularity"], name: "index_organizations_on_popularity", using: :btree
   add_index "organizations", ["status"], name: "index_organizations_on_status", using: :btree
+  add_index "organizations", ["synonyms"], name: "index_organizations_on_synonyms", using: :btree
 
   create_table "postlists", force: :cascade do |t|
     t.integer  "post_id",    limit: 4
@@ -387,8 +423,21 @@ ActiveRecord::Schema.define(version: 20150430220306) do
   add_index "song_sources", ["song_id"], name: "index_song_sources_on_song_id", using: :btree
   add_index "song_sources", ["source_id"], name: "index_song_sources_on_source_id", using: :btree
 
+  create_table "song_translations", force: :cascade do |t|
+    t.integer  "song_id",    limit: 4,     null: false
+    t.string   "locale",     limit: 255,   null: false
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
+    t.string   "name",       limit: 255
+    t.text     "info",       limit: 65535
+    t.text     "lyrics",     limit: 65535
+  end
+
+  add_index "song_translations", ["locale"], name: "index_song_translations_on_locale", using: :btree
+  add_index "song_translations", ["song_id"], name: "index_song_translations_on_song_id", using: :btree
+
   create_table "songs", force: :cascade do |t|
-    t.string   "name",                 limit: 255
+    t.string   "internal_name",        limit: 255
     t.text     "namehash",             limit: 65535
     t.integer  "album_id",             limit: 4
     t.string   "track_number",         limit: 255
@@ -400,17 +449,17 @@ ActiveRecord::Schema.define(version: 20150430220306) do
     t.text     "private_info",         limit: 65535
     t.date     "release_date"
     t.integer  "release_date_bitmask", limit: 4
-    t.string   "altname",              limit: 255
+    t.string   "synonyms",             limit: 255
     t.string   "status",               limit: 255
     t.string   "disc_number",          limit: 255
   end
 
   add_index "songs", ["album_id"], name: "index_songs_on_album_id", using: :btree
-  add_index "songs", ["altname"], name: "index_songs_on_altname", using: :btree
   add_index "songs", ["disc_number"], name: "index_songs_on_disc_number", using: :btree
-  add_index "songs", ["name"], name: "index_songs_on_name", using: :btree
+  add_index "songs", ["internal_name"], name: "index_songs_on_internal_name", using: :btree
   add_index "songs", ["release_date"], name: "index_songs_on_release_date", using: :btree
   add_index "songs", ["status"], name: "index_songs_on_status", using: :btree
+  add_index "songs", ["synonyms"], name: "index_songs_on_synonyms", using: :btree
   add_index "songs", ["track_number"], name: "index_songs_on_track_number", using: :btree
 
   create_table "source_organizations", force: :cascade do |t|
@@ -437,9 +486,21 @@ ActiveRecord::Schema.define(version: 20150430220306) do
   add_index "source_seasons", ["season_id"], name: "index_source_seasons_on_season_id", using: :btree
   add_index "source_seasons", ["source_id"], name: "index_source_seasons_on_source_id", using: :btree
 
+  create_table "source_translations", force: :cascade do |t|
+    t.integer  "source_id",  limit: 4,     null: false
+    t.string   "locale",     limit: 255,   null: false
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
+    t.string   "name",       limit: 1000
+    t.text     "info",       limit: 65535
+  end
+
+  add_index "source_translations", ["locale"], name: "index_source_translations_on_locale", using: :btree
+  add_index "source_translations", ["source_id"], name: "index_source_translations_on_source_id", using: :btree
+
   create_table "sources", force: :cascade do |t|
-    t.string   "name",                 limit: 1000
-    t.string   "altname",              limit: 255
+    t.string   "internal_name",        limit: 1000
+    t.string   "synonyms",             limit: 255
     t.string   "status",               limit: 255
     t.string   "db_status",            limit: 255
     t.string   "activity",             limit: 255
@@ -460,14 +521,14 @@ ActiveRecord::Schema.define(version: 20150430220306) do
   end
 
   add_index "sources", ["activity"], name: "index_sources_on_activity", using: :btree
-  add_index "sources", ["altname"], name: "index_sources_on_altname", using: :btree
   add_index "sources", ["category"], name: "index_sources_on_category", using: :btree
   add_index "sources", ["db_status"], name: "index_sources_on_dbcomplete", using: :btree
   add_index "sources", ["end_date"], name: "index_sources_on_end_date", using: :btree
-  add_index "sources", ["name"], name: "index_sources_on_name", length: {"name"=>255}, using: :btree
+  add_index "sources", ["internal_name"], name: "index_sources_on_internal_name", length: {"internal_name"=>255}, using: :btree
   add_index "sources", ["popularity"], name: "index_sources_on_popularity", using: :btree
   add_index "sources", ["release_date"], name: "index_sources_on_releasedate", using: :btree
   add_index "sources", ["status"], name: "index_sources_on_status", using: :btree
+  add_index "sources", ["synonyms"], name: "index_sources_on_synonyms", using: :btree
 
   create_table "taglists", force: :cascade do |t|
     t.integer  "tag_id",       limit: 4

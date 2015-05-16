@@ -1,7 +1,7 @@
 <table class="table table-striped table-bordered">
   <thead>
     <tr>
-      <td>Name</td>
+      <td>Internal Name</td>
       <td>Name Hash</td>
       <td>Status</td>
       <td>Database Status</td>
@@ -15,7 +15,7 @@
   </thead>
   <% collection.each do |record| %>
     <tr class="<%= record.class.to_s[0] + record.id.to_s %>">
-      <td><%= link_to record.name, record %></td>
+      <td><%= link_to record.internal_name, record %></td>
       <td>
         <% unless record.namehash.nil? %>
           <% record.namehash.each do |k,v| %> 

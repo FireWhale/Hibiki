@@ -95,12 +95,12 @@ class UsersController < ApplicationController
 
   def watchlist
     #Using albums instead of the albumartist/albumorg/albumsource because well, it's simpler code
-    @user = User.includes(:watchlists => [:watched]).find(params[:id])
+    @user = User.includes(:watchlists => [{:watched => [:translations]}]).find(params[:id])
     
     #group, format, and sort what the user is watching
     @watched = @user.watchlists.group_by(&:grouping_category)
     @watched.each do |k,v|
-      @watched[k].sort_by! {|a| name_language_helper(a.watched,current_user,0, :no_bold => true).downcase}
+      @watched[k].sort_by! {|a| language_helper(a.watched, :name, highlight: false).downcase}
       @watched[k].sort_by! {|a| a.position || 100000 }      
       @watched[k] = v.map(&:watched)
     end  
@@ -193,7 +193,7 @@ class UsersController < ApplicationController
     
     @watched = @user.watchlists.group_by(&:grouping_category)    
     @watched.each do |k,v|
-      @watched[k].sort_by! {|a| name_language_helper(a.watched,current_user,0, :no_bold => true).downcase}
+      @watched[k].sort_by! {|a| language_helper(a.watched, :name, highlight: false).downcase}
       @watched[k].sort_by! {|a| a.position || 100000 }      
     end      
     @watched = @watched.sort_by { |k,v| (k ||= "").downcase}

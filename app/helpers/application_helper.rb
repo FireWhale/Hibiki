@@ -50,16 +50,16 @@ module ApplicationHelper
       if record.primary_images[0].nil? 
         if record.class == Album
           #Use a slightly different no cover available picture
-          link_to_if(options[:album_list].nil?, image_tag('no cover.jpg', :title => name_language_helper(record,current_user,0, :no_bold => true), lazy: true, class: 'lazyload'), path, :class => options[:class]) do
-            link_to(image_tag('cover not available.png', :title => name_language_helper(record,current_user,0, :no_bold => true), lazy: true, class: 'lazyload'), path, :class => options[:class])            
+          link_to_if(options[:album_list].nil?, image_tag('no cover.jpg', :title => language_helper(record, :name, highlight: false), lazy: true, class: 'lazyload'), path, :class => options[:class]) do
+            link_to(image_tag('cover not available.png', :title => language_helper(record,:name, highlight: false), lazy: true, class: 'lazyload'), path, :class => options[:class])            
           end
         else
-          link_to_if(options[:nil_image].nil?, name_language_helper(record,current_user,0, :no_bold => true), path, :class => options[:class] + " text-center") do
+          link_to_if(options[:nil_image].nil?, language_helper(record,:name, highlight: false), path, :class => options[:class] + " text-center") do
             "<div class='text-center'>No Image available</div>".html_safe         
           end
         end
       else
-        link_to image_helper(record.primary_images[0], size, :title => name_language_helper(record,current_user,0, :no_bold => true), :lazyload => (options[:lazyload] == false ? nil:true)), path, :class => options[:class]  
+        link_to image_helper(record.primary_images[0], size, :title => language_helper(record,:name, highlight: false), :lazyload => (options[:lazyload] == false ? nil:true)), path, :class => options[:class]  
       end      
     end
         
@@ -115,11 +115,11 @@ module ApplicationHelper
       unless collection.empty?
         (text.empty? ? "" : content_tag(:b, text + ": ")).concat(collection.map{ |record| 
         if record.class == Song
-          link_to name_language_helper(record,current_user,0), url_for(record.album)
+          link_to language_helper(record,:name), url_for(record.album)
         elsif record.class == Event
           link_to record.name_helper("shorthand", "abbreviation", "name"), url_for(record)
         else
-          link_to name_language_helper(record,current_user,0), url_for(record)
+          link_to language_helper(record,:name), url_for(record)
         end }.join(', ').html_safe).concat(tag(:br)).html_safe
       end
     end
@@ -194,7 +194,7 @@ module ApplicationHelper
         info = text.split("\"")[1..(text.split("\"").count - 2)].join("\"").split(",")
         record = info[0].constantize.find_by_id(info[1])
         unless record.class == Image
-          label = info[2].nil? ? name_language_helper(record, current_user,0) : info[2]
+          label = info[2].nil? ? language_helper(record,:name) : info[2]
           link_to(label, record)
         else
           size = info[2].nil? || ["thumb", "full", "medium"].include?(info[2]) == false ? "thumb" : info[2]
@@ -203,7 +203,7 @@ module ApplicationHelper
           else
             link = eval("images_#{record.model.class.to_s.downcase}_path(#{record.model.id}, :image => #{record.id})")
           end
-          content_tag(:div, link_to(image_helper(record, size, :title => name_language_helper(record.model,current_user,0)), link), class: "post-img")
+          content_tag(:div, link_to(image_helper(record, size, :title => language_helper(record.model,:name)), link), class: "post-img")
         end
       }
       truncated_content = truncate_html( simple_format(subbed_content, nil), length: characters, separator: ' ', omission: '<span>...</span>')    
