@@ -4,8 +4,9 @@ describe Song do
   include_examples "global model tests" #Global Tests
   
   #Module Tests
-    it_behaves_like "it has a language field", "name"
-    it_behaves_like "it has a language field", "lyric"
+    it_behaves_like "it has a language field", :name
+    it_behaves_like "it has a language field", :info
+    it_behaves_like "it has a language field", :lyrics
     it_behaves_like "it can be solr-searched"
     it_behaves_like "it can be autocompleted"
     it_behaves_like "it has pagination"
@@ -23,7 +24,7 @@ describe Song do
     it_behaves_like "it has a primary relation", Artist, ArtistSong
           
   #Validation Tests
-    include_examples "is invalid without an attribute", :name
+    include_examples "is invalid without an attribute", :internal_name
     include_examples "is invalid without an attribute",  :status
     include_examples "name/reference combinations"
     include_examples "is invalid without an attribute in a category", :status, Album::Status, "Album::Status"
@@ -34,8 +35,8 @@ describe Song do
       end
       
       it "is invalid with duplicate name/reference combinations" do
-        create(:song, album_id: nil, name: "hi", reference: {ho: "hi"})
-        expect(build(:song, album_id: nil, name: "hi", reference: {ho: "hi"})).to_not be_valid        
+        create(:song, album_id: nil, internal_name: "hi", reference: {ho: "hi"})
+        expect(build(:song, album_id: nil, internal_name: "hi", reference: {ho: "hi"})).to_not be_valid        
       end
       
     end
@@ -50,13 +51,13 @@ describe Song do
       end
       
       it "is valid with duplicate name/reference combinations" do
-        create(:song, :with_album, name: "hi", reference: {ho: "hi"})
-        expect(build(:song, :with_album, name: "hi", reference: {ho: "hi"})).to be_valid        
+        create(:song, :with_album, internal_name: "hi", reference: {ho: "hi"})
+        expect(build(:song, :with_album, internal_name: "hi", reference: {ho: "hi"})).to be_valid        
       end
       
     end
 
-    include_examples "is valid with or without an attribute", :altname, "hi"
+    include_examples "is valid with or without an attribute", :synonyms, "hi"
     include_examples "is valid with or without an attribute", :track_number, "hi"
     include_examples "is valid with or without an attribute", :disc_number, "hi"
     include_examples "is valid with or without an attribute", :length, 12323

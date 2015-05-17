@@ -1,6 +1,6 @@
 class Source < ActiveRecord::Base
   #Attributes
-    attr_accessible :name, :altname, :namehash, #Names!
+    attr_accessible :internal_name, :synonyms, :namehash, #Names!
                     :status, :db_status, :category, :activity, #Database Stuff!
                     :reference, :info, :private_info, :synopsis, :plot_summary, #Text Info!
                     :release_date, :end_date, #Dates!
@@ -122,7 +122,7 @@ class Source < ActiveRecord::Base
   
   def convert_names
     @name_hash = self.namehash
-    unless @name_hash.nil?
+    unless @name_hash.blank?
       #Convert the ones we want to convert
       @name_hash.each do |k,v|
         if [:English, :Romaji, :Japanese].include?(k)

@@ -1,6 +1,6 @@
 class Album < ActiveRecord::Base
   #Attributes
-    attr_accessible :name, :altname, :namehash, :catalog_number, #Names!
+    attr_accessible :internal_name, :synonyms, :namehash, :catalog_number, #Names!
                     :status, :classification,
                     :reference, :info, :private_info, 
                     :release_date, :release_date_bitmask #bitmask is needed for scraping
@@ -192,7 +192,7 @@ class Album < ActiveRecord::Base
 
   def convert_names
     @name_hash = self.namehash
-    unless @name_hash.nil?
+    unless @name_hash.blank?
       #Convert the ones we want to convert
       @name_hash.each do |k,v|
         if [:English, :Romaji, :Japanese].include?(k)

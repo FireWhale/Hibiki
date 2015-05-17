@@ -53,7 +53,11 @@ module FullUpdateTests
       if described_class == Post #Posts don't have names, update the title instead
         described_class.full_update([record.id.to_s, record2.id.to_s], [{title: "haha"}, {title: "hoho"}])
         expect(record.reload.title).to eq("haha")
-        expect(record2.reload.title).to eq("hoho")              
+        expect(record2.reload.title).to eq("hoho")
+      elsif [Album, Artist, Source, Song, Organization].include?(described_class)              
+        described_class.full_update([record.id.to_s, record2.id.to_s], [{internal_name: "haha"}, {internal_name: "hoho"}])
+        expect(record.reload.internal_name).to eq("haha")
+        expect(record2.reload.internal_name).to eq("hoho")          
       else
         described_class.full_update([record.id.to_s, record2.id.to_s], [{name: "haha"}, {name: "hoho"}])
         expect(record.reload.name).to eq("haha")
@@ -70,10 +74,12 @@ module FullUpdateTests
       if described_class == Post
         record.full_update_attributes({title: "hihi"})
         expect(record.reload.title).to eq("hihi")
+      elsif [Album, Artist, Song, Source, Organization].include?(described_class)
+        record.full_update_attributes({internal_name: "hihi"})
+        expect(record.reload.internal_name).to eq("hihi")        
       else
         record.full_update_attributes({name: "hihi"})
         expect(record.reload.name).to eq("hihi")
-        
       end
     end
   end
@@ -183,19 +189,19 @@ module FullUpdateTests
       it "adds the namehash to the #{model_string}" do
         record = create(model_symbol)
         attributes = attributes_for(model_symbol)
-        attributes.merge!(:namehash => {:English => "hey", :Romaji => "hola"})
+        attributes.merge!(:namehash => {:Englisha => "hey", :Romajia => "hola"})
         record.full_update_attributes(attributes)
         record.reload
-        expect(record.namehash).to eq({:English => "hey", :Romaji => "hola"})
+        expect(record.namehash).to eq({:Englisha => "hey", :Romajia => "hola"})
       end
       
       it "removes blank languages from the hash" do
         record = create(model_symbol)
         attributes = attributes_for(model_symbol)
-        attributes.merge!(:namehash => {:English => "hey", :Romaji => "hola", :Japanese => ""})
+        attributes.merge!(:namehash => {:Eneglish => "hey", :Romeaji => "hola", :Japanesee => ""})
         record.full_update_attributes(attributes)
         record.reload
-        expect(record.namehash).to eq({:English => "hey", :Romaji => "hola"})
+        expect(record.namehash).to eq({:Eneglish => "hey", :Romeaji => "hola"})
       end
     end
   end

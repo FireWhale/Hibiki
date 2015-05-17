@@ -5,7 +5,7 @@ class OrganizationsController < ApplicationController
                :display_value => :edit_format
 
   def index
-    @organizations = Organization.order(:name).includes(:watchlists, :tags, albums: :primary_images).page(params[:page])
+    @organizations = Organization.order(:internal_name).includes(:watchlists, :tags, albums: :primary_images).page(params[:page])
 
     respond_to do |format|
       format.html # index.html.erb

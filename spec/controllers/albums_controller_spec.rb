@@ -41,10 +41,10 @@ describe AlbumsController do
                 
         it "updates each song in the album" do
           album = create(:album, :with_songs)
-          new_info = attributes_for(:song, name: "hohoho")
+          new_info = attributes_for(:song, internal_name: "hohoho")
           song_info = {album.songs.first.id => new_info}
           put :update_tracklist, id: album.id, song: song_info
-          expect(album.songs.first.reload.name).to eq("hohoho")
+          expect(album.songs.first.reload.internal_name).to eq("hohoho")
         end
                 
         it "redirects to the album" do
@@ -158,7 +158,7 @@ describe AlbumsController do
 
     #Posts
       include_examples "can post create", false
-      include_examples "can post update", false, :name
+      include_examples "can post update", false, :internal_name
       include_examples "can post update_tracklist", false
       include_examples "can post rescrape", false
 
@@ -188,7 +188,7 @@ describe AlbumsController do
 
     #Posts
       include_examples "can post create", false
-      include_examples "can post update", false, :name
+      include_examples "can post update", false, :internal_name
       include_examples "can post update_tracklist", false
       include_examples "can post rescrape", false
 
@@ -220,7 +220,7 @@ describe AlbumsController do
 
     #Posts
       include_examples "can post create", true
-      include_examples "can post update", true, :name
+      include_examples "can post update", true, :internal_name
       include_examples "can post update_tracklist", true
       include_examples "can post rescrape", true
 

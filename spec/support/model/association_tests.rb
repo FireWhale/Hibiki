@@ -281,20 +281,11 @@ module AssociationTests
         expect(build(join_table_symbol,  "#{model_2_string}_id".to_sym => 999999999)).to_not be_valid
       end
       
-      unless described_class == IssueUser 
-        it "should have a unique #{model_1}/#{model_2} combination" do
-          model1 = create(model_1_symbol)
-          model2 = create(model_2_symbol)
-          expect(create(join_table_symbol, model_1_symbol => model1, model_2_symbol => model2)).to be_valid
-          expect(build(join_table_symbol, model_1_symbol => model1, model_2_symbol => model2)).to_not be_valid
-        end
-      else
-        it "is valid with duplicate #{model_1}/#{model_2} combination" do
-          model1 = create(model_1_symbol)
-          model2 = create(model_2_symbol)
-          expect(create(join_table_symbol, model_1_symbol => model1, model_2_symbol => model2)).to be_valid
-          expect(build(join_table_symbol, model_1_symbol => model1, model_2_symbol => model2)).to be_valid
-        end        
+      it "should have a unique #{model_1}/#{model_2} combination" do
+        model1 = create(model_1_symbol)
+        model2 = create(model_2_symbol)
+        expect(create(join_table_symbol, model_1_symbol => model1, model_2_symbol => model2)).to be_valid
+        expect(build(join_table_symbol, model_1_symbol => model1, model_2_symbol => model2)).to_not be_valid
       end
   end
   

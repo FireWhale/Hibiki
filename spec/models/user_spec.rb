@@ -74,7 +74,7 @@ describe User do
       let(:user) {create(:user, name: "ronny")}
       
       it "updates display_settings" do
-        input = {display_settings: ["Display Limited Editions", "Bold AOS", "Bold For Editing", "Display Reprints"]}
+        input = {display_settings: ["Display Limited Editions", "Bold AOS", "Edit Mode", "Display Reprints"]}
         user.update_profile(input)
         expect(user.reload.display_bitmask).to eq(113)
       end
@@ -197,7 +197,7 @@ describe User do
       it "can get display_settings" do
         user = create(:user)
         user.update_attribute(:display_bitmask, 115)
-        expect(user.display_settings).to eq(["Display Limited Editions","Display NWS","Bold AOS","Bold For Editing", "Display Reprints"])
+        expect(user.display_settings).to eq(["Display Limited Editions","Display NWS","Bold AOS","Edit Mode", "Display Reprints"])
       end
       
       it "can get abilities" do
@@ -246,13 +246,13 @@ describe User do
     it "sets language settings for newly created users" do
       user = build(:user)
       user.save
-      expect(user.reload.language_settings).to eq(User::Languages.join(","))
+      expect(user.reload.language_settings).to eq([].join(","))
     end
     
     it "sets artist language settings for newly created users" do
       user = build(:user)
       user.save
-      expect(user.reload.artist_language_settings).to eq(User::Languages.join(","))      
+      expect(user.reload.artist_language_settings).to eq([].join(","))      
     end
     
     it "sets privacy settings for newly created users" do

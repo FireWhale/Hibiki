@@ -4,7 +4,8 @@ describe Source do
   include_examples "global model tests" #Global Tests
   
   describe "Module Tests" do
-    it_behaves_like "it has a language field", "name"
+    it_behaves_like "it has a language field", :name
+    it_behaves_like "it has a language field", :info
     it_behaves_like "it can be solr-searched"
     it_behaves_like "it can be autocompleted"
     it_behaves_like "it has pagination"
@@ -25,7 +26,7 @@ describe Source do
     it_behaves_like "it has_many through", Season, SourceSeason, :with_source_season
       
   #Validation Tests
-    include_examples "is invalid without an attribute", :name
+    include_examples "is invalid without an attribute", :internal_name
     include_examples "is invalid without an attribute", :status
     include_examples "name/reference combinations"    
     
@@ -36,7 +37,7 @@ describe Source do
     
     include_examples "redirects to a new record when db_status is hidden", "something"
     
-    include_examples "is valid with or without an attribute", :altname, "hi"
+    include_examples "is valid with or without an attribute", :synonyms, "hi"
     include_examples "is valid with or without an attribute", :db_status, "Complete"
     include_examples "is valid with or without an attribute", :activity, Source::Activity.sample
     include_examples "is valid with or without an attribute", :category, Source::Categories.sample

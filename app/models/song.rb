@@ -1,6 +1,6 @@
 class Song < ActiveRecord::Base
   #Attributes
-    attr_accessible :name, :altname, :namehash, #Names!
+    attr_accessible :internal_name, :synonyms, :namehash, #Names!
                     :status, :reference, :info, :private_info, #Database and Info
                     :track_number, :disc_number, :length, :lyrics, #more detailed info!
                     :release_date, :album_id #Dates and album ID
@@ -151,7 +151,7 @@ class Song < ActiveRecord::Base
 
   def convert_names
     @name_hash = self.namehash
-    unless @name_hash.nil?
+    unless @name_hash.blank?
       #Compare entries in the namehash to remove duplicates
       unless @name_hash[:English].nil? && @name_hash[:Japanese].nil?
         if @name_hash[:English] == @name_hash[:Japanese]

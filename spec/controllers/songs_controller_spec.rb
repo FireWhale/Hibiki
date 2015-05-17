@@ -23,7 +23,7 @@ describe SongsController do
 
     #Posts
       include_examples "can post create", false
-      include_examples "can post update", false, :name
+      include_examples "can post update", false, :internal_name
 
     #Delete
       include_examples "can delete a record", false
@@ -52,7 +52,7 @@ describe SongsController do
 
     #Posts
       include_examples "can post create", false
-      include_examples "can post update", false, :name
+      include_examples "can post update", false, :internal_name
 
     #Delete
       include_examples "can delete a record", false
@@ -81,7 +81,7 @@ describe SongsController do
 
     #Posts
       include_examples "can post create", true
-      include_examples "can post update", true, :name
+      include_examples "can post update", true, :internal_name
 
     #Delete
       include_examples "can delete a record", true

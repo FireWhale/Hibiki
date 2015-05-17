@@ -172,8 +172,8 @@ module FullUpdateModule
           unless new_organization_names.nil? || new_organization_categories_scraped.nil?
             new_organization_names.zip(new_organization_categories_scraped).each do |info|
               unless info[0].empty? || info[1].empty?
-                organization = Organization.find_by_name(info[0])
-                organization = Organization.create(name: info[0], status: "Unreleased") if organization.nil?
+                organization = Organization.find_by_internal_name(info[0])
+                organization = Organization.create(internal_name: info[0], status: "Unreleased") if organization.nil?
                 self.album_organizations.create(:organization_id => organization.id, :category => info[1])    
               end
             end
@@ -182,8 +182,8 @@ module FullUpdateModule
           new_source_names = values.delete fields[:scrapes][:sources][0]
           unless new_source_names.nil?
             new_source_names.reject {|c| c.empty? }.each do |name|
-              source = Source.find_by_name(name)
-              source = Source.create(name: name, status: "Unreleased") if source.nil?
+              source = Source.find_by_internal_name(name)
+              source = Source.create(internal_name: name, status: "Unreleased") if source.nil?
               self.sources << source
             end
           end
@@ -374,7 +374,7 @@ module FullUpdateModule
         songs[:lengths] = Array.new(songs[:names].count, 0) if songs[:lengths].nil?
       #Zip them up and add them to the album
         songs[:track_numbers].zip(songs[:names], songs[:lengths], songs[:namehashes]). each do |info|
-          self.songs.create(track_number: info[0], name: info[1], length: info[2], namehash: info[3], status: "Unreleased")
+          self.songs.create(track_number: info[0], internal_name: info[1], length: info[2], namehash: info[3], status: "Unreleased")
         end
     end
   end
@@ -413,8 +413,8 @@ module FullUpdateModule
             if replace_artists.map {|n| n[0]}.include?(info[0]) #if found in replace artists, replace the artist
               artist = Artist.find_by_id(replace_artists[replace_artists.index {|n| n[0] == info[0] }][1])
             else
-              artist = Artist.find_by_name(info[0])
-              artist = Artist.create(name: info[0], status: "Unreleased") if artist.nil?
+              artist = Artist.find_by_internal_name(info[0])
+              artist = Artist.create(internal_name: info[0], status: "Unreleased") if artist.nil?
             end
             self.artist_albums.create(:artist_id => artist.id, :category => bitmask)   
           end

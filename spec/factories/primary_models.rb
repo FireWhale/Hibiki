@@ -4,7 +4,7 @@ require 'faker'
 FactoryGirl.define do
   #Primary Models - Albums, Artists, Organizations, Sources, Songs
     factory :album do    
-      name {Faker::Lorem.sentence}
+      internal_name {Faker::Lorem.sentence}
       status {Album::Status.sample}
       catalog_number {Faker::Lorem.word}
       
@@ -47,12 +47,12 @@ FactoryGirl.define do
       end
       
       trait :invalid do
-        name ""
+        internal_name ""
       end
     end
     
     factory :artist do 
-      name {Faker::Name.name}
+      internal_name {Faker::Name.name}
       status {Album::Status.sample}
 
       trait :with_self_relation do
@@ -80,12 +80,12 @@ FactoryGirl.define do
       end
       
       trait :invalid do
-        name ""
+        internal_name ""
       end
     end
     
     factory :organization do 
-      name {Faker::Lorem.sentence}
+      internal_name {Faker::Lorem.sentence}
       status {Album::Status.sample}
 
       trait :with_self_relation do
@@ -113,12 +113,12 @@ FactoryGirl.define do
       end
             
       trait :invalid do
-        name ""
+        internal_name ""
       end
     end
     
     factory :source do 
-      name {Faker::Lorem.sentence}
+      internal_name {Faker::Lorem.sentence}
       status {Album::Status.sample}
   
       trait :with_self_relation do
@@ -152,12 +152,12 @@ FactoryGirl.define do
       end
       
       trait :invalid do
-        name ""
+        internal_name ""
       end
     end
     
     factory :song do 
-      name {Faker::Lorem.sentence}
+      internal_name {Faker::Lorem.sentence}
       status {Album::Status.sample}
       
       trait :with_album do
@@ -185,7 +185,7 @@ FactoryGirl.define do
       end
       
       trait :invalid do
-        name ""
+        internal_name ""
       end
     end
 end

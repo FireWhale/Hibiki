@@ -8,8 +8,8 @@ module AttributeTests
       if described_class == Album
         #Add extra tests for album
         it "is invalid with a duplicate name/reference/catalogn combination" do
-          expect(create(model_symbol, name: "hihi", reference: {:hi => "ho"}, catalog_number: "ho")).to be_valid
-          expect(build(model_symbol, name: "hihi", reference: {:hi => "ho"}, catalog_number: "ho")).not_to be_valid
+          expect(create(model_symbol, internal_name: "hihi", reference: {:hi => "ho"}, catalog_number: "ho")).to be_valid
+          expect(build(model_symbol, internal_name: "hihi", reference: {:hi => "ho"}, catalog_number: "ho")).not_to be_valid
         end
         
         it "is valid with duplicate catalog_numbers" do
@@ -20,14 +20,14 @@ module AttributeTests
         #Do not test this, cause it changes if it has an album or not
       else
         it "is invalid with a duplicate name/reference combination" do
-          expect(create(model_symbol, name: "hihi", reference: {:hi => "ho"})).to be_valid
-          expect(build(model_symbol, name: "hihi", reference: {:hi => "ho"})).not_to be_valid
+          expect(create(model_symbol, internal_name: "hihi", reference: {:hi => "ho"})).to be_valid
+          expect(build(model_symbol, internal_name: "hihi", reference: {:hi => "ho"})).not_to be_valid
         end        
       end
       
       it "is valid with duplicate names" do
-        expect(create(model_symbol, name: "hihi", reference: {:hi => "ho"})).to be_valid
-        expect(build(model_symbol, name: "hihi", reference: {:hey => "hi"})).to be_valid
+        expect(create(model_symbol, internal_name: "hihi", reference: {:hi => "ho"})).to be_valid
+        expect(build(model_symbol, internal_name: "hihi", reference: {:hey => "hi"})).to be_valid
       end 
    
       it "is valid with duplicate references" do

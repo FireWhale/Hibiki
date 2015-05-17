@@ -4,7 +4,8 @@ describe Organization do
   include_examples "global model tests" #Global Tests
   
   #Module Tests
-    it_behaves_like "it has a language field", "name"
+    it_behaves_like "it has a language field", :name
+    it_behaves_like "it has a language field", :info
     it_behaves_like "it can be solr-searched"
     it_behaves_like "it can be autocompleted"
     it_behaves_like "it has pagination"
@@ -23,7 +24,7 @@ describe Organization do
     it_behaves_like "it has a primary relation", Artist, ArtistOrganization
     
   #Validation Tests
-    include_examples "is invalid without an attribute", :name
+    include_examples "is invalid without an attribute", :internal_name
     include_examples "is invalid without an attribute", :status
     include_examples "name/reference combinations"
         
@@ -34,7 +35,7 @@ describe Organization do
 
     include_examples "redirects to a new record when db_status is hidden", :organization, "something"
 
-    include_examples "is valid with or without an attribute", :altname, "hi"
+    include_examples "is valid with or without an attribute", :synonyms, "hi"
     include_examples "is valid with or without an attribute", :db_status, "Complete"
     include_examples "is valid with or without an attribute", :activity, Organization::Activity.sample
     include_examples "is valid with or without an attribute", :category, Organization::Categories.sample
