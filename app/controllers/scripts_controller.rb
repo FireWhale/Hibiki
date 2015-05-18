@@ -25,7 +25,7 @@ class ScriptsController < ApplicationController
       
     #Get the release values
     rel = params[:rel] 
-    unless rel.nil? || rel.empty?
+    unless rel.blank?
       rel = rel.split(",").map { |a| a == "N" ? "N" : ["Limited Edition", "Reprint"][a.to_i] }
       if rel.include?("N")
         @albums = @albums.filters_by_self_relation_categories(rel, ["Limited Edition", "Reprint"]) #This unions the categories and none-categories
@@ -37,7 +37,7 @@ class ScriptsController < ApplicationController
     #Get the date
     date_begin = params[:date1]
     date_end = params[:date2]
-    unless date_begin.nil? || date_begin.empty? || date_end.nil? || date_end.empty?
+    unless date_begin.blank? || date_end.blank?
       start_date = Date.new( 1970 + (date_begin.to_i / 12), (date_begin.to_i % 12) + 1)
       end_date = Date.new( 1970 + (date_end.to_i / 12), (date_end.to_i % 12) + 1).to_time.advance(months: 1).to_date - 1
       @albums = @albums.in_date_range(start_date, end_date)
@@ -45,7 +45,7 @@ class ScriptsController < ApplicationController
     
     #Get the collection values
     col = params[:col]
-    unless col.nil? || col.empty? || current_user.nil?
+    unless col.blank? || current_user.nil?
       col = col.split(",").map { |a| a == "N" ? "N" : Collection::Relationship[a.to_i] }
       if col.include?("N")
         @albums = @albums.collection_filter(current_user.id,col,current_user.id) #This unions the collections and non-collected
@@ -56,7 +56,7 @@ class ScriptsController < ApplicationController
     
     #Get the tag values
     tags = params[:tag]
-    unless tags.nil? || tags.empty?
+    unless tags.blank?
       tags = tags.split(",")
       @albums = @albums.with_tag(tags)
     end

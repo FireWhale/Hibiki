@@ -1,9 +1,9 @@
 class AlbumsController < ApplicationController
   load_and_authorize_resource
-  
-  autocomplete :album, :namehash, :full => true, :extra_data => [:name], 
-               :display_value => :edit_format
-    
+
+  autocomplete :album, :namehash, :full => true, :extra_data => [:internal_name], 
+               :display_value => :edit_format  
+                   
   def index
     @albums = Album.includes(:primary_images, :tags, :translations).order(:release_date).filter_by_user_settings(current_user).page(params[:page])
 

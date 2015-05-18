@@ -8,7 +8,6 @@ class Event < ActiveRecord::Base
   
   #Modules
     include FullUpdateModule
-    include LanguageModule
     
   #Constants
     FullUpdateFields = {reference: true}    

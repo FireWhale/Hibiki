@@ -13,7 +13,7 @@ class Artist < ActiveRecord::Base
   #Modules
     include FullUpdateModule
     include SolrSearchModule
-    include AutocompletionModule
+    include AutocompleteModule
     include LanguageModule
     #Association Modules
       include SelfRelationModule
@@ -110,19 +110,9 @@ class Artist < ActiveRecord::Base
     scope :with_status, ->(statuses) {where('status IN (?)', statuses)}
     scope :with_activity, ->(activities) {where('activity IN (?)', activities)} 
        
-  #Gem Stuff
-    #Globalize
-    translates :name, :info
-    
+  #Gem Stuff    
     #Pagination
       paginates_per 50
-  
-    #Sunspot Searching
-      searchable do
-        text :namehash,  :boost => 5
-        text :internal_name, :synonyms
-        text :reference
-      end
   
   #For Artist and Album/Song Relationship categories
     def self.get_bitmask(credits)

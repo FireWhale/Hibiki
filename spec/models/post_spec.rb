@@ -3,8 +3,10 @@ require 'rails_helper'
 describe Post do
   include_examples "global model tests" #Global Tests
     
-  describe "Module Tests" do
-    it_behaves_like "it has images"
+  describe "Concern Tests" do
+    include_examples "it has tags"
+    include_examples "it has images"
+    
     it_behaves_like "it has form_fields"
     it_behaves_like "it has a custom json method"
   end
@@ -36,7 +38,6 @@ describe Post do
   describe "Scoping" do    
     it_behaves_like "filters by category", Post::Categories
     it_behaves_like "filters by status", Post::Status
-    it_behaves_like "filters by tag"
     it_behaves_like "filters by security"
   end
 
@@ -84,20 +85,20 @@ describe Post do
   
   #Instance Method Tests
   
-    describe "using upload_image_to_ll" do
-      it "it connects the image as an association"
-      
-      it "returns a LL image link"
-      
-      it "does not upload the same image twice"
-    end
-    
-    describe "using add_album_info to ll" do
-      it "connects the album as an association"
-            
-      it "returns a message with record information"
-    end
-    
+    # describe "using upload_image_to_ll" do
+      # it "it connects the image as an association"
+#       
+      # it "returns a LL image link"
+#       
+      # it "does not upload the same image twice"
+    # end
+#     
+    # describe "using add_album_info to ll" do
+      # it "connects the album as an association"
+#             
+      # it "returns a message with record information"
+    # end
+
     #Full Update
       context "has a full update method" do
         include_examples "updates with keys and values"
@@ -107,16 +108,16 @@ describe Post do
       
   #Class Method Tests
   
-    #For LL Posts
-    describe "using cuts_messages_for_ll" do
-      it "passes back an array of messages"
-      
-      it "cuts any messages longer than 9000 characters into multiple messages"       
-            
-      it "returns the same array if all messages pass"
-      
-      it "puts a single messages into an array if only one message (<9000 characters) is given"
-    end
+    # #For LL Posts
+    # describe "using cuts_messages_for_ll" do
+      # it "passes back an array of messages"
+#       
+      # it "cuts any messages longer than 9000 characters into multiple messages"       
+#             
+      # it "returns the same array if all messages pass"
+#       
+      # it "puts a single messages into an array if only one message (<9000 characters) is given"
+    # end
 
 end
 

@@ -4,23 +4,22 @@ require 'rails_helper'
 describe Album do
   include_examples "global model tests" #Global Tests
   
-  describe "Module Tests" do
-    it_behaves_like "it has a language field", :name
-    it_behaves_like "it has a language field", :info
-    it_behaves_like "it can be solr-searched"
+  describe "Concern Tests" do
+    include_examples "it is a translated model"
+    include_examples "it has images"
+    include_examples "it has posts"
+    include_examples "it has tags"
+    include_examples "it has collections"
+    include_examples "it has self-relations"
+    include_examples "it can be solr-searched"
+    
     it_behaves_like "it can be autocompleted"
     it_behaves_like "it has pagination"
     it_behaves_like "it has form_fields"
     it_behaves_like "it has a custom json method"
   end
     
-  describe "Association Tests" do
-    it_behaves_like "it has images"
-    it_behaves_like "it has posts"
-    it_behaves_like "it has tags"
-    it_behaves_like "it has self-relations"
-    it_behaves_like "it has collections"
-    
+  describe "Association Tests" do    
     include_examples "it has a primary relation", Artist, ArtistAlbum
     include_examples "it has a primary relation", Organization, AlbumOrganization
     include_examples "it has a primary relation", Source, AlbumSource
@@ -99,23 +98,6 @@ describe Album do
       # it "handles variable dates from day/week/year" 
       #Thought about it for an hour, and can't see any way these interact.
     end 
-    
-    
-    it "returns the right collection type" do
-      album1 = create(:album)
-      album2 = create(:album)
-      album3 = create(:album)
-      album4 = create(:album)
-      user = create(:user)
-      collection = create(:collection, collected: album1, user: user, relationship: "Collected")
-      collection = create(:collection, collected: album2, user: user, relationship: "Ignored")
-      collection = create(:collection, collected: album3, user: user, relationship: "Wishlisted")
-      expect(album4.collected_category(user)).to eq("")
-      expect(album1.collected_category(user)).to eq("Collected")
-      expect(album2.collected_category(user)).to eq("Ignored")
-      expect(album3.collected_category(user)).to eq("Wishlisted")
-      expect(album1.collected_category(nil)).to eq("")
-    end
     
     describe "tests for certain self_relations" do
       it "responds to limited_edition?" do
@@ -593,10 +575,7 @@ describe Album do
   #Scope Tests
   describe "Scoping" do 
     it_behaves_like "filters by status", Album::Status
-    it_behaves_like "filters by tag"    
     it_behaves_like "filters by date range", "release_date"
-    it_behaves_like "filters by self relation categories"
-    it_behaves_like "filters by collection"
         
     describe "filters by AOS" do
       let(:album1) {create(:album)} 

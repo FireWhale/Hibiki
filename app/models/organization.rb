@@ -12,7 +12,7 @@ class Organization < ActiveRecord::Base
   #Modules
     include FullUpdateModule
     include SolrSearchModule
-    include AutocompletionModule
+    include AutocompleteModule
     include LanguageModule
     #Association Modules
       include SelfRelationModule
@@ -87,18 +87,9 @@ class Organization < ActiveRecord::Base
     scope :with_activity, ->(activities) {where('activity IN (?)', activities)} 
     
   #Gem Stuff
-    #Globalize
-    translates :name, :info
-    
     #Pagination
     paginates_per 50
   
-    #Sunspot Searching
-      searchable do
-        text :internal_name, :synonyms, :namehash, :boost => 5
-        text :reference
-      end    
-
   private
 
   def convert_names

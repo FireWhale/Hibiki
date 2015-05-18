@@ -1,10 +1,11 @@
 require 'rails_helper'
 
 module SearchTests
+  
   shared_examples "it can be solr-searched" do
-    #Should be testing at integration tests
-    #it "can be solr-searched"
-        
+    #There is no additional functionality layered onto SolrSearch.
+    
+    #...yet.        
   end
   
   shared_examples "it can be autocompleted" do    

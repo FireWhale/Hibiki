@@ -7,5 +7,4 @@ module ImageModule
     has_many :primary_images, -> {where "images.primary_flag <> ''" }, through: :imagelists, source: :image
   end
   
-        
 end

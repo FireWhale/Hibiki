@@ -28,7 +28,7 @@ class ApplicationController < ActionController::Base
     else
       value = record.name
     end
-    if opts[:highlight] == false || current_user.nil?
+    if opts[:highlight] == false || current_user.nil? || [Album, Organization, Source, Album].include?(record.class) == false
       value #Do not highlight
     else
       highlighter = "\\1"

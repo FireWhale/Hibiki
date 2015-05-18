@@ -12,7 +12,7 @@ class Song < ActiveRecord::Base
   #Modules
     include FullUpdateModule
     include SolrSearchModule
-    include AutocompletionModule
+    include AutocompleteModule
     include LanguageModule
     #Association Modules
       include SelfRelationModule
@@ -104,17 +104,9 @@ class Song < ActiveRecord::Base
     scope :in_date_range, ->(start_date, end_date) {where("songs.release_date >= ? and songs.release_date <= ? ", start_date, end_date)}
         
   #Gem Stuff
-    #Globalize
-    translates :name, :info, :lyrics
-    
     #Pagination
       paginates_per 50
-  
-    #Sunspot Searching
-      searchable do
-        text :internal_name, :synonyms, :namehash
-      end
-    
+      
   def op_ed_insert
     #Returns an array if the song is OP/ED/Insert
     self.song_sources.map { |rel| rel.classification }

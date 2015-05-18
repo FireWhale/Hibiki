@@ -3,21 +3,22 @@ require 'rails_helper'
 describe Organization do
   include_examples "global model tests" #Global Tests
   
-  #Module Tests
-    it_behaves_like "it has a language field", :name
-    it_behaves_like "it has a language field", :info
-    it_behaves_like "it can be solr-searched"
+  describe "Concern Tests" do
+    include_examples "it is a translated model"
+    include_examples "it has images"
+    include_examples "it has posts"
+    include_examples "it has tags"
+    include_examples "it has watchlists"
+    include_examples "it has self-relations"
+    include_examples "it can be solr-searched"
+    
     it_behaves_like "it can be autocompleted"
     it_behaves_like "it has pagination"
     it_behaves_like "it has form_fields"
     it_behaves_like "it has a custom json method"
+  end
   
   #Association Tests
-    it_behaves_like "it has images"
-    it_behaves_like "it has posts"
-    it_behaves_like "it has tags"
-    it_behaves_like "it has watchlists"
-    it_behaves_like "it has self-relations"
     
     it_behaves_like "it has a primary relation", Album, AlbumOrganization
     it_behaves_like "it has a primary relation", Source, SourceOrganization
@@ -69,9 +70,6 @@ describe Organization do
     it_behaves_like "filters by status", Album::Status
     it_behaves_like "filters by category", Organization::Categories
     it_behaves_like "filters by activity", Organization::Activity
-    it_behaves_like "filters by tag"
-    it_behaves_like "filters by watchlist"    
-    it_behaves_like "filters by self relation categories"
   end
 end
 

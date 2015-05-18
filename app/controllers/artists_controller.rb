@@ -1,7 +1,7 @@
 class ArtistsController < ApplicationController
   load_and_authorize_resource
   
-  autocomplete :artist, :namehash, :full => true, :extra_data => [:name], 
+  autocomplete :artist, :namehash, :full => true, :extra_data => [:internal_name], 
                :display_value => :edit_format  
                
   def index

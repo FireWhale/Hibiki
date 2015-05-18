@@ -13,7 +13,7 @@ class Album < ActiveRecord::Base
   #Modules
     include FullUpdateModule
     include SolrSearchModule
-    include AutocompletionModule
+    include AutocompleteModule
     include LanguageModule
     #Association Modules
       include SelfRelationModule
@@ -146,20 +146,9 @@ class Album < ActiveRecord::Base
     #User Settings
     scope :filter_by_user_settings, ->(user) {collection_filter(user.id, Collection::Relationship - user.album_filter, user.id).without_self_relation_categories(user.album_filter) unless user.nil?}
     
-  #Gem Stuff
-    #Globalize
-    translates :name, :info
-  
+  #Gem Stuff  
     #Pagination
-    paginates_per 50
-  
-    #Sunspot Searching
-    searchable do
-      text :internal_name, :synonyms, :catalog_number, :namehash 
-      text :reference
-      time :release_date
-    end
-        
+    paginates_per 50        
 
   #For sorting albums
     def week(start_day = "sunday") #For sorting by week

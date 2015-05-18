@@ -3,8 +3,7 @@ require 'rails_helper'
 describe Event do
   include_examples "global model tests" #Global Tests
   
-  describe "Module Tests" do
-    it_behaves_like "it has a language field", "name"
+  describe "Concern Tests" do
     it_behaves_like "it has form_fields"
     it_behaves_like "it has a custom json method"
   end
@@ -61,13 +60,14 @@ end
 describe Season do
   include_examples "global model tests" #Global Tests
   
-  describe "Module Tests" do
+  describe "Concern Tests" do
+    include_examples "it has images"
+    
     it_behaves_like "it has form_fields"
     it_behaves_like "it has a custom json method"
   end
   
   #Association Test
-    it_behaves_like "it has images"
     it_behaves_like "it has_many through", Source, SourceSeason, :with_source_season
   
   #Validation Tests  

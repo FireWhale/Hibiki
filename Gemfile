@@ -16,8 +16,7 @@ gem 'jquery-ui-rails'
 gem 'rails-jquery-autocomplete'
 gem 'lazyload-rails'
 gem 'mini_magick', '3.5.0' #Image manipulation
-gem 'sunspot_rails', github: "betam4x/sunspot" # , '2.1.1'
-gem 'sunspot_solr', github: "betam4x/sunspot" # '2.1.1'
+gem 'sunspot_rails'
 gem 'globalize'
 gem 'mojinizer'
 gem 'sidekiq', '2.16.1'
@@ -27,12 +26,14 @@ gem 'protected_attributes'
 gem 'truncate_html'
 
 group :development, :test do
-  gem 'bullet', platforms: [:mingw, :mswin]
+  gem 'bullet', platforms: [:mingw, :mswin] #Raises notices unoptimized queries
   gem 'puma', '2.6.0'
+  gem 'sunspot_solr' #pre packaged solr distribution
+  gem 'progress_bar', platforms: [:mingw, :mswin] #reporting progress on sunspot:solr
   gem 'rspec-rails'
   gem 'factory_girl_rails'
   gem 'uglifier', '>= 1.0.3'
-  gem 'tzinfo-data', platforms: [:mingw, :mswin]
+  gem 'tzinfo-data', platforms: [:mingw, :mswin] #timezone data not natively in windows
 end
 
 group :test do

@@ -54,12 +54,12 @@ class PagesController < ApplicationController
     
     @models.each do |model|
       #set up eager loading hash
-      includes = [:tags]
+      includes = [:tags, :translations]
       if model == "artist" || model == "organization" || model == "source"
         includes.push(:watchlists)
         #don't include albums. we only need the first 5 of them + count
       elsif model == "song"
-        includes.push(album: :primary_images)
+        includes.push(album: [:primary_images, :translations])
       elsif model == "album"
         includes.push(:primary_images)
       end

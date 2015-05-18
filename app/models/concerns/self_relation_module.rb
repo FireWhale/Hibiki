@@ -32,6 +32,6 @@ module SelfRelationModule
       define_method "related_#{model_string}s" do
         model_string.capitalize.constantize.from("((#{self.send("related_#{model_string}s1").to_sql}) union (#{self.send("related_#{model_string}s2").to_sql})) as #{model_string}s") 
       end
-    
   end  
+  
 end
