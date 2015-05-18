@@ -18,4 +18,5 @@ module SolrSearchModule
       time :release_date if self.name == "Album" #needed to sort by date
     end
   end
+  
 end
