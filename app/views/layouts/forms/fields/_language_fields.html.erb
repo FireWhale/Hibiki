@@ -1,0 +1,23 @@
+<%= render :partial => 'layouts/forms/well_toggle', locals: {:div_id => opts[:sub_div_id], :toggle_id => "#{opts[:sub_div_id]}Toggle"} unless opts[:sub_div_id].nil? %>
+<%= content_tag(:h4, class: "text-center") {opts[:title]} unless opts[:title].nil? %>
+<div<%= ' id="'.html_safe + opts[:sub_div_id] + '"'.html_safe unless opts[:sub_div_id].nil? %>>
+  <%= fields_for "#{form_prefix}[#{opts[:attribute]}_langs]", record.name do |language| %>
+    <% unless record.send("#{opts[:attribute]}_translations").blank? %>
+      <% record.send("#{opts[:attribute]}_translations").each do |k,v| %>
+        <% unless v.blank? %>
+          <div>
+            <%= language.label k, "#{k} #{opts[:attribute]}:" %>
+            <%= language.text_field k, value: v, class: 'input-xlarge' %>
+          </div>
+        <% end %>
+      <% end %>
+    <% end %>
+  <% end %>
+  <div id="<%= "#{opts[:attribute]}LangFields#{record.id.to_s}" %>"></div>
+  <%= link_to "Add another #{opts[:attribute]} language", 
+  add_model_path(:parent_div => "##{opts[:attribute]}LangFields#{record.id.to_s}", 
+  category_field_names: "#{form_prefix}[new_#{opts[:attribute]}_lang_categories]", 
+  category_select: User::LocaleLanguages, 
+  label: opts[:attribute].capitalize,
+  field_names: "#{form_prefix}[new_#{opts[:attribute]}_langs]"), :remote => true %></br></br>          
+</div>

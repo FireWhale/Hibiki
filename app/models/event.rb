@@ -8,6 +8,7 @@ class Event < ActiveRecord::Base
   
   #Modules
     include FullUpdateModule
+    include JsonModule
     
   #Constants
     FullUpdateFields = {reference: true}    

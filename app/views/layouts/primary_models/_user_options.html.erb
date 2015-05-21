@@ -1,6 +1,6 @@
 <% if record.class == Album || record.class == Song %>
   <% unless record.collected_category(current_user).empty?  %>
-    <li><%= link_to "This #{record.class.downcase} is #{record.collected_category(current_user).downcase}. Remove?", uncollect_path(record_id: record.id, record_type: record.class.to_s), method: :post, :remote => true %></li>
+    <li><%= link_to "This #{record.class.name.to_s} is #{record.collected_category(current_user).downcase}. Remove?", uncollect_path(record_id: record.id, record_type: record.class.to_s), method: :post, :remote => true %></li>
   <% else %>
     <li><%= link_to "Add to Collection", collect_path(record_id: record.id, record_type: record.class.to_s, :relationship => 'Collected'), method: :post, :remote => true %></li>
     <li><%= link_to "Ignore This Album", collect_path(record_id: record.id, record_type: record.class.to_s, :relationship => 'Ignored'), method: :post, :remote => true %></li>

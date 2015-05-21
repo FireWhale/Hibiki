@@ -114,15 +114,23 @@ module FullUpdateModule
         values[:namehash] = namehash
       end
     #Language Records - Namehashes and lyrics
-      unless fields[:language_records].nil?
-        fields[:language_records].each do |model, text_field|
-          new_languages = values.delete "new_#{model.to_s}_languages".to_sym
-          new_texts = values.delete "new_#{model.to_s}_texts".to_sym
-          self.add_language_records(model.to_s, new_languages, new_texts, text_field) unless new_languages.nil? || new_texts.nil?
-          update_language_records = values.delete "update_#{model.to_s}s".to_sym
-          self.update_language_record(update_language_records, model.to_s.capitalize.constantize) unless update_language_records.nil? 
-          remove_language_records = values.delete "remove_#{model.to_s}s".to_sym
-          self.delete_records(remove_language_records, model.to_s.capitalize.constantize) unless remove_language_records.nil?
+      unless fields[:languages].nil?
+        fields[:languages].each do |field|
+          locale_values = values.delete "#{field}_langs".to_sym #Old Values
+          unless locale_values.blank?
+            locale_values.each do |locale, value|
+              self.write_attribute(field, value, locale: locale.to_sym) 
+            end
+          end
+          new_locale_values = values.delete "new_#{field}_langs".to_sym
+          new_locale_cats = values.delete "new_#{field}_lang_categories".to_sym
+          unless new_locale_values.blank? || new_locale_cats.blank?
+            new_locale_pairs = new_locale_values.zip(new_locale_cats)
+            new_locale_pairs.each do |pair|
+              self.write_attribute(field, pair[0], locale: pair[1])
+            end
+          end
+          
         end
       end
     #Add Songs - Album only

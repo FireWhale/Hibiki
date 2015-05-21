@@ -4,6 +4,7 @@ class Tag < ActiveRecord::Base
   
   #Modules
     include FullUpdateModule
+    include JsonModule
   
   #Constants
     ModelBitmask = %w[Album Artist Organization Song Source Post]

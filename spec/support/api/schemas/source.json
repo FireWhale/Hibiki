@@ -1,0 +1,31 @@
+{
+  "type": "object",
+  "required": ["source"],
+  "properties": {
+    "source": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "name_translations",
+        "internal_name",
+        "synonyms",
+		"info",
+        "release_date",
+        "end_date",
+        "plot_summary"
+      ],
+      "properties": {
+        "id": { "type": "integer"},
+        "name": { "type": "string"},
+        "name_translations": { "type": "object"},
+        "internal_name": { "type": "string"},
+        "synonyms": { "type": "string"},
+        "info": { "type": "string"},
+        "release_date": { "type": "string", "format": "date" },
+        "end_date": { "type": "string", "format": "date" },
+        "plot_summary": { "type": "string"}
+      }
+    }
+  }
+}

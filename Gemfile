@@ -43,4 +43,5 @@ group :test do
   gem 'guard-rspec'
   gem 'launchy'
   gem 'sunspot_test'
+  gem 'json-schema'
 end

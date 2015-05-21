@@ -15,10 +15,10 @@
   <% unless @field_names.nil? %>
     <%= fields_for @field_names do |f| %>
   		<%= f.label '', @label %>
-  		<% if @autocomplete_path.nil? %>
+  		<% if @autocomplete_model.nil? %>
   		  <%= f.text_field '', :value => @default_value %>
       <% else %>
-        <%= f.autocomplete_field '', send(@autocomplete_path), :value => @default_value%>
+        <%= f.autocomplete_field '', autocomplete_path({:model => @autocomplete_model}), :value => @default_value %>
       <% end %>
     <% end %>
   <% end %>

@@ -1,20 +1,17 @@
 class ArtistsController < ApplicationController
   load_and_authorize_resource
-  
-  autocomplete :artist, :namehash, :full => true, :extra_data => [:internal_name], 
-               :display_value => :edit_format  
                
   def index
     @artists = Artist.order(:internal_name).includes([:watchlists, :tags, :translations, {albums: [:primary_images, :translations]}]).page(params[:page])
     
     respond_to do |format|
       format.html # index.html.erb
-      format.json { render json: @artists }
+      format.json { render json: @artists.to_json(:user => current_user) }
     end
   end
   
   def show
-    @artist = Artist.includes(:primary_images, :organizations => [:watchlists]).find(params[:id])
+    @artist = Artist.includes(:primary_images, :translations, :organizations => [:watchlists, :translations]).find(params[:id])
     self_relation_helper(@artist,@related = {}) #Prepare @related (self_relations)
         
     @albums = @artist.albums.includes(:primary_images, :tags, :translations).filter_by_user_settings(current_user).order('release_date DESC').page(params[:album_page])
@@ -22,7 +19,7 @@ class ArtistsController < ApplicationController
     respond_to do |format|
       format.js
       format.html # show.html.erb
-      format.json { render json: @artist }
+      format.json { render json: @artist.to_json(:user => current_user) }
     end
   end
 

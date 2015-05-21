@@ -1,0 +1,29 @@
+{
+  "type": "object",
+  "required": ["event"],
+  "properties": {
+    "event": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "start_date",
+        "end_date",
+        "abbreviation",
+        "shorthand",
+        "altname",
+        "info"
+      ],
+      "properties": {
+        "id": { "type": "integer"},
+        "name": { "type": "string"},
+        "start_date": { "type": "string", "format": "date" },
+        "end_date": { "type": "string", "format": "date" },
+        "abbreviation": { "type": "string"},
+        "shorthand": { "type": "string"},
+        "altname": {"type": "string"},
+        "info": {"type": "string"}
+      }
+    }
+  }
+}

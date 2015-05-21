@@ -7,11 +7,7 @@ describe SongsController do
     activate_authlogic
   end
   
-  context 'public access to songs' do
-    #Ajax
-      include_examples "can autocomplete", true, :search
-      include_examples "can autocomplete", false, :edit
-      
+  context 'public access to songs' do      
     #Shows
       include_examples 'has an index page', true, :id
       include_examples "has a show page", false
@@ -36,11 +32,7 @@ describe SongsController do
       @user = create(:user)
       UserSession.create(@user)
     end
-    
-    #Ajax
-      include_examples "can autocomplete", true, :search
-      include_examples "can autocomplete", false, :edit
-      
+          
     #Shows
       include_examples 'has an index page', true, :id
       include_examples "has a show page", false
@@ -65,10 +57,6 @@ describe SongsController do
       @user = create(:admin)
       UserSession.create(@user)
     end
-    
-    #Ajax
-      include_examples "can autocomplete", true, :search
-      include_examples "can autocomplete", true, :edit
       
     #Shows
       include_examples 'has an index page', true, :id

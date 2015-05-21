@@ -1,27 +1,24 @@
 class SongsController < ApplicationController
   load_and_authorize_resource
 
-  autocomplete :song, :namehash, :full => true, :extra_data => [:name], 
-               :display_value => :edit_format  
-
   def index
-    @songs = Song.includes(:tags, album: [:primary_images]).page(params[:page])
+    @songs = Song.includes(:tags, :translations, album: [:primary_images, :translations]).page(params[:page])
 
     respond_to do |format|
       format.html # index.html.erb
-      format.json { render json: @songs }
+      format.json { render json: @songs.to_json(:user => current_user) }
     end
   end
 
   def show
-    @song = Song.find(params[:id])
+    @song = Song.includes(:translations).find(params[:id])
     
     self_relation_helper(@song,@related = {}) #Prepare @related (self_relations) 
     credits_helper(@song,@credits = {}) #prepares the credits
     
     respond_to do |format|
       format.html # show.html.erb
-      format.json { render json: @song }
+      format.json { render json: @song.to_json(:user => current_user) }
     end
   end
 

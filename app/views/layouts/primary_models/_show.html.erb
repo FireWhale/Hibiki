@@ -5,10 +5,13 @@
 <% content_for :header do %>
   <div class="text-center">
     <h2><%= language_helper(record,:name, highlight: false)  %></h2>
-    <h4><%= language_helper(record,:name, highlight: false, priority: 1)  %>
-        <% if language_helper(record,:name, highlight: false, priority: 2).nil? == false %>
+    <h4>
+      <% unless language_helper(record,:name, priority: 1) == language_helper(record,:name) %>
+        <%= language_helper(record,:name, highlight: false, priority: 1) %>
+        <% unless language_helper(record,:name, highlight: false, priority: 2).nil? %>
           / <%= language_helper(record,:name, highlight: false, priority: 2) %>
         <% end %>
+      <% end %>
     </h4> 
   </div>
 <% end %>

@@ -12,8 +12,8 @@ class Song < ActiveRecord::Base
   #Modules
     include FullUpdateModule
     include SolrSearchModule
-    include AutocompleteModule
     include LanguageModule
+    include JsonModule
     #Association Modules
       include SelfRelationModule
       include ImageModule
@@ -35,11 +35,12 @@ class Song < ActiveRecord::Base
                         self_relations: [:new_related_song_ids, :new_related_song_categories, :update_related_songs, :remove_related_songs],
                         images: ["id", "songimages/", "Primary"],
                         dates: ["release_date"],
-                        language_records: {:lyric => "lyrics"}}
+                        languages: [:name, :info, :lyrics]}
     
     FormFields = [{type: "markup", tag_name: "div class='col-md-6'"},
                   {type: "text", attribute: :internal_name, label: "Internal Name:"},
                   {type: "text", attribute: :synonyms, label: "Synonyms:"},
+                  {type: "language_fields", attribute: :name},
                   {type: "text", attribute: :album_id, label: "Album ID:"},
                   {type: "select", attribute: :status, label: "Status:", categories: Album::Status},
                   {type: "date", attribute: :release_date, label: "Release Date:"},
@@ -55,7 +56,6 @@ class Song < ActiveRecord::Base
                   {type: "artist_relations", div_class: "well", title: "Artist Relationships", sub_div_id: "Artists"},
                   {type: "source_relations", div_class: "well", title: "Source Relationships", sub_div_id: "Sources"},
                   {type: "namehash", title: "Languages", div_class: "well", sub_div_id: "Languages"}, 
-                  #{type: "language_records", title: "Lyrics", div_class: "well", sub_div_id: "Lyrics", model: "lyric", text_area: "lyrics"},
                   {type: "markup", tag_name: "/div"}]
     
     TracklistEditFields = [{type: "markup", tag_name: "div class='well well-xsmall'"}, {type: "well_hide"},
@@ -66,7 +66,7 @@ class Song < ActiveRecord::Base
                            {type: "id", no_div: true, label: "ID:"},
                            {type: "markup", tag_name: "div ", add_id: true}, {type: "markup", tag_name: "div class='row'"}, {type: "markup", tag_name: "div class='col-md-4'"}, {type: "markup", tag_name: "br"},
                            {type: "namehash"}, 
-                           #{type: "language_records", no_div: true, model: "lyric", text_area: "lyrics"},
+                           {type: "language_fields", attribute: :name},
                            {type: "markup", tag_name: "/div"}, 
                            {type: "markup", tag_name: "div class='col-md-8'"}, {type: "markup", tag_name: "br"},
                            {type: "artist_relations", no_div: true}, {type: "source_relations", no_div: true},

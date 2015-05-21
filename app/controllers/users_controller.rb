@@ -108,7 +108,7 @@ class UsersController < ApplicationController
     respond_to do |format|
       if @user.privacy_settings.include?("Show Watchlist") || @user == current_user
         format.html # watchlist.html.erb
-        format.json { render json: @user.watchlists }
+        format.json { render json: @user.watchlists.map(&:watched).to_json(:user => current_user) }
       else
         format.html { render 'private_page'}
         format.json { head :forbidden }        
@@ -151,7 +151,7 @@ class UsersController < ApplicationController
     respond_to do |format|
       if @user.privacy_settings.include?("Show Collection") || @user == current_user
         format.html
-        format.json {render json: @user.collections}
+        format.json {render json: @user.collections.map(&:collected).to_json(:user => current_user)}
         format.js
       else
         format.html { render 'private_page'}

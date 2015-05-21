@@ -117,6 +117,8 @@ GEM
       railties (>= 3.2.16)
     json (1.8.2)
     json (1.8.2-java)
+    json-schema (2.5.1)
+      addressable (~> 2.3.7)
     kaminari (0.16.3)
       actionpack (>= 3.0.0)
       activesupport (>= 3.0.0)
@@ -336,6 +338,7 @@ DEPENDENCIES
   guard-rspec
   jquery-rails
   jquery-ui-rails
+  json-schema
   kaminari
   launchy
   lazyload-rails

@@ -19,7 +19,7 @@ class UserSessionsController < ApplicationController
         format.json { head :no_content }
       else
         format.html { render action: 'new'}
-        format.json { render json: @user_session.errors, status: :unprocessable_entity }
+        format.json { render json: {:success => false, :message => "Invalid username or password"}, status: :unprocessable_entity }
       end
     end
   end

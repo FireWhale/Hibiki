@@ -14,8 +14,8 @@ class Source < ActiveRecord::Base
   #Modules
     include FullUpdateModule
     include SolrSearchModule
-    include AutocompleteModule
     include LanguageModule
+    include JsonModule
     #Association Modules
       include SelfRelationModule
       include ImageModule
@@ -48,12 +48,14 @@ class Source < ActiveRecord::Base
     FullUpdateFields = {reference: true, seasons: true,
                         relations_by_id: {organization: [:new_organization_ids, :new_organization_categories, :update_source_organizations, :remove_source_organizations, SourceOrganization, "source_organizations"]},
                         self_relations: [:new_related_source_ids, :new_related_source_categories, :update_related_sources, :remove_related_sources],
-                        images: ["id", "sourceimages/", "Primary"], 
+                        images: ["id", "sourceimages/", "Primary"],
+                        languages: [:name, :info],
                         dates: ["release_date", "end_date"]}
 
     FormFields = [{type: "markup", tag_name: "div class='col-md-6'"},
                   {type: "text", attribute: :internal_name, label: "Internal Name:"},
                   {type: "text", attribute: :synonyms, label: "Synonyms:"},
+                  {type: "language_fields", attribute: :name},
                   {type: "select", attribute: :status, label: "Status:", categories: Album::Status},
                   {type: "select", attribute: :db_status, label: "Database Status:", categories: Artist::DatabaseStatus},
                   {type: "select", attribute: :category, label: "Categories:", categories: Source::Categories},

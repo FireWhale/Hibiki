@@ -141,11 +141,7 @@ describe AlbumsController do
     activate_authlogic
   end
   
-  context 'public access to albums' do    
-    #Ajax
-      include_examples "can autocomplete", true, :search
-      include_examples "can autocomplete", false, :edit
-      
+  context 'public access to albums' do          
     #Shows
       include_examples 'has an index page', true, :release_date
       include_examples "has a show page", true
@@ -170,11 +166,7 @@ describe AlbumsController do
     before :each do
       @user = create(:user)
       UserSession.create(@user)
-    end
-    
-    #Ajax
-      include_examples "can autocomplete", true, :search
-      include_examples "can autocomplete", false, :edit
+    end    
       
     #Shows
       include_examples 'has an index page', true, :release_date
@@ -203,11 +195,7 @@ describe AlbumsController do
       @user = create(:admin)
       UserSession.create(@user)
     end
-    
-    #Ajax
-      include_examples "can autocomplete", true, :search
-      include_examples "can autocomplete", true, :edit
-      
+          
     #Shows
       include_examples 'has an index page', true, :release_date
       include_examples "has a show page", true

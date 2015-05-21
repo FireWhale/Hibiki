@@ -1,20 +1,17 @@
 class AlbumsController < ApplicationController
   load_and_authorize_resource
-
-  autocomplete :album, :namehash, :full => true, :extra_data => [:internal_name], 
-               :display_value => :edit_format  
-                   
+  
   def index
     @albums = Album.includes(:primary_images, :tags, :translations).order(:release_date).filter_by_user_settings(current_user).page(params[:page])
 
     respond_to do |format|
       format.html # index.html.erb
-      format.json { render json: @albums }
+      format.json { render json: @albums.to_json(:user => current_user) }
     end
   end
 
   def show
-    @album = Album.includes({artist_albums: [artist: [:watchlists]]}, :primary_images, [sources: :watchlists], [album_organizations: [organization: :watchlists]], :songs, :tags).find(params[:id])
+    @album = Album.includes({artist_albums: [artist: [:watchlists, :translations]]}, :primary_images, [sources: [:watchlists, :translations]], [album_organizations: [organization: [:watchlists, :translations]]], [songs: :translations], :tags).find(params[:id])
     self_relation_helper(@album,@related = {}) #Prepare @related (self_relations) 
     credits_helper(@album,@credits = {}) #prepares the credits
 
@@ -26,7 +23,7 @@ class AlbumsController < ApplicationController
     
     respond_to do |format|
       format.html # show.html.erb
-      format.json { render json: @album }
+      format.json { render json: @album.to_json(:user => current_user) }
     end
   end
    
@@ -57,7 +54,7 @@ class AlbumsController < ApplicationController
   end
 
   def edit
-    @album = Album.includes({artist_albums: :artist}, :sources, {album_organizations: :organization}, :songs).find(params[:id])
+    @album = Album.includes({artist_albums: :artist}, {album_sources: :source}, {album_organizations: :organization}, :songs).find(params[:id])
     @album.namehash = @album.namehash || {}
     
     respond_to do |format|
@@ -67,7 +64,7 @@ class AlbumsController < ApplicationController
   end
 
   def edit_tracklist
-    @album = Album.includes(songs: {artist_songs: :artist}).find_by_id(params[:id])
+    @album = Album.includes({songs: [:tags, :translations, {song_sources: {source: :translations}},{artist_songs: {artist: :translations}}]}, {artists: [:translations, :watchlists]}, {sources: [:translations, :watchlists]}).find_by_id(params[:id])
   
     respond_to do |format|
       format.html # edit_tracklist.html.erb

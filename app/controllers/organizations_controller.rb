@@ -1,19 +1,17 @@
 class OrganizationsController < ApplicationController
   load_and_authorize_resource
-
-  autocomplete :organization, :namehash, :full => true, :extra_data => [:internal_name], 
-               :display_value => :edit_format  
+  
   def index
-    @organizations = Organization.order(:internal_name).includes(:watchlists, :tags, albums: :primary_images).page(params[:page])
+    @organizations = Organization.order(:internal_name).includes(:watchlists, :translations, :tags, albums: [:primary_images, :translations]).page(params[:page])
 
     respond_to do |format|
       format.html # index.html.erb
-      format.json { render json: @organizations }
+      format.json { render json: @organizations.to_json(:user => current_user) }
     end
   end
 
   def show
-    @organization = Organization.includes(:watchlists, [artists: :watchlists], :sources, :images, :albums => [:primary_images, :tags]).find(params[:id])
+    @organization = Organization.includes(:watchlists, :translations, [artists: [:translations, :watchlists]], :sources, :images, :albums => [:primary_images, :translations, :tags]).find(params[:id])
     self_relation_helper(@organization,@related = {}) #Prepare @related (self_relations)
 
     @albums = @organization.albums.filter_by_user_settings(current_user).order('release_date DESC').page(params[:album_page])
@@ -21,7 +19,7 @@ class OrganizationsController < ApplicationController
     respond_to do |format|
       format.js
       format.html # show.html.erb
-      format.json { render json: @organization }
+      format.json { render json: @organization.to_json(:user => current_user) }
     end
   end
   

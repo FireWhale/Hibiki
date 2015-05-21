@@ -1,0 +1,39 @@
+{
+  "type": "object",
+  "required": ["image"],
+  "properties": {
+    "image": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "path",
+        "thumb_path",
+        "medium_path",
+        "primary_flag",
+        "rating",
+        "height",
+        "width",
+        "medium_height",
+        "medium_width",
+        "thumb_height",
+        "thumb_width"
+      ],
+      "properties": {
+        "id": { "type": "integer"},
+        "name": { "type": "string"},
+        "path": { "type": "string"},
+        "thumb_path": { "type": "string"},
+        "medium_path": { "type": "string"},
+        "primary_flag": { "type": "string"},
+        "rating": { "type": "string"},
+        "height": { "type": "integer"},
+        "width": { "type": "integer"},
+        "medium_height": { "type": "integer"},
+        "medium_width": { "type": "integer"},
+        "thumb_height": { "type": "integer"},
+        "thumb_width": { "type": "integer"}
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "type": "object",
+  "required": ["tag"],
+  "properties": {
+    "tag": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "classification",
+        "info",
+        "synopsis"
+      ],
+      "properties": {
+        "id": { "type": "integer"},
+        "name": { "type": "string"},
+        "classification": { "type": "string"},
+        "info": { "type": "string"},
+        "synopsis": { "type": "string"}
+      }
+    }
+  }
+}

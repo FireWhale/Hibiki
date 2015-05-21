@@ -1,0 +1,27 @@
+{
+  "type": "object",
+  "required": ["organization"],
+  "properties": {
+    "organization": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "name_translations",
+        "internal_name",
+        "synonyms",
+		"info",
+        "established"
+      ],
+      "properties": {
+        "id": { "type": "integer"},
+        "name": { "type": "string"},
+        "name_translations": { "type": "object"},
+        "internal_name": { "type": "string"},
+        "synonyms": { "type": "string"},
+        "info": { "type": "string"},
+        "established": { "type": "string", "format": "date" }
+      }
+    }
+  }
+}

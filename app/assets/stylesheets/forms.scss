@@ -67,3 +67,29 @@ input[type="file"] {
 .submit {
   text-align: center;
 }
+
+//Autocomplete styling
+.ui-autocomplete {
+  top: -100px;
+  margin-bottom: -100px;
+  z-index: 9999;
+  width: 450px;
+  padding: 0;
+  position: absolute;
+  font-size: 90%;
+  li:nth-child(even) {
+    background: #F4F4F4;
+  }
+  li {
+    border: 1px solid transparent;
+    list-style-type: none;
+    span.model-info {
+      font-size: 80%;
+      float: right;
+    }
+    &.ui-state-focus {
+        background: #f2f2f2/*{bgColorHover}*/ url(/assets/jquery-ui/ui-bg_glass_75_dadada_1x400.png)/*{bgImgUrlHover}*/ 50%/*{bgHoverXPos}*/ 50%/*{bgHoverYPos}*/ repeat-x/*{bgHoverRepeat}*/;
+    }
+  }
+  
+}

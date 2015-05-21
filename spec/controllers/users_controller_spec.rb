@@ -355,7 +355,7 @@ describe UsersController do
             it "returns a json object" do
               get :watchlist, id: user, format: :json
               expect(response.headers['Content-Type']).to match 'application/json'
-              expect(response.body).to eq(user.watchlists.to_json)
+              expect(response.body).to eq(user.watchlists.map(&:watched).to_json)
             end
           end
           
@@ -402,7 +402,7 @@ describe UsersController do
               it "returns a json object" do
                 get :watchlist, id: @user, format: :json
                 expect(response.headers['Content-Type']).to match 'application/json'
-                expect(response.body).to eq(@user.watchlists.to_json)
+                expect(response.body).to eq(@user.watchlists.map(&:watched).to_json)
               end
             end
           end
@@ -451,7 +451,7 @@ describe UsersController do
             it "returns a json object" do
               get :collection, id: user, format: :json
               expect(response.headers['Content-Type']).to match 'application/json'
-              expect(response.body).to eq(user.collections.to_json)
+              expect(response.body).to eq(user.collections.map(&:collected).to_json)
             end
             
             it "populates a type variable" do
@@ -513,7 +513,7 @@ describe UsersController do
               it "returns a json object" do
                 get :collection, id: @user, format: :json
                 expect(response.headers['Content-Type']).to match 'application/json'
-                expect(response.body).to eq(@user.collections.to_json)
+                expect(response.body).to eq(@user.collections.map(&:collected).to_json)
               end
 
               it "populates a type variable" do

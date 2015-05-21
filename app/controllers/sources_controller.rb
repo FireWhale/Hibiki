@@ -1,27 +1,24 @@
 class SourcesController < ApplicationController
   load_and_authorize_resource
-
-  autocomplete :source, :namehash, :full => true, :extra_data => [:name], 
-               :display_value => :edit_format
       
   def index
     @sources = Source.order(:internal_name).includes([:translations, :watchlists, :tags, {albums: [:primary_images, :translations]}]).page(params[:page])
 
     respond_to do |format|
       format.html # index.html.erb
-      format.json { render json: @sources }
+      format.json { render json: @sources.to_json(:user => current_user)}
     end
   end
 
   def show
-    @source = Source.includes([:watchlists, :albums => [:primary_images, :tags]]).find(params[:id])
+    @source = Source.includes([:watchlists, :translations, :albums => [:primary_images, :translations, :tags]]).find(params[:id])
     self_relation_helper(@source,@related = {}) #Prepare @related (self_relations)
     
     @albums = @source.albums.filter_by_user_settings(current_user).order('release_date DESC').page(params[:album_page])
     
     respond_to do |format|
       format.html # show.html.erb
-      format.json { render json: @source }
+      format.json { render json: @source.to_json(:user => current_user)}
       format.js
     end
   end

@@ -132,7 +132,7 @@ describe PagesController do
   
   shared_examples "can search" do |accessible|
     describe 'GET #search' do
-      it "renders the random_albums template" do
+      it "renders the search template" do
         get :search, search: "haha"
         valid_permissions(:search, accessible)
       end

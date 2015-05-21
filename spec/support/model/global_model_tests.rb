@@ -129,14 +129,15 @@ module GlobalModelTests
         end
       end
       
-      describe 'Autocomplete' do
-        if [Artist, Source, Organization, Album, Song].include?(described_class)
-          it "has the solr search module" do
-            expect(described_class.included_modules).to include(AutocompleteModule)                        
+      describe 'JSON' do
+        if [Artist, Source, Organization, Album, Song, 
+            Event, Season, Post, Issue, Tag, Image, User].include?(described_class)
+          it "has the json module" do
+            expect(described_class.included_modules).to include(JsonModule)                        
           end
         else          
-          it "does not have the solr search module" do
-            expect(described_class.included_modules).to_not include(AutocompleteModule)            
+          it "does not have the json module" do
+            expect(described_class.included_modules).to_not include(JsonModule)            
           end
         end        
       end

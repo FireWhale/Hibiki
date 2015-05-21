@@ -2,13 +2,13 @@ require 'rails_helper'
 
 describe ScriptsController do
   shared_examples "it quietly fails" do |method|
-      it "quietly fails without the right inputs" do
-        #quietly failing = error finding the div, etc.
-        #The controller will just pass through to the js and 
-        #no checks will be made or errors thrown
-        xhr :get, method, format: :js
-        expect(response).to render_template(method)
-      end
+    it "quietly fails without the right inputs" do
+      #quietly failing = error finding the div, etc.
+      #The controller will just pass through to the js and 
+      #no checks will be made or errors thrown
+      xhr :get, method, format: :js
+      expect(response).to render_template(method)
+    end
   end
   
   shared_examples "get toggle_albums" do |accessible|
@@ -147,6 +147,27 @@ describe ScriptsController do
       end
     end    
   end  
+  
+  shared_examples 'get autocomplete' do |accessible|
+    describe '#GET autocomplete' do
+      if accessible == true
+        it "returns some json" do
+          xhr :get, :autocomplete, format: :js, term: "hi"          
+          expect(response.status).to eq(200)
+        end
+        
+        it 'populates @json_results' do
+          xhr :get, :autocomplete, format: :js, term: "hi"
+          expect(assigns(:json_results)).to_not be_nil
+        end
+      else
+        it "renders access denied" do
+          xhr :get, :autocomplete, format: :js
+          expect(response.status).to eq(403) #forbidden
+        end        
+      end
+    end
+  end
   
   shared_examples 'get add_reference_form' do |accessible|
     describe '#GET add_reference_form' do
@@ -389,6 +410,7 @@ describe ScriptsController do
     
     #JS 
     include_examples 'get toggle_albums', true
+    include_examples 'get autocomplete', true
     
     #JS for Edit Forms
     include_examples 'get add_reference_form', false
@@ -409,6 +431,7 @@ describe ScriptsController do
     
     #JS 
     include_examples 'get toggle_albums', true
+    include_examples 'get autocomplete', true
     
     #JS for Edit Forms
     include_examples 'get add_reference_form', false
@@ -428,6 +451,7 @@ describe ScriptsController do
     
     #JS 
     include_examples 'get toggle_albums', true
+    include_examples 'get autocomplete', true
     
     #JS for Edit Forms
     include_examples 'get add_reference_form', true

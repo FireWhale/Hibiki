@@ -15,6 +15,6 @@
     <% end %>
   <% end %>
   <div id="<%= opts[:model].capitalize %>Fields"></div>
-  <%= link_to "Add a #{opts[:model]}", add_model_path(:parent_div => "##{opts[:model].capitalize}Fields", category_field_names: "#{form_prefix}[new_#{opts[:model]}_categories]", category_select: opts[:categories], field_names: "#{form_prefix}[new_#{opts[:model]}_ids]", :autocomplete_path => "#{opts[:model]}_namehash"), :remote => true %></br></br>          
+  <%= link_to "Add a #{opts[:model]}", add_model_path(:parent_div => "##{opts[:model].capitalize}Fields", category_field_names: "#{form_prefix}[new_#{opts[:model]}_categories]", category_select: opts[:categories], field_names: "#{form_prefix}[new_#{opts[:model]}_ids]", autocomplete_model: opts[:model]), :remote => true %></br></br>          
 </div>
        

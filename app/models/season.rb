@@ -4,6 +4,7 @@ class Season < ActiveRecord::Base
   
   #Modules
     include FullUpdateModule
+    include JsonModule
     #Association Modules
       include ImageModule
   

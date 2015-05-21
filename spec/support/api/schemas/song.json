@@ -1,0 +1,39 @@
+{
+  "type": "object",
+  "required": ["song"],
+  "properties": {
+    "song": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "name_translations",
+        "lyrics",
+        "lyrics_translations",
+        "internal_name",
+        "synonyms",
+        "album_id",
+        "track_number",
+        "disc_number",
+        "length",
+        "info",
+        "release_date"
+      ],
+      "properties": {
+        "id": { "type": "integer"},
+        "name": { "type": "string"},
+        "name_translations": { "type": "object"},
+        "lyrics": { "type": "string"},
+        "lyrics_translations": { "type": "object"},
+        "internal_name": { "type": "string"},
+        "synonyms": { "type": "string"},
+        "album_id": {"type": "integer"},
+        "track_number": { "type": "string"},
+        "disc_number": { "type": "string"},
+        "length": {"type": "integer"},
+        "info": { "type": "string"},
+        "release_date": { "type": "string", "format": "date" }
+      }
+    }
+  }
+}

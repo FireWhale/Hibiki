@@ -4,13 +4,14 @@ require 'cancan/matchers'
 describe User do
   include_examples "global model tests" #Global Tests
   
-  describe "Module Tests" do
+  describe "Concern Tests" do
+    include_examples "it has a custom json method"
+    include_examples "it has images"
+    
     it_behaves_like "it has pagination"
-    it_behaves_like "it has a custom json method"
   end
   
   describe "Association Tests" do
-    it_behaves_like "it has images"
     it_behaves_like "it is a polymorphically-linked class", Collection, [Album, Song], "collected"
     it_behaves_like "it is a polymorphically-linked class", Watchlist, [Artist, Organization, Source], "watched"      
   end

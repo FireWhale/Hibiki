@@ -1,0 +1,35 @@
+{
+  "type": "object",
+  "required": ["artist"],
+  "properties": {
+    "artist": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "name_translations",
+        "internal_name",
+        "synonyms",
+        "birth_date",
+        "debut_date",
+        "birth_place",
+        "blood_type",
+        "gender",
+		"info"
+      ],
+      "properties": {
+        "id": { "type": "integer"},
+        "name": { "type": "string"},
+        "name_translations": { "type": "object"},
+        "internal_name": { "type": "string"},
+        "synonyms": { "type": "string"},
+        "birth_date": { "type": "string", "format": "date" },
+        "debut_date": { "type": "string", "format": "date" },
+        "birth_place": { "type": "string"},
+        "blood_type": { "type": "string"},
+        "gender": { "type": "string"},
+        "info": { "type": "string"}
+      }
+    }
+  }
+}

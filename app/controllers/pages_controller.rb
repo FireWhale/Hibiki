@@ -4,7 +4,7 @@ class PagesController < ApplicationController
     authorize! :read, Album
     
     @posts = Post.with_category("Blog Post").meets_security(current_user).order(:id => :desc).first(5)
-    @albums = Album.filter_by_user_settings(current_user).order("RAND()").includes(:primary_images).first(8).shuffle
+    @albums = Album.filter_by_user_settings(current_user).order("RAND()").includes(:primary_images, :translations).first(8).shuffle
     
     respond_to do |format|
       format.html
@@ -36,16 +36,16 @@ class PagesController < ApplicationController
     
     respond_to do |format|
       format.html
-      format.json { render json: @albums}
+      format.json { render json: @albums.to_json(:user => current_user)}
     end
   end  
    
   def search
     authorize! :read, Album
-    @query = truncate(params[:search], length: 50) #used in html
+    @query = truncate(params[:search], length: 50, escape: false) #used in html
     @model = (params[:model].nil? ? nil : params[:model]) #for JS
     @records = nil
-    @search = {:search => @query, :utf8 => params[:utf8]} #used
+    @search = {:utf8 => params[:utf8], :search => @query} #used
     
     respond_to do |format|
       format.html { @models = ["album", "artist", "source", "organization", "song"]}
@@ -64,7 +64,13 @@ class PagesController < ApplicationController
         includes.push(:primary_images)
       end
       search = model.capitalize.constantize.search(:include => includes) do
-        fulltext params[:search]
+        fulltext params[:search] do
+          if model == "album"
+            fields(:internal_name, :synonyms, :namehash, :translated_names, :reference, :catalog_number)          
+          else
+            fields(:internal_name, :synonyms, :namehash, :translated_names, :reference)
+          end
+        end
         order_by(:release_date) if model == "album"
         paginate :page => params["#{model}_page".to_sym]
       end      

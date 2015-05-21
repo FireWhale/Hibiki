@@ -42,6 +42,14 @@ FactoryGirl.define do
         end
       end
       
+      trait :full_attributes do
+        start_date {Faker::Date.between(5.years.ago, 2.years.ago)}  
+        end_date {Faker::Date.between(1.year.ago, Date.today)} 
+        abbreviation  {Faker::Lorem.word}
+        altname  {Faker::Lorem.word}
+        info {Faker::Lorem.paragraph}
+      end
+      
       trait :invalid do
         name ""
         shorthand ""
@@ -89,6 +97,11 @@ FactoryGirl.define do
           create(:taglist, :with_post, tag: tag)
         end        
       end  
+      
+      trait :full_attributes do
+        info  {Faker::Lorem.sentence}
+        synopsis  {Faker::Lorem.sentence}
+      end
       
       trait :with_multiple_taglists do
         after(:create) do |tag|
@@ -162,6 +175,19 @@ FactoryGirl.define do
           end
         end
       end     
+
+      trait :full_attributes do
+        thumb_path {Faker::Lorem.sentence}  
+        medium_path {Faker::Lorem.sentence}
+        primary_flag {Faker::Lorem.word}
+        rating { Image::Rating.sample}
+        height {Faker::Number.number(4)}
+        width {Faker::Number.number(4)}
+        medium_height {Faker::Number.number(4)}
+        medium_width {Faker::Number.number(4)}
+        thumb_height {Faker::Number.number(4)}
+        thumb_width {Faker::Number.number(4)}
+      end
       
       trait :invalid do
         path {""}
@@ -212,6 +238,12 @@ FactoryGirl.define do
         end
       end     
       
+      trait :full_attributes do
+        title {Faker::Lorem.word}
+        content {Faker::Lorem.sentence}
+        timestamp {Faker::Date.between(1.year.ago, Date.today)} 
+      end
+      
       trait :invalid do
         status {"eife"}
       end         
@@ -225,6 +257,13 @@ FactoryGirl.define do
             
       trait :admin_only do
         visibility "Admin"
+      end
+      
+      trait :full_attributes do
+        priority {Issue::Priorities.sample}
+        difficulty {Issue::Difficulties.sample}
+        resolution {Issue::Resolutions.sample}
+        description { Faker::Lorem.sentence }
       end
       
       trait :invalid do

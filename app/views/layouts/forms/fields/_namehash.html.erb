@@ -2,13 +2,15 @@
 <%= content_tag(:h4, class: "text-center") {opts[:title]} unless opts[:title].nil? %>
 <div<%= ' id="'.html_safe + opts[:sub_div_id] + '"'.html_safe unless opts[:sub_div_id].nil? %>>
   <%= fields_for "#{form_prefix}[namehash]", record.namehash do |language| %>
-    <%= language.label :English, "English:" %>
-    <%= language.text_field :English, :value => record.namehash[:English] %><br>
-    <%= language.label :Japanese, "Japanese:" %>
-    <%= language.text_field :Japanese, :value => record.namehash[:Japanese] %><br>
-    <%= language.label :Romaji, "Romaji:" %>
-    <%= language.text_field :Romaji, :value => record.namehash[:Romaji] %><br>
-    <%= language.label :Korean, "Korean:" %>
-    <%= language.text_field :Korean, :value => record.namehash[:Korean] %><br>
+    <% unless record.namehash.blank? %>
+    	<% record.namehash.each do |k,v| %>
+    	  <% unless k.blank? || v.blank? %>
+    	  <div>
+    		<%= language.label k, "#{k}:"%>
+    		<%= language.text_field k, value: v %>
+    	  </div>
+        <% end %>
+    	<% end %>
+    <% end %>
   <% end %>
 </div>

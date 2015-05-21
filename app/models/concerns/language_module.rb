@@ -20,7 +20,7 @@ module LanguageModule
     
     #figure out which setting to use
     priority_languages = get_languages(self,user)
-    
+
     #Add name_translations to array
     name_translations = self.name_translations
     priority_languages.split(",").each do |lang|
@@ -36,6 +36,8 @@ module LanguageModule
     
     #Get rid of nil values in name_translations
     name_array.reject! { |a| a.blank? }
+    #return name_array
+    name_array
   end
   
   def read_info(user = nil)
@@ -59,6 +61,9 @@ module LanguageModule
     
     #Get rid of nil values in info_translations
     info_array.reject! { |a| a.blank? }
+    
+    #return info_array
+    info_array
   end
   
   def read_lyrics(user = nil)
@@ -78,6 +83,9 @@ module LanguageModule
     lyrics_translations.each { |k,v| lyrics_array << v } #add remaining name_translations
     
     lyrics_array.reject! { |a| a.blank? }
+    
+    #return lyric array
+    lyrics_array
   end
   
   private 

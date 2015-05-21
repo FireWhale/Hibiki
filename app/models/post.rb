@@ -5,6 +5,7 @@ class Post < ActiveRecord::Base
                     
   #Modules
     include FullUpdateModule
+    include JsonModule
     #Association Modules
       include ImageModule
       include TagModule
@@ -67,7 +68,7 @@ class Post < ActiveRecord::Base
 
   #Callback methods
     def parse_content
-      unless self.content.nil?
+      unless self.content.blank? || self.content.class != String
         content = self.content
         matches = content.scan(/<record=\"[a-zA-Z]*,\d*.*?\">/)
         matches.each do |match|

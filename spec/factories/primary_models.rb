@@ -46,6 +46,13 @@ FactoryGirl.define do
         end
       end
       
+      trait :full_attributes do
+        synonyms {Faker::Lorem.sentence}
+        info {Faker::Lorem.sentence}
+        release_date {Faker::Date.between(2.years.ago, Date.today)}
+        release_date_bitmask { 6 }
+      end
+      
       trait :invalid do
         internal_name ""
       end
@@ -79,6 +86,18 @@ FactoryGirl.define do
         end
       end
       
+      trait :full_attributes do
+        synonyms {Faker::Lorem.sentence}
+        info {Faker::Lorem.sentence}
+        gender {Faker::Lorem.sentence}
+        birth_place {Faker::Lorem.sentence}
+        blood_type {Faker::Lorem.word}
+        birth_date {Faker::Date.between(2.years.ago, Date.today)}
+        birth_date_bitmask { 6 }
+        debut_date {Faker::Date.between(2.years.ago, Date.today)}
+        debut_date_bitmask { 6 }
+      end
+      
       trait :invalid do
         internal_name ""
       end
@@ -110,6 +129,13 @@ FactoryGirl.define do
             create(:album_organization, organization: record, album: album)
           end
         end
+      end
+      
+      trait :full_attributes do
+        synonyms {Faker::Lorem.sentence}
+        info {Faker::Lorem.sentence}
+        established {Faker::Date.between(2.years.ago, Date.today)}
+        established_bitmask { 6 }
       end
             
       trait :invalid do
@@ -151,6 +177,16 @@ FactoryGirl.define do
         end
       end
       
+      trait :full_attributes do
+        synonyms {Faker::Lorem.sentence}
+        info {Faker::Lorem.sentence}
+        plot_summary {Faker::Lorem.sentence}
+        release_date {Faker::Date.between(2.years.ago, Date.today)}
+        release_date_bitmask { 6 }
+        end_date {Faker::Date.between(2.years.ago, Date.today)}
+        end_date_bitmask { 6 }
+      end
+      
       trait :invalid do
         internal_name ""
       end
@@ -182,6 +218,18 @@ FactoryGirl.define do
         after(:create) do |record|
           create(:lyric, song: record)
         end
+      end
+      
+      trait :full_attributes do
+        synonyms {Faker::Lorem.sentence}
+        with_album
+        track_number { "15"}
+        disc_number { "5" }
+        length {Faker::Number.number(3)}
+        info {Faker::Lorem.sentence}
+        lyrics {Faker::Lorem.sentence}
+        release_date {Faker::Date.between(2.years.ago, Date.today)}
+        release_date_bitmask { 6 }
       end
       
       trait :invalid do

@@ -7,6 +7,7 @@ class User < ActiveRecord::Base
   #Modules
     #Association Modules
       include ImageModule
+      include JsonModule
   
   #Callbacks/Hooks
     before_validation :set_default_settings, on: :create
@@ -39,6 +40,7 @@ class User < ActiveRecord::Base
   
   #Display Settings constants - add to end
     Languages = ["english","romaji","japanese","chinese","korean"]
+    LocaleLanguages = ["hibiki_en", "hibiki_ro", "hibiki_ja", "hibiki_fr"]
     DisplaySettings = ["Display Limited Editions", "Display NWS", "Display Ignored", "Outline Album Art", "Bold AOS", "Edit Mode", "Display Reprints"] 
     PrivacySettings = ["Show Watchlist", "Show Collection", "Show Profile"]
     
@@ -144,13 +146,6 @@ class User < ActiveRecord::Base
         false
       end
     end
-  
-  #Custom json method
-  def as_json(options={})
-    {
-      :id => id
-    }
-  end
   
   private
     def set_default_settings

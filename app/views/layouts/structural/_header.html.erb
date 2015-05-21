@@ -3,7 +3,7 @@
     <li id="logo"></li>
     <li id="search-bar">
       <%= form_tag search_path, :method => :get, id: "search-form" do %>
-        <%= submit_tag " ", id: 'search-button', name: nil %><%= text_field_tag :search, nil, maxlength: 400, placeholder: "Search Database", :id => 'search-box' %>
+        <%= submit_tag " ", id: 'search-button', name: nil %><%= autocomplete_field_tag :search, nil, autocomplete_path, maxlength: 400, placeholder: "Search Database", :id => 'search-box' %>
       <% end %>
     </li>
     <li id="support-home"><%= link_to "Home", root_path %></li>

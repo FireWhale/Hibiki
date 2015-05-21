@@ -70,10 +70,44 @@ class ScriptsController < ApplicationController
     
     respond_to do |format|
       format.js
-      format.json { render :json => @albums }
+      format.json { render :json => @albums.to_json(:user => current_user) }
     end
   end
   
+  def autocomplete
+    authorize! :show, Album
+    
+    @json_results = []
+    unless params[:term].blank?
+      if params[:model].blank?
+        #Use general search - all models
+        search = Sunspot.search Album, Artist, Organization, Source, Song do
+          fulltext params[:term] do
+            #When we include autocomplete_edit, we inherently boost our translated fields
+            fields(:autocomplete_search, :autocomplete_edit)
+          end
+          paginate page: 1, per_page: 10
+        end
+        @json_results = search.results.to_json({autocomplete_search: true, autocomplete_user: current_user}) 
+      else
+        #if a model is passed in, it's likely going to be for editing. 
+        search = params[:model].capitalize.constantize.search(:include => :translations) do
+          fulltext params[:term] do
+            fields(:autocomplete_edit)
+          end
+          paginate page: 1, per_page: 10
+        end
+        @json_results = search.results.to_json({autocomplete_edit: true, autocomplete_user: current_user}) 
+      end
+    end
+    #I only need the term and the model ->
+    
+    #Get the right json format
+    respond_to do |format|
+      format.js { render :json => @json_results}
+    end
+  end
+    
 
   #These methods help modularize the js adding forms for edit views.
     def add_reference_form
@@ -95,8 +129,7 @@ class ScriptsController < ApplicationController
         @parent_div = params[:parent_div]  
         @parent_divs = params[:parent_divs].split(',') unless params[:parent_divs].nil?    
       #Check if query qualifies for autocomplete
-        autocomplete = params[:autocomplete_path]
-        @autocomplete_path = "autocomplete_" + autocomplete + '_' + autocomplete.split('_')[0] + 's_path' unless autocomplete.nil?
+        @autocomplete_model = params[:autocomplete_model] unless params[:autocomplete_model].nil?
       #Fields_for names
         @field_names = params[:field_names]
         #If text_area is flagged, use a text area instead of text_field

@@ -12,11 +12,10 @@ describe Album do
     include_examples "it has collections"
     include_examples "it has self-relations"
     include_examples "it can be solr-searched"
-    
-    it_behaves_like "it can be autocompleted"
+    include_examples "it has a custom json method"
+
     it_behaves_like "it has pagination"
     it_behaves_like "it has form_fields"
-    it_behaves_like "it has a custom json method"
   end
     
   describe "Association Tests" do    

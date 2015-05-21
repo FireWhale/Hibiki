@@ -2,7 +2,10 @@ class Issue < ActiveRecord::Base
   attr_accessible :name, :category, :description, 
                   :resolution, :private_info, :status, 
                   :priority, :visibility, :difficulty
-      
+  
+  #Concerns
+    include JsonModule
+  
   #Constants
     Categories = ["Bug Report", "Feature Request", "Code Change"]
     Status = ["Open", "Closed", "Proposed", "Working On"]

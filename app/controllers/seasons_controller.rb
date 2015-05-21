@@ -11,7 +11,7 @@ class SeasonsController < ApplicationController
   end
 
   def show
-    @season = Season.includes(source_seasons: :source).find(params[:id])
+    @season = Season.includes(source_seasons: [source: :translations]).find(params[:id])
 
     @sources = @season.source_seasons.group_by(&:category)
     @sources.each do |k,v|

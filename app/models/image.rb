@@ -4,11 +4,14 @@ class Image < ActiveRecord::Base
                     :width, :height, :thumb_width, :thumb_height,
                     :medium_width, :medium_height,
                     :rating, :llimagelink, :primary_flag
-                    
+
+  #Concerns
+    include JsonModule
+    
   #Callbacks/Hooks
     before_destroy :delete_images
     after_save :create_image_thumbnails
- 
+  
   #Constants
     Rating = ["NWS", "SFW"] 
     PrimaryFlags = ["Cover", "Primary"]

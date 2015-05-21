@@ -1,0 +1,21 @@
+{
+  "type": "object",
+  "required": ["season"],
+  "properties": {
+    "season": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "start_date",
+        "end_date"
+      ],
+      "properties": {
+        "id": { "type": "integer"},
+        "name": { "type": "string"},
+        "start_date": { "type": "string", "format": "date" },
+        "end_date": { "type": "string", "format": "date" }
+      }
+    }
+  }
+}

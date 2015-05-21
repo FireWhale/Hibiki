@@ -103,6 +103,7 @@ Hibiki::Application.routes.draw do
   #Scripts
   get '/update_image', :to => 'images#update_image'
   get '/toggle_albums', :to => 'scripts#toggle_albums'
+  get '/autocomplete', :to => 'scripts#autocomplete'
   
   #for password resets
   get '/forgotten_password', :to => 'pages#forgotten_password'

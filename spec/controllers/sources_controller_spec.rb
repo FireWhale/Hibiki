@@ -6,11 +6,7 @@ describe SourcesController do
     activate_authlogic
   end
   
-  context 'public access to sources' do    
-    #Ajax
-      include_examples "can autocomplete", true, :search
-      include_examples "can autocomplete", false, :edit
-      
+  context 'public access to sources' do      
     #Shows
       include_examples 'has an index page', true, :internal_name
       include_examples "has a show page", true
@@ -34,10 +30,6 @@ describe SourcesController do
       @user = create(:user)
       UserSession.create(@user)
     end
-    
-    #Ajax
-      include_examples "can autocomplete", true, :search
-      include_examples "can autocomplete", false, :edit
       
     #Shows
       include_examples 'has an index page', true, :internal_name
@@ -62,10 +54,6 @@ describe SourcesController do
       @user = create(:admin)
       UserSession.create(@user)
     end
-    
-    #Ajax
-      include_examples "can autocomplete", true, :search
-      include_examples "can autocomplete", true, :edit
       
     #Shows
       include_examples 'has an index page', true, :internal_name

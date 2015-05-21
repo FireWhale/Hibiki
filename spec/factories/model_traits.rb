@@ -43,5 +43,9 @@ FactoryGirl.define do
     trait :with_reference do
       reference {{:VGMdb => Faker::Internet.url('vgmdb.net')}}
     end
+    
+    trait :full_attributes do
+      #placeholder
+    end
         
 end

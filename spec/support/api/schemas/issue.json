@@ -1,0 +1,29 @@
+{
+  "type": "object",
+  "required": ["issue"],
+  "properties": {
+    "issue": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "category",
+        "description",
+        "status",
+        "priority",
+        "resolution",
+        "difficulty"
+      ],
+      "properties": {
+        "id": { "type": "integer"},
+        "name": { "type": "string"},
+        "category": { "type": "string"},
+        "description": { "type": "string"},
+        "status": { "type": "string"},
+        "priority": { "type": "string"},
+        "resolution": { "type": "string"},
+        "difficulty": { "type": "string"}
+      }
+    }
+  }
+}

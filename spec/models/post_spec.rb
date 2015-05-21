@@ -6,9 +6,9 @@ describe Post do
   describe "Concern Tests" do
     include_examples "it has tags"
     include_examples "it has images"
+    include_examples "it has a custom json method"
     
     it_behaves_like "it has form_fields"
-    it_behaves_like "it has a custom json method"
   end
     
   #Association Test

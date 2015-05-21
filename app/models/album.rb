@@ -13,8 +13,8 @@ class Album < ActiveRecord::Base
   #Modules
     include FullUpdateModule
     include SolrSearchModule
-    include AutocompleteModule
     include LanguageModule
+    include JsonModule
     #Association Modules
       include SelfRelationModule
       include ImageModule
@@ -64,12 +64,14 @@ class Album < ActiveRecord::Base
                                   artists: [:new_artist_names, :new_artist_categories_scraped]},
                         relations_by_id: {organization: [:new_organization_ids, :new_organization_categories, :update_album_organizations, :remove_album_organizations, AlbumOrganization, "album_organizations"]},
                         self_relations: [:new_related_album_ids, :new_related_album_categories, :update_related_albums, :remove_related_albums],
-                        images: ["album", "albumart/", "Cover"], 
+                        images: ["album", "albumart/", "Cover"],
+                        languages: [:name, :info],
                         dates: ["release_date"]}
                         
     FormFields = [{type: "markup", tag_name: "div class='col-md-6'"},
                   {type: "text", attribute: :internal_name, label: "Internal Name:"},
                   {type: "text", attribute: :synonyms, label: "Synonyms:"},
+                  {type: "language_fields", attribute: :name},
                   {type: "text", attribute: :catalog_number, label: "Catalog Number:"}, 
                   {type: "date", attribute: :release_date, label: "Release Date:"}, 
                   {type: "select", attribute: :status, label: "Status:", categories: Album::Status},

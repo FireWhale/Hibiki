@@ -1,0 +1,15 @@
+{
+  "type": "object",
+  "required": ["user_session"],
+  "properties": {
+    "user_session": {
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": { "type": "integer"}
+      }
+    }
+  }
+}

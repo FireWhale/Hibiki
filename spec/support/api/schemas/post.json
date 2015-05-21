@@ -1,0 +1,23 @@
+{
+  "type": "object",
+  "required": ["post"],
+  "properties": {
+    "post": {
+      "type": "object",
+      "required": [
+        "id",
+        "title",
+        "content",
+        "category",
+        "timestamp"
+      ],
+      "properties": {
+        "id": { "type": "integer"},
+        "title": { "type": "string"},
+        "content": { "type": "string"},
+        "category": { "type": "string"},
+        "timestamp": { "type": "string", "format": "date" }
+      }
+    }
+  }
+}

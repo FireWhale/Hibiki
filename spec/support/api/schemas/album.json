@@ -1,0 +1,29 @@
+{
+  "type": "object",
+  "required": ["album"],
+  "properties": {
+    "album": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "name_translations",
+        "internal_name",
+        "synonyms",
+		"info",
+		"catalog_number",
+        "release_date"
+      ],
+      "properties": {
+        "id": { "type": "integer"},
+        "name": { "type": "string"},
+        "name_translations": { "type": "object"},
+        "internal_name": { "type": "string"},
+        "synonyms": { "type": "string"},
+        "info": { "type": "string"},
+        "catalog_number": { "type": "string"},
+        "release_date": { "type": "string", "format": "date" }
+      }
+    }
+  }
+}
