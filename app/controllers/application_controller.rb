@@ -26,7 +26,7 @@ class ApplicationController < ActionController::Base
     if record.respond_to?("read_#{field}")
       value = record.send("read_#{field}", current_user)[(opts[:priority] ? opts[:priority] : 0)]
     else
-      value = record.name
+      value = record.send(field)
     end
     if opts[:highlight] == false || current_user.nil? || [Album, Organization, Source, Album].include?(record.class) == false
       value #Do not highlight
