@@ -113,7 +113,7 @@ module FullUpdateModule
         namehash.delete_if { |key,value| value.empty?}
         values[:namehash] = namehash
       end
-    #Language Records - Namehashes and lyrics
+    #Language Records - name_translations, info and lyrics
       unless fields[:languages].nil?
         fields[:languages].each do |field|
           locale_values = values.delete "#{field}_langs".to_sym #Old Values
@@ -369,12 +369,6 @@ module FullUpdateModule
     end
   end  
 
-  def add_language_records(model, languages, texts, text_field)
-    languages.zip(texts).each do |info|
-      language_record = self.send("#{model}s").create(language: info[0], text_field.to_sym => info[1])
-    end
-  end
-
   def add_songs(songs)
     unless songs[:track_numbers].nil? || songs[:names].nil?
       #Fill in the values that are not required
@@ -447,13 +441,6 @@ module FullUpdateModule
         bitmask = Artist.get_bitmask(v)
         bitmask == 0 ? record.destroy : "Artist#{model.capitalize}".constantize.update(record.id, category: bitmask)
       end
-    end
-  end
-  
-  def update_language_record(records, model)
-    records.each do |k,v|
-      record = model.find_by_id(k.to_s)
-      record.update_attributes(v) unless record.nil?
     end
   end
   

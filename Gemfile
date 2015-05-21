@@ -29,7 +29,7 @@ group :development, :test do
   gem 'bullet', platforms: [:mingw, :mswin] #Raises notices unoptimized queries
   gem 'puma', '2.6.0'
   gem 'sunspot_solr' #pre packaged solr distribution
-  gem 'progress_bar', platforms: [:mingw, :mswin] #reporting progress on sunspot:solr
+  gem 'progress_bar'
   gem 'rspec-rails'
   gem 'factory_girl_rails'
   gem 'uglifier', '>= 1.0.3'

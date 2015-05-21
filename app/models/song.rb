@@ -145,7 +145,7 @@ class Song < ActiveRecord::Base
     @name_hash = self.namehash
     unless @name_hash.blank?
       #Compare entries in the namehash to remove duplicates
-      unless @name_hash[:English].nil? && @name_hash[:Japanese].nil?
+      unless @name_hash[:English].blank? && @name_hash[:Japanese].blank?
         if @name_hash[:English] == @name_hash[:Japanese]
           if @name_hash[:Japanese].contains_japanese?
             @name_hash[:English] = nil
