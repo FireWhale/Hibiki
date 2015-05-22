@@ -124,7 +124,7 @@ class AlbumsController < ApplicationController
     @album = Album.find(params[:id])
     @post = Post.where(category: "Rescrape Result").last
     if @post.content.length > 10000
-      @post = Post.new(:content => "Rescrape tracker. Replaces Post ##{post.id} on #{Date.today.to_s}\n",
+      @post = Post.new(:content => "Rescrape tracker. Replaces Post ##{@post.id} on #{Date.today.to_s}\n",
                       :visibility => "Scraper", :category => "Rescrape Result", :status => "Released")
       @post.save
     end
