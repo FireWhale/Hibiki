@@ -22,7 +22,7 @@ Hibiki::Application.routes.draw do
       get 'edit_tracklist'
       patch 'update_tracklist'
       get 'tracklist_export'
-      post 'rescrape', action: 'rescrape'
+      match 'rescrape', action: 'rescrape', via: [:get, :post]
     end
   end
   resources :sources do

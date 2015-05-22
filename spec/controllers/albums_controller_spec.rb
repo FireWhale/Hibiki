@@ -117,6 +117,19 @@ describe AlbumsController do
           expect(response.status).to eq(204) #204 No Content -> ajax success event          
         end
         
+        it "sends a sidekiq request with get" do
+          album = create(:album, :with_reference)
+          post = create(:post, category: "Rescrape Result", content: "hi")
+          expect{get :rescrape, id: album.id}.to change(ScrapeWorker.jobs, :size).by(1)
+        end
+        
+        it "responds to a get request" do
+          album = create(:album, :with_reference)
+          post = create(:post, category: "Rescrape Result", content: "hi")
+          get :rescrape, id: album.id
+          expect(response).to redirect_to album_path(assigns[:album])          
+        end
+        
       else        
         it "does not send off a sidekiq requset" do
           album = create(:album, :with_reference)

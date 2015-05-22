@@ -8,7 +8,7 @@
     <h4>
       <% unless language_helper(record,:name, priority: 1) == language_helper(record,:name) %>
         <%= language_helper(record,:name, highlight: false, priority: 1) %>
-        <% unless language_helper(record,:name, highlight: false, priority: 2).nil? %>
+        <% unless language_helper(record,:name, highlight: false, priority: 2).nil? ||  language_helper(record,:name, priority: 2) == language_helper(record,:name, priority: 1) ||  language_helper(record,:name, priority: 2) ==  language_helper(record,:name)%>
           / <%= language_helper(record,:name, highlight: false, priority: 2) %>
         <% end %>
       <% end %>

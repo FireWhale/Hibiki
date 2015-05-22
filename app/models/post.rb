@@ -27,6 +27,7 @@ class Post < ActiveRecord::Base
                   {type: "select", attribute: :category, label: "Category:", categories: Post::Categories},
                   {type: "select", attribute: :visibility, label: "Visibility:", categories: Ability::Abilities},
                   {type: "select", attribute: :status, label: "Status:", categories: Post::Status},
+                  {type: "tags", div_class: "well", title: "Tags"},
                   {type: "images"}, {type: "text_area", attribute: :content, rows: 20, label: "Info:"},{type: "markup", tag_name: "/div"},
                   {type: "markup", tag_name: "div class='col-md-2'"},{type: "markup", tag_name: "/div"},{type: "markup", tag_name: "/div"}]
     

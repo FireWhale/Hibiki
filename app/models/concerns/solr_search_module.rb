@@ -6,14 +6,13 @@ module SolrSearchModule
       search_boost = if self.name == "Song"
                        0
                      elsif self.name == "Album"
-                       3
+                       2
                      else
-                       5
+                       4
                      end
-      search_boost = (self.name == "Song") ? 0 : 5
       #These fields are for autocompletion
       text :autocomplete_search, boost: search_boost, as: :autocomplete_textp do
-        read_name.uniq
+        (read_name + [synonyms]).uniq
       end
       text :autocomplete_edit, boost: search_boost + 5, as: :autocomplete_texte do
         #only use name_translations when editing - cuts down on erroneous artists.
