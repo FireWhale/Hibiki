@@ -44,7 +44,7 @@ class MaintenanceController < ApplicationController
         @post = Post.create(category: "Scrape Result", status: "Released", visibility: "Scraper", content: postmessage)
         ScrapeWorker.perform_async(scrapehash,@post.id)      
       end
-                      
+
       respond_to do |format|
         unless @post.nil?
           format.html { redirect_to(maintenance_scrape_results_path(:post_id => @post.id)) }
@@ -66,18 +66,20 @@ class MaintenanceController < ApplicationController
       
       album_ids = []
       @failedurls = []
+      @duplicate_albums = []
       unless @post.nil? || @post.content.nil?
         @post.content.force_encoding("UTF-8")
         @post.content.scan(/\[FAILED\]\[[a-z0-9\.:\/]+\]\[\d{1,5}\]/).each do |each|
-          @album = Album.find_by_id(each.split("][")[2].chomp("]"))
-          @failedurls << [each.split("][")[1], @album ] unless @album.nil?
+          album = Album.find_by_id(each.split("][")[2].chomp("]"))
+          @duplicate_albums << [each.split("][")[1], album ] unless album.nil?
+          @failed_urls << each.split("][")[1] if album.nil? 
         end
         @post.content.scan(/\[PASSED\]\[\d{1,5}\]/).each do |each|
           album_ids << each[9..-1].chomp("]")
         end        
       end
       @albums = Album.find(album_ids)
-      @count = @failedurls.count + @albums.count
+      @count = @failedurls.count + @albums.count + @duplicate_albums.count
       
       respond_to do |format|
         format.html

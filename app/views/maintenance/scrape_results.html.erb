@@ -15,8 +15,13 @@
   <div class='col-md-6'>
     <div>
       <h4>Failed URLS</h4>
-      <% if @failedurls.nil? == false%>
-        <% @failedurls.each do |url| %>
+      <% unless @failed_urls.blank? %>
+        <%= failed_urls.each do |url| %>
+          <div><%= link_to url[0], url[0] %></div>
+        <% end %>
+      <% end %>
+      <% if @duplicate_albums.nil? == false%>
+        <% @duplicate_albums.each do |url| %>
           <% if url[1].reference.nil? == false%>
             <div><%= link_to url[0], url[0] %>: <%= link_to url[1].reference.first[1], url[1] %> <% if url[1].reference.first[1] == url[0] %><%= image_tag('/assets/tick.png') %><% else %> <%= image_tag('/assets/cross.png') %><% end %></div>
           <% end %>

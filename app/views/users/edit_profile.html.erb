@@ -6,8 +6,6 @@
   </div>
 <% end %>
 
-<p id="notice"><%= notice %></p>
-
 <% if current_user == @user %>
 
 <%= render_form(@user, fields: User::EditProfileFields, url: update_profile_user_path(@user), no_submit_tag: true) %>

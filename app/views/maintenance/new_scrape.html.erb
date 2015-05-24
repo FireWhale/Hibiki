@@ -11,8 +11,8 @@
       <div class="well">
         <h4 class="text-center">VGMDB links</h4>
         <%= fields_for :vgmdb_albums do |f| %>
-        <%= f.label :text, 'Album Link List:'%>
-        <%= f.text_area :text, :class => 'col-md-12', :rows => '7' %>
+          <%= f.label :text, 'Album Link List:'%>
+          <%= f.text_area :text, :class => 'col-md-12', :rows => '7' %>
         <% end %></br><br>
         <%= fields_for :vgmdb_artists do |f| %>
           <%= f.label '', 'Artist/Source Link:'%>
