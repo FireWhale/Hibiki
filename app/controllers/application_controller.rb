@@ -7,9 +7,15 @@ class ApplicationController < ActionController::Base
   
   rescue_from CanCan::AccessDenied do |exception|
     respond_to do |format|
-      format.html { render "pages/access_denied" }
-      format.json { head :forbidden }
-      format.js {head :forbidden }
+      if current_user.status == "Deactivated"
+        format.html { render "pages/deactivated" }
+        format.json { head :forbidden }
+        format.js {head :forbidden }        
+      else
+        format.html { render "pages/access_denied" }
+        format.json { head :forbidden }
+        format.js {head :forbidden }
+      end
     end
   end
   

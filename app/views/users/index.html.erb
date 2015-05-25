@@ -10,7 +10,7 @@
     <th>Name</th>
     <th>Email</th>
     <th>Privacy</th>
-    <th>Security</th>
+    <th>Abilities</th>
     <th></th>
     <th></th>
     <th></th>
@@ -18,15 +18,13 @@
 
 <% @users.each do |user| %>
   <tr>
-    <td><%= user.name %></td>
+    <td><%= link_to user.name, overview_user_path(user) %><br><b><%= user.status %></b></td>
     <td><%= user.email %></td>
-    <td><%= user.privacy %></td>
-    <td><%= user.security %></td>
-    <td><%= link_to 'Show', user %></td>
-    <% if can? :update, user %>
-    <td><%= link_to 'Edit', edit_user_path(user) %></td>
-    <% end %>
-    <td><%= link_to 'Destroy', user, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+    <td><%= user.privacy_settings.join(",") %></td>
+    <td><%= user.abilities.join(",") %></td>
+    <td><%= user.language_settings %></td>
+    <td><%= user.updated_at.strftime("%B %d, %Y") %></td>
+    <td><%= link_to 'Edit Security', edit_security_user_path(user) %></td>
   </tr>
 <% end %>
 </table>

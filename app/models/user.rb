@@ -2,7 +2,7 @@ class User < ActiveRecord::Base
   attr_accessible :birth_date, :email, :explicit, :location, :name, 
                   :password, :password_confirmation, :privacy, :profile, 
                   :sex, :stylesheet, :usernames, :display_bitmask, 
-                  :language_settings, :security, :artist_language_settings
+                  :language_settings, :security, :artist_language_settings, :status
 
   #Modules
     #Association Modules
@@ -27,6 +27,7 @@ class User < ActiveRecord::Base
     validates :security, presence: true, inclusion: Array(0..(2**Ability::Abilities.count - 1)).map(&:to_s)
     validates :birth_date, presence: true, unless: -> {self.birth_date_bitmask.nil?}
     validates :birth_date_bitmask, presence: true, unless: -> {self.birth_date.nil?}
+    validates :status, inclusion: ["Deactivated", ""], unless: -> {self.status.nil?}
 
   #Authetication and Security    
     acts_as_authentic do |c|
@@ -82,8 +83,12 @@ class User < ActiveRecord::Base
     end
     
     def abilities
-      abilities = Ability::Abilities
-      abilities.reject { |r| ((self.security.to_i || 0 ) & 2**abilities.index(r)).zero? } + ['Any']
+      if self.status == "Deactivated"
+        [] #can't do anything
+      else
+        abilities = Ability::Abilities
+        abilities.reject { |r| ((self.security.to_i || 0 ) & 2**abilities.index(r)).zero? } + ['Any']        
+      end
     end
     
     def privacy_settings
@@ -122,12 +127,14 @@ class User < ActiveRecord::Base
   #Update Method
     def update_security(values)
       values = values.symbolize_keys
+      status = values.delete :status
+      self.update_attributes(:status => status) unless status.nil?
       abilities = values.delete :abilities
       unless abilities.nil?
         self.update_attributes(:security => User.get_security_bitmask(abilities).to_s)
       else
         false
-      end     
+      end
     end
     
     def update_profile(values)

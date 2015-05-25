@@ -16,10 +16,13 @@
       <% end %></ul>
     </div>
   <% end %>
-    <%= f.label :security %>
-    <% (Ability::Abilities - ["Any"]).each do |ability| %>
-      <%= check_box_tag "user[abilities][]", ability, @user.abilities.include?(ability) %> <%= ability %><br>
-    <% end %>    <div class="actions">
+  <%= f.label :security %>
+  <% (Ability::Abilities - ["Any"]).each do |ability| %>
+    <%= check_box_tag "user[abilities][]", ability, @user.abilities.include?(ability) %> <%= ability %><br>
+  <% end %>   
+  <%= f.label :status %>
+  <%= f.select :status, ["Deactivated"], :include_blank => true %> 
+  <div class="actions">
     <%= f.submit %>
   </div>
 <% end %>

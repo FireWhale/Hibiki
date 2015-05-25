@@ -120,14 +120,14 @@ class UsersController < ApplicationController
     @user = User.find(params[:id])
     
     #Get albums
-      collected_albums = Album.in_collection(@user.id, "Collected")
-      ignored_albums = Album.in_collection(@user.id, "Ignored")
-      wishlisted_albums = Album.in_collection(@user.id, "Wishlisted")
+      collected_albums = Album.in_collection(@user.id, "Collected").includes(:primary_images, :tags, :translations)
+      ignored_albums = Album.in_collection(@user.id, "Ignored").includes(:primary_images, :tags, :translations)
+      wishlisted_albums = Album.in_collection(@user.id, "Wishlisted").includes(:primary_images, :tags, :translations)
     
     #get songs
-      collected_songs = Song.in_collection(@user.id, "Collected")
-      ignored_songs = Song.in_collection(@user.id, "Ignored")
-      wishlisted_songs = Song.in_collection(@user.id, "Wishlisted")
+      collected_songs = Song.in_collection(@user.id, "Collected").includes(:primary_images, :tags, :translations)
+      ignored_songs = Song.in_collection(@user.id, "Ignored").includes(:primary_images, :tags, :translations)
+      wishlisted_songs = Song.in_collection(@user.id, "Wishlisted").includes(:primary_images, :tags, :translations)
       
     #combine the two and sort by release date
       @collected = (collected_albums + collected_songs).sort_by {|a| a.release_date ? a.release_date : Date.new }.reverse!

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150512225910) do
+ActiveRecord::Schema.define(version: 20150525035414) do
 
   create_table "album_events", force: :cascade do |t|
     t.integer  "album_id",   limit: 4
@@ -131,7 +131,7 @@ ActiveRecord::Schema.define(version: 20150512225910) do
   add_index "artist_translations", ["locale"], name: "index_artist_translations_on_locale", using: :btree
 
   create_table "artists", force: :cascade do |t|
-    t.string   "internal_name",      limit: 255
+    t.string   "internal_name",      limit: 255,   null: false
     t.string   "synonyms",           limit: 255
     t.string   "status",             limit: 255
     t.string   "db_status",          limit: 255
@@ -284,7 +284,7 @@ ActiveRecord::Schema.define(version: 20150512225910) do
   add_index "organization_translations", ["organization_id"], name: "index_organization_translations_on_organization_id", using: :btree
 
   create_table "organizations", force: :cascade do |t|
-    t.string   "internal_name",       limit: 255
+    t.string   "internal_name",       limit: 255,   null: false
     t.string   "synonyms",            limit: 255
     t.string   "status",              limit: 255
     t.string   "db_status",           limit: 255
@@ -499,7 +499,7 @@ ActiveRecord::Schema.define(version: 20150512225910) do
   add_index "source_translations", ["source_id"], name: "index_source_translations_on_source_id", using: :btree
 
   create_table "sources", force: :cascade do |t|
-    t.string   "internal_name",        limit: 1000
+    t.string   "internal_name",        limit: 1000,  null: false
     t.string   "synonyms",             limit: 255
     t.string   "status",               limit: 255
     t.string   "db_status",            limit: 255
@@ -588,6 +588,7 @@ ActiveRecord::Schema.define(version: 20150512225910) do
     t.integer  "tracklist_export_bitmask", limit: 4
     t.string   "perishable_token",         limit: 255,   default: "", null: false
     t.integer  "birth_date_bitmask",       limit: 4
+    t.string   "status",                   limit: 255
   end
 
   add_index "users", ["created_at"], name: "index_users_on_created_at", using: :btree
