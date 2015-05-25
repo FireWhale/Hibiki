@@ -1,7 +1,9 @@
 function monkeyPatchAutocomplete() {
 		
     $.ui.autocomplete.prototype._renderItem = function( ul, item) {
-        var re = new RegExp(this.term,"i");
+    	console.log(this.term.split("*").join("\*"));
+        var re = new RegExp(this.term.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&"),"i");
+        console.log(re);
         var term = re.exec(item.label) || [this.term];
         var t = item.label.replace(re,"<span style='font-weight:bold;color:Blue;'>" + 
                 term[0] + 

@@ -32,7 +32,7 @@
                       <% unless record.nil? %>
                         <div class="sortable-record">
                           <div>
-                            <%= name_language_helper(record.watched,current_user,0, :no_bold => true) %>
+                            <%= language_helper(record.watched,:name,highlight: false) %>
                             <%= hidden_field_tag "[watchlists][#{g}][records][]", record.id, :id => "ID" + record.id.to_s %>
                           </div>
                         </div> 

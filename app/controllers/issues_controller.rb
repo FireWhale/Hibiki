@@ -5,7 +5,11 @@ class IssuesController < ApplicationController
     @issues = Issue.meets_security(current_user)
     @all_issues = @issues
     @issues = @issues.with_category(params[:category]) unless params[:category].nil?
-    @issues = @issues.with_status(params[:status]) unless params[:status].nil?
+    if params[:status].nil?
+      @issues = @issues.with_status(Issue::Status - ["Closed"])
+    else
+      @issues = @issues.with_status(params[:status])
+    end
     @issues = @issues.page(params[:page])
     
     respond_to do |format|

@@ -4,7 +4,7 @@ class PagesController < ApplicationController
     authorize! :read, Album
     
     @posts = Post.with_category("Blog Post").meets_security(current_user).order(:id => :desc).includes(:tags).first(5)
-    @albums = Album.order("RAND()").limit(25).filter_by_user_settings(current_user).includes(:primary_images, :translations).first(8).shuffle
+    @albums = Album.filter_by_user_settings(current_user).order("RAND()").includes(:primary_images, :translations).first(8).shuffle
     
     respond_to do |format|
       format.html
@@ -64,12 +64,24 @@ class PagesController < ApplicationController
         includes.push(:primary_images)
       end
       search = model.capitalize.constantize.search(:include => includes) do
-        fulltext params[:search] do
-          if model == "album"
-            fields(:internal_name, :synonyms, :namehash, :translated_names, :reference, :catalog_number)          
-          else
-            fields(:internal_name, :synonyms, :namehash, :translated_names, :reference)
-          end
+        any do
+          fulltext params[:search] do
+            if model == "album"
+              fields(:internal_name, :synonyms, :namehash, :translated_names, :reference, :catalog_number)          
+            else
+              fields(:internal_name, :synonyms, :namehash, :translated_names, :reference)
+            end
+          end      
+          if params[:search].include?("*")
+            fulltext "\"#{params[:search]}\"" do
+              if model == "album"
+                fields(:internal_name, :synonyms, :namehash, :translated_names, :reference, :catalog_number)          
+              else
+                fields(:internal_name, :synonyms, :namehash, :translated_names, :reference)
+              end
+            end      
+            
+          end    
         end
         order_by(:release_date) if model == "album"
         paginate :page => params["#{model}_page".to_sym]

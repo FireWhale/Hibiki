@@ -189,7 +189,7 @@ class UsersController < ApplicationController
   end
   
   def edit_watchlist
-    @user = User.includes({watchlists: :watched}).find(params[:id])
+    @user = User.includes({watchlists: {watched: :translations}}).find(params[:id])
     
     @watched = @user.watchlists.group_by(&:grouping_category)    
     @watched.each do |k,v|

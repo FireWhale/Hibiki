@@ -81,10 +81,20 @@ class ScriptsController < ApplicationController
     unless params[:term].blank?
       if params[:model].blank?
         #Use general search - all models
-        search = Sunspot.search Album, Artist, Organization, Source, Song do
-          fulltext params[:term] do
-            #When we include autocomplete_edit, we inherently boost our translated fields
-            fields(:autocomplete_search, :autocomplete_edit)
+        search = Sunspot.search([Album, Artist, Organization, Source, Song]) do
+          [Album, Artist, Organization, Source, Song].each do |model|
+            data_accessor_for(model).include = :translations
+          end
+          any do
+            fulltext params[:term] do
+              #When we include autocomplete_edit, we inherently boost our translated fields
+              fields(:autocomplete_search, :autocomplete_edit)
+            end
+            if params[:term].include?("*")
+              fulltext "\"#{params[:term]}\"" do
+                fields(:autocomplete_search, :autocomplete_edit)                
+              end
+            end
           end
           paginate page: 1, per_page: 10
         end

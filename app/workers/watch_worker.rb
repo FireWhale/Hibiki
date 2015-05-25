@@ -25,22 +25,13 @@ class WatchWorker
       links.each do |link|
         #Search for it using sunspot
         albumresults = Album.search  do
-          fulltext link
-        end
-        if albumresults.results.empty? == false
-          album = albumresults.results.first
-          #Make sure the url matches the reference
-          if album.reference[:VGMdb] != link
-            if album.private_info.starts_with?("UPDATE AVAILABLE:") == false
-              album.private_info = "UPDATE AVAILABLE: " + Time.now.to_s + " - Check Reference \n\n" + album.private_info
-              album.save
-            end
-          else
-            if album.private_info.starts_with?("UPDATE AVAILABLE:") == false
-              album.private_info = "UPDATE AVAILABLE: " + Time.now.to_s + "\n\n" + album.private_info
-              album.save
-            end
+          fulltext link do
+            fields(:reference)
           end
+        end
+        unless albumresults.results.empty?
+          album = albumresults.results.first
+          album.tags << Tag.find(50) unless album.tags.map(&:id).include?(50) #Tag 50 is the update available tag
         end
       end
   end
