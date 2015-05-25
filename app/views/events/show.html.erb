@@ -22,6 +22,18 @@
           <%= "#{content_tag(:b, 'Dates: ')}#{date_helper(@event, 'start_date')}".html_safe unless @event.start_date.nil?%><%= " to #{date_helper(@event, 'end_date')}" unless @event.end_date.nil? || @event.end_date == @event.start_date%>
         </div>
       </div>
+      
+      <% if can? :edit, @event %>
+        <div id="admin-actions">
+          <div class="panel">
+            <div class="panel-heading">Admin Actions</div>
+            <div class="nav nav-pills nav-stacked">
+              <li><%= link_to 'Edit', eval("edit_" + @event.class.to_s.downcase + "_path(@event)") %></li>
+              <li><%= link_to 'Destroy', @event, method: :delete, data: { confirm: 'Are you sure?' } %></li>
+            </div>
+          </div>
+        </div>
+      <% end %>
     </div>
   </div>
   <div id="information">

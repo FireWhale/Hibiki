@@ -133,7 +133,8 @@ class AlbumsController < ApplicationController
       scrapehash = {}
       scrapehash[:rescrape_vgmdb] = [@album.id]
       
-      ScrapeWorker.perform_async(scrapehash,@post.id)  
+      ScrapeWorker.perform_async(scrapehash,@post.id)
+      @album.taglists.where(:tag_id => 50).first.destroy unless @album.taglists.where(:tag_id => 50).blank?
     end 
     
     respond_to do |format|
