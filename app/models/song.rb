@@ -67,6 +67,7 @@ class Song < ActiveRecord::Base
                            {type: "markup", tag_name: "div ", add_id: true}, {type: "markup", tag_name: "div class='row'"}, {type: "markup", tag_name: "div class='col-md-4'"}, {type: "markup", tag_name: "br"},
                            {type: "namehash"}, 
                            {type: "language_fields", attribute: :name},
+                           {type: "language_fields", attribute: :lyrics},
                            {type: "markup", tag_name: "/div"}, 
                            {type: "markup", tag_name: "div class='col-md-8'"}, {type: "markup", tag_name: "br"},
                            {type: "artist_relations", no_div: true}, {type: "source_relations", no_div: true},

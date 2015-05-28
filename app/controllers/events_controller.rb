@@ -2,7 +2,7 @@ class EventsController < ApplicationController
   load_and_authorize_resource
     
   def index
-    @events = Event.order(:start_date)
+    @events = Event.includes(:translations).order(:start_date)
   
     respond_to do |format|
       format.html # index.html.erb
@@ -13,7 +13,7 @@ class EventsController < ApplicationController
   def show
     @event = Event.find(params[:id])
 
-    @albums = @event.albums.includes(:primary_images, :tags).filter_by_user_settings(current_user).order('release_date DESC').page(params[:album_page])
+    @albums = @event.albums.includes(:primary_images, :tags, :translations).filter_by_user_settings(current_user).order('release_date DESC').page(params[:album_page])
     
     respond_to do |format|
       format.js

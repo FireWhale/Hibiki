@@ -210,7 +210,7 @@ module FullUpdateModule
       #Events/Season
         #Events - Albums only
           unless fields[:events].nil?
-            new_events = values.delete :new_event_shorthands #Adding
+            new_events = values.delete :new_event_names #Adding
             self.add_events(new_events) unless new_events.nil?
             remove_events = values.delete :remove_events  #Removing
             remove_events.each {|event_id| self.events.delete(Event.find_by_id(event_id))} unless remove_events.nil?
@@ -355,9 +355,9 @@ module FullUpdateModule
   end
 
   def add_events(events)
-    events.each do |shorthand|
-      event = Event.find_by_shorthand(shorthand) 
-      event = Event.create(shorthand: shorthand) if event.nil? #create a new event if not present
+    events.each do |internal_name|
+      event = Event.find_by_internal_name(internal_name) 
+      event = Event.create(internal_name: internal_name) if event.nil? #create a new event if not present
       self.events << event
     end
   end

@@ -12,14 +12,19 @@
         <div class="event">
           <%= link_to(event) do %>
             <div class="name">
-              <h4><%= event.name_helper("abbreviation", "name", "shorthand", "altname") %></h4>
+              <h4><%= language_helper(event, :name, highlight: false)  %></h4>
             </div>
             <div class="date">
               <%= "#{event.start_date.strftime('%B')} #{event.start_date.day}" unless event.start_date.nil? || event.end_date.nil?%><%= " to #{event.end_date.strftime('%B')} #{event.end_date.day}" unless event.end_date.nil? || event.end_date == event.start_date %>
             </div>
             <div class="albums">
-              <%= "#{event.albums.count} albums" %>
+              <%= pluralize(event.albums.count, 'album') %>
             </div>
+            <% if event.db_status != "Up to Date" && current_user.abilities.include?("Database Manager")%>
+              <div>
+                <strong>Not Up To Date</strong>
+              </div>
+            <% end %>
           <% end %>
         </div>
       <% end %>      

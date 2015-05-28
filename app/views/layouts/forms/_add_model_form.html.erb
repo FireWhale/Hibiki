@@ -31,7 +31,7 @@
 
   <% unless @text_area_field_names.nil? %>
     <%= fields_for @text_area_field_names do |f| %>
-      <%= f.text_area '', rows: 10, :value => @default_value, class: "col-md-12" %>
+      <%= f.text_area '', rows: 2, :value => @default_value, class: "col-md-12" %>
     <% end %>
   <% end %>  
   

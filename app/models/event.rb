@@ -1,6 +1,6 @@
 class Event < ActiveRecord::Base
   #Attributes
-    attr_accessible :name, :abbreviation, :altname, :shorthand, 
+    attr_accessible :internal_name, :name, :abbreviation, :altname, :shorthand, 
                     :info, :db_status, :reference,
                     :start_date, :end_date
                     
@@ -9,21 +9,26 @@ class Event < ActiveRecord::Base
   #Modules
     include FullUpdateModule
     include JsonModule
+    include LanguageModule
     
   #Constants
-    FullUpdateFields = {reference: true}    
+    FullUpdateFields = {reference: true, languages: [:name, :info, :abbreviation]}    
     
     FormFields = [{type: "markup", tag_name: "div class='row'"},{type: "markup", tag_name: "div class='col-md-2'"},{type: "markup", tag_name: "/div"},
                   {type: "markup", tag_name: "div class='col-md-8'"},
-                  {type: "text", attribute: :name, label: "Name:"}, 
-                  {type: "text", attribute: :altname, label: "Alt Name:"},
-                  {type: "text", attribute: :abbreviation, label: "Abbreviation:"},
+                  {type: "text", attribute: :internal_name, label: "Internal Name:"}, 
+                  {type: "text", attribute: :name, label: "Name marked for removal:"}, 
+                  {type: "language_fields", attribute: :name},
+                  {type: "language_fields", attribute: :abbreviation},
+                  {type: "text", attribute: :altname, label: "Alt Name marked for removal:"},
+                  {type: "text", attribute: :abbreviation, label: "Abbreviation marked for removal:"},
                   {type: "text", attribute: :shorthand, label: "Shorthand:"}, 
                   {type: "select", attribute: :db_status, label: "Database Status:", categories: Artist::DatabaseStatus},
                   {type: "date", attribute: :start_date, label: "Start Date:"}, 
                   {type: "date", attribute: :end_date, label: "End Date:"}, 
                   {type: "references"},
-                  {type: "text_area", attribute: :info, rows: 4, label: "Info:"},{type: "markup", tag_name: "/div"},
+                  {type: "language_fields", attribute: :info},
+                  {type: "text_area", attribute: :info, rows: 4, label: "Info marked for removal:"},{type: "markup", tag_name: "/div"},
                   {type: "markup", tag_name: "div class='col-md-2'"},{type: "markup", tag_name: "/div"},{type: "markup", tag_name: "/div"}] 
     
   #Associations
@@ -31,15 +36,18 @@ class Event < ActiveRecord::Base
     has_many :albums, :through => :album_events
 
   #Validations
-    validates :name, presence: true, unless:  ->(event){event.shorthand.present?}
-    validates :shorthand, presence: true, unless:  ->(event){event.name.present?}
+    validates :internal_name, presence: true, uniqueness: true
   
   #Instance Methods
     #Name and shortname muddling
       def name_helper(*choices)
         choices.each do |choice|
-          if self.respond_to?(choice) && self.send("#{choice}?")
-            return self.send(choice)
+          if self.respond_to?(choice) && self.send("#{choice}").blank? == false
+            if choice == "read_abbreviation" || choice == "read_name"
+              return self.send(choice)[0]
+            else
+              return self.send(choice)
+            end
           end
         end
         nil

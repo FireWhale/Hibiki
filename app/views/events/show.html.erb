@@ -1,8 +1,12 @@
-<% content_for :title do %><%= @event.name_helper("name", "abbreviation", "altname", "shorthand") %><% end %>
+<% content_for :title do %><%= language_helper(@event, :name)  %><% end %>
 
 <% content_for :header do %>
   <div class="text-center">
-    <h2><%= @event.name_helper("name", "abbreviation", "altname", "shorthand") %></h1>
+    <h2><%= language_helper(@event, :name)  %></h2>
+    <h4><%= language_helper(@event, :abbreviation) %><% unless language_helper(@event,:name, priority: 1) == language_helper(@event,:name) || language_helper(@event,:name, priority: 1) == language_helper(@event, :abbreviation) %>
+        <%= language_helper(@event,:name, priority: 1) %>
+      <% end %>
+    </h4>
   </div>
 <% end %>
 
@@ -37,10 +41,10 @@
     </div>
   </div>
   <div id="information">
-    <% unless @event.info.nil? || @event.info.empty? %>
+    <% unless language_helper(@event,:info, highlight: false).blank? %>
       <div id="info" class="info">
         <h3>Information</h3>
-        <%= simple_format(@event.info) %>
+        <%= simple_format(language_helper(@event,:info, highlight: false)) %>
       </div>
     <% end %>
     

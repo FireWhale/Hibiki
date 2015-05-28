@@ -8,6 +8,7 @@ module LanguageModule
     translates :name
     translates :info
     translates :lyrics if self.name == "Song"
+    translates :abbreviation if self.name == "Event"
   end
   
   
@@ -29,7 +30,7 @@ module LanguageModule
     name_translations.each { |k,v| name_array << v } #add remaining name_translations
     
     #Add namehash to array
-    self.namehash.each {|k,v| name_array << v} unless self.namehash.nil?
+    self.namehash.each {|k,v| name_array << v} unless self.respond_to?(:namehash) == false || self.namehash.nil?
     
     #Add internal_name to array
     name_array << self.internal_name
@@ -86,6 +87,21 @@ module LanguageModule
     
     #return lyric array
     lyrics_array
+  end
+  
+  def read_abbreviation(user = nil)
+    abbreviation_array = []
+    priority_languages = get_languages(self,user)
+    
+    abbreviation_translations = self.abbreviation_translations
+    priority_languages.split(",").each do |lang|
+      abbreviation_array << abbreviation_translations.delete("hibiki_#{lang[0..1]}")
+    end
+    abbreviation_translations.each { |k,v| abbreviation_array << v } #add remaining abbreviation_translations
+    
+    abbreviation_array.reject! { |a| a.blank? }
+    
+    abbreviation_array    
   end
   
   private 

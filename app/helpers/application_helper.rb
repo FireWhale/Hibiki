@@ -117,7 +117,7 @@ module ApplicationHelper
         if record.class == Song
           link_to language_helper(record,:name), url_for(record.album)
         elsif record.class == Event
-          link_to record.name_helper("shorthand", "abbreviation", "name"), url_for(record)
+          link_to record.name_helper("shorthand", "read_abbreviation", "read_name"), url_for(record)
         else
           link_to language_helper(record,:name), url_for(record)
         end }.join(', ').html_safe).concat(tag(:br)).html_safe

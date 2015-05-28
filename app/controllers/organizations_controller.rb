@@ -11,10 +11,10 @@ class OrganizationsController < ApplicationController
   end
 
   def show
-    @organization = Organization.includes(:watchlists, :translations, [artists: [:translations, :watchlists]], :sources, :images, :albums => [:primary_images, :translations, :tags]).find(params[:id])
+    @organization = Organization.includes(:watchlists, :translations, [artists: [:translations, :watchlists]], :sources, :images).find(params[:id])
     self_relation_helper(@organization,@related = {}) #Prepare @related (self_relations)
 
-    @albums = @organization.albums.filter_by_user_settings(current_user).order('release_date DESC').page(params[:album_page])
+    @albums = @organization.albums.includes(:primary_images, :tags, :translations).filter_by_user_settings(current_user).order('release_date DESC').page(params[:album_page])
 
     respond_to do |format|
       format.js

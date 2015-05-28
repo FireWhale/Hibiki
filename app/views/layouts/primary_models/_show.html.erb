@@ -91,10 +91,10 @@
   </div>
   
   <div id="information">
-    <% unless record.info.nil? || record.info.empty? %>
+    <% unless language_helper(record,:info, highlight: false).blank? %>
       <div id="info" class="info">
         <h3><%= record.class == Artist ? "Profile" : "Information" %></h3>
-        <%= simple_format(record.info) %>
+        <%= simple_format(language_helper(record,:info, highlight: false)) %>
       </div>
     <% end %>
     

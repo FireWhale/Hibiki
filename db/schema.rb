@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150525035414) do
+ActiveRecord::Schema.define(version: 20150527055702) do
 
   create_table "album_events", force: :cascade do |t|
     t.integer  "album_id",   limit: 4
@@ -183,18 +183,32 @@ ActiveRecord::Schema.define(version: 20150525035414) do
   add_index "collections", ["relationship"], name: "index_collections_on_relationship", using: :btree
   add_index "collections", ["user_id"], name: "index_collections_on_user_id", using: :btree
 
-  create_table "events", force: :cascade do |t|
-    t.string   "name",         limit: 255
-    t.date     "start_date"
-    t.date     "end_date"
-    t.string   "abbreviation", limit: 255
-    t.text     "reference",    limit: 255
-    t.text     "info",         limit: 65535
-    t.string   "db_status",    limit: 255
-    t.string   "altname",      limit: 255
-    t.string   "shorthand",    limit: 255
+  create_table "event_translations", force: :cascade do |t|
+    t.integer  "event_id",     limit: 4,     null: false
+    t.string   "locale",       limit: 255,   null: false
     t.datetime "created_at",                 null: false
     t.datetime "updated_at",                 null: false
+    t.string   "name",         limit: 255
+    t.string   "abbreviation", limit: 255
+    t.text     "info",         limit: 65535
+  end
+
+  add_index "event_translations", ["event_id"], name: "index_event_translations_on_event_id", using: :btree
+  add_index "event_translations", ["locale"], name: "index_event_translations_on_locale", using: :btree
+
+  create_table "events", force: :cascade do |t|
+    t.string   "name",          limit: 255
+    t.date     "start_date"
+    t.date     "end_date"
+    t.string   "abbreviation",  limit: 255
+    t.text     "reference",     limit: 255
+    t.text     "info",          limit: 65535
+    t.string   "db_status",     limit: 255
+    t.string   "altname",       limit: 255
+    t.string   "shorthand",     limit: 255
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+    t.string   "internal_name", limit: 255
   end
 
   add_index "events", ["abbreviation"], name: "index_events_on_abbreviation", using: :btree
