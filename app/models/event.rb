@@ -17,18 +17,14 @@ class Event < ActiveRecord::Base
     FormFields = [{type: "markup", tag_name: "div class='row'"},{type: "markup", tag_name: "div class='col-md-2'"},{type: "markup", tag_name: "/div"},
                   {type: "markup", tag_name: "div class='col-md-8'"},
                   {type: "text", attribute: :internal_name, label: "Internal Name:"}, 
-                  {type: "text", attribute: :name, label: "Name marked for removal:"}, 
                   {type: "language_fields", attribute: :name},
                   {type: "language_fields", attribute: :abbreviation},
-                  {type: "text", attribute: :altname, label: "Alt Name marked for removal:"},
-                  {type: "text", attribute: :abbreviation, label: "Abbreviation marked for removal:"},
                   {type: "text", attribute: :shorthand, label: "Shorthand:"}, 
                   {type: "select", attribute: :db_status, label: "Database Status:", categories: Artist::DatabaseStatus},
                   {type: "date", attribute: :start_date, label: "Start Date:"}, 
                   {type: "date", attribute: :end_date, label: "End Date:"}, 
                   {type: "references"},
-                  {type: "language_fields", attribute: :info},
-                  {type: "text_area", attribute: :info, rows: 4, label: "Info marked for removal:"},{type: "markup", tag_name: "/div"},
+                  {type: "language_fields", attribute: :info},{type: "markup", tag_name: "/div"},
                   {type: "markup", tag_name: "div class='col-md-2'"},{type: "markup", tag_name: "/div"},{type: "markup", tag_name: "/div"}] 
     
   #Associations

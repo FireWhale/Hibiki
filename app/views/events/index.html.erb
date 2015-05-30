@@ -8,7 +8,7 @@
   <% @events.group_by {|e| e.start_date.nil? ? 0 : e.start_date.year}.sort.reverse.each do |year| %>
     <div class="year">
       <h2><%= year[0] == 0 ? "No Year" : year[0] %></h2>
-      <% year[1].each do |event|%>
+      <% year[1].sort_by(&:start_date).reverse.each do |event|%>
         <div class="event">
           <%= link_to(event) do %>
             <div class="name">
@@ -20,11 +20,6 @@
             <div class="albums">
               <%= pluralize(event.albums.count, 'album') %>
             </div>
-            <% if event.db_status != "Up to Date" && current_user.abilities.include?("Database Manager")%>
-              <div>
-                <strong>Not Up To Date</strong>
-              </div>
-            <% end %>
           <% end %>
         </div>
       <% end %>      

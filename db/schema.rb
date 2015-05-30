@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150527055702) do
+ActiveRecord::Schema.define(version: 20150529022014) do
 
   create_table "album_events", force: :cascade do |t|
     t.integer  "album_id",   limit: 4
@@ -197,24 +197,19 @@ ActiveRecord::Schema.define(version: 20150527055702) do
   add_index "event_translations", ["locale"], name: "index_event_translations_on_locale", using: :btree
 
   create_table "events", force: :cascade do |t|
-    t.string   "name",          limit: 255
     t.date     "start_date"
     t.date     "end_date"
-    t.string   "abbreviation",  limit: 255
     t.text     "reference",     limit: 255
-    t.text     "info",          limit: 65535
     t.string   "db_status",     limit: 255
-    t.string   "altname",       limit: 255
     t.string   "shorthand",     limit: 255
-    t.datetime "created_at",                  null: false
-    t.datetime "updated_at",                  null: false
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
     t.string   "internal_name", limit: 255
   end
 
-  add_index "events", ["abbreviation"], name: "index_events_on_abbreviation", using: :btree
-  add_index "events", ["altname"], name: "index_events_on_altname", using: :btree
   add_index "events", ["db_status"], name: "index_events_on_db_status", using: :btree
   add_index "events", ["end_date"], name: "index_events_on_end_date", using: :btree
+  add_index "events", ["internal_name"], name: "index_events_on_internal_name", using: :btree
   add_index "events", ["shorthand"], name: "index_events_on_shorthand", using: :btree
   add_index "events", ["start_date"], name: "index_events_on_start_date", using: :btree
 

@@ -18,9 +18,6 @@
       <div class="panel">
         <div class="panel-heading">Information</div>
         <div class="panel-body info-list">
-          <%= attribute_display(@event, 'name', "Name") %>
-          <%= attribute_display(@event, 'altname', 'Kanji')%>
-          <%= attribute_display(@event, 'abbreviation', 'Abbreviation')%>
           <%= attribute_display(@event, 'shorthand', 'Shorthand')%>
           <%= reference_helper(@event) %>
           <%= "#{content_tag(:b, 'Dates: ')}#{date_helper(@event, 'start_date')}".html_safe unless @event.start_date.nil?%><%= " to #{date_helper(@event, 'end_date')}" unless @event.end_date.nil? || @event.end_date == @event.start_date%>
