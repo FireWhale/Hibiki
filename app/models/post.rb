@@ -1,7 +1,7 @@
 class Post < ActiveRecord::Base
   #Attributes
     attr_accessible :title, :content,
-                    :category, :timestampe, :visibility, :status
+                    :category, :timestamp, :visibility, :status
                     
   #Modules
     include FullUpdateModule
@@ -12,6 +12,7 @@ class Post < ActiveRecord::Base
 
   #Callbacks/Hooks
     before_save :parse_content
+    after_create :save_timestamps
   
   #Constants
     Categories = ["Scrape Result", "Rescrape Result", 
@@ -87,6 +88,10 @@ class Post < ActiveRecord::Base
     def add_tags(record) #auto adds tags according to record's tags
       valid_tags = record.tags.select { |tag| tag.models.include?("Post") }
       self.tags << valid_tags
+    end
+    
+    def save_timestamps
+      self.update_attributes(:timestamp => DateTime.now) if self.category == "Blog Post"
     end
 
 end
