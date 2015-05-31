@@ -1,29 +1,30 @@
 class Tag < ActiveRecord::Base
-  attr_accessible :name, :info, :synopsis, 
+  attr_accessible :internal_name, :info, :synopsis, 
                   :classification, :model_bitmask, :visibility
   
   #Modules
     include FullUpdateModule
+    include LanguageModule
     include JsonModule
   
   #Constants
     ModelBitmask = %w[Album Artist Organization Song Source Post]
-    FullUpdateFields = {tag_models: :models}
+    FullUpdateFields = {tag_models: :models, languages: [:name, :info]}
 
     FormFields = [{type: "markup", tag_name: "div class='row'"},{type: "markup", tag_name: "div class='col-md-2'"},{type: "markup", tag_name: "/div"},
                   {type: "markup", tag_name: "div class='col-md-8'"},
-                  {type: "text", attribute: :name, label: "Name:", field_class: "input-xlarge"},
+                  {type: "text", attribute: :internal_name, label: "Internal Name:", field_class: "input-xlarge"},
+                  {type: "language_fields", attribute: :name},
                   {type: "text", attribute: :classification, label: "Classification:", field_class: "input-xlarge"},
                   {type: "select", attribute: :visibility, label: "Visibility:", categories: Ability::Abilities},
-                  {type: "text_area", attribute: :synopsis, rows: 3, label: "Synopsis"},
-                  {type: "text_area", attribute: :info, rows: 3, label: "Information:"},
+                  {type: "language_fields", attribute: :info},
                   {type: "tag_models"},
                   {type: "markup", tag_name: "/div"},
                   {type: "markup", tag_name: "div class='col-md-2'"},{type: "markup", tag_name: "/div"},{type: "markup", tag_name: "/div"}]
 
   
   #Validation
-    validates :name, presence: true , uniqueness: {scope: :model_bitmask}
+    validates :internal_name, presence: true , uniqueness: {scope: :model_bitmask}
     validates :classification, presence: true
     validates :model_bitmask, presence: true
     validates :visibility, presence: true, inclusion: Ability::Abilities

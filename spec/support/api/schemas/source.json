@@ -11,6 +11,7 @@
         "internal_name",
         "synonyms",
 		"info",
+        "info_translations",
         "release_date",
         "end_date",
         "plot_summary"
@@ -22,6 +23,7 @@
         "internal_name": { "type": "string"},
         "synonyms": { "type": "string"},
         "info": { "type": "string"},
+        "info_translations": { "type": "object"},
         "release_date": { "type": "string", "format": "date" },
         "end_date": { "type": "string", "format": "date" },
         "plot_summary": { "type": "string"}

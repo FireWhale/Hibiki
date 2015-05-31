@@ -54,7 +54,7 @@ module FullUpdateTests
         described_class.full_update([record.id.to_s, record2.id.to_s], [{title: "haha"}, {title: "hoho"}])
         expect(record.reload.title).to eq("haha")
         expect(record2.reload.title).to eq("hoho")
-      elsif [Album, Artist, Source, Song, Organization].include?(described_class)              
+      elsif [Album, Artist, Source, Song, Organization,Event,Tag].include?(described_class)              
         described_class.full_update([record.id.to_s, record2.id.to_s], [{internal_name: "haha"}, {internal_name: "hoho"}])
         expect(record.reload.internal_name).to eq("haha")
         expect(record2.reload.internal_name).to eq("hoho")          
@@ -74,7 +74,7 @@ module FullUpdateTests
       if described_class == Post
         record.full_update_attributes({title: "hihi"})
         expect(record.reload.title).to eq("hihi")
-      elsif [Album, Artist, Song, Source, Organization].include?(described_class)
+      elsif [Album, Artist, Song, Source, Organization, Event, Tag].include?(described_class)
         record.full_update_attributes({internal_name: "hihi"})
         expect(record.reload.internal_name).to eq("hihi")        
       else

@@ -20,8 +20,7 @@ FactoryGirl.define do
     end
     
     factory :event do
-      name {Faker::Lorem.word}
-      shorthand {Faker::Lorem.word}
+      internal_name {Faker::Lorem.sentence}
                  
       trait :with_start_date do
         start_date {Faker::Date.between(5.years.ago, Date.today)}  
@@ -45,19 +44,19 @@ FactoryGirl.define do
       trait :full_attributes do
         start_date {Faker::Date.between(5.years.ago, 2.years.ago)}  
         end_date {Faker::Date.between(1.year.ago, Date.today)} 
-        abbreviation  {Faker::Lorem.word}
-        altname  {Faker::Lorem.word}
-        info {Faker::Lorem.paragraph}
+        info {Faker::Lorem.sentence}
+        name {Faker::Lorem.word}
+        abbreviation {Faker::Lorem::word}
+        shorthand {Faker::Lorem.word}
       end
       
       trait :invalid do
-        name ""
-        shorthand ""
+        internal_name ""
       end
     end
     
     factory :tag do
-      name {Faker::Lorem.sentence}
+      internal_name {Faker::Lorem.sentence}
       classification {Faker::Lorem.words(3)}
       model_bitmask 63
       visibility {Ability::Abilities.sample}
@@ -78,7 +77,7 @@ FactoryGirl.define do
         after(:create) do |tag|
           create(:taglist, :with_organization, tag: tag)
         end        
-      end  
+      end
       
       trait :with_taglist_song do
         after(:create) do |tag|
@@ -100,7 +99,7 @@ FactoryGirl.define do
       
       trait :full_attributes do
         info  {Faker::Lorem.sentence}
-        synopsis  {Faker::Lorem.sentence}
+        name  {Faker::Lorem.sentence}
       end
       
       trait :with_multiple_taglists do

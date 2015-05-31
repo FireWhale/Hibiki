@@ -491,8 +491,8 @@ describe Album do
         it "adds an event" do
           album = create(:album)
           attributes = attributes_for(:album)
-          event = create(:event, shorthand: "shorty")
-          attributes.merge!(:new_event_shorthands => ["shorty"])
+          event = create(:event, internal_name: "shorty")
+          attributes.merge!(:new_event_names => ["shorty"])
           expect{album.full_update_attributes(attributes)}.to change(AlbumEvent, :count).by(1)
           expect(album.events.first).to eq(event)
         end
@@ -500,9 +500,9 @@ describe Album do
         it "creates events that do not exist" do
           album = create(:album)
           attributes = attributes_for(:album)
-          attributes.merge!(:new_event_shorthands => ["shorty"])
+          attributes.merge!(:new_event_names => ["shorty"])
           expect{album.full_update_attributes(attributes)}.to change(Event, :count).by(1)
-          expect(album.events.first.shorthand).to eq("shorty")
+          expect(album.events.first.internal_name).to eq("shorty")
         end
         
         it "deletes an albumevent" do
@@ -535,9 +535,9 @@ describe Album do
         it "adds multiple events" do
           album = create(:album)
           attributes = attributes_for(:album)
-          event = create(:event, shorthand: "shorty")
-          event2 = create(:event, shorthand: "tally")
-          attributes.merge!(:new_event_shorthands => ["shorty", "tally"])
+          event = create(:event, internal_name: "shorty")
+          event2 = create(:event, internal_name: "tally")
+          attributes.merge!(:new_event_names => ["shorty", "tally"])
           expect{album.full_update_attributes(attributes)}.to change(AlbumEvent, :count).by(2)
           expect(album.events).to match_array([event, event2])          
         end
@@ -545,12 +545,12 @@ describe Album do
         it "adds multiple events that may or may not exist" do
           album = create(:album)
           attributes = attributes_for(:album)
-          event = create(:event, shorthand: "shorty")
-          event2 = create(:event, shorthand: "tally")
-          attributes.merge!(:new_event_shorthands => ["shorty", "tally", "holly"])
+          event = create(:event, internal_name: "shorty")
+          event2 = create(:event, internal_name: "tally")
+          attributes.merge!(:new_event_names => ["shorty", "tally", "holly"])
           expect{album.full_update_attributes(attributes)}.to change(AlbumEvent, :count).by(3)
           expect(album.events.count).to eq(3)   
-          expect(Event.find_by_shorthand("holly")).to be_a Event           
+          expect(Event.find_by_internal_name("holly")).to be_a Event           
         end
         
         it "removes multiple events" do

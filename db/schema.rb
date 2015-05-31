@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150529022014) do
+ActiveRecord::Schema.define(version: 20150531024531) do
 
   create_table "album_events", force: :cascade do |t|
     t.integer  "album_id",   limit: 4
@@ -539,6 +539,18 @@ ActiveRecord::Schema.define(version: 20150529022014) do
   add_index "sources", ["status"], name: "index_sources_on_status", using: :btree
   add_index "sources", ["synonyms"], name: "index_sources_on_synonyms", using: :btree
 
+  create_table "tag_translations", force: :cascade do |t|
+    t.integer  "tag_id",     limit: 4,     null: false
+    t.string   "locale",     limit: 255,   null: false
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
+    t.string   "name",       limit: 255
+    t.text     "info",       limit: 65535
+  end
+
+  add_index "tag_translations", ["locale"], name: "index_tag_translations_on_locale", using: :btree
+  add_index "tag_translations", ["tag_id"], name: "index_tag_translations_on_tag_id", using: :btree
+
   create_table "taglists", force: :cascade do |t|
     t.integer  "tag_id",       limit: 4
     t.integer  "subject_id",   limit: 4
@@ -552,18 +564,16 @@ ActiveRecord::Schema.define(version: 20150529022014) do
   add_index "taglists", ["tag_id"], name: "index_taglists_on_tag_id", using: :btree
 
   create_table "tags", force: :cascade do |t|
-    t.string   "name",           limit: 255
+    t.string   "internal_name",  limit: 255
     t.string   "classification", limit: 255
-    t.text     "info",           limit: 65535
-    t.text     "synopsis",       limit: 65535
-    t.datetime "created_at",                   null: false
-    t.datetime "updated_at",                   null: false
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
     t.integer  "model_bitmask",  limit: 4
     t.string   "visibility",     limit: 255
   end
 
-  add_index "tags", ["classification"], name: "index_tags_on_category", using: :btree
-  add_index "tags", ["name"], name: "index_tags_on_name", using: :btree
+  add_index "tags", ["classification"], name: "index_tags_on_classification", using: :btree
+  add_index "tags", ["internal_name"], name: "index_tags_on_internal_name", using: :btree
   add_index "tags", ["visibility"], name: "index_tags_on_visibility", using: :btree
 
   create_table "user_sessions", force: :cascade do |t|

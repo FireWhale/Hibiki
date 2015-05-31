@@ -11,6 +11,7 @@
         "internal_name",
         "synonyms",
 		"info",
+        "info_translations",
         "established"
       ],
       "properties": {
@@ -20,6 +21,7 @@
         "internal_name": { "type": "string"},
         "synonyms": { "type": "string"},
         "info": { "type": "string"},
+        "info_translations": { "type": "object"},
         "established": { "type": "string", "format": "date" }
       }
     }

@@ -7,16 +7,20 @@
       "required": [
         "id",
         "name",
+        "name_translations",
+        "internal_name",
         "classification",
         "info",
-        "synopsis"
+        "info_translations"
       ],
       "properties": {
         "id": { "type": "integer"},
         "name": { "type": "string"},
+        "name_translations": { "type": "object"},
+        "internal_name": { "type": "string"},
         "classification": { "type": "string"},
         "info": { "type": "string"},
-        "synopsis": { "type": "string"}
+        "info_translations": { "type": "object"}
       }
     }
   }

@@ -1,6 +1,6 @@
 class Event < ActiveRecord::Base
   #Attributes
-    attr_accessible :internal_name, :name, :abbreviation, :altname, :shorthand, 
+    attr_accessible :internal_name, :shorthand, 
                     :info, :db_status, :reference,
                     :start_date, :end_date
                     
@@ -8,8 +8,8 @@ class Event < ActiveRecord::Base
   
   #Modules
     include FullUpdateModule
-    include JsonModule
     include LanguageModule
+    include JsonModule
     
   #Constants
     FullUpdateFields = {reference: true, languages: [:name, :info, :abbreviation]}    

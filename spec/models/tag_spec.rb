@@ -4,6 +4,7 @@ describe Tag do
   include_examples "global model tests" #Global Tests
   
   describe "Module Tests" do
+    include_examples "it is a translated model"
     include_examples "it has a custom json method"
     
     it_behaves_like "it has form_fields"
@@ -14,7 +15,7 @@ describe Tag do
 
   #Validation Tests   
     
-    include_examples "is invalid without an attribute", :name
+    include_examples "is invalid without an attribute", :internal_name
     include_examples "is invalid without an attribute", :classification
     include_examples "is invalid without an attribute", :model_bitmask
     include_examples "is invalid without an attribute", :visibility
@@ -22,7 +23,6 @@ describe Tag do
     include_examples "is invalid without an attribute in a category", :visibility, Ability::Abilities, "Ability::Abilities"
     
     include_examples "is valid with or without an attribute", :info, "This is info!"
-    include_examples "is valid with or without an attribute", :synopsis, "synop"
     
     it "is valid with multiple taglists" do
        expect(build(:tag, :with_multiple_taglists)).to be_valid
@@ -33,8 +33,8 @@ describe Tag do
     end
     
     it "is invalid with duplicate name/model_bitmask" do
-      expect(create(:tag, name: "hi", model_bitmask: 8)).to be_valid
-      expect(build(:tag, name: "hi", model_bitmask: 8)).to_not be_valid
+      expect(create(:tag, internal_name: "hi", model_bitmask: 8)).to be_valid
+      expect(build(:tag, internal_name: "hi", model_bitmask: 8)).to_not be_valid
     end
     
     it "is valid with duplicate names if bitmask is different" do

@@ -4,6 +4,7 @@ describe Event do
   include_examples "global model tests" #Global Tests
   
   describe "Concern Tests" do
+    include_examples "it is a translated model"
     include_examples "it has a custom json method"
     
     it_behaves_like "it has form_fields"
@@ -16,15 +17,11 @@ describe Event do
   end
   
   describe "Validation Tests" do
-    it_behaves_like "is valid with or without an attribute", :name, "name"
+    include_examples "is invalid without an attribute", :internal_name
     it_behaves_like "is valid with or without an attribute", :shorthand, "name"
     it_behaves_like "is valid with or without an attribute", :start_date, Date.new(2132,1,4)
     it_behaves_like "is valid with or without an attribute", :end_date, Date.new(2032,3,12)
-        
-    it "is invalid if it does not have a name or shorthand" do
-      expect(build(:event, name: nil, shorthand: nil)).to_not be_valid
-    end
-    
+            
     it "is valid with the same start and end dates" do
       create(:event, start_date: Date.new(2012, 1, 1), end_date: Date.new(2013,1,1))
       expect(build(:event, start_date: Date.new(2012, 1, 1), end_date: Date.new(2013,1,1))).to be_valid

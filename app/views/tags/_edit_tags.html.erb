@@ -2,7 +2,7 @@
   Delete Tags:  
   <% subject.tags.order(:classification).each do |tag| %>
     <span class=<%= "Tag" + tag.id.to_s %>>
-      <%= link_to tag.name, remove_tag_path(:tag_id => tag.id, :subject_id => subject.id, :subject_type => subject.class.to_s), method: :post, remote: true%>
+      <%= link_to language_helper(tag,:name), remove_tag_path(:tag_id => tag.id, :subject_id => subject.id, :subject_type => subject.class.to_s), method: :post, remote: true%>
     </span>
   <% end %>
   <br>Add New Tags:
@@ -13,7 +13,7 @@
     <% if Tag.get_models(tag.model_bitmask).include?(subject.class.to_s)%>
       <% if tag.classification != tagclass %>|<% end  %>
       <span class=<%= "Tag" + tag.id.to_s %>>
-        <%= link_to tag.name, add_tag_path(:tag_id => tag.id, :subject_id => subject.id, :subject_type => subject.class.to_s), method: :post, remote: true %>      
+        <%= link_to language_helper(tag,:name), add_tag_path(:tag_id => tag.id, :subject_id => subject.id, :subject_type => subject.class.to_s), method: :post, remote: true %>      
       </span>
       <% tagclass = tag.classification %>
     <% end %>

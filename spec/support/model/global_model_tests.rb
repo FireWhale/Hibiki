@@ -88,10 +88,12 @@ module GlobalModelTests
       end
       
       describe "Translations" do
-        if [Artist, Source, Organization, Album, Song].include?(described_class)
+        if [Artist, Source, Organization, Album, Song, Event, Tag].include?(described_class)
           it "has the listed translations" do #This tests the translates :att1, :att2 line
             if described_class == Song
-              expect(build(model_symbol).translated_attributes).to eq({"name"=>nil, "info"=>nil, "lyrics"=>nil})            
+              expect(build(model_symbol).translated_attributes).to eq({"name"=>nil, "info"=>nil, "lyrics"=>nil})        
+            elsif described_class == Event
+              expect(build(model_symbol).translated_attributes).to eq({"name"=>nil, "info"=>nil, "abbreviation"=>nil})                     
             else
               expect(build(model_symbol).translated_attributes).to eq({"name"=>nil, "info"=>nil})            
             end

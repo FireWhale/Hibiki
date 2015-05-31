@@ -7,7 +7,7 @@ class ApplicationController < ActionController::Base
   
   rescue_from CanCan::AccessDenied do |exception|
     respond_to do |format|
-      if current_user.status == "Deactivated"
+      if current_user.nil? == false && current_user.status == "Deactivated"
         format.html { render "pages/deactivated" }
         format.json { head :forbidden }
         format.js {head :forbidden }        
@@ -34,7 +34,7 @@ class ApplicationController < ActionController::Base
     else
       value = record.send(field)
     end
-    if opts[:highlight] == false || current_user.nil? || [Album, Organization, Source, Album].include?(record.class) == false
+    if opts[:highlight] == false || current_user.nil? || [Album, Organization, Source, Artist].include?(record.class) == false
       value #Do not highlight
     else
       highlighter = "\\1"
