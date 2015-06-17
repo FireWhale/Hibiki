@@ -6,6 +6,8 @@ class Tag < ActiveRecord::Base
     include FullUpdateModule
     include LanguageModule
     include JsonModule
+    
+    default_scope { includes(:translations) } 
   
   #Constants
     ModelBitmask = %w[Album Artist Organization Song Source Post]

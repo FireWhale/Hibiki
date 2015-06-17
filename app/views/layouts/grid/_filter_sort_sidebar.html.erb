@@ -63,7 +63,7 @@
       <% Tag.with_model("Album").meets_security(current_user).each do |tag| %>
         <div class="filter-item">
           <span class="glyphicon"></span>
-          <%= link_to tag.name, tag, data: {:tag => tag.id}, remote: true %>
+          <%= link_to language_helper(tag, :name), tag, data: {:tag => tag.id}, remote: true %>
         </div>
       <% end %>
     </div>

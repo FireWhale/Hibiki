@@ -106,7 +106,7 @@ class Album < ActiveRecord::Base
     ]
     
     #Ignore Artist Names - for ignoring certain names when scraping, particulary organizations in parenthesis
-    IgnoredArtistNames = [" ()", ")", "()", " (", '(Elements Garden)', '(Angel Note)', "(CROW'SCLAW)", '(C9)']
+    IgnoredArtistNames = [" ()", ")", "()", "(", '(Elements Garden)', '(Angel Note)', "(CROW'SCLAW)", '(C9)', '?']
     
   #Validation
     validates :internal_name, presence: true 
