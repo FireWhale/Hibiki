@@ -270,6 +270,42 @@ FactoryGirl.define do
       end         
     end
 
+    factory :reference do
+      site_name {Reference::SiteNames.sample}
+      url { Faker::Internet.url }
+      
+      association :model, factory: :album
+      
+      trait :with_album do
+        association :model, factory: :album
+      end
+      
+      trait :with_artist do
+        association :model, factory: :artist
+      end
+      
+      trait :with_organization do
+        association :model, factory: :organization
+      end
+            
+      trait :with_source do
+        association :model, factory: :source
+      end
+      
+      trait :with_song do
+        association :model, factory: :song
+      end
+      
+      trait :with_user do
+        association :model, factory: :user
+      end
+      
+      trait :with_event do
+        association :model, factory: :event
+      end
+      
+    end
+
   #Secondary Join Table Models
     factory :imagelist do
       association :image

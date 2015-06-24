@@ -1,12 +1,12 @@
+require "net/http"
+
 class WatchWorker
   include Sidekiq::Worker
   
-  def perform
-    @album_links, @scan_links, @product_links = [], [], []
-    
-    url_scan("http://vgmdb.net/db/recent.php", @album_links, "album")
-    url_scan("http://vgmdb.net/db/recent.php?do=view_scans", @scan_links, "scan")
-    url_scan("http://vgmdb.net/db/recent.php?do=view_products", @product_links, "scan")
+  def perform    
+    @album_links = url_scan("http://vgmdb.net/db/recent.php", "album")
+    @scan_links = url_scan("http://vgmdb.net/db/recent.php?do=view_scans", "scan")
+    @product_links = url_scan("http://vgmdb.net/db/recent.php?do=view_products", "product")
     
     links = (@album_links + @scan_links + @product_links).uniq
     #For each album, search for it in our database
@@ -14,7 +14,7 @@ class WatchWorker
         #Search for it using sunspot
         albumresults = Album.search  do
           fulltext link do
-            fields(:reference)
+            fields(:references)
           end
         end
         unless albumresults.results.empty?
@@ -24,7 +24,8 @@ class WatchWorker
       end
   end
   
-  def retry_url_watch(url, links, type)
+  def url_scan(url, type)
+    links = []
     agent = Mechanize.new 
     attempts = 0
     begin
@@ -35,10 +36,12 @@ class WatchWorker
       else
         links = doc.xpath("//tr/td[1]/a").map { |image| "http://vgmdb.net" + image['href']}.uniq
       end
+      logger.warn "Successfully retried #{type}" if attempts > 0
     rescue Net::HTTP::Persistent::Error
-      logger.warn "Hit persistent error. Retrying"
+      logger.warn "Hit persistent error on #{type}. Retrying"
       retry if attempts < 3
-      logger.warn "Hit maximum retries. Skipping url."
+      logger.warn "Hit maximum retries. Skipping #{type}."
     end
+    links
   end
 end

@@ -12,6 +12,7 @@ describe Organization do
     include_examples "it has self-relations"
     include_examples "it can be solr-searched"
     include_examples "it has a custom json method"
+    include_examples "it has references"
     
     it_behaves_like "it has pagination"
     it_behaves_like "it has form_fields"
@@ -26,7 +27,6 @@ describe Organization do
   #Validation Tests
     include_examples "is invalid without an attribute", :internal_name
     include_examples "is invalid without an attribute", :status
-    include_examples "name/reference combinations"
         
     include_examples "is invalid without an attribute in a category", :status, Album::Status, "Album::Status"
     include_examples "is invalid without an attribute in a category", :db_status, Artist::DatabaseStatus, "Artist::DatabaseStatus"
@@ -47,7 +47,6 @@ describe Organization do
           
   #Serialization Tests
     it_behaves_like "it has a partial date", :established
-    it_behaves_like "it has a serialized attribute", :reference
     it_behaves_like "it has a serialized attribute", :namehash
     
 

@@ -20,10 +20,10 @@
           <div><%= link_to url[0], url[0] %></div>
         <% end %>
       <% end %>
-      <% if @duplicate_albums.nil? == false%>
+      <% unless @duplicate_albums.nil? %>
         <% @duplicate_albums.each do |url| %>
           <% if url[1].reference.nil? == false%>
-            <div><%= link_to url[0], url[0] %>: <%= link_to url[1].reference.first[1], url[1] %> <% if url[1].reference.first[1] == url[0] %><%= image_tag('/assets/tick.png') %><% else %> <%= image_tag('/assets/cross.png') %><% end %></div>
+            <div><%= link_to url[0], url[0] %>: <%= link_to url[1].references.first.url, url[1] %> <% if url[1].references.first.url == url[0] %><%= image_tag('/assets/tick.png') %><% else %> <%= image_tag('/assets/cross.png') %><% end %></div>
           <% end %>
         <% end %>
       <% else %>

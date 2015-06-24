@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150531024531) do
+ActiveRecord::Schema.define(version: 20150624112027) do
 
   create_table "album_events", force: :cascade do |t|
     t.integer  "album_id",   limit: 4
@@ -63,7 +63,6 @@ ActiveRecord::Schema.define(version: 20150531024531) do
     t.string   "status",               limit: 255
     t.text     "info",                 limit: 65535
     t.text     "private_info",         limit: 65535
-    t.text     "reference",            limit: 65535
     t.string   "classification",       limit: 255
     t.date     "release_date"
     t.string   "catalog_number",       limit: 255
@@ -140,7 +139,6 @@ ActiveRecord::Schema.define(version: 20150531024531) do
     t.text     "info",               limit: 65535
     t.text     "private_info",       limit: 65535
     t.text     "synopsis",           limit: 65535
-    t.text     "reference",          limit: 65535
     t.integer  "popularity",         limit: 4
     t.date     "debut_date"
     t.date     "birth_date"
@@ -199,7 +197,6 @@ ActiveRecord::Schema.define(version: 20150531024531) do
   create_table "events", force: :cascade do |t|
     t.date     "start_date"
     t.date     "end_date"
-    t.text     "reference",     limit: 255
     t.string   "db_status",     limit: 255
     t.string   "shorthand",     limit: 255
     t.datetime "created_at",                null: false
@@ -302,7 +299,6 @@ ActiveRecord::Schema.define(version: 20150531024531) do
     t.text     "info",                limit: 65535
     t.text     "private_info",        limit: 65535
     t.text     "synopsis",            limit: 65535
-    t.string   "reference",           limit: 255
     t.date     "established"
     t.datetime "created_at",                        null: false
     t.datetime "updated_at",                        null: false
@@ -346,6 +342,19 @@ ActiveRecord::Schema.define(version: 20150531024531) do
   add_index "posts", ["category"], name: "index_posts_on_category", using: :btree
   add_index "posts", ["status"], name: "index_posts_on_status", using: :btree
   add_index "posts", ["visibility"], name: "index_posts_on_visibility", using: :btree
+
+  create_table "references", force: :cascade do |t|
+    t.integer  "model_id",   limit: 4
+    t.string   "model_type", limit: 255
+    t.string   "site_name",  limit: 255
+    t.string   "url",        limit: 255
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "references", ["model_id"], name: "index_references_on_model_id", using: :btree
+  add_index "references", ["model_type"], name: "index_references_on_model_type", using: :btree
+  add_index "references", ["site_name"], name: "index_references_on_site_name", using: :btree
 
   create_table "related_albums", force: :cascade do |t|
     t.integer  "album1_id",  limit: 4
@@ -453,7 +462,6 @@ ActiveRecord::Schema.define(version: 20150531024531) do
     t.integer  "length",               limit: 4
     t.datetime "created_at",                         null: false
     t.datetime "updated_at",                         null: false
-    t.text     "reference",            limit: 65535
     t.text     "info",                 limit: 65535
     t.text     "private_info",         limit: 65535
     t.date     "release_date"
@@ -517,7 +525,6 @@ ActiveRecord::Schema.define(version: 20150531024531) do
     t.text     "info",                 limit: 65535
     t.text     "private_info",         limit: 65535
     t.text     "synopsis",             limit: 65535
-    t.text     "reference",            limit: 65535
     t.integer  "popularity",           limit: 4
     t.date     "release_date"
     t.datetime "created_at",                         null: false

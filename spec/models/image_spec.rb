@@ -34,7 +34,6 @@ describe Image do
       expect(build(:image, name: "hi")).to be_valid
     end
     
-   
   #Hooks
     it "deletes the actual images when destroyed"
     it "deletes the folder the images were in if there are no more images"

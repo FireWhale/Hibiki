@@ -2,12 +2,11 @@ class Artist < ActiveRecord::Base
   #Attributes
     attr_accessible :internal_name, :synonyms, :namehash, #Names!
                     :status, :db_status, :category, :activity, #Database Stuff!
-                    :reference, :info, :private_info, :synopsis, #Text Info!
+                    :info, :private_info, :synopsis, #Text Info!
                     :gender, :blood_type, :birth_place, #More Detailed Info!
                     :birth_date, :debut_date, #Dates!
                     :popularity #Not yet implemented
   
-    serialize :reference
     serialize :namehash
   
   #Modules
@@ -20,6 +19,7 @@ class Artist < ActiveRecord::Base
       include ImageModule
       include PostModule
       include TagModule
+      include ReferenceModule
       include WatchlistModule
 
   #Callbacks/Hooks
@@ -86,7 +86,7 @@ class Artist < ActiveRecord::Base
                   {type: "markup", tag_name: "/div"}]
                                   
   #Validation
-    validates :internal_name, presence: true, uniqueness: {scope: [:reference]}
+    validates :internal_name, presence: true
     validates :status, presence: true, inclusion: Album::Status
     validates :db_status, inclusion: Artist::DatabaseStatus, allow_nil: true, allow_blank: true
     validates :activity, inclusion: Artist::Activity, allow_nil: true, allow_blank: true

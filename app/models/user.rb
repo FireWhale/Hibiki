@@ -8,6 +8,7 @@ class User < ActiveRecord::Base
     #Association Modules
       include ImageModule
       include JsonModule
+      include ReferenceModule
   
   #Callbacks/Hooks
     before_validation :set_default_settings, on: :create

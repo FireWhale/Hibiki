@@ -13,6 +13,7 @@ describe Album do
     include_examples "it has self-relations"
     include_examples "it can be solr-searched"
     include_examples "it has a custom json method"
+    include_examples "it has references"
 
     it_behaves_like "it has pagination"
     it_behaves_like "it has form_fields"
@@ -52,7 +53,13 @@ describe Album do
     include_examples "is invalid without an attribute", :internal_name
     include_examples "is invalid without an attribute", :status
     include_examples "is invalid without an attribute", :catalog_number
-    include_examples "name/reference combinations"
+    
+    it "is invalid with a duplicate name/release_date/catalogn combination"
+    
+    it "is valid with duplicate catalog_numbers" do
+      expect(create(:album, catalog_number: "hihi")).to be_valid
+      expect(build(:album, catalog_number: "hihi")).to be_valid
+    end     
     
     include_examples "is valid with or without an attribute", :synonyms, "hi"
     include_examples "is valid with or without an attribute", :info, "Hi this is info"
@@ -62,7 +69,6 @@ describe Album do
       
   describe "Attribute Tests" do
     include_examples "it has a partial date", :release_date
-    it_behaves_like "it has a serialized attribute", :reference
     it_behaves_like "it has a serialized attribute", :namehash
   end
   

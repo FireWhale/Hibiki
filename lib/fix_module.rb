@@ -354,4 +354,97 @@ module FixModule
     Collection.where(relationship: 'Wishlist').update_all(relationship: 'Wishlisted')
   end
   
+  def migrate_references_to_reference_model
+    #Performed 6/21. 
+    #Moving from the hashed column to the actual model. 
+    @album_count, @artist_count, @organization_count, @source_count, @song_count, @event_count = 0, 0, 0, 0, 0, 0
+    Album.includes(:translations).all.each do |album|
+      @album_count += album.reference.count unless album.reference.nil?
+    end
+    #36544 count
+  
+    Album.all.each do |album|
+      unless album.reference.nil?
+        album.reference.each do |k,v|
+          album.references.create(:site_name => k.to_s, :url => v)
+        end
+      end
+    end
+    
+    Reference.count #Now we check to make sure all the references were moved to Reference model
+    # => 36544
+    
+    Artist.includes(:translations).all.each do |artist|
+      @artist_count += artist.reference.count unless artist.reference.nil?
+    end
+    #268
+    
+    Artist.all.each do |artist|
+      unless artist.reference.nil?
+        artist.reference.each do |k,v|
+          artist.references.create(:site_name => k.to_s, :url => v)
+        end
+      end
+    end
+    
+    Reference.count
+    # => 36812 <--- matches up!
+    
+    Organization.includes(:translations).all.each do |org|
+      @organization_count += org.reference.count unless org.reference.nil?
+    end
+    # => 39
+    
+    Organization.all.each do |org|
+      unless org.reference.nil?
+        org.reference.each do |k,v|
+          org.references.create(:site_name => k.to_s, :url => v)
+        end
+      end
+    end
+    
+    Reference.count
+    # => 36851 <--- matches up!
+    
+    #Songs do not have any references yet! :<
+    
+    Source.includes(:translations).all.each do |source|
+      @source_count += source.reference.count unless source.reference.nil?
+    end
+    #source count = 331
+    
+    
+    Source.includes(:translations).all.each do |source|
+      unless source.reference.nil?
+        source.reference.each do |k,v|
+          source.references.create(:site_name => k.to_s, :url => v)
+        end
+      end
+    end
+    
+    Reference.count
+    # => 37182 <--- matches up!
+    
+    Event.includes(:translations).all.each do |event|
+      @event_count += event.reference.count unless event.reference.nil?
+    end
+    #313
+    
+    
+    Event.all.each do |event|
+      unless event.reference.nil?
+        event.reference.each do |k,v|
+          event.references.create(:site_name => k.to_s, :url => v)
+        end
+      end
+    end
+    
+    Reference.count
+    # => 37495 <--- matches up!
+    
+    
+  end
+  
+  
+  
 end

@@ -27,14 +27,11 @@ module FullUpdateModule
     #Deep symbolize everything!
       values = values.deep_symbolize_keys   
     #Get a new_values hash without all non-accessible attributes from the values hash
-      acc_attrs = self.class.accessible_attributes - ["reference"]
+      acc_attrs = self.class.accessible_attributes
       new_values = values.reject {|k,v| acc_attrs.include?(k) == false }
     #Get fields
       fields = self.class::FullUpdateFields
     #We now remove all the accessible attributes that are still processed with full_update
-      #Reference
-        references = new_values.delete :reference
-        self.format_references_hash(references) if fields[:reference] == true && references.nil? == false
       #Dates
         fields[:dates].each {|date| self.format_date_helper(date,new_values)} unless fields[:dates].nil?
       #Namehash
@@ -102,9 +99,22 @@ module FullUpdateModule
           end
         end
       end
-    #Reference
-      references = values.delete :reference
-      self.format_references_hash(references) if fields[:reference] == true && references.nil? == false
+    #References
+    if fields[:reference] == true
+      new_references = values.delete :new_references
+      unless new_references.blank?
+        new_references[:site_names].zip(new_references[:urls]).each do |reference|
+          self.references.create(site_name: reference[0], url: reference[1]) unless reference[0].blank? || reference[1].blank?
+        end
+      end
+      update_references = values.delete :update_references
+      unless update_references.blank?
+        update_references.each do |id, info|
+          reference = Reference.find_by_id(id.to_s)
+          (info[:site_name].blank? || info[:url].blank? ? reference.destroy : reference.update_attributes(info)) unless reference.nil?
+        end
+      end
+    end
     #Dates
       fields[:dates].each {|date| self.format_date_helper(date,values)} unless fields[:dates].nil?
     #Namehash
@@ -126,11 +136,8 @@ module FullUpdateModule
           new_locale_cats = values.delete "new_#{field}_lang_categories".to_sym
           unless new_locale_values.blank? || new_locale_cats.blank?
             new_locale_pairs = new_locale_values.zip(new_locale_cats)
-            new_locale_pairs.each do |pair|
-              self.write_attribute(field, pair[0], locale: pair[1])
-            end
+            new_locale_pairs.each { |pair| self.write_attribute(field, pair[0], locale: pair[1]) }
           end
-          
         end
       end
     #Add Songs - Album only
@@ -236,21 +243,6 @@ module FullUpdateModule
 #-----------------------------------------#
 #These are the methods used in full update!
 #-----------------------------------------#
-
-  def format_references_hash(ref_hash)
-    references = ref_hash[:types].zip(ref_hash[:links]) #Zip up the types and links
-    self.reference ||= {} #Initialize a hash if it isn't one already
-    self.reference.delete :types
-    self.reference.delete :links #Remove links and types if they are there
-    types = Album::ReferenceLinks.map(&:last).map(&:to_s) #Get a list of valid types
-    references.each do |reference|
-      #make sure they aren't empty and included in ReferenceLinks
-      if reference[0].empty? == false && reference[1].empty? == false && types.include?(reference[0])
-        new_link = {reference[0].to_sym => reference[1]}
-        self.reference = self.reference.merge(new_link)
-      end
-    end
-  end
 
   def format_date_helper(field,values)  
     #Allows partial dates in the following fields:

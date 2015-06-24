@@ -119,18 +119,7 @@ class ScriptsController < ApplicationController
   end
     
 
-  #These methods help modularize the js adding forms for edit views.
-    def add_reference_form
-      authorize! :edit, Album
-      #This adds a reference form. @string is the params hash string the form should be under
-      @div_id = params[:div_id]
-      @fields_for = params[:fields_for]
-      
-      respond_to do |format|
-        format.js
-      end
-    end
-  
+  #These methods help modularize the js adding forms for edit views.  
     def add_model_form
       authorize! :edit, Album
       #This adds a relational model with a category
@@ -142,13 +131,18 @@ class ScriptsController < ApplicationController
         @autocomplete_model = params[:autocomplete_model] unless params[:autocomplete_model].nil?
       #Fields_for names
         @field_names = params[:field_names]
+        @field_class = params[:field_class]
         #If text_area is flagged, use a text area instead of text_field
         @text_area_field_names = params[:text_area_field_names]
       #Category list names
         @category_field_names = params[:category_field_names]
         @categories = params[:category_select]
         @categories = @categories.split("::")[0].constantize.const_get(categories.split("::")[1]) if @categories.class == String
-      #Get the label if there is one passed in
+      #Secondary category list names
+        @secondary_category_field_names = params[:secondary_category_field_names]
+        @secondary_categories = params[:secondary_category_select]
+        @secondary_label = (params[:secondary_label].nil? ? "ID:" : params[:secondary_label]) 
+       #Get the label if there is one passed in
         @label = (params[:label].nil? ? "ID:" : params[:label]) 
       #Get the default value if there is one passed in
         @default_value = params[:default_value] unless params[:default_value].nil?

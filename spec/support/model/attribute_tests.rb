@@ -2,41 +2,6 @@ require 'rails_helper'
 
 module AttributeTests
   #Specific Tests
-    shared_examples "name/reference combinations" do 
-      model_symbol = described_class.model_name.param_key.to_sym
-          
-      if described_class == Album
-        #Add extra tests for album
-        it "is invalid with a duplicate name/reference/catalogn combination" do
-          expect(create(model_symbol, internal_name: "hihi", reference: {:hi => "ho"}, catalog_number: "ho")).to be_valid
-          expect(build(model_symbol, internal_name: "hihi", reference: {:hi => "ho"}, catalog_number: "ho")).not_to be_valid
-        end
-        
-        it "is valid with duplicate catalog_numbers" do
-          expect(create(model_symbol, catalog_number: "hihi")).to be_valid
-          expect(build(model_symbol, catalog_number: "hihi")).to be_valid
-        end 
-      elsif described_class == Song
-        #Do not test this, cause it changes if it has an album or not
-      else
-        it "is invalid with a duplicate name/reference combination" do
-          expect(create(model_symbol, internal_name: "hihi", reference: {:hi => "ho"})).to be_valid
-          expect(build(model_symbol, internal_name: "hihi", reference: {:hi => "ho"})).not_to be_valid
-        end        
-      end
-      
-      it "is valid with duplicate names" do
-        expect(create(model_symbol, internal_name: "hihi", reference: {:hi => "ho"})).to be_valid
-        expect(build(model_symbol, internal_name: "hihi", reference: {:hey => "hi"})).to be_valid
-      end 
-   
-      it "is valid with duplicate references" do
-        expect(create(model_symbol, reference: {:hi => "ho"})).to be_valid
-        expect(build(model_symbol, reference: {:hi => "ho"})).to be_valid
-      end
-      
-    end
-  
     shared_examples "redirects to a new record when db_status is hidden" do |model, categories|
       #Scope Tests
         it "reports hidden records with no pointer record" 

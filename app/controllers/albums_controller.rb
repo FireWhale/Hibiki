@@ -129,7 +129,7 @@ class AlbumsController < ApplicationController
       @post.save
     end
     
-    if @album.reference[:VGMdb].nil? == false
+    unless @album.references('VGMdb').nil?
       scrapehash = {}
       scrapehash[:rescrape_vgmdb] = [@album.id]
       

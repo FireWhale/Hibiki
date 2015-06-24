@@ -32,19 +32,7 @@ module FullUpdateTests
       attributes = attributes_for(model_symbol)
       expect{record.full_save(attributes)}.to change(described_class,:count).by(1)
     end
-    
-    it "passes values through and formats them" do
-      record = build(model_symbol)
-      attributes = attributes_for(model_symbol)
-      unless described_class == Post || described_class == Tag || described_class == Season #don't need to test reference with posts
-        attributes.merge!(reference: {types: ["VGMdb", "vocaloid_DB"], links: ["http://vgmdb.net/album/47999", "http://vocadb.net/Al/9207"]})
-      end
-      expect{record.full_save(attributes)}.to change(described_class,:count).by(1)
-      unless described_class == Post || described_class == Tag || described_class == Season
-        expect(record.reload.reference).to eq({:VGMdb => "http://vgmdb.net/album/47999", :vocaloid_DB => "http://vocadb.net/Al/9207"})        
-      end
-    end
-        
+            
     it "creates with keys and values" 
     
     it "updates with keys and values" do
@@ -382,21 +370,21 @@ module FullUpdateTests
   shared_examples "updates the reference properly" do
     model_symbol = described_class.model_name.param_key.to_sym
     
-    it "updates the reference properly" do
-      attributes = attributes_for(model_symbol)
-      attributes.merge!(reference: {types: ["VGMdb", "vocaloid_DB"], links: ["http://vgmdb.net/album/47999", "http://vocadb.net/Al/9207"]})
-      record = create(model_symbol)
-      record.full_update_attributes(attributes)
-      expect(record.reload.reference).to eq({:VGMdb => "http://vgmdb.net/album/47999", :vocaloid_DB => "http://vocadb.net/Al/9207"})
-    end
+    it "updates the reference properly" # do
+      # attributes = attributes_for(model_symbol)
+      # attributes.merge!(reference: {types: ["VGMdb", "vocaloid_DB"], links: ["http://vgmdb.net/album/47999", "http://vocadb.net/Al/9207"]})
+      # record = create(model_symbol)
+      # record.full_update_attributes(attributes)
+      # expect(record.reload.reference).to eq({:VGMdb => "http://vgmdb.net/album/47999", :vocaloid_DB => "http://vocadb.net/Al/9207"})
+    # end
     
-    it "only updates with valid references" do
-      attributes = attributes_for(model_symbol)
-      attributes.merge!(reference: {types: ["VGMdb", "vocaloid_DB", "hola"], links: ["http://vgmdb.net/album/47999", "http://vocadb.net/Al/9207", "hiya"]})
-      record = create(model_symbol)
-      record.full_update_attributes(attributes)
-      expect(record.reload.reference).to eq({:VGMdb => "http://vgmdb.net/album/47999", :vocaloid_DB => "http://vocadb.net/Al/9207"})
-    end
+    it "only updates with valid references" # do
+      # attributes = attributes_for(model_symbol)
+      # attributes.merge!(reference: {types: ["VGMdb", "vocaloid_DB", "hola"], links: ["http://vgmdb.net/album/47999", "http://vocadb.net/Al/9207", "hiya"]})
+      # record = create(model_symbol)
+      # record.full_update_attributes(attributes)
+      # expect(record.reload.reference).to eq({:VGMdb => "http://vgmdb.net/album/47999", :vocaloid_DB => "http://vocadb.net/Al/9207"})
+    # end
   end
   
   shared_examples "updates dates properly" do |attribute|

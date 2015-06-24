@@ -12,11 +12,18 @@
     <% end %>
   <% end %>
   
+  <% unless @secondary_categories.nil? || @secondary_category_field_names.nil? %>
+    <%= fields_for @secondary_category_field_names do |f| %>
+      <%= f.label '', @secondary_label%>
+      <%= f.select '', @secondary_categories %>
+    <% end %>
+  <% end %>
+  
   <% unless @field_names.nil? %>
     <%= fields_for @field_names do |f| %>
   		<%= f.label '', @label %>
   		<% if @autocomplete_model.nil? %>
-  		  <%= f.text_field '', :value => @default_value %>
+  		  <%= f.text_field '', :value => @default_value, :class => @field_class %>
       <% else %>
         <%= f.autocomplete_field '', autocomplete_path({:model => @autocomplete_model}), :value => @default_value %>
       <% end %>

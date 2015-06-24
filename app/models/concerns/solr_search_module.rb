@@ -27,8 +27,8 @@ module SolrSearchModule
       text :translated_names, boost: search_boost + 5 do #Translation tables
         name_translations.values
       end      
-      text :reference, boost: search_boost do
-        reference.blank? ? reference : reference.values
+      text :references, boost: search_boost do
+        references.map(&:url)
       end      
       text :catalog_number, boost: search_boost if self.name == "Album"
       

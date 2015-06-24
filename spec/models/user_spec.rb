@@ -7,6 +7,7 @@ describe User do
   describe "Concern Tests" do
     include_examples "it has a custom json method"
     include_examples "it has images"
+    include_examples "it has references"
     
     it_behaves_like "it has pagination"
   end

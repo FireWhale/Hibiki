@@ -114,7 +114,6 @@ Hibiki::Application.routes.draw do
   #Links for js scripts for adding and editing
   match '/add_tag' => 'scripts#add_tag', via: [:get, :post]
   match '/remove_tag' => 'scripts#remove_tag', via: [:get, :post]
-  get '/add_reference', :to => 'scripts#add_reference_form'
   get '/add_model', :to => 'scripts#add_model_form'
   get '/well_toggle', :to => 'scripts#well_toggle'
     

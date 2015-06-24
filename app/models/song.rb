@@ -1,13 +1,12 @@
 class Song < ActiveRecord::Base
   #Attributes
     attr_accessible :internal_name, :synonyms, :namehash, #Names!
-                    :status, :reference, :info, :private_info, #Database and Info
+                    :status, :info, :private_info, #Database and Info
                     :track_number, :disc_number, :length, :lyrics, #more detailed info!
                     :release_date, :album_id #Dates and album ID
     attr_accessor   :duration #for editing a song
     
     serialize :namehash
-    serialize :reference
     
   #Modules
     include FullUpdateModule
@@ -19,6 +18,7 @@ class Song < ActiveRecord::Base
       include ImageModule
       include PostModule
       include TagModule
+      include ReferenceModule
       include CollectionModule
 
   #Callbacks/Hooks
@@ -84,7 +84,6 @@ class Song < ActiveRecord::Base
   #Validation - Meh, not needed I guess (4/19)
     validates :internal_name, presence: true
     validates :status, presence: true, inclusion: Album::Status
-    validates :internal_name, uniqueness: {scope: [:reference]}, if: ->(song){song.album.nil?}
     validates :album, presence: true, unless: ->(song){song.album_id.nil?}
     validates :release_date, presence: true, unless: -> {self.release_date_bitmask.nil?}
     validates :release_date_bitmask, presence: true, unless: -> {self.release_date.nil?}

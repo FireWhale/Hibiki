@@ -2,10 +2,9 @@ class Album < ActiveRecord::Base
   #Attributes
     attr_accessible :internal_name, :synonyms, :namehash, :catalog_number, #Names!
                     :status, :classification,
-                    :reference, :info, :private_info, 
+                    :info, :private_info, 
                     :release_date, :release_date_bitmask #bitmask is needed for scraping
     
-    serialize :reference
     serialize :namehash
   
   #Default Scope
@@ -20,6 +19,7 @@ class Album < ActiveRecord::Base
       include ImageModule
       include PostModule
       include TagModule
+      include ReferenceModule
       include CollectionModule
 
   #Callbacks/Hooks
@@ -106,7 +106,7 @@ class Album < ActiveRecord::Base
     ]
     
     #Ignore Artist Names - for ignoring certain names when scraping, particulary organizations in parenthesis
-    IgnoredArtistNames = [" ()", ")", "()", "(", '(Elements Garden)', '(Angel Note)', "(CROW'SCLAW)", '(C9)', '?']
+    IgnoredArtistNames = [")", "()", "(", '(Elements Garden)', '(Angel Note)', "(CROW'SCLAW)", '(C9)', '?']
     
   #Validation
     validates :internal_name, presence: true 
@@ -114,6 +114,7 @@ class Album < ActiveRecord::Base
     validates :catalog_number, presence: true, uniqueness: {scope: [:internal_name, :release_date]}
     validates :release_date, presence: true, unless: -> {self.release_date_bitmask.nil?}
     validates :release_date_bitmask, presence: true, unless: -> {self.release_date.nil?}
+   
    
   #associations
     #Primary Associations                 

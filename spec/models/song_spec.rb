@@ -12,6 +12,7 @@ describe Song do
     include_examples "it has self-relations"
     include_examples "it can be solr-searched"
     include_examples "it has a custom json method"
+    include_examples "it has references"
     
     it_behaves_like "it has pagination"
     it_behaves_like "it has form_fields"
@@ -25,19 +26,12 @@ describe Song do
   #Validation Tests
     include_examples "is invalid without an attribute", :internal_name
     include_examples "is invalid without an attribute",  :status
-    include_examples "name/reference combinations"
     include_examples "is invalid without an attribute in a category", :status, Album::Status, "Album::Status"
 
     context "does not belong to an album" do
       it "is valid if it does not belong to an album" do
         expect(build(:song, album_id: nil)).to be_valid
       end
-      
-      it "is invalid with duplicate name/reference combinations" do
-        create(:song, album_id: nil, internal_name: "hi", reference: {ho: "hi"})
-        expect(build(:song, album_id: nil, internal_name: "hi", reference: {ho: "hi"})).to_not be_valid        
-      end
-      
     end
     
     context "belongs to an album" do
@@ -48,12 +42,6 @@ describe Song do
       it "is not valid if it does not belong to a real album" do
         expect(build(:song, album_id: 99999999)).to_not be_valid
       end
-      
-      it "is valid with duplicate name/reference combinations" do
-        create(:song, :with_album, internal_name: "hi", reference: {ho: "hi"})
-        expect(build(:song, :with_album, internal_name: "hi", reference: {ho: "hi"})).to be_valid        
-      end
-      
     end
 
     include_examples "is valid with or without an attribute", :synonyms, "hi"
@@ -71,7 +59,6 @@ describe Song do
       
   #Serialization Tests
     it_behaves_like "it has a partial date", :release_date
-    it_behaves_like "it has a serialized attribute", :reference
     it_behaves_like "it has a serialized attribute", :namehash
     
   #Instance Method Tests

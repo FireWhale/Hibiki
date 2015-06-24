@@ -67,17 +67,17 @@ class PagesController < ApplicationController
         any do
           fulltext params[:search] do
             if model == "album"
-              fields(:internal_name, :synonyms, :namehash, :translated_names, :reference, :catalog_number)          
+              fields(:internal_name, :synonyms, :namehash, :translated_names, :references, :catalog_number)          
             else
-              fields(:internal_name, :synonyms, :namehash, :translated_names, :reference)
+              fields(:internal_name, :synonyms, :namehash, :translated_names, :references)
             end
           end      
           if params[:search].include?("*")
             fulltext "\"#{params[:search]}\"" do
               if model == "album"
-                fields(:internal_name, :synonyms, :namehash, :translated_names, :reference, :catalog_number)          
+                fields(:internal_name, :synonyms, :namehash, :translated_names, :references, :catalog_number)          
               else
-                fields(:internal_name, :synonyms, :namehash, :translated_names, :reference)
+                fields(:internal_name, :synonyms, :namehash, :translated_names, :references)
               end
             end      
             

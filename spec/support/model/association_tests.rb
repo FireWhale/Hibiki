@@ -108,8 +108,6 @@ module AssociationTests
       end      
   end
 
-
-
   #Join Model Tests
   shared_examples "a join table" do |model_1, model_2|
     join_table_symbol = described_class.model_name.param_key.to_sym
@@ -168,10 +166,54 @@ module AssociationTests
       end
   end
   
+  shared_examples "it is a polymorphic model" do |polyclasses, poly_label|
+    model_symbol = described_class.model_name.param_key.to_sym
+    
+    polyclasses.each do |polyclass|
+      polyclass_symbol = polyclass.model_name.param_key.to_sym
+      
+      it "belongs to a #{polyclass_symbol}" do
+        polyrecord = create(polyclass_symbol)
+        expect(build(model_symbol, poly_label.to_sym => polyrecord).send(poly_label)).to be_a polyclass
+        expect(described_class.reflect_on_association(poly_label.to_sym).macro).to eq(:belongs_to)
+      end
+      
+      it "does not destroy #{polyclass_symbol}s when destroyed" do
+        polyrecord = create(polyclass_symbol)
+        record = create(model_symbol, poly_label.to_sym => polyrecord)
+        expect{record.destroy}.to change(polyclass, :count).by(0)
+      end
+    end
+    
+    polyclasses.each do |polyclass|
+      polyclass_symbol = polyclass.model_name.param_key.to_sym
+      polyclass_string = polyclass.model_name.singular
+      
+      it "is valid with an #{polyclass_string}" do
+        expect(build(model_symbol, "with_#{polyclass_string}".to_sym)).to be_valid
+      end
+      
+      it "is invalid without a real #{poly_label}" do
+        expect(build(model_symbol, "#{poly_label}_type" => polyclass.to_s, "#{poly_label}_id" => 2147483647)).to_not be_valid      
+      end      
+    end
+    
+    it "is invalid without a #{poly_label}_type" do
+      expect(build(model_symbol, "#{poly_label}_type" => nil)).to_not be_valid      
+    end
+    
+    it "is invalid without a #{poly_label}_id" do
+      expect(build(model_symbol, "#{poly_label}_id" => nil)).to_not be_valid      
+    end
+
+  end
+  
   shared_examples "it is a polymorphic join model" do |linked_class, polyclasses, poly_label|
     model_symbol = described_class.model_name.param_key.to_sym
     linked_class_symbol = linked_class.model_name.param_key.to_sym
     linked_class_string = linked_class.model_name.singular
+    
+    include_examples "it is a polymorphic model", polyclasses, poly_label
     
     #Association Tests
       it "belongs to a #{linked_class_string}" do
@@ -183,22 +225,6 @@ module AssociationTests
         it "does not destroy #{linked_class_string} when destroyed" do
           record = create(model_symbol)
           expect{record.destroy}.to change(linked_class, :count).by(0)
-        end
-      end
-      
-      polyclasses.each do |polyclass|
-        polyclass_symbol = polyclass.model_name.param_key.to_sym
-        
-        it "belongs to a #{polyclass_symbol}" do
-          polyrecord = create(polyclass_symbol)
-          expect(build(model_symbol, poly_label.to_sym => polyrecord).send(poly_label)).to be_a polyclass
-          expect(described_class.reflect_on_association(poly_label.to_sym).macro).to eq(:belongs_to)
-        end
-        
-        it "does not destroy #{polyclass_symbol}s when destroyed" do
-          polyrecord = create(polyclass_symbol)
-          record = create(model_symbol, poly_label.to_sym => polyrecord)
-          expect{record.destroy}.to change(polyclass, :count).by(0)
         end
       end
     
@@ -215,27 +241,6 @@ module AssociationTests
       it "is invalid without a real #{linked_class_string}" do
         expect(build(model_symbol, "#{linked_class_string}_id".to_sym => 9999999)).to_not be_valid
       end
-        
-      polyclasses.each do |polyclass|
-        polyclass_symbol = polyclass.model_name.param_key.to_sym
-        polyclass_string = polyclass.model_name.singular
-        
-        it "is valid with an #{polyclass_string}" do
-          expect(build(model_symbol, "with_#{polyclass_string}".to_sym)).to be_valid
-        end
-        
-        it "is invalid without a real #{poly_label}" do
-          expect(build(model_symbol, "#{poly_label}_type" => polyclass.to_s, "#{poly_label}_id" => 2147483647)).to_not be_valid      
-        end      
-      end
-      
-      it "is invalid without a #{poly_label}_type" do
-        expect(build(model_symbol, "#{poly_label}_type" => nil)).to_not be_valid      
-      end
-      
-      it "is invalid without a #{poly_label}_id" do
-        expect(build(model_symbol, "#{poly_label}_id" => nil)).to_not be_valid      
-      end
             
       it "is valid with unique #{linked_class_string}/#{poly_label}_type combinations" do
         linked_record = create(linked_class_symbol)
@@ -243,7 +248,7 @@ module AssociationTests
         expect(build(model_symbol, linked_class_symbol => linked_record)).to be_valid   
       end
       
-      it "is invalid with a unique #{linked_class_string}/#{poly_label} combination" do
+      it "is invalid with duplicate #{linked_class_string}/#{poly_label} combination" do
         linked_record = create(linked_class_symbol)
         poly_record = create(polyclasses[0].to_s.downcase.to_sym)
         expect(create(model_symbol, linked_class_symbol=> linked_record, poly_label.to_sym => poly_record)).to be_valid

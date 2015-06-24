@@ -169,35 +169,6 @@ describe ScriptsController do
     end
   end
   
-  shared_examples 'get add_reference_form' do |accessible|
-    describe '#GET add_reference_form' do
-      
-      if accessible == true
-        it "responds to js" do
-          xhr :get, :add_reference_form, format: :js
-          expect(response).to render_template(:add_reference_form)
-        end
-        
-        it "assigns div_id" do
-          xhr :get, :add_reference_form, format: :js, div_id: "wooo"
-          expect(assigns(:div_id)).to eq("wooo")
-        end
-        
-        it "assigns fields_for" do
-          xhr :get, :add_reference_form, format: :js, fields_for: "weee"
-          expect(assigns(:fields_for)).to eq("weee")
-        end
-        
-        include_examples "it quietly fails", :add_reference_form
-      else
-        it "renders access denied" do
-          xhr :get, :add_reference_form, format: :js
-          expect(response.status).to eq(403) #forbidden
-        end        
-      end
-    end    
-  end
-
   shared_examples 'get add_model_form' do |accessible|
     describe '#GET add_model_form' do
       if accessible == true
@@ -413,7 +384,6 @@ describe ScriptsController do
     include_examples 'get autocomplete', true
     
     #JS for Edit Forms
-    include_examples 'get add_reference_form', false
     include_examples 'get add_model_form', false
     include_examples 'get well_toggle', false
     
@@ -434,7 +404,6 @@ describe ScriptsController do
     include_examples 'get autocomplete', true
     
     #JS for Edit Forms
-    include_examples 'get add_reference_form', false
     include_examples 'get add_model_form', false
     include_examples 'get well_toggle', false
     
@@ -454,7 +423,6 @@ describe ScriptsController do
     include_examples 'get autocomplete', true
     
     #JS for Edit Forms
-    include_examples 'get add_reference_form', true
     include_examples 'get add_model_form', true
     include_examples 'get well_toggle', true
     

@@ -87,6 +87,18 @@ module GlobalModelTests
         end
       end
       
+      describe "References" do
+        if [Album, Artist, Song, Source, Organization, Event, User].include?(described_class)
+          it "has the reference module" do
+            expect(described_class.included_modules).to include(ReferenceModule)            
+          end
+        else
+          it "does not have the reference module" do
+            expect(described_class.included_modules).to_not include(ReferenceModule)            
+          end
+        end
+      end
+      
       describe "Translations" do
         if [Artist, Source, Organization, Album, Song, Event, Tag].include?(described_class)
           it "has the listed translations" do #This tests the translates :att1, :att2 line

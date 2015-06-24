@@ -6,6 +6,7 @@ describe Event do
   describe "Concern Tests" do
     include_examples "it is a translated model"
     include_examples "it has a custom json method"
+    include_examples "it has references"
     
     it_behaves_like "it has form_fields"
   end
@@ -27,9 +28,6 @@ describe Event do
       expect(build(:event, start_date: Date.new(2012, 1, 1), end_date: Date.new(2013,1,1))).to be_valid
     end
   end
-
-  #Serialization Tests
-    it_behaves_like "it has a serialized attribute", :reference
      
   #Instance Method Tests
     it "returns the right name with name_helper" do

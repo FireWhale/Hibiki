@@ -3,7 +3,7 @@ module JsonModule
     autocomplete_models = [Album, Artist, Organization, Song, Source]
     translated_models =  [Album, Artist, Organization, Song, Source, Event, Tag]
     banned_attributes = [:status, :db_status, :classification, :activity,
-                        :popularity, :visibility, :reference, :lyrics,
+                        :popularity, :visibility, :lyrics,
                         :created_at, :updated_at, :release_date_bitmask, :model_bitmask,
                         :birth_date_bitmask, :debut_date_bitmask, :end_date_bitmask,
                         :established_bitmask,

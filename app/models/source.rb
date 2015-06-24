@@ -2,13 +2,12 @@ class Source < ActiveRecord::Base
   #Attributes
     attr_accessible :internal_name, :synonyms, :namehash, #Names!
                     :status, :db_status, :category, :activity, #Database Stuff!
-                    :reference, :info, :private_info, :synopsis, :plot_summary, #Text Info!
+                    :info, :private_info, :synopsis, :plot_summary, #Text Info!
                     :release_date, :end_date, #Dates!
                     :popularity #Not yet implemented
 
     attr_accessor   :album_count
     
-    serialize :reference
     serialize :namehash
     
   #Modules
@@ -21,6 +20,7 @@ class Source < ActiveRecord::Base
       include ImageModule
       include PostModule
       include TagModule
+      include ReferenceModule
       include WatchlistModule
 
   #Callbacks/Hooks
@@ -76,7 +76,7 @@ class Source < ActiveRecord::Base
                   {type: "markup", tag_name: "/div"}]
                   
   #Validation
-    validates :internal_name, presence: true , uniqueness: {scope: [:reference]}
+    validates :internal_name, presence: true
     validates :status, presence: true, inclusion: Album::Status
     validates :db_status, inclusion: Artist::DatabaseStatus, allow_nil: true, allow_blank: true
     validates :activity, inclusion: Source::Activity, allow_nil: true, allow_blank: true

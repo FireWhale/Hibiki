@@ -1,15 +1,14 @@
 class Event < ActiveRecord::Base
   #Attributes
     attr_accessible :internal_name, :shorthand, 
-                    :info, :db_status, :reference,
+                    :info, :db_status,
                     :start_date, :end_date
                     
-    serialize :reference
-  
   #Modules
     include FullUpdateModule
     include LanguageModule
     include JsonModule
+    include ReferenceModule
     
   #Constants
     FullUpdateFields = {reference: true, languages: [:name, :info, :abbreviation]}    
