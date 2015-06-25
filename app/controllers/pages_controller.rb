@@ -66,21 +66,16 @@ class PagesController < ApplicationController
       search = model.capitalize.constantize.search(:include => includes) do
         any do
           fulltext params[:search] do
-            if model == "album"
-              fields(:internal_name, :synonyms, :namehash, :translated_names, :references, :catalog_number)          
-            else
-              fields(:internal_name, :synonyms, :namehash, :translated_names, :references)
-            end
+            fields(:internal_name, :synonyms, :namehash, :translated_names, :references)
+            fields(:catalog_number) if model == "album"
+            fields(:hidden_references) if current_user.nil? == false && current_user.abilities.include?("Confident")
           end      
-          if params[:search].include?("*")
+          if params[:search].include?("*") || params[:search].include?("?")
             fulltext "\"#{params[:search]}\"" do
-              if model == "album"
-                fields(:internal_name, :synonyms, :namehash, :translated_names, :references, :catalog_number)          
-              else
-                fields(:internal_name, :synonyms, :namehash, :translated_names, :references)
-              end
+              fields(:internal_name, :synonyms, :namehash, :translated_names, :references)
+              fields(:catalog_number) if model == "album"
+              fields(:hidden_references) if current_user.nil? == false && current_user.abilities.include?("Confident")
             end      
-            
           end    
         end
         order_by(:release_date) if model == "album"

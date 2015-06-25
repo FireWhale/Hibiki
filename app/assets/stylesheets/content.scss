@@ -74,6 +74,9 @@
 
     //Tracklist styling
     #tracklist, #albums {
+      :target {
+        background-color: lighten($color-accent-2, 15%);
+      }
       .song, .album {
         @include make-row();
         border-bottom: 1px solid #DDDDDD;

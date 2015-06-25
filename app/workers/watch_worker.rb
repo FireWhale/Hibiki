@@ -11,14 +11,10 @@ class WatchWorker
     links = (@album_links + @scan_links + @product_links).uniq
     #For each album, search for it in our database
       links.each do |link|
-        #Search for it using sunspot
-        albumresults = Album.search  do
-          fulltext link do
-            fields(:references)
-          end
-        end
-        unless albumresults.results.empty?
-          album = albumresults.results.first
+        #Search for the reference
+        reference = Reference.find_by_url(link)
+        unless reference.nil?
+          album = reference.model
           album.tags << Tag.find(50) unless album.tags.map(&:id).include?(50) #Tag 50 is the update available tag
         end
       end

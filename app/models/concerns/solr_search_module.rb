@@ -28,8 +28,13 @@ module SolrSearchModule
         name_translations.values
       end      
       text :references, boost: search_boost do
-        references.map(&:url)
+        references.meets_security(nil).map(&:url)
       end      
+      
+      text :hidden_references, boost: search_boost do
+        references.where('site_name in (?)', Reference::HiddenSiteNames).map(&:url)
+      end
+      
       text :catalog_number, boost: search_boost if self.name == "Album"
       
       #These fields is for ordering results

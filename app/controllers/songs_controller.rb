@@ -17,7 +17,12 @@ class SongsController < ApplicationController
     credits_helper(@song,@credits = {}) #prepares the credits
     
     respond_to do |format|
-      format.html # show.html.erb
+      format.html do 
+        if @song.album.nil?
+        else
+          redirect_to album_path(id: @song.album.id, :anchor => "song-#{@song.id}")
+        end
+      end
       format.json { render json: @song.to_json(:user => current_user) }
     end
   end

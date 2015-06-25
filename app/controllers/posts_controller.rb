@@ -2,7 +2,7 @@ class PostsController < ApplicationController
   load_and_authorize_resource
    
   def index
-    @posts = Post.with_category('Blog Post').meets_security(current_user)
+    @posts = Post.includes(:tags).with_category('Blog Post').meets_security(current_user)
     @all_posts = @posts
     unless params[:tags].nil?
       @posts = @posts.with_tag(params[:tags])     

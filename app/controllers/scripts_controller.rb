@@ -90,7 +90,7 @@ class ScriptsController < ApplicationController
               #When we include autocomplete_edit, we inherently boost our translated fields
               fields(:autocomplete_search, :autocomplete_edit)
             end
-            if params[:term].include?("*")
+            if params[:term].include?("*") || params[:term].include?("?")
               fulltext "\"#{params[:term]}\"" do
                 fields(:autocomplete_search, :autocomplete_edit)                
               end
