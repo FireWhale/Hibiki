@@ -1,9 +1,11 @@
 class RelatedOrganizations < ActiveRecord::Base
   attr_accessible :category, :organization1_id, :organization2_id
   
+  Relationships = Organization::SelfRelationships.map { |relation| relation[3]}.reject(&:nil?)
+  
   validates :organization1_id, :presence => true, uniqueness: {scope: :organization2_id}
   validates :organization2_id, :presence => true
-  validates :category, inclusion: Organization::SelfRelationships.map { |relation| relation[3]}.reject(&:nil?)
+  validates :category, inclusion: RelatedOrganizations::Relationships
   validates :organization1, :presence => true
   validates :organization2, :presence => true
   validates_different_models :organization1, model: "organization"

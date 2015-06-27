@@ -153,43 +153,16 @@ module SelfAssociationTests
             expect(described_class.without_self_relation_categories(relationship2)).to match_array([record1, record2, record3, record6])        
           end
           
+          it "filters all records with a relation if nothing is passed in" do
+            expect(described_class.without_self_relation_categories).to match_array([record1, record6])    
+          end
+          
           it "returns all records if nil is passed in"  do
             expect(described_class.without_self_relation_categories(nil)).to match_array([record1, record2, record3, record4, record5, record6])        
           end
           
           it "should be an active record relation" do
             expect(described_class.without_self_relation_categories("hi").class).to_not be_a(Array)
-          end
-        end
-              
-              
-        describe "does have a cateogy and does not have others" do
-          it "returns records that matches either filter" do
-            expect(described_class.filters_by_self_relation_categories([relationship1], "hey!")).to match_array([record1, record2, record3, record4, record5, record6])                
-          end
-          
-          it "returns records that match the filter" do
-            expect(described_class.filters_by_self_relation_categories([relationship1], relationship2)).to match_array([record1, record2, record3, record5, record6])         
-          end
-    
-          it "returns records that match the filter 2" do
-            expect(described_class.filters_by_self_relation_categories([relationship2], relationship1)).to match_array([record1, record4, record5, record6])         
-          end
-          
-          it "returns all records if nil is passed into both" do
-            expect(described_class.filters_by_self_relation_categories(nil, nil)).to match_array([record1, record2, record3, record4, record5, record6])           
-          end
-          
-          it "filters out as much as posssible" do
-            expect(described_class.filters_by_self_relation_categories("hi", [relationship1, relationship2])).to match_array([record1, record6])           
-          end
-          
-          it "returns all records if the same category is passed into both params" do
-            expect(described_class.filters_by_self_relation_categories([relationship1], relationship1)).to match_array([record1, record2, record3, record4, record5, record6])       
-          end
-          
-          it "should be an active record relation" do
-            expect(described_class.filters_by_self_relation_categories("hey", "hi").class).to_not be_a(Array)
           end
         end
         

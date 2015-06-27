@@ -148,7 +148,7 @@ class Album < ActiveRecord::Base
     scope :with_artist_organization_source, ->(artist_ids, organization_ids, source_ids) {from("((#{Album.artist_proc(artist_ids).to_sql}) union (#{Album.source_proc(source_ids).to_sql}) union (#{Album.organization_proc(organization_ids).to_sql})) #{Album.table_name} ").references(:artist_albums, :album_sources, :album_organizations) unless artist_ids.nil? && organization_ids.nil? && source_ids.nil?}
     
     #User Settings
-    scope :filter_by_user_settings, ->(user) {collection_filter(user.id, Collection::Relationship - user.album_filter, user.id).without_self_relation_categories(user.album_filter) unless user.nil?}
+    scope :filter_by_user_settings, ->(user) {not_in_collection(user.id, user.album_filter).without_self_relation_categories(user.album_filter) unless user.nil?}
     
   #Gem Stuff  
     #Pagination

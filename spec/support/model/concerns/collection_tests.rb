@@ -108,7 +108,7 @@ module CollectionTests
           create(:collection, user: user3, collected: record2, relationship: "Ignored")
         end
           
-        describe "it filters by collection" do
+        describe ":in_collection" do
           it "matches a single user" do
             expect(described_class.in_collection(user1)).to match_array([record1,record2, record3])
           end
@@ -142,7 +142,7 @@ module CollectionTests
           end
         end
           
-        describe "it filters by not in collection" do
+        describe ":not_in_collection" do
           it "removes albums that are in the user's collection" do
             expect(described_class.not_in_collection(user1)).to match_array([record4,record5, record6])
           end
@@ -155,6 +155,14 @@ module CollectionTests
             expect(described_class.not_in_collection([user1.id, user3.id])).to match_array([record4, record6])
           end
           
+          it "filters records of a specified collection type" do
+            expect(described_class.not_in_collection(user1, "Collected")).to match_array([record3, record4,record5, record6])
+          end
+          
+          it "filters records of a specified collection type of any user" do
+            expect(described_class.not_in_collection([user2, user3], "Collected")).to match_array([record2, record3, record4,record5])
+          end          
+                    
           it "returns all records if nil is passed in" do
             expect(described_class.not_in_collection(nil)).to match_array([record1,record2, record3, record4, record5, record6])
           end
@@ -164,31 +172,6 @@ module CollectionTests
           end
         end
           
-        describe "it joints the two and returns any albums that match" do
-          it "returns records that match either filter" do
-            expect(described_class.collection_filter(user2.id, ['Collected'], user3.id)).to match_array([record1,record3,record4,record6])          
-          end
-          
-          it "will return records that are filtered by the other" do
-            expect(described_class.collection_filter(user1.id, ['Wishlisted'], user1.id)).to match_array([record5,record3,record4,record6])                    
-          end
-          
-          it "returns all records if nil is passed into user1" do
-            expect(described_class.collection_filter(nil, ['Collected', 'Ignored', 'Wishlisted'], user2.id)).to match_array([record1,record2,record3,record4,record5,record6])
-          end
-          
-          it "returns all records if nil is passed into user2" do
-            expect(described_class.collection_filter(user1.id, ['Collected', 'Ignored', 'Wishlisted'], nil)).to match_array([record1,record2,record3,record4,record5,record6])         
-          end
-          
-          it "returns all records if [c, i, w] is passed in with the same user" do
-            expect(described_class.collection_filter(user1.id, ['Collected', 'Ignored', 'Wishlisted'], user1.id)).to match_array([record1,record2,record3,record4,record5,record6])
-          end
-          
-          it "returns an active record relation" do
-            expect(described_class.collection_filter(user1.id, 'Collected', user2.id).class).to_not be_a(Array)
-          end
-        end
       end
       
     end

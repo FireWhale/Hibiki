@@ -28,7 +28,7 @@ class ScriptsController < ApplicationController
     unless rel.blank?
       rel = rel.split(",").map { |a| a == "N" ? "N" : ["Limited Edition", "Reprint"][a.to_i] }
       if rel.include?("N")
-        @albums = @albums.filters_by_self_relation_categories(rel, ["Limited Edition", "Reprint"]) #This unions the categories and none-categories
+        @albums = @albums.without_self_relation_categories(["Limited Edition", "Reprint"] - rel) #This unions the categories and none-categories
       else
         @albums = @albums.with_self_relation_categories(rel)
       end    
@@ -48,7 +48,7 @@ class ScriptsController < ApplicationController
     unless col.blank? || current_user.nil?
       col = col.split(",").map { |a| a == "N" ? "N" : Collection::Relationship[a.to_i] }
       if col.include?("N")
-        @albums = @albums.collection_filter(current_user.id,col,current_user.id) #This unions the collections and non-collected
+        @albums = @albums.not_in_collection(current_user.id, Collection::Relationship - col) #This unions the collections and non-collected
       else
         @albums = @albums.in_collection(current_user.id, col)
       end

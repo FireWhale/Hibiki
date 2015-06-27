@@ -7,10 +7,8 @@ module CollectionModule
 
     
     scope :in_collection, ->(userids, *relationships) {first_pass = joins(:collections).where("collections.user_id IN (?)", userids).uniq unless userids.nil?
-                                                        relationships.empty? || relationships == [nil] ? first_pass : first_pass.where("collections.relationship IN (?)", relationships.flatten) unless userids.nil?}
-    scope :not_in_collection, ->(userids) {joins("LEFT OUTER JOIN(#{Collection.where("collections.user_id IN (?)", userids).where(:collected_type => self.to_s).to_sql}) t1 ON t1.collected_id = #{self.table_name}.id").where(:t1 => {:id => nil}) unless userids.nil?}
-    scope :collection_filter, ->(user1_id, relationship, user2_id) {from("((#{self.in_collection(user1_id, relationship).to_sql}) union all (#{self.not_in_collection(user2_id).to_sql})) #{self.table_name} ").uniq}
- 
+                                                       relationships.empty? || relationships == [nil] ? first_pass : first_pass.where("collections.relationship IN (?)", relationships.flatten) unless userids.nil?}
+    scope :not_in_collection, ->(user_ids, relationships = Collection::Relationship) {joins("LEFT OUTER JOIN(#{Collection.where("collections.user_id IN (?)", user_ids).where(:collected_type => self.to_s).where("collections.relationship IN (?)", relationships).to_sql}) c1 ON c1.collected_id = #{self.table_name}.id").where(:c1 => {:id => nil}) unless user_ids.nil?}
   end
   
   def collected?(user)

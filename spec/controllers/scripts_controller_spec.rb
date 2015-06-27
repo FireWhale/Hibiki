@@ -48,13 +48,13 @@ describe ScriptsController do
           end
           
           it "handles an N category" do
-            expect(Album).to receive(:filters_by_self_relation_categories)
+            expect(Album).to receive(:without_self_relation_categories)
             xhr :get, :toggle_albums,  :rel => "N,1,2", format: :js
           end
           
           it "ignores release_type" do
             expect(Album).to_not receive(:with_self_relation_categories)
-            expect(Album).to_not receive(:filters_by_self_relation_categories)
+            expect(Album).to_not receive(:without_self_relation_categories)
             xhr :get, :toggle_albums, :all_albums => "true", format: :js
           end
         end
@@ -83,15 +83,15 @@ describe ScriptsController do
           
           it "handles N in collection params" do
             unless @user.nil?
-              expect(Album).to receive(:collection_filter)
+              expect(Album).to receive(:not_in_collection)
             else
-              expect(Album).to_not receive(:collection_filter)
+              expect(Album).to_not receive(:not_in_collection)
             end
             xhr :get, :toggle_albums, :col => "N,1,2", format: :js
           end
           
           it "handles no collection params" do
-            expect(Album).to_not receive(:collection_filter)
+            expect(Album).to_not receive(:not_in_collection)
             expect(Album).to_not receive(:in_collection)
             xhr :get, :toggle_albums, :all_albums => "true", format: :js
           end
