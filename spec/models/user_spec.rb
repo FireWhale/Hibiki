@@ -8,8 +8,7 @@ describe User do
     include_examples "it has a custom json method"
     include_examples "it has images"
     include_examples "it has references"
-    
-    it_behaves_like "it has pagination"
+    include_examples "it has custom pagination"
   end
   
   describe "Association Tests" do

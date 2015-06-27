@@ -13,8 +13,8 @@ describe Artist do
     include_examples "it can be solr-searched"
     include_examples "it has a custom json method"
     include_examples "it has references"
+    include_examples "it has custom pagination"
     
-    include_examples "it has pagination"
     include_examples "it has form_fields"
   end
   

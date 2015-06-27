@@ -5,12 +5,10 @@ describe Issue do
     
   describe "Concern Tests" do
     include_examples "it has a custom json method"
+    include_examples "it has custom pagination"
     
     it_behaves_like "it has form_fields"
   end
-  
-  #Module Tests
-    it_behaves_like "it has pagination"
 
   #Validation Tests
     include_examples "is invalid without an attribute", :name

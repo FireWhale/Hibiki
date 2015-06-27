@@ -7,6 +7,7 @@ describe Post do
     include_examples "it has tags"
     include_examples "it has images"
     include_examples "it has a custom json method"
+    include_examples "it has custom pagination"
     
     it_behaves_like "it has form_fields"
   end

@@ -102,7 +102,6 @@ class Album < ActiveRecord::Base
       ['Lily', 1901 ], #real life partner of morrigan (1901) in favor of vocaloid (41078)
       ['JIN', 1434 ], #Vocaloid producer over Musician and Beatmania Singer
       ['Peco', 5927], #Liz Triangle artist over some 1997 ost artist
-      #['azu♪', 4067] #removed the lowercase form of the artist. redirect to the uppercase in case of rescrape
     ]
     
     #Ignore Artist Names - for ignoring certain names when scraping, particulary organizations in parenthesis
