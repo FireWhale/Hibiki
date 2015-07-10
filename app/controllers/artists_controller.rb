@@ -32,9 +32,11 @@ class ArtistsController < ApplicationController
     else
       @image = @artist.images.first
     end
-
+    @show_nws = params[:show_nws]
+    
     respond_to do |format|
       format.html 
+      format.js { render template: "images/update_image"}
       format.json { render json: @artist.images }
     end
   end

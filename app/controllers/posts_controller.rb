@@ -35,9 +35,11 @@ class PostsController < ApplicationController
     else
       @image = @post.images.first
     end
+    @show_nws = params[:show_nws]
 
     respond_to do |format|
       format.html 
+      format.js { render template: "images/update_image"}
       format.json { render json: @post.images }
     end
   end

@@ -15,12 +15,12 @@ gem 'jquery-rails'
 gem 'jquery-ui-rails'
 gem 'rails-jquery-autocomplete'
 gem 'lazyload-rails'
-gem 'mini_magick', '3.5.0' #Image manipulation
+gem 'mini_magick' #Image manipulation
 gem 'sunspot_rails'
 gem 'globalize'
 gem 'mojinizer'
-gem 'sidekiq', '2.16.1'
-gem 'mysql2', '0.3.15'
+gem 'sidekiq'
+gem 'mysql2'
 gem 'whenever', :require => false #Cron job gem
 gem 'protected_attributes'
 gem 'truncate_html'

@@ -10,7 +10,7 @@ describe SongsController do
   context 'public access to songs' do      
     #Shows
       include_examples 'has an index page', true, :id
-      include_examples "has a show page", false
+      include_examples "has a show page", true
       include_examples "has an images page", true, :show_images
       
     #Edits
@@ -35,7 +35,7 @@ describe SongsController do
           
     #Shows
       include_examples 'has an index page', true, :id
-      include_examples "has a show page", false
+      include_examples "has a show page", true
       include_examples "has an images page", true, :show_images
       
     #Edits

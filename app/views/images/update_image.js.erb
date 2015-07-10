@@ -1,3 +1,5 @@
-$('#Image').html('<%= escape_javascript(render :partial => 'layouts/images/image_partial') %>');
+$('#Image').html('<%= escape_javascript(render :partial => 'layouts/images/image_partial', :locals => {:record => @album || @source || @organization || @artist || @song || @post || @season }) %>');
+
+<%= render :partial => "scripts/layouts/lazyload"  %>
 
 $('#grid-content').nanoScroller();

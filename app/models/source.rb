@@ -38,7 +38,7 @@ class Source < ActiveRecord::Base
     ['is the parent story of', 'Side Story', 'Parent Story', 'Parent Story'], 
     ['has the fandisc', '-Fan Disc'],
     ['is a fandisc of', 'Original Story', 'Fan Disc', 'Fan Disc'],
-    ['\'s franchise includes', 'Franchise Includes', 'Part of Franchie', 'Franchise'],
+    ['\'s franchise includes', 'Franchise Includes', 'Part of Franchise', 'Franchise'],
     ['is part of the franchise', '-Franchise'],
     ['is a side story of', '-Parent Story'], #aka Side Story
     ['is in the same series as', 'Same Series', 'Same Series', 'Same Series'], #order doesn't matter

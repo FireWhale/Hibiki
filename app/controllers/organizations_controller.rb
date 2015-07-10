@@ -31,10 +31,12 @@ class OrganizationsController < ApplicationController
       @image = Image.find_by_id(params[:image])
     else
       @image = @organization.images.first
-    end  
+    end
+    @show_nws = params[:show_nws]
     
     respond_to do |format|
       format.html 
+      format.js { render template: "images/update_image"}
       format.json { render json: @organization.images }
     end
   end

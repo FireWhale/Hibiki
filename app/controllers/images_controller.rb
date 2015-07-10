@@ -1,12 +1,6 @@
 class ImagesController < ApplicationController  
   load_and_authorize_resource
 
-  def update_image
-    #This is used for showalbumart and other 'show images for primary models' pages
-    @image = Image.find(params[:id])
-    @show_nws = params[:show_nws]
-  end
-
   def index
     @images = Image.page(params[:page])
     

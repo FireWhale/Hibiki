@@ -29,7 +29,8 @@ lib/llcookies
 /config/secrets.yml
 /config/initializers/secret_token.rb
 /config/database.yml
-/lib/maintenance_module.rb
+/doc/maintenance_module.rb
+/doc/fix_module.rb
 /config/environments/development.rb
 
 

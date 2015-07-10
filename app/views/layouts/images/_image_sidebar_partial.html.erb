@@ -1,24 +1,34 @@
- <div id="image-sidebar">
-    <% if record.images.count > 2 %>
-      <% record.images.each_with_index do |image, n| %>
-        <% if n.even? %>
-          <div class="image-row">
-        <% end %>
-        <div class="image-column">
-          <%= link_to image_helper(image, "thumb"), update_image_path(:id => image.id), remote: true, class: "thumbnail thumbnail-bordered" %>
-          <div class="image-text-link"><%= link_to image.name, update_image_path(:id => image.id ), remote: true %></div>
-        </div>
-        <% if n.odd? %>
-          </div>
-        <% end %> 
-        <% if n.even? && n == record.images.count - 1 %>     
-          </div>
-        <% end %>      
+<div id="image-sidebar">
+  <% if record.images.count > 2 %>
+    <% record.images.each_with_index do |image, n| %>
+      <% if n.even? %>
+        <div class="image-row">
       <% end %>
-    <% else %>
-      <% record.images.each do |image| %>    
-        <%= link_to image_helper(image, "thumb"), update_image_path(:id => image.id), remote: true, class: "thumbnail thumbnail-bordered"  %>
-        <div class="image-text-link"><%= link_to image.name, update_image_path(:id => image.id ), remote: true %></div>
+      <div class="image-column">
+        <% if record.class == Album %>
+          <%= link_to image_helper(image, "thumb"), albumart_album_path(:image => image.id), remote: true, lazyload: true, class: "thumbnail thumbnail-bordered" %>
+          <div class="image-text-link"><%= link_to image.name, albumart_album_path(:image => image.id), remote: true, lazyload: true %></div>
+        <% else %>
+          <%= link_to image_helper(image, "thumb"), eval("images_#{record.class.to_s.downcase}_path(:image => #{image.id})"), remote: true, lazyload: true, class: "thumbnail thumbnail-bordered" %>
+          <div class="image-text-link"><%= link_to image.name, eval("images_#{record.class.to_s.downcase}_path(:image => #{image.id})"), remote: true, lazyload: true %></div>
+        <% end %>        
+      </div>
+      <% if n.odd? %>
+        </div>
+      <% end %> 
+      <% if n.even? && n == record.images.count - 1 %>     
+        </div>
       <% end %>      
     <% end %>
-  </div>
+  <% else %>
+    <% record.images.each do |image| %>    
+        <% if record.class == Album %>
+          <%= link_to image_helper(image, "thumb"), albumart_album_path(:image => image.id), remote: true, class: "thumbnail thumbnail-bordered" %>
+          <div class="image-text-link"><%= link_to image.name, albumart_album_path(:image => image.id), remote: true %></div>
+        <% else %>
+          <%= link_to image_helper(image, "thumb"), eval("images_#{record.class.to_s.downcase}_path(:image => #{image.id})"), remote: true, lazyload: true, class: "thumbnail thumbnail-bordered" %>
+          <div class="image-text-link"><%= link_to image.name, eval("images_#{record.class.to_s.downcase}_path(:image => #{image.id})"), remote: true, lazyload: true %></div>
+        <% end %>
+    <% end %>      
+  <% end %>
+</div>

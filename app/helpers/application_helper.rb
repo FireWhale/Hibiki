@@ -75,7 +75,7 @@ module ApplicationHelper
       else
         display_settings = current_user.display_settings
       end      
-      if image.rating == "NWS" && display_settings.include?("DisplayNWS") == false && options[:show_nws].nil? == true
+      if image.rating == "NWS" && display_settings.include?("DisplayNWS") == false && options[:show_nws].nil?
         image_tag('not safe for yayois.png', :title => options[:title], lazy: true, :class => "lazyload")
       else  
         #Call for medium => looks for medium path. If no medium path, default to full, which should be smaller than medium.

@@ -20,6 +20,12 @@ module ImageRouteTests
             expect(assigns("image")).to eq(record.images.first)
           end
           
+          it "responds to js" do
+            record = create(model_symbol, :with_image)
+            xhr :get, route, id: record, format: :js
+            expect(response).to render_template(:update_image)
+          end    
+                  
           it "returns a list of image records as json" do
             record = create(model_symbol)
             5.times do

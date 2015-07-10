@@ -35,10 +35,12 @@ class AlbumsController < ApplicationController
       @image = Image.find_by_id(params[:image])
     else
       @image = @album.images.first
-    end  
+    end
+    @show_nws = params[:show_nws]
     
     respond_to do |format|
       format.html
+      format.js { render template: "images/update_image"}
       format.json { render json: @album.images }
     end
   end

@@ -92,42 +92,63 @@ class Image < ActiveRecord::Base
     end
       
     def create_image_thumbnails
-      root_path = Rails.root.join('public', 'images', path).to_s
+      root_path = Rails.root.join('public', 'images', self.path).to_s
       if File.exist?(root_path)
-        #Get the file
+        #Grab the file
         buffer = StringIO.new(File.open(root_path,"rb") { |f| f.read})
-        miniimage = MiniMagick::Image.read(buffer) 
-        #We're also going to add dimensions to the record while we're at it.
-        self.update_attribute('width', miniimage["width"]) unless self.width == miniimage["width"]
-        self.update_attribute('height', miniimage["height"]) unless self.height == miniimage["height"]
-        #Make a medium image if it satisfies requirements
-          if (miniimage["width"] > 500 || miniimage["height"] > 500) & 
-          (primary_flag.nil? == false && primary_flag.empty? == false)        
-            self.make_image(miniimage, "500x500", "/m", "medium")
-          end
+        mini_image = MiniMagick::Image.read(buffer)
+        #Get the extension of the file. 
+        extension = mini_image.type.downcase
+        extension = "jpg" if extension == "jpeg" #replace jpeg with jpg
+        #update height and width of the image.
+        self.height = mini_image.height
+        self.width = mini_image.width
+        #Make a medium size.
+        if (mini_image.width > 500 || mini_image.height > 500) && (primary_flag.blank? == false)        
+          self.make_image(mini_image, "500x500", "/m", "medium", extension)
+        end
         #Make a thumbnail image if it satisfies requirements
-          if miniimage["height"] > 225 || miniimage["width"] > 225
-            self.make_image(miniimage, "225x225", "/t", "thumb")
-          end
-      end    
+        if mini_image.height > 225 || mini_image.width > 225
+          self.make_image(mini_image, "225x225", "/t", "thumb", extension)
+        end
+        #Add a file extension
+        unless root_path.to_s.ends_with?(extension)
+          self.path = "#{self.path}.#{extension}"
+          File.rename(root_path,"#{root_path}.#{extension}")
+        end
+        #Remove the extension from the image's name
+        self.name = self.name.chomp(".#{extension}") if self.name.ends_with?(".#{extension}")
+        #Save if the info has changed. Skipping the callback to avoid infinite recursion. Still not sure why it occurs, though.
+        Image.skip_callback(:save, :after, :create_image_thumbnails)
+        self.save
+        Image.set_callback(:save, :after, :create_image_thumbnails)
+      end
     end
   
-    def make_image(image, size, subdirectory, attribute)
+    def make_image(image, size, subdirectory, attribute, extension)
       #Set up all sorts of variables messing around with path
         full_path = ('public/images/' + path).split("/")
         filename = full_path.pop
         new_path = full_path.join("/") + subdirectory
         Dir.mkdir(new_path) unless File.exists?(new_path)
         new_full_path = Rails.root.join(new_path,filename)
-        stored_path = new_path.split("public/images/")[1] + "/" + filename
+        if filename.ends_with?(extension)
+          new_full_path_with_extension = Rails.root.join(new_path,filename)
+          stored_path = new_path.split("public/images/")[1] + "/#{filename}"
+        else
+          new_full_path_with_extension = Rails.root.join(new_path,"#{filename}.#{extension}")
+          stored_path = new_path.split("public/images/")[1] + "/#{filename}.#{extension}"
+        end
       #Check to see if the file exists or dimensions are not stored        
         image.resize size
-        image.write(new_full_path) unless File.exists?(new_full_path)
-        self.update_attribute("#{attribute}_width", image["width"]) unless self.send("#{attribute}_width") ==  image["width"]
-        self.update_attribute("#{attribute}_height", image["height"]) unless self.send("#{attribute}_height") ==  image["height"]
-      #If the path isn't right, update it
-        if self.send("#{attribute}_path") != stored_path
-          self.update_attribute("#{attribute}_path", stored_path)
+        if File.exists?(new_full_path)
+          File.rename(new_full_path.to_s,new_full_path_with_extension.to_s) #we need to rename it if the extensionless file exists
+        else
+          image.write(new_full_path_with_extension) unless File.exists?(new_full_path_with_extension)
         end
+        self.send("#{attribute}_width=", image.width)
+        self.send("#{attribute}_height=", image.height) 
+      #If the path isn't right, update it
+        self.send("#{attribute}_path=", stored_path)
     end
 end

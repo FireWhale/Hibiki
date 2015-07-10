@@ -1,13 +1,13 @@
 <div id="Image">
   <div class="text-center thumbnail thumbnail-margined">
     <% unless @image.nil? %>
-      <% if @show_nws.nil? == true %>
-        <%= image_helper(@image, "full", :title => @image.name)%>    
-        <% if @image.rating == "NWS" %>
-          <%= link_to "Show NWS", update_image_path(:id => @image.id, :show_nws => "yes"), remote: true%>
+      <%= image_helper(@image, "full", show_nws: @show_nws, :title => @image.name)%>    
+      <% if @image.rating == "NWS" %>
+        <% if record.class == Album %>
+          <%= link_to "Show NWS", albumart_album_path(:image => @image.id, show_nws: true), remote: true%>
+        <% else %>
+          <%= link_to "Show NWS", eval("images_#{record.class.to_s.downcase}_path(:image => #{@image.id}, show_nws: true)"), remote: true%>        
         <% end %>
-      <% else %>
-        <%= image_helper(@image, "full", :show_nws => true, :title => @image.name)%>
       <% end %>
       <% if can? :edit, @image %>
         <br><%= link_to "Edit", edit_image_path(@image) %>

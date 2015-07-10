@@ -34,9 +34,11 @@ class SeasonsController < ApplicationController
     else
       @image = @season.images.first
     end
+    @show_nws = params[:show_nws]
 
     respond_to do |format|
       format.html 
+      format.js { render template: "images/update_image"}
       format.json { render json: @season.images }
     end
   end

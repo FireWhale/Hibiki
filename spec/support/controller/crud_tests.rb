@@ -261,36 +261,22 @@ module CrudTests
               valid_permissions(:show, false)
             end
           end
-
-          if model_class == Album || model_class == Song
-            it "prepares a credits variable" do
-              record = create(model_symbol)
+          
+        elsif model_class == Song
+          context 'with an album' do            
+            it "renders the album" do
+              album = create(:album)
+              record = create(:song, album: album)
               get :show, id: record
-              expect(assigns(:credits)).to be_a(Hash)
+              expect(response).to redirect_to("/albums/#{album.id}#song-#{record.id}")
             end
           end
           
-          if model_class == Album  
-            it "prepares an organizations variable"  do
+          context 'without an album' do
+            it "renders the :show template" do
               record = create(model_symbol)
               get :show, id: record
-              expect(assigns(:organizations)).to be_a(Hash)
-            end
-          end
-          
-          if model_class == Season
-            it "populates a sources variable" do
-              record = create(model_symbol)
-              get :show, id: record
-              expect(assigns(:sources)).to be_a(Hash)
-            end
-          end
-        
-          if model_class == Artist || model_class == Organization || model_class == Album || model_class == Source || model_class == Song
-            it "prepares a related variable" do
-              record = create(model_symbol)
-              get :show, id: record
-              expect(assigns(:related)).to be_a(Hash)
+              expect(response).to render_template("songs/show")
             end
           end
         else
@@ -301,6 +287,37 @@ module CrudTests
           end
         end
 
+        if model_class == Album || model_class == Song
+          it "prepares a credits variable" do
+            record = create(model_symbol)
+            get :show, id: record
+            expect(assigns(:credits)).to be_a(Hash)
+          end
+        end
+        
+        if model_class == Album  
+          it "prepares an organizations variable"  do
+            record = create(model_symbol)
+            get :show, id: record
+            expect(assigns(:organizations)).to be_a(Hash)
+          end
+        end
+        
+        if model_class == Season
+          it "populates a sources variable" do
+            record = create(model_symbol)
+            get :show, id: record
+            expect(assigns(:sources)).to be_a(Hash)
+          end
+        end
+      
+        if model_class == Artist || model_class == Organization || model_class == Album || model_class == Source || model_class == Song
+          it "prepares a related variable" do
+            record = create(model_symbol)
+            get :show, id: record
+            expect(assigns(:related)).to be_a(Hash)
+          end
+        end
         
         if model_class == Artist || model_class == Organization || model_class == Source || model_class == Event
           it "assigns an albums variable" do

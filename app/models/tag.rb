@@ -23,7 +23,6 @@ class Tag < ActiveRecord::Base
                   {type: "tag_models"},
                   {type: "markup", tag_name: "/div"},
                   {type: "markup", tag_name: "div class='col-md-2'"},{type: "markup", tag_name: "/div"},{type: "markup", tag_name: "/div"}]
-
   
   #Validation
     validates :internal_name, presence: true , uniqueness: {scope: :model_bitmask}

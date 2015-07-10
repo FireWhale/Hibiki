@@ -101,7 +101,6 @@ Hibiki::Application.routes.draw do
   get '/database', to: 'pages#database_landing'
   
   #Scripts
-  get '/update_image', :to => 'images#update_image'
   get '/toggle_albums', :to => 'scripts#toggle_albums'
   get '/autocomplete', :to => 'scripts#autocomplete'
   

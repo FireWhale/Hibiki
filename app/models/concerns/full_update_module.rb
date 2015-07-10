@@ -83,19 +83,14 @@ module FullUpdateModule
       end
     #Images
       images = values.delete :images
-      unless fields[:images].nil? || images.nil?
-        folder = self.id.to_s if fields[:images][0] == "id"
-        folder = self.catalog_number + ' - ' + self.id.to_s if fields[:images][0] == "album" #albums have a different folder structure
-        images.each {|image| self.upload_image(image, folder, fields[:images][1], fields[:images][2]) }
-      end
+      images.each {|image| self.upload_image(image) } unless fields[:images].nil? || images.nil?
       image_names = values.delete :image_names
       image_paths = values.delete :image_paths
       unless fields[:images.nil?] || image_names.nil? || image_paths.nil?
         image_names.zip(image_paths).each do |each|
           unless each[0].empty? || each[1].empty?
-            self.images.empty? ? priflag = 'Cover' : priflag = '' 
-            image = Image.new(name: each[0], path: each[1], primary_flag: priflag)
-            self.images << image
+            priflag = (self.images.empty? ? 'Cover' : '') 
+            self.images << Image.create(name: each[0], path: each[1], primary_flag: priflag)
           end
         end
       end
@@ -120,7 +115,7 @@ module FullUpdateModule
     #Namehash
       namehash = values.delete :namehash
       if self.respond_to?("namehash") && namehash.nil? == false
-        namehash.delete_if { |key,value| value.empty?}
+        namehash.delete_if { |key,value| value.blank? }
         values[:namehash] = namehash
       end
     #Language Records - name_translations, info and lyrics
@@ -274,20 +269,23 @@ module FullUpdateModule
   end
   
   
-  def upload_image(image,path,directory,flag)
+  def upload_image(image)
     #First, create the folder for the image
-    path = path.gsub(/[\\?\/|*:#.<>%"]/, "") #stripping the name for proper directory creation
-    full_path ='public/images/' + directory + path    
+    full_path = "public/images/#{self.class.model_name.plural}/#{self.id}"
     Dir.mkdir(full_path) unless File.exists?(full_path)
     #Next, write the image to the disk in the folder created.
-    image_name = image.original_filename
-    image_path = directory + path + "/" + image_name
+    image_name = image.original_filename.strip
+    image_path = "#{self.class.model_name.plural}/#{self.id}/#{image_name}"
     File.open(Rails.root.join(full_path, image_name), 'wb') do  |file|
       file.write(image.read)
     end
-    self.images.empty? ? priflag = flag : priflag = '' 
+    if self.class == Album
+      priflag = (self.images.empty? ? "Cover" : '')
+    else
+      priflag = (self.images.empty? ? "Primary" : '')
+    end 
     #Finally, create an image record and add the image to the instance.
-    if image_name.empty? == false && image.path.empty? == false
+    unless image_name.empty? || image.path.empty?
       @image = Image.new(name: image_name, path: image_path, primary_flag: priflag)
       self.images << @image
     end
