@@ -98,7 +98,6 @@ class Album < ActiveRecord::Base
       ['AKINO', 432 ], #2 artists. bless4 singer (432) in favor of 2nd Flush arranger (39017))
       ['Takashi', 4326 ], #3 artists. all pretty defunct. macado (3932), Birth Entertainment (4326), and touhouist (39019)
       ['void', 225 ], #IOSYS arranger (225) in favor of Divere Systems/Trance void (39102)
-      ['Vivienne', 402 ], #Amateras singer (402) in favor of FELT singer (39103). Will probably need to check anyhow.
       ['Lily', 1901 ], #real life partner of morrigan (1901) in favor of vocaloid (41078)
       ['JIN', 1434 ], #Vocaloid producer over Musician and Beatmania Singer
       ['Peco', 5927], #Liz Triangle artist over some 1997 ost artist
