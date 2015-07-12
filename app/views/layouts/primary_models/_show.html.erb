@@ -114,13 +114,13 @@
     
     <% if record.class == Album || record.class == Song%>
       <div id="credits" class="info">
-        <h3>Credits</h3>
-        <div class="info-list">
-          <% @credits.each do |k,v| %><%= linked_attribute_display(v,k)%><% end %>
-          <% if record.class == Album %>
-          	<% @organizations.each do |k,v| %><%= linked_attribute_display(v,k)%><% end %>
-          <% end %>
-        </div>
+	    <h3>Credits</h3>
+	    <div class="info-list">
+	      <% @credits.each do |k,v| %><%= linked_attribute_display(v,k)%><% end %>
+	      <% if record.class == Album %>
+	    	  <% @organizations.each do |k,v| %><%= linked_attribute_display(v,k)%><% end %>
+	      <% end %>
+	    </div>
       </div>
       <% unless record.sources.empty? %>
         <div id="sources" class="info">

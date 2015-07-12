@@ -72,6 +72,12 @@
       .post-sentence, .post-expand, .post-link {
         display: none;
       }
+      
+      //Credit Styling
+      #credits {
+        max-height: 300px;
+        overflow-y: auto;
+      }
   
       //Tracklist styling
       #tracklist, #albums {
