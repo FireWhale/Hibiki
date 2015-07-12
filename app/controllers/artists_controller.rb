@@ -1,5 +1,6 @@
 class ArtistsController < ApplicationController
   load_and_authorize_resource
+  layout "full", only: [:edit, :new]
                
   def index
     @artists = Artist.order(:internal_name).includes([:watchlists, :tags, :translations, {albums: [:primary_images, :translations]}]).page(params[:page])
@@ -35,7 +36,7 @@ class ArtistsController < ApplicationController
     @show_nws = params[:show_nws]
     
     respond_to do |format|
-      format.html 
+      format.html {render layout: "grid" }
       format.js { render template: "images/update_image"}
       format.json { render json: @artist.images }
     end

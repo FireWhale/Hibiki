@@ -9,7 +9,7 @@ describe IssuesController do
   context 'public access to issues' do
               
     #Shows
-      include_examples 'has an index page', true, :id
+      include_examples 'has an index page', true, :status
       include_examples "has a show page", true
       
     #Edits
@@ -32,7 +32,7 @@ describe IssuesController do
     end
           
     #Shows
-      include_examples 'has an index page', true, :id
+      include_examples 'has an index page', true, :status
       include_examples "has a show page", true
       
     #Edits
@@ -56,7 +56,7 @@ describe IssuesController do
     end
           
     #Shows
-      include_examples 'has an index page', true, :id
+      include_examples 'has an index page', true, :status
       include_examples "has a show page", true
       
     #Edits

@@ -2,10 +2,11 @@ class IssuesController < ApplicationController
   load_and_authorize_resource
   
   def index
-    @issues = Issue.meets_security(current_user).with_status(Issue::Status - ["Closed"])
+    @issues = Issue.meets_security(current_user)
     @all_issues = @issues
     @issues = @issues.with_category(params[:category]) unless params[:category].nil?
     @issues = @issues.with_status(params[:status]) unless params[:status].nil?
+    @issues = @issues.order(:status).reverse_order
     @issues = @issues.page(params[:page])
     
     respond_to do |format|

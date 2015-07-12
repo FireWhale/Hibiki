@@ -36,8 +36,12 @@ class User < ActiveRecord::Base
       c.perishable_token_valid_for = 3.hour
       c.merge_validates_length_of_password_field_options :minimum => 8
       c.merge_validates_length_of_password_confirmation_field_options
-      c.transition_from_crypto_providers = [Authlogic::CryptoProviders::Sha512]
-      c.crypto_provider = Authlogic::CryptoProviders::SCrypt
+      if RbConfig::CONFIG['host_os'] == "mingw32" #Patch for windows OS
+        c.crypto_provider = Authlogic::CryptoProviders::Sha512
+      else
+        c.crypto_provider = Authlogic::CryptoProviders::SCrypt
+      end
+      
     end
   
   #Display Settings constants - add to end

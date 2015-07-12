@@ -19,5 +19,4 @@ class Taglist < ActiveRecord::Base
       return unless errors.blank?
       errors.add(:base, "This tag is not a valid tag for this model") unless self.tag.models.include?(self.subject.class.to_s)
     end
-  
 end

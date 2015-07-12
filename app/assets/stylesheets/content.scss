@@ -3,378 +3,406 @@
 @import "colors/light_blue_scheme";
 
 //Content Styling
-#content {
-  @include make-row();
-  #posts, #issues, #information {
-    @include make-sm-column(8);
-    .post, .issue, .info {
-      background-color: $well-background-color;
-      border: 1px solid $border-color;
-      padding: 18px 15px 18px 15px;
-      margin-bottom: 15px;
-    }
-    h2 { 
-      margin: 0px 0px 3px 0px; 
-    }
-    h3, h4 {
-      margin: 0px 0px 3px 0px;
-      text-align: center;
-    }
-    span.label:first-of-type {
-      float: left;
-    }
-    
-    span.bug-report { background-color: darken($color-accent-1, 10%); }
-    span.code-change { background-color: darken($color-accent-2, 25%); }
-    span.feature-request { background-color: darken($color-accent-3, 10%); }
-    span.proposed { background-color: darken($color-accent-4, 10%); }
-    span.closed { background-color: darken($color-accent-2, 15%); }
-    span.open { background-color: $color-2; }
-    
-    span.label:nth-of-type(2){
-      float: right;
-    }
-    .post-meta {
-      font-family: "Viga", sans-serif;
-      font-size: 12px;
-      margin: 0px 0px 14px 0px;
-      border-bottom: 2px dotted;
-      border-color: $color-accent-2;
-    }
-    
-    .post-body {
-      a {
-        text-decoration: underline;
+#view {
+  #content {
+    @include make-row();
+    #posts, #issues, #information {
+      @include make-sm-column(8);
+      .post, .issue, .info {
+        background-color: $well-background-color;
+        border: 1px solid $border-color;
+        padding: 18px 15px 18px 15px;
+        margin-bottom: 15px;
       }
-      .post-img {
-        clear: both;
+      h2 { 
+        margin: 0px 0px 3px 0px; 
       }
-      img {
-        clear: right;
+      h3, h4 {
+        margin: 0px 0px 3px 0px;
+        text-align: center;
+      }
+      span.label:first-of-type {
         float: left;
-        margin-right: 10px;
-        margin-bottom: 10px;
       }
-
+      
+      span.bug-report { background-color: darken($color-accent-1, 10%); }
+      span.code-change { background-color: darken($color-accent-2, 25%); }
+      span.feature-request { background-color: darken($color-accent-3, 10%); }
+      span.proposed { background-color: darken($color-accent-4, 10%); }
+      span.closed { background-color: darken($color-accent-2, 15%); }
+      span.open { background-color: $color-2; }
+      
+      span.label:nth-of-type(2){
+        float: right;
+      }
+      .post-meta {
+        font-family: "Viga", sans-serif;
+        font-size: 12px;
+        margin: 0px 0px 14px 0px;
+        border-bottom: 2px dotted;
+        border-color: $color-accent-2;
+      }
+      
+      .post-body {
+        a {
+          text-decoration: underline;
+        }
+        .post-img {
+          clear: both;
+        }
+        img {
+          clear: right;
+          float: left;
+          margin-right: 10px;
+          margin-bottom: 10px;
+        }
+  
+      }
+      
+      .post-footer {
+        clear: both;
+        text-align: center;
+        a {
+          padding: 4px;
+          border: 1px dotted;
+          }
+      }
+  
+      //Post styling
+      .post-sentence, .post-expand, .post-link {
+        display: none;
+      }
+  
+      //Tracklist styling
+      #tracklist, #albums {
+        :target {
+          background-color: lighten($color-accent-2, 15%);
+        }
+        .song, .album {
+          @include make-row();
+          border-bottom: 1px solid #DDDDDD;
+          margin: 0px 8px;
+          .track_number{ 
+            @include make-sm-column(1); 
+            text-align: center;
+          }
+          .track_name{ @include make-sm-column(10); }
+          .track_duration, .album_date { 
+            @include make-sm-column(1); 
+            text-align: center;
+          }
+          
+          .album_art { 
+            @include make-sm-column(2); 
+            margin: 7px 0px;
+          }
+                  
+          .album_name { 
+            @include make-sm-column(7); 
+            a { 
+              color: $font-link; 
+              &:hover { text-decoration: underline; }
+              }            
+            .tags {
+              font-style: italic;
+              font-size: 0.85em;
+            }
+          }
+          .album_date { @include make-sm-column(3); }
+        }
+        .album {
+          display: -webkit-box;
+          display: -webkit-flex;
+          display: -ms-flexbox;
+          display: flex;
+          align-items: center;
+        }
+      }
+  
     }
     
-    .post-footer {
-      clear: both;
-      text-align: center;
-      a {
-        padding: 4px;
-        border: 1px dotted;
-        }
-    }
-
-    //Post styling
-    .post-sentence, .post-expand, .post-link {
-      display: none;
-    }
-
-    //Tracklist styling
-    #tracklist, #albums {
-      :target {
-        background-color: lighten($color-accent-2, 15%);
-      }
-      .song, .album {
-        @include make-row();
-        border-bottom: 1px solid #DDDDDD;
-        margin: 0px 8px;
-        .track_number{ 
-          @include make-sm-column(1); 
-          text-align: center;
-        }
-        .track_name{ @include make-sm-column(10); }
-        .track_duration, .album_date { 
-          @include make-sm-column(1); 
-          text-align: center;
-        }
-        
-        .album_art { 
-          @include make-sm-column(2); 
-          margin: 7px 0px;
-        }
-                
-        .album_name { 
-          @include make-sm-column(7); 
-          a { 
-            color: $font-link; 
-            &:hover { text-decoration: underline; }
-            }            
-          .tags {
-            font-style: italic;
-            font-size: 0.85em;
+    #sidebar {
+      @include make-sm-column(4);
+      @mixin nav-colors($accent) {
+        .nav > li  {
+          > a:hover {
+            background: linear-gradient(90deg, white, lighten($accent, 15%), white);
           }
-        }
-        .album_date { @include make-sm-column(3); }
+          > a:focus {
+            background: lighten($accent, 20%);
+          }
+        }      
       }
-      .album {
-        display: -webkit-box;
-        display: -webkit-flex;
-        display: -ms-flexbox;
-        display: flex;
-        align-items: center;
+      div .panel {
+        li > a, .panel-heading {padding: 5px 15px;}
+        @include panel-variant($border-color, black, $color-accent-3, black);
+        @include nav-colors($color-accent-3);
+      }
+      div:first-of-type .panel {
+        @include panel-variant($border-color, black, $color-accent-1, black);
+        @include nav-colors($color-accent-1);
+      }
+  
+      div:nth-of-type(2) .panel {
+        @include panel-variant($border-color, black, $color-accent-2, black);
+        @include nav-colors($color-accent-2);
+      }
+      
+      .album-row { @include make-row();}
+      .album-column { @include make-xs-column(6);}
+      
+      a {
+        color: $font-link;
+        &:hover { 
+          color: black;
+          text-decoration: underline;
+        }
+      }
+      
+    }
+  
+    //Information styling
+    .info-list {
+      a {
+        color: $font-link;
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+      
+      .info-organizations > div {
+        margin-left: 10px;
       }
     }
-
   }
   
-  #sidebar {
-    @include make-sm-column(4);
-    @mixin nav-colors($accent) {
-      .nav > li  {
-        > a:hover {
-          background: linear-gradient(90deg, white, lighten($accent, 15%), white);
-        }
-        > a:focus {
-          background: lighten($accent, 20%);
-        }
-      }      
-    }
-    div .panel {
-      li > a, .panel-heading {padding: 5px 15px;}
-      @include panel-variant($border-color, black, $color-accent-3, black);
-      @include nav-colors($color-accent-3);
-    }
-    div:first-of-type .panel {
-      @include panel-variant($border-color, black, $color-accent-1, black);
-      @include nav-colors($color-accent-1);
-    }
-
-    div:nth-of-type(2) .panel {
-      @include panel-variant($border-color, black, $color-accent-2, black);
-      @include nav-colors($color-accent-2);
-    }
-    
-    .album-row { @include make-row();}
-    .album-column { @include make-xs-column(6);}
-    
-    a {
-      color: $font-link;
-      &:hover { 
-        color: black;
-        text-decoration: underline;
-      }
-    }
-    
-  }
-
-  //Information styling
-  .info-list {
-    a {
-      color: $font-link;
-      &:hover {
-        text-decoration: underline;
-      }
-    }
-    
-    .info-organizations > div {
-      margin-left: 10px;
-    }
-  }
-}
-
-#index, #groupings {
-  background-color: $well-background-color;
-  border: 1px solid $border-color;
-  padding-top: 15px;
-  margin-bottom: 15px;
-  .record-container, .grouping {
-    padding: 5px 40px;
-  }
-  .artist, .organization, .source, .album, .song, .group {
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: -webkit-flex;
-    display: flex;
-    align-items: center;
-    border-bottom: 1px solid #DDDDDD;
-    padding-bottom: 10px;
-    .name {
-      width: 35%;
-      &.album-name {
-        width: 74%;
-      }
-      &.song-name {
-        width: 74%;
-        h5, .tags {
-          margin-left: 20px;
-        }
-      }
-      h4 {
-        margin-bottom: 5px;
-      }
-      .tags {
-        font-style: italic;
-        font-size: 0.85em;
-      }
-    }
-    .albums {
-      border-left: 1px solid #DDDDDD;
-      padding-left: 15px;
-      width: 65%;
-      text-align: center;
-      .album-images {
-        @include make-row();
-        display: -webkit-box;
-        display: -moz-box;
-        display: -ms-flexbox;
-        display: -webkit-flex;
-        display: flex;
-        align-items: center;
-        div {
-          @include make-sm-column(2);
-        }
-      }
-    }
-    .image {
-      width: 10%;
-      margin-right: 10px;
-    }
-    .date {
-      margin-left: auto;
-      width: 15%;
-      text-align: center;
-    }
-    .duration {
-      width: 10%;
-    }
-    a {
-      color: $font-link;
-      &:hover {
-        text-decoration: underline;
-      }
-    }
-    .grouping-label {
-      width: 20%;
-      text-align: center;
-      input { width: 70%; }
-    }
-    .grouping-records {
-      @include make-row();
-      border-left: 1px solid #DDDDDD;
-      padding-left: 20px;
-      width: 80%;
-      .sortable-records {
-        padding-left: 10px;
-        padding-right: 10px;
-        float: left;
-        width: 20%;
-        position: relative;
-        min-height: 50px;
-        padding-bottom: 10px;   
-        .sortable-record {
-          font-size: 90%;
-          font-weight: bold;
-          line-height: 1;
-          text-align: center;
-          vertical-align: baseline;
-          color: black;
-          padding: 1px 0px 1px;
-          div {
-            padding: 0.2em 0.6em 0.3em;
-            background-color: #d8f4fd;
-          }
-        }   
-      }
-    }
-  }
-}
-
-#search, #collection {
-  ul#search-tabs, ul#collection-tabs {
-    text-align: center;
-    margin-bottom: -1px;
-    li {
-      float: none;
-      display: inline-block;
-      margin-bottom: -1px;
-      a {background: darken($background-color, 10%);}
-      &:hover {
-        a {background: $background-color; }
-      }
-      &.active {
-        a {background: $background-color; }
-      }
-    }
-  }
-  div.no-records {
-    text-align: center;
-    margin: 20px 0px 30px;;
-  }
-}
-
-#seasons {
-  .year {
-    h2 {
-      clear: both;
-    }
-  }
-  .season {
-    display: block;
-    width: 25%;
-    float:left;
-    padding: 0 1%;
-    border-radius: 10px;
-    border: 0px;
-    margin-bottom: 30px;
-    margin-top: 10px;
-    .enhance {
-      height: 235px;
-      border-radius: 10px;
-      overflow: hidden;
-      z-index: 1;
-      position:relative;
-      &:hover {
-        img {
-          border-radius:10px;
-          transform: scale(1.3);
-        };
-        .name {
-          background:rgba(0,0,0,1);
-        }
-      }    
-      img {
-        transition: all 0.2s ease-in-out;
-        width: 100%;
-      }
-      .name {
-        position:absolute;
-        text-align: center;
-        width: 100%;
-        bottom: 0;
-        padding: 0 2% 0 2%;
-        color:rgb(255,255,255) ;
-        background:rgba(0,0,0,0.35);
-        h3{
-          margin: 10px 0px;
-        }
-        a {
-          color:rgb(255,255,255) ;
-        }
-      }
-    }
-  }
-}
-
-#events {
-  text-align: center;
-  .event {
+  #index, #groupings {
     background-color: $well-background-color;
     border: 1px solid $border-color;
-    width: 30%;
-    display: inline-block;
-    margin: 5px; 
-    a{
-      display: block;
-      padding: 20px 0px;
-      .name  > h4 {
-        margin: 0px;
+    padding-top: 15px;
+    margin-bottom: 15px;
+    .record-container, .grouping {
+      padding: 5px 40px;
+    }
+    .artist, .organization, .source, .album, .song, .group {
+      display: -webkit-box;
+      display: -ms-flexbox;
+      display: -webkit-flex;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid #DDDDDD;
+      padding-bottom: 10px;
+      .name {
+        width: 35%;
+        &.album-name {
+          width: 74%;
+        }
+        &.song-name {
+          width: 74%;
+          h5, .tags {
+            margin-left: 20px;
+          }
+        }
+        h4 {
+          margin-bottom: 5px;
+        }
+        .tags {
+          font-style: italic;
+          font-size: 0.85em;
+        }
       }
-      .date, .albums {
-        font-size: .9em;
+      .albums {
+        border-left: 1px solid #DDDDDD;
+        padding-left: 15px;
+        width: 65%;
+        text-align: center;
+        .album-images {
+          @include make-row();
+          display: -webkit-box;
+          display: -moz-box;
+          display: -ms-flexbox;
+          display: -webkit-flex;
+          display: flex;
+          align-items: center;
+          div {
+            @include make-sm-column(2);
+          }
+        }
+      }
+      .image {
+        width: 10%;
+        margin-right: 10px;
+      }
+      .date {
+        margin-left: auto;
+        width: 15%;
+        text-align: center;
+      }
+      .duration {
+        width: 10%;
+      }
+      a {
+        color: $font-link;
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+      .grouping-label {
+        width: 20%;
+        text-align: center;
+        input { width: 70%; }
+      }
+      .grouping-records {
+        @include make-row();
+        border-left: 1px solid #DDDDDD;
+        padding-left: 20px;
+        width: 80%;
+        .sortable-records {
+          padding-left: 10px;
+          padding-right: 10px;
+          float: left;
+          width: 20%;
+          position: relative;
+          min-height: 50px;
+          padding-bottom: 10px;   
+          .sortable-record {
+            font-size: 90%;
+            font-weight: bold;
+            line-height: 1;
+            text-align: center;
+            vertical-align: baseline;
+            color: black;
+            padding: 1px 0px 1px;
+            div {
+              padding: 0.2em 0.6em 0.3em;
+              background-color: #d8f4fd;
+            }
+          }   
+        }
       }
     }
   }
+  
+  #search, #collection {
+    ul#search-tabs, ul#collection-tabs {
+      text-align: center;
+      margin-bottom: -1px;
+      li {
+        float: none;
+        display: inline-block;
+        margin-bottom: -1px;
+        a {background: darken($background-color, 10%);}
+        &:hover {
+          a {background: $background-color; }
+        }
+        &.active {
+          a {background: $background-color; }
+        }
+      }
+    }
+    div.no-records {
+      text-align: center;
+      margin: 20px 0px 30px;;
+    }
+  }
+  
+  #seasons {
+    .year {
+      h2 {
+        clear: both;
+      }
+    }
+    .season {
+      display: block;
+      width: 25%;
+      float:left;
+      padding: 0 1%;
+      border-radius: 10px;
+      border: 0px;
+      margin-bottom: 30px;
+      margin-top: 10px;
+      .enhance {
+        height: 235px;
+        border-radius: 10px;
+        overflow: hidden;
+        z-index: 1;
+        position:relative;
+        &:hover {
+          img {
+            border-radius:10px;
+            transform: scale(1.3);
+          };
+          .name {
+            background:rgba(0,0,0,1);
+          }
+        }    
+        img {
+          transition: all 0.2s ease-in-out;
+          width: 100%;
+        }
+        .name {
+          position:absolute;
+          text-align: center;
+          width: 100%;
+          bottom: 0;
+          padding: 0 2% 0 2%;
+          color:rgb(255,255,255) ;
+          background:rgba(0,0,0,0.35);
+          h3{
+            margin: 10px 0px;
+          }
+          a {
+            color:rgb(255,255,255) ;
+          }
+        }
+      }
+    }
+  }
+  
+  #events {
+    text-align: center;
+    .event {
+      background-color: $well-background-color;
+      border: 1px solid $border-color;
+      width: 30%;
+      display: inline-block;
+      margin: 5px; 
+      a{
+        display: block;
+        padding: 20px 0px;
+        .name  > h4 {
+          margin: 0px;
+        }
+        .date, .albums {
+          font-size: .9em;
+        }
+      }
+    }
+  }
+
+  #form {
+    form#new_user_session {
+      text-align: center;
+    };
+    #small-view {
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;   
+      .single-form {
+        background-color: $well-background-color;
+        border: 1px solid $border-color;
+        padding: 18px 15px 18px 15px;
+        margin-bottom: 15px;
+        label {font-weight: normal;}
+        .section-content {
+          padding-left: 30px;
+          margin-bottom: 10px;
+          .form-checkbox {
+            margin-left: 30px;
+          }
+        }
+        #notice {text-align: center;}
+      }
+    }
+  } 
 }

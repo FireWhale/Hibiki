@@ -1,6 +1,7 @@
 class PostsController < ApplicationController
   load_and_authorize_resource
-   
+  layout "grid", only: [:show_images]
+  
   def index
     @posts = Post.includes(:tags).with_category('Blog Post').meets_security(current_user)
     @all_posts = @posts

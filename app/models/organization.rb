@@ -54,6 +54,7 @@ class Organization < ActiveRecord::Base
                   {type: "date", attribute: :established, label: "Established:"}, 
                   {type: "images"},
                   {type: "tags", div_class: "well", title: "Tags"},
+                  {type: "language_fields", attribute: :info},
                   {type: "text_area", attribute: :info, rows: 4, label: "Info:"},
                   {type: "text_area", attribute: :synopsis, rows: 2, label: "Synopsis:"},
                   {type: "markup", tag_name: "/div"}, {type: "markup", tag_name: "div  class='col-md-6'"},

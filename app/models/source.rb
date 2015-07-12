@@ -65,6 +65,7 @@ class Source < ActiveRecord::Base
                   {type: "date", attribute: :end_date, label: "End Date:"}, 
                   {type: "images"},
                   {type: "tags", div_class: "well", title: "Tags"},
+                  {type: "language_fields", attribute: :info},
                   {type: "text_area", attribute: :info, rows: 4, label: "Info:"},
                   {type: "text_area", attribute: :synopsis, rows: 2, label: "Synopsis:"},
                   {type: "text_area", attribute: :plot_summary, rows: 4, label: "Plot Summary:"},

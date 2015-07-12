@@ -11,9 +11,18 @@
   <body>
     <div id="main">
       <%= yield :header %>
-	  <div id="view">
-	    <%= yield %>
-	  </div>
+      <div id="full-view">
+        <% if content_for?(:left_sidebar_form_view)%>
+          <div id="left-sidebar-form-view">
+            <%= yield :left_sidebar_form_view %>
+          </div>
+          <div id="form-view">
+        <% end %>
+        <%= yield %>
+        <% if content_for(:left_sidebar_form_view)%>
+           </div>
+        <% end %>
+      </div>
     </div>  
   </body>
 </html>

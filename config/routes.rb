@@ -14,9 +14,6 @@ Hibiki::Application.routes.draw do
     end
   end
   resources :albums do
-    collection do
-      get :autocomplete_album_namehash
-    end
     member do
       get 'albumart', :action => 'album_art'
       get 'edit_tracklist'
@@ -26,25 +23,21 @@ Hibiki::Application.routes.draw do
     end
   end
   resources :sources do
-    get :autocomplete_source_namehash, :on => :collection
     member do
       get 'images', action: 'show_images'
     end
   end
   resources :songs do
-    get :autocomplete_song_namehash, :on => :collection
     member do
       get 'images', :action => 'show_images'
     end
   end
   resources :organizations do
-    get :autocomplete_organization_namehash, :on => :collection
     member do
       get 'images', :action => 'show_images'
     end
   end
   resources :artists do
-    get :autocomplete_artist_namehash, :on => :collection
     member do
       get 'images', :action => 'show_images'
     end

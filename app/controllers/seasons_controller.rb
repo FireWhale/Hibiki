@@ -1,5 +1,6 @@
 class SeasonsController < ApplicationController
   load_and_authorize_resource
+  layout "grid", only: [:show, :show_images]
 
   def index
     @seasons = Season.order(:start_date)

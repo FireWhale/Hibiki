@@ -64,7 +64,7 @@ class Album < ActiveRecord::Base
                                   artists: [:new_artist_names, :new_artist_categories_scraped]},
                         relations_by_id: {organization: [:new_organization_ids, :new_organization_categories, :update_album_organizations, :remove_album_organizations, AlbumOrganization, "album_organizations"]},
                         self_relations: [:new_related_album_ids, :new_related_album_categories, :update_related_albums, :remove_related_albums],
-                        images: ["album", "albumart/", "Cover"],
+                        images: true,
                         languages: [:name, :info],
                         dates: ["release_date"]}
                         
@@ -78,6 +78,7 @@ class Album < ActiveRecord::Base
                   {type: "text", attribute: :classification, label: "Classification:"}, 
                   {type: "references"}, {type: "events"}, {type: "images"},
                   {type: "tags", div_class: "well", title: "Tags"},
+                  {type: "language_fields", attribute: :info},
                   {type: "text_area", attribute: :info, rows: 4, label: "Info:"},
                   {type: "text_area", attribute: :private_info, rows: 10, label: "Private Info:"},
                   {type: "markup", tag_name: "/div"}, {type: "markup", tag_name: "div  class='col-md-6'"},

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Hibiki<% if content_for?(:title)%> - <% end %><%= yield :title %></title>
+    <%= stylesheet_link_tag    "application", :media => "all" %>
+    <%= javascript_include_tag "application" %>
+    <%= csrf_meta_tags %>
+  </head>
+  <%= render 'layouts/structural/header' %>
+  <%= render 'layouts/structural/alerts' %>
+  <body>
+    <div id="main">
+      <%= yield :header %>
+      <div id="grid-view">
+        <div id="grid">
+          <% if content_for?(:left_sidebar) %>
+            <div id="left-sidebar" class="sidebar nano">
+              <div class="nano-content">
+                <%= yield :left_sidebar %>
+              </div>
+            </div>
+          <% end %>
+          <div id="grid-content" class="nano">
+            <div class="nano-content">
+              <%= yield %>
+            </div>
+          </div>  
+          <% if content_for?(:right_sidebar) %>
+            <div id="right-sidebar" class='sidebar nano'>
+              <div class="nano-content">
+                <%= yield :right_sidebar %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>  
+  </body>
+</html>

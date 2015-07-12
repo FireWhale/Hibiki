@@ -1,5 +1,6 @@
 class SongsController < ApplicationController
   load_and_authorize_resource
+  layout "full", only: [:edit, :new]
 
   def index
     @songs = Song.includes(:tags, :translations, album: [:primary_images, :translations]).page(params[:page])
@@ -39,7 +40,7 @@ class SongsController < ApplicationController
     @show_nws = params[:show_nws]
 
     respond_to do |format|
-      format.html 
+      format.html { render layout: "grid"}
       format.js { render template: "images/update_image"}
       format.json { render json: @song.images }
     end

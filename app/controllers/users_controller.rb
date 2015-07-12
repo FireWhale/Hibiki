@@ -1,5 +1,6 @@
 class UsersController < ApplicationController
   load_and_authorize_resource
+  layout "grid", only: [:watchlist]
   
   def collect
     user = current_user

@@ -16,9 +16,7 @@ class Image < ActiveRecord::Base
     Rating = ["NWS", "SFW"] 
     PrimaryFlags = ["Cover", "Primary"]
     
-    FormFields = [{type: "markup", tag_name: "div class='col-md-1'"},{type: "markup", tag_name: "/div"},
-                  {type: "markup", tag_name: "div class='col-md-11'"},
-                  {type: "text", attribute: :name, label: "Name:", field_class: "input-xlarge"},
+    FormFields = [{type: "text", attribute: :name, label: "Name:", field_class: "input-xlarge"},
                   {type: "select", attribute: :primary_flag,label: "Primary flag:", categories: Image::PrimaryFlags},
                   {type: "select", attribute: :rating, label: "NWS/SFW:", categories: Image::Rating},
                   {type: "text", attribute: :llimagelink, label: "ETI Image Link:", field_class: "input-xlarge"},
@@ -30,9 +28,7 @@ class Image < ActiveRecord::Base
                   {type: "text", attribute: :medium_width, label: "Medium Width:", no_div: true},
                   {type: "text", attribute: :medium_height, label: "Medium Height:", no_div: true},
                   {type: "text", attribute: :thumb_width, label: "Thumb Width:", no_div: true},
-                  {type: "text", attribute: :thumb_height, label: "Thumb Height:", no_div: true},
-                  {type: "markup", tag_name: "/div"},
-                  {type: "markup", tag_name: "div class='col-md-1'"},{type: "markup", tag_name: "/div"},]
+                  {type: "text", attribute: :thumb_height, label: "Thumb Height:", no_div: true}]
     
   #Validation
     validates :name, presence: true

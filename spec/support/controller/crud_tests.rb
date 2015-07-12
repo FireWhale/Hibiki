@@ -42,10 +42,10 @@ module CrudTests
             end
             get :index, format: :json
             expect(response.headers['Content-Type']).to match 'application/json'
-            unless model_class == Post
-              expect(response.body).to eq(list.sort_by!(&sort_method).to_json)
+            unless model_class == Post || model_class == Issue
+              expect(response.body).to eq(model_class.order(sort_method).to_json)              
             else
-              expect(response.body).to eq(list.sort_by!(&sort_method).reverse!.to_json)
+              expect(response.body).to eq(model_class.order(sort_method).reverse_order.to_json)
             end
           end
         
@@ -73,10 +73,10 @@ module CrudTests
               list = create_list(model_symbol, 10)
             end
             get :index
-            unless model_class == Post #Posts have newest first
-              expect(assigns("#{model_symbol}s".to_sym)).to eq(list.sort_by!(&sort_method))   
+            unless model_class == Post || model_class == Issue #Posts have newest first
+              expect(assigns("#{model_symbol}s".to_sym).to_a).to eq(model_class.order(sort_method).to_a)   
             else
-              expect(assigns("#{model_symbol}s".to_sym)).to eq(list.sort_by!(&sort_method).reverse!)   
+              expect(assigns("#{model_symbol}s".to_sym).to_a).to eq(model_class.order(sort_method).reverse_order.to_a)   
             end       
           end
         end

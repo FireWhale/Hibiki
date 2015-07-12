@@ -13,9 +13,7 @@ class Issue < ActiveRecord::Base
     Priorities = ["High", "Medium", "Low"]
     Difficulties = ["Easy", "Medium", "Hard"]
     
-    FormFields = [{type: "markup", tag_name: "div class='row'"},{type: "markup", tag_name: "div class='col-md-2'"},{type: "markup", tag_name: "/div"},
-                  {type: "markup", tag_name: "div class='col-md-8'"},
-                  {type: "text", attribute: :name, label: "Name:", field_class: "input-xlarge"},
+    FormFields = [{type: "text", attribute: :name, label: "Name:", field_class: "input-xlarge"},
                   {type: "select", attribute: :status, label: "Status:", categories: Issue::Status},
                   {type: "select", attribute: :category, label: "Category:", categories: Issue::Categories},
                   {type: "select", attribute: :visibility, label: "Visibility:", categories: Ability::Abilities},
@@ -23,9 +21,7 @@ class Issue < ActiveRecord::Base
                   {type: "select", attribute: :difficulty, label: "Difficulty:", categories: Issue::Difficulties},
                   {type: "select", attribute: :priority, label: "Priority:", categories: Issue::Priorities},
                   {type: "text_area", attribute: :description, rows: 6, label: "Description:"},
-                  {type: "text_area", attribute: :private_info, rows: 6, label: "Private Information:"},
-                  {type: "markup", tag_name: "/div"},
-                  {type: "markup", tag_name: "div class='col-md-2'"},{type: "markup", tag_name: "/div"},{type: "markup", tag_name: "/div"}]
+                  {type: "text_area", attribute: :private_info, rows: 6, label: "Private Information:"}]
     
   #Validations
     validates :name, presence: true

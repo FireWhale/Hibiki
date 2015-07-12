@@ -14,22 +14,16 @@ body {
   margin-right: auto;
 }
 
-#large-view {
+#grid-view {
   max-width: 1300px;
   margin-left: auto;
   margin-right: auto;
 }
 
-#super-view {
+#full-view {
   max-width: 1900px;
   margin-left: auto;
   margin-right: auto;
-  //Within forms, you can have a small view
-  #small-view {
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;  
-  }
 }
 
 //Link changes

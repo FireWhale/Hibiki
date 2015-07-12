@@ -1,5 +1,6 @@
 class AlbumsController < ApplicationController
   load_and_authorize_resource
+  layout "full", only: [:edit, :new]
   
   def index
     @albums = Album.includes(:primary_images, :tags, :translations).order(:release_date).filter_by_user_settings(current_user).page(params[:page])
@@ -39,7 +40,7 @@ class AlbumsController < ApplicationController
     @show_nws = params[:show_nws]
     
     respond_to do |format|
-      format.html
+      format.html { render layout: "grid" }
       format.js { render template: "images/update_image"}
       format.json { render json: @album.images }
     end
@@ -69,7 +70,7 @@ class AlbumsController < ApplicationController
     @album = Album.includes({songs: [:tags, :translations, {song_sources: {source: :translations}},{artist_songs: {artist: :translations}}]}, {artists: [:translations, :watchlists]}, {sources: [:translations, :watchlists]}).find_by_id(params[:id])
   
     respond_to do |format|
-      format.html # edit_tracklist.html.erb
+      format.html { render layout: "full"}
       format.json { render json: @album }
     end
   end

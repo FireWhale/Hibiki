@@ -13,16 +13,12 @@ class Tag < ActiveRecord::Base
     ModelBitmask = %w[Album Artist Organization Song Source Post]
     FullUpdateFields = {tag_models: :models, languages: [:name, :info]}
 
-    FormFields = [{type: "markup", tag_name: "div class='row'"},{type: "markup", tag_name: "div class='col-md-2'"},{type: "markup", tag_name: "/div"},
-                  {type: "markup", tag_name: "div class='col-md-8'"},
-                  {type: "text", attribute: :internal_name, label: "Internal Name:", field_class: "input-xlarge"},
+    FormFields = [{type: "text", attribute: :internal_name, label: "Internal Name:", field_class: "input-xlarge"},
                   {type: "language_fields", attribute: :name},
                   {type: "text", attribute: :classification, label: "Classification:", field_class: "input-xlarge"},
                   {type: "select", attribute: :visibility, label: "Visibility:", categories: Ability::Abilities},
                   {type: "language_fields", attribute: :info},
-                  {type: "tag_models"},
-                  {type: "markup", tag_name: "/div"},
-                  {type: "markup", tag_name: "div class='col-md-2'"},{type: "markup", tag_name: "/div"},{type: "markup", tag_name: "/div"}]
+                  {type: "tag_models"},]
   
   #Validation
     validates :internal_name, presence: true , uniqueness: {scope: :model_bitmask}

@@ -59,7 +59,7 @@ class Artist < ActiveRecord::Base
     FullUpdateFields = {reference: true,
                         relations_by_id: {organization: [:new_organization_ids, :new_organization_categories, :update_artist_organizations, :remove_artist_organizations, ArtistOrganization, "artist_organizations"]},
                         self_relations: [:new_related_artist_ids, :new_related_artist_categories, :update_related_artists, :remove_related_artists],
-                        images: ["id", "artistimages/", "Primary"],
+                        images: true,
                         languages: [:name, :info],
                         dates: ["birth_date", "debut_date"]}  
                         
@@ -76,6 +76,7 @@ class Artist < ActiveRecord::Base
                   {type: "date", attribute: :birth_date, label: "Birth Date:"}, 
                   {type: "images"},
                   {type: "tags", div_class: "well", title: "Tags"},
+                  {type: "language_fields", attribute: :info},
                   {type: "text_area", attribute: :info, rows: 4, label: "Info:"},
                   {type: "text_area", attribute: :synopsis, rows: 2, label: "Synopsis:"},
                   {type: "markup", tag_name: "/div"}, {type: "markup", tag_name: "div  class='col-md-6'"},

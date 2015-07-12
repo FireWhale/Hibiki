@@ -22,15 +22,12 @@ class Post < ActiveRecord::Base
 
     FullUpdateFields = {images: ["id", "postimages/", "Primary"]}  
 
-    FormFields = [{type: "markup", tag_name: "div class='row'"},{type: "markup", tag_name: "div class='col-md-2'"},{type: "markup", tag_name: "/div"},
-                  {type: "markup", tag_name: "div class='col-md-8'"},
-                  {type: "text", attribute: :title, label: "Title:"}, 
+    FormFields = [{type: "text", attribute: :title, label: "Title:"}, 
                   {type: "select", attribute: :category, label: "Category:", categories: Post::Categories},
                   {type: "select", attribute: :visibility, label: "Visibility:", categories: Ability::Abilities},
                   {type: "select", attribute: :status, label: "Status:", categories: Post::Status},
                   {type: "tags", div_class: "well", title: "Tags"},
-                  {type: "images"}, {type: "text_area", attribute: :content, rows: 20, label: "Info:"},{type: "markup", tag_name: "/div"},
-                  {type: "markup", tag_name: "div class='col-md-2'"},{type: "markup", tag_name: "/div"},{type: "markup", tag_name: "/div"}]
+                  {type: "images"}, {type: "text_area", attribute: :content, rows: 20, label: "Info:"}]
     
   #Validation
     validates :category, inclusion: Post::Categories

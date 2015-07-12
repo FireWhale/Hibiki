@@ -49,6 +49,7 @@ class Song < ActiveRecord::Base
                   {type: "text", attribute: :length, label: "Length:"},
                   {type: "references"}, {type: "images"},
                   {type: "tags", div_class: "well", title: "Tags"},
+                  {type: "language_fields", attribute: :info},
                   {type: "text_area", attribute: :info, rows: 4, label: "Info:"},
                   {type: "text_area", attribute: :private_info, rows: 10, label: "Private Info:"},
                   {type: "markup", tag_name: "/div"}, {type: "markup", tag_name: "div  class='col-md-6'"},
