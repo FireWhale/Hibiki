@@ -43,51 +43,67 @@ class PagesController < ApplicationController
   def search
     authorize! :read, Album
     @query = truncate(params[:search], length: 50, escape: false) #used in html
-    @model = (params[:model].nil? ? nil : params[:model]) #for JS
+    @model = params[:model] #for JS
     @records = nil
     @search = {:utf8 => params[:utf8], :search => @query} #used
     
     respond_to do |format|
-      format.html { @models = ["album", "artist", "source", "organization", "song"]}
+      format.html do
+        @models = ["album", "artist", "source", "organization", "song"]
+      end
       format.js { @models = (@model.nil? ? ["album", "artist", "source", "organization", "song"] : [@model])}
+      format.json { @models = (@model.nil? ? ["album", "artist", "source", "organization", "song"] : [@model]) }
     end
     
-    @models.each do |model|
-      #set up eager loading hash
-      includes = [:tags, :translations]
-      if model == "artist" || model == "organization" || model == "source"
-        includes.push(:watchlists)
-        #don't include albums. we only need the first 5 of them + count
-      elsif model == "song"
-        includes.push(album: [:primary_images, :translations])
-      elsif model == "album"
-        includes.push(:primary_images)
-      end
-      search = model.capitalize.constantize.search(:include => includes) do
-        any do
-          fulltext params[:search] do
-            fields(:internal_name, :synonyms, :namehash, :translated_names, :references)
-            fields(:catalog_number) if model == "album"
-            fields(:hidden_references) if current_user.nil? == false && current_user.abilities.include?("Confident")
-          end      
-          if params[:search].include?("*") || params[:search].include?("?")
-            fulltext "\"#{params[:search]}\"" do
+    unless @model.class == Array
+      @models.each do |model|
+        #set up eager loading hash
+        includes = [:tags, :translations]
+        if model == "artist" || model == "organization" || model == "source"
+          includes.push(:watchlists)
+        elsif model == "song" 
+          includes.push(album: [:primary_images, :translations])
+        elsif model == "album"
+          includes.push(:primary_images)
+        end
+        search = model.capitalize.constantize.search(:include => includes) do
+          any do
+            fulltext params[:search] do
               fields(:internal_name, :synonyms, :namehash, :translated_names, :references)
               fields(:catalog_number) if model == "album"
               fields(:hidden_references) if current_user.nil? == false && current_user.abilities.include?("Confident")
             end      
-          end    
-        end
-        order_by(:release_date) if model == "album"
-        paginate :page => params["#{model}_page".to_sym]
-      end      
-      instance_variable_set("@#{model}_count", search.total)
-      if search.total > 0 && @model.nil?
-        @model = model
+            if params[:search].include?("*") || params[:search].include?("?")
+              fulltext "\"#{params[:search]}\"" do
+                fields(:internal_name, :synonyms, :namehash, :translated_names, :references)
+                fields(:catalog_number) if model == "album"
+                fields(:hidden_references) if current_user.nil? == false && current_user.abilities.include?("Confident")
+              end      
+            end    
+          end
+          order_by(:release_date) if model == "album"
+          paginate :page => params["#{model}_page".to_sym]
+        end      
+        instance_variable_set("@#{model}_count", search.total)
+        @model = model if search.total > 0 && @model.nil?
+        @records = search.results if @model == model && @records.nil? 
       end
-      @records = search.results if @model == model && @records.nil? 
+      @model = "any cateogorie" if @model.nil? #text for if there were no results at all            
+    else
+      models = @model.map(&:capitalize).select {|a| ["Album", "Song", "Organization", "Source", "Artist"].include?(a) }.map(&:constantize)
+      search = Sunspot.search(models) do
+        models.each do |model|
+          data_accessor_for(model).include = :translations
+        end
+        fulltext params[:search] do
+          fields(:internal_name, :synonyms, :namehash, :translated_names, :references)
+        end
+        paginate page: 1, per_page: 25
+      end
+      @records = search.results
+      @model = @records.first.class
     end
-    @model = "any cateogorie" if @model.nil? #text for if there were no results at all
+      
   end 
    
   def forgotten_password

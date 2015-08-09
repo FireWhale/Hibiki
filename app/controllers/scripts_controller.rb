@@ -114,6 +114,7 @@ class ScriptsController < ApplicationController
     
     #Get the right json format
     respond_to do |format|
+      format.json { render :json => @json_results }
       format.js { render :json => @json_results}
     end
   end

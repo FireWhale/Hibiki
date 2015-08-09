@@ -6,7 +6,7 @@ module JsonModule
                         :popularity, :visibility, :lyrics,
                         :created_at, :updated_at, :release_date_bitmask, :model_bitmask,
                         :birth_date_bitmask, :debut_date_bitmask, :end_date_bitmask,
-                        :established_bitmask,
+                        :established_bitmask, :blood_type, :gender, :birth_place,
                         :llimagelink, :namehash, :private_info]
         
     if self.class == User
@@ -60,5 +60,5 @@ module JsonModule
       #Remove extraneous and sensitive information
       super(:except => banned_attributes)
     end
-  end  
+  end
 end

@@ -149,6 +149,11 @@ describe PagesController do
         expect(response).to render_template :search
       end
       
+      it "responds to json"
+      
+      it "accepts a model as a param"
+      
+      it "accepts multiple models as a param"
     end
   end   
   

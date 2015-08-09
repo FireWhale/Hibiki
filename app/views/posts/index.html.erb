@@ -12,6 +12,7 @@
     <% @posts.each do |post| %>
       <%= render "posts/display_post", post: post, :truncate_length => 400%>
     <% end %>
+    <%= paginate @posts %>
   </div>
 
   <div id="sidebar">

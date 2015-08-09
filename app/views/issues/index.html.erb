@@ -9,6 +9,7 @@
     <% @issues.each do |issue| %>
       <%= render "issues/display_issue", issue: issue, :truncate_length => 200 %>
     <% end %>
+    <%= paginate @issues %>
   </div>
   
   <div id="sidebar">
