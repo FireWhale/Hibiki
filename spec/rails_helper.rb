@@ -26,7 +26,6 @@ RSpec.configure do |config|
   #Controller
   config.include CrudTests, type: :controller
   config.include ImageRouteTests, type: :controller
-  config.include AjaxTests, type: :controller
   
   #Model
   config.include AssociationTests, type: :model

@@ -78,6 +78,7 @@ class ScriptsController < ApplicationController
     authorize! :show, Album
     
     @json_results = []
+    
     unless params[:term].blank?
       if params[:model].blank?
         #Use general search - all models
@@ -98,7 +99,7 @@ class ScriptsController < ApplicationController
           end
           paginate page: 1, per_page: 10
         end
-        @json_results = search.results.to_json({autocomplete_search: true, autocomplete_user: current_user}) 
+        @json_results = search.results.to_json({autocomplete: "search", autocomplete_user: current_user}) 
       else
         #if a model is passed in, it's likely going to be for editing. 
         search = params[:model].capitalize.constantize.search(:include => :translations) do
@@ -107,7 +108,7 @@ class ScriptsController < ApplicationController
           end
           paginate page: 1, per_page: 10
         end
-        @json_results = search.results.to_json({autocomplete_edit: true, autocomplete_user: current_user}) 
+        @json_results = search.results.to_json({autocomplete: "edit", autocomplete_user: current_user}) 
       end
     end
     #I only need the term and the model ->

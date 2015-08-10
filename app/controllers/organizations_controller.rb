@@ -20,7 +20,7 @@ class OrganizationsController < ApplicationController
     respond_to do |format|
       format.js
       format.html # show.html.erb
-      format.json { render json: @organization.to_json(:user => current_user) }
+      format.json { render json: @organization.to_json(:user => current_user, include_albums: true) }
     end
   end
   

@@ -18,9 +18,9 @@ class SourcesController < ApplicationController
     @albums = @source.albums.filter_by_user_settings(current_user).order('release_date DESC').page(params[:album_page])
     
     respond_to do |format|
-      format.html # show.html.erb
-      format.json { render json: @source.to_json(:user => current_user)}
       format.js
+      format.html # show.html.erb
+      format.json { render json: @source.to_json(:user => current_user, include_albums: true)}
     end
   end
 

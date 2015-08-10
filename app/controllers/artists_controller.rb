@@ -20,7 +20,7 @@ class ArtistsController < ApplicationController
     respond_to do |format|
       format.js
       format.html # show.html.erb
-      format.json { render json: @artist.to_json(:user => current_user) }
+      format.json { render json: @artist.to_json(:user => current_user, include_albums: true) }
     end
   end
 

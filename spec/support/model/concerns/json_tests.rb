@@ -17,20 +17,33 @@ module JsonTests
       context "with autocomplete options" do
         if [Artist, Source, Organization, Song, Album].include?(described_class)
           it "has an autocomplete_search form" do
-            expect(record.to_json(:autocomplete_search => true)).to match_json_schema("autocomplete")
+            expect(record.to_json(:autocomplete => "search")).to match_json_schema("autocomplete")
           end
           
           it "has an autocomplete_edit form" do
             record = create(model_symbol)
-            expect(record.to_json(:autocomplete_edit => true)).to match_json_schema("autocomplete")
+            expect(record.to_json(:autocomplete => "edit")).to match_json_schema("autocomplete")
           end
         else
           it "ignores the autocomplete_search option" do
-            expect(record.to_json(:autocomplete_search => true)).to match_json_schema(model_symbol.to_s)
+            expect(record.to_json(:autocomplete => "search")).to match_json_schema(model_symbol.to_s)
           end
           
           it "ignores the autocomplete_edit option" do
-            expect(record.to_json(:autocomplete_edit => true)).to match_json_schema(model_symbol.to_s)
+            expect(record.to_json(:autocomplete => "edit")).to match_json_schema(model_symbol.to_s)
+          end
+        end
+      end
+      
+      context "with album options" do
+        if [Source, Organization, Artist, Event].include?(described_class)
+          it "includes albums" do
+            expect(record.to_json(:include_albums => true)).to match_json_schema("#{model_symbol}_with_albums")
+          end
+          
+        else
+          it "does not include albums" do
+            expect(record.to_json(:include_albums => true)).to match_json_schema(model_symbol.to_s)
           end
         end
       end

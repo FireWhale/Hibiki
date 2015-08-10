@@ -208,7 +208,7 @@ module CrudTests
             end
             get :show, id: record, format: :json
             expect(response.headers['Content-Type']).to match 'application/json'
-            expect(response.body).to eq(record.to_json)
+            expect(response.body).to eq([Artist, Source, Organization, Event].include?(model_class) ? record.to_json(:include_albums => true) : record.to_json)
           end
         
         else
