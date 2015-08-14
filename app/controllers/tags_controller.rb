@@ -7,16 +7,18 @@ class TagsController < ApplicationController
     
     respond_to do |format|
       format.html # index.html.erb
-      format.json { render json: @tags }
+      format.json
     end
   end
 
   def show
     @tag = Tag.find(params[:id])
-
+        
+    @records = Kaminari.paginate_array(@tag.subjects).page(params[:record_page]).per(30)
+    
     respond_to do |format|
       format.html # show.html.erb
-      format.json { render json: @tag }
+      format.json {@fields = (params[:fields] || '').split(',')}
     end
   end
 

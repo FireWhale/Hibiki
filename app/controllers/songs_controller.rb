@@ -7,7 +7,7 @@ class SongsController < ApplicationController
 
     respond_to do |format|
       format.html # index.html.erb
-      format.json { render json: @songs.to_json(:user => current_user) }
+      format.json 
     end
   end
 
@@ -16,15 +16,10 @@ class SongsController < ApplicationController
     
     self_relation_helper(@song,@related = {}) #Prepare @related (self_relations) 
     credits_helper(@song,@credits = {}) #prepares the credits
-    
+        
     respond_to do |format|
-      format.html do 
-        if @song.album.nil?
-        else
-          redirect_to album_path(id: @song.album.id, :anchor => "song-#{@song.id}")
-        end
-      end
-      format.json { render json: @song.to_json(:user => current_user) }
+      format.html { redirect_to album_path(id: @song.album.id, :anchor => "song-#{@song.id}") unless @song.album.nil? }
+      format.json  {@fields = (params[:fields] || '').split(',')}
     end
   end
 

@@ -98,7 +98,7 @@ class PagesController < ApplicationController
         fulltext params[:search] do
           fields(:internal_name, :synonyms, :namehash, :translated_names, :references)
         end
-        paginate page: 1, per_page: 25
+        paginate page: params[:page], per_page: 50
       end
       @records = search.results
       @model = @records.first.class

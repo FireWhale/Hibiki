@@ -7,6 +7,7 @@ gem 'bcrypt', '~> 3.1.7' #needed for authlogic 3.4.1
 gem 'scrypt', '1.2.1' #needed for authlogic 3.4.1
 gem 'cancan'
 gem 'kaminari' #pagination
+gem 'jbuilder'
 gem 'sass-rails',   '>= 3.2'
 gem 'bootstrap-sass', '~> 3.2.0.2' #bootstrap
 gem 'nokogiri' #Scraping

@@ -7,7 +7,7 @@ class SeasonsController < ApplicationController
 
     respond_to do |format|
       format.html # index.html.erb
-      format.json { render json: @seasons }
+      format.json
     end
   end
 
@@ -22,7 +22,7 @@ class SeasonsController < ApplicationController
       
     respond_to do |format|
       format.html # show.html.erb
-      format.json { render json: @season }
+      format.json {@fields = (params[:fields] || '').split(',')}
     end
   end
 

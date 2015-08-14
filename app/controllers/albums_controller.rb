@@ -7,7 +7,7 @@ class AlbumsController < ApplicationController
 
     respond_to do |format|
       format.html # index.html.erb
-      format.json { render json: @albums.to_json(:user => current_user) }
+      format.json
     end
   end
 
@@ -24,7 +24,10 @@ class AlbumsController < ApplicationController
     
     respond_to do |format|
       format.html # show.html.erb
-      format.json { render json: @album.to_json(:user => current_user) }
+      format.json do
+        @fields = (params[:fields] || '').split(',')
+        @fields << 'full_song_info' unless params[:full_song_info].blank?
+      end
     end
   end
    

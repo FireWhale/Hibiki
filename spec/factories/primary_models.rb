@@ -51,6 +51,12 @@ FactoryGirl.define do
         info {Faker::Lorem.sentence}
         release_date {Faker::Date.between(2.years.ago, Date.today)}
         release_date_bitmask { 6 }
+        
+        after(:create) do |record|
+          record.write_attribute(:name, "hi", locale: :hibiki_en)
+          record.write_attribute(:info, "ho", locale: :hibiki_en)
+          record.save
+        end
       end
       
       trait :invalid do
@@ -89,6 +95,7 @@ FactoryGirl.define do
       trait :full_attributes do
         synonyms {Faker::Lorem.sentence}
         info {Faker::Lorem.sentence}
+        with_albums
         gender {Faker::Lorem.sentence}
         birth_place {Faker::Lorem.sentence}
         blood_type {Faker::Lorem.word}
@@ -96,6 +103,12 @@ FactoryGirl.define do
         birth_date_bitmask { 6 }
         debut_date {Faker::Date.between(2.years.ago, Date.today)}
         debut_date_bitmask { 6 }
+        
+        after(:create) do |record|
+          record.write_attribute(:name, "hi", locale: :hibiki_en)
+          record.write_attribute(:info, "ho", locale: :hibiki_en)
+          record.save
+        end
       end
       
       trait :invalid do
@@ -133,9 +146,16 @@ FactoryGirl.define do
       
       trait :full_attributes do
         synonyms {Faker::Lorem.sentence}
+        with_albums
         info {Faker::Lorem.sentence}
         established {Faker::Date.between(2.years.ago, Date.today)}
         established_bitmask { 6 }
+        
+        after(:create) do |record|
+          record.write_attribute(:name, "hi", locale: :hibiki_en)
+          record.write_attribute(:info, "ho", locale: :hibiki_en)
+          record.save
+        end
       end
             
       trait :invalid do
@@ -180,11 +200,18 @@ FactoryGirl.define do
       trait :full_attributes do
         synonyms {Faker::Lorem.sentence}
         info {Faker::Lorem.sentence}
+        with_albums
         plot_summary {Faker::Lorem.sentence}
         release_date {Faker::Date.between(2.years.ago, Date.today)}
         release_date_bitmask { 6 }
         end_date {Faker::Date.between(2.years.ago, Date.today)}
         end_date_bitmask { 6 }
+
+        after(:create) do |record|
+          record.write_attribute(:name, "hi", locale: :hibiki_en)
+          record.write_attribute(:info, "ho", locale: :hibiki_en)
+          record.save
+        end
       end
       
       trait :invalid do
@@ -230,6 +257,12 @@ FactoryGirl.define do
         lyrics {Faker::Lorem.sentence}
         release_date {Faker::Date.between(2.years.ago, Date.today)}
         release_date_bitmask { 6 }
+
+        after(:create) do |record|
+          record.write_attribute(:name, "hi", locale: :hibiki_en)
+          record.write_attribute(:info, "ho", locale: :hibiki_en)
+          record.save
+        end
       end
       
       trait :invalid do

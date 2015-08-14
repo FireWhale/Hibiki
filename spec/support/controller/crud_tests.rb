@@ -27,26 +27,10 @@ module CrudTests
           
           it "returns a json object" do      
             ability = @user.nil? ? "Any" : (@user.abilities).sample
-            if model_class == Tag || model_class == Issue
-              list = create_list(model_symbol, 10, visibility: ability)
-            elsif model_class == Post
-              list = create_list(model_symbol, 10, visibility: ability, category: "Blog Post")
-            elsif model_class == Album
-              list = create_list(model_symbol, 10, :with_release_date)
-            elsif model_class == Event
-              list = create_list(model_symbol, 10, :with_start_date)
-            elsif model_class == User && @user.nil? == false
-              list = create_list(model_symbol, 10) + [@user]    
-            else
-              list = create_list(model_symbol, 10)            
-            end
+            list = create_list(model_symbol, 10)
             get :index, format: :json
             expect(response.headers['Content-Type']).to match 'application/json'
-            unless model_class == Post || model_class == Issue
-              expect(response.body).to eq(model_class.order(sort_method).to_json)              
-            else
-              expect(response.body).to eq(model_class.order(sort_method).reverse_order.to_json)
-            end
+            expect(response).to render_template("#{model_symbol}s/index")
           end
         
           unless model_class == Tag || model_class == Event || model_class == Season
@@ -208,7 +192,7 @@ module CrudTests
             end
             get :show, id: record, format: :json
             expect(response.headers['Content-Type']).to match 'application/json'
-            expect(response.body).to eq([Artist, Source, Organization, Event].include?(model_class) ? record.to_json(:include_albums => true) : record.to_json)
+            expect(response).to render_template("#{model_symbol}s/show")
           end
         
         else

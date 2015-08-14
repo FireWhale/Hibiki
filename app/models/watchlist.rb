@@ -11,7 +11,4 @@ class Watchlist < ActiveRecord::Base
   
   belongs_to :user
   belongs_to :watched, polymorphic: true
-  
-  
-  
 end

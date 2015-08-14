@@ -6,7 +6,7 @@ class ImagesController < ApplicationController
     
     respond_to do |format|
       format.html # index.html.erb
-      format.json { render json: @images }
+      format.json
     end
   end
 
@@ -15,7 +15,7 @@ class ImagesController < ApplicationController
 
     respond_to do |format|
       format.html # show.html.erb
-      format.json { render json: @image }
+      format.json {@fields = (params[:fields] || '').split(',')}
     end
   end
   

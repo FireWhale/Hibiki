@@ -6,7 +6,7 @@ class EventsController < ApplicationController
   
     respond_to do |format|
       format.html # index.html.erb
-      format.json { render json: @events }      
+      format.json   
     end
   end
   
@@ -18,7 +18,7 @@ class EventsController < ApplicationController
     respond_to do |format|
       format.js
       format.html # show.html.erb
-      format.json { render json: @event.to_json(:user => current_user, include_albums: true)  }
+      format.json {@fields = (params[:fields] || '').split(',')}
     end
   end
   

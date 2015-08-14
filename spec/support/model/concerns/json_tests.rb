@@ -34,20 +34,7 @@ module JsonTests
           end
         end
       end
-      
-      context "with album options" do
-        if [Source, Organization, Artist, Event].include?(described_class)
-          it "includes albums" do
-            expect(record.to_json(:include_albums => true)).to match_json_schema("#{model_symbol}_with_albums")
-          end
-          
-        else
-          it "does not include albums" do
-            expect(record.to_json(:include_albums => true)).to match_json_schema(model_symbol.to_s)
-          end
-        end
-      end
-      
+            
       context "with watchlist/collection options" do
         if described_class == User
           it "has a watchlists form"

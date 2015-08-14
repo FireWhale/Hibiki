@@ -43,6 +43,7 @@ FactoryGirl.define do
       
       trait :full_attributes do
         start_date {Faker::Date.between(5.years.ago, 2.years.ago)}  
+        with_albums
         end_date {Faker::Date.between(1.year.ago, Date.today)} 
         info {Faker::Lorem.sentence}
         name {Faker::Lorem.word}
@@ -99,7 +100,12 @@ FactoryGirl.define do
       
       trait :full_attributes do
         info  {Faker::Lorem.sentence}
-        name  {Faker::Lorem.sentence}
+
+        after(:create) do |record|
+          record.write_attribute(:name, "hi", locale: :hibiki_en)
+          record.write_attribute(:info, "ho", locale: :hibiki_en)
+          record.save
+        end        
       end
       
       trait :with_multiple_taglists do

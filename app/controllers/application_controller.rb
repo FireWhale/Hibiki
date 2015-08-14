@@ -58,24 +58,14 @@ class ApplicationController < ActionController::Base
       categories[each.last] = [each[1], each[2]]
     end
     #Next, loop over each of the relations and add it to the relatedhash
-    record.send('related_' + record.class.to_s.downcase + '_relations').each do |relation|
+    record.send("related_#{record.class.to_s.downcase}_relations").each do |relation|
       if relation.send(record.class.to_s.downcase + '1_id') == record.id && categories[relation.category].nil? == false
-        if relation.category == "Same Song"
-          #special case: Same song requires the album
-          (relatedhash[categories[relation.category][0]] ||= []) << relation.send(record.class.to_s.downcase + '2').album   
-        else
-          (relatedhash[categories[relation.category][0]] ||= []) << relation.send(record.class.to_s.downcase + '2')    
-        end
+        (relatedhash[categories[relation.category][0]] ||= []) << relation.send(record.class.to_s.downcase + '2')    
         if categories[relation.category[2]] == true && ids.nil? == false
           ids << relation.send(record.class.to_s.downcase + '2').id
         end
       elsif relation.send(record.class.to_s.downcase + '2_id') == record.id && categories[relation.category].nil? == false
-        if relation.category == "Same Song"
-          #special case: Same song requires the album
-          (relatedhash[categories[relation.category][1]] ||= []) << relation.send(record.class.to_s.downcase + '1').album   
-        else
-          (relatedhash[categories[relation.category][1]] ||= []) << relation.send(record.class.to_s.downcase + '1')    
-        end
+        (relatedhash[categories[relation.category][1]] ||= []) << relation.send(record.class.to_s.downcase + '1')
         if categories[relation.category[3]] == true && ids.nil? == false
           ids << relation.send(record.class.to_s.downcase + '1').id          
         end

@@ -2,23 +2,12 @@ module JsonModule
   def as_json(options={})
     autocomplete_models = [Album, Artist, Organization, Song, Source]
     translated_models =  [Album, Artist, Organization, Song, Source, Event, Tag]
-    album_models = [Artist, Organization, Source, Event]
     banned_attributes = [:status, :db_status, :classification, :activity,
                         :popularity, :visibility, :lyrics,
                         :created_at, :updated_at, :release_date_bitmask, :model_bitmask,
                         :birth_date_bitmask, :debut_date_bitmask, :end_date_bitmask,
                         :established_bitmask, :blood_type, :gender, :birth_place,
-                        :llimagelink, :namehash, :private_info]
-    
-    if self.class == User
-      if options[:watchlists] == true
-        
-      elsif options[:collections] == true
-        
-      else
-        return super(only: :id)
-      end
-    end        
+                        :llimagelink, :namehash, :private_info, :rating]
     
     if options[:autocomplete].blank? == false && autocomplete_models.include?(self.class)
       hash = {:id => id,
@@ -29,39 +18,63 @@ module JsonModule
       return hash
     end
     
+    self.class.include_root_in_json = true unless options[:root] == "skip" #defaults root to true unless root check is skipped.
+    
+    if options[:root] == false
+      self.class.include_root_in_json = false
+      output = self.as_json(options.merge({root: "skip"}))
+      self.class.include_root_in_json = true
+      return output
+    end  
+    
+    if self.class == User
+      if options[:watchlists] == true
+        
+      elsif options[:collections] == true
+        
+      else
+        return super(only: :id)
+      end
+    end
     
     if translated_models.include?(self.class)
-      hash = super(:except => banned_attributes + [:name, :category, :synopsis, :info])
-      hash[self.class.name.downcase]["name"] = read_name(options[:user])[0]
-      hash[self.class.name.downcase]["name_translations"] = self.name_translations.delete_if {|k,v| v.blank?}
+      hash = super(:except => banned_attributes + [:name, :internal_name, :category, :synopsis, :info])
+      hash_level = (self.include_root_in_json ? hash[self.class.name.downcase] : hash )
+      hash_level["name"] = read_name(options[:user])[0]
+      hash_level["name_translations"] = self.name_translations.delete_if {|k,v| v.blank?}
       
-      hash[self.class.name.downcase]["info"] = read_info(options[:user])[0]
-      hash[self.class.name.downcase]["info_translations"] = self.info_translations.delete_if {|k,v| v.blank?}
+      hash_level["info"] = read_info(options[:user])[0]
+      hash_level["info_translations"] = self.info_translations.delete_if {|k,v| v.blank?}
       
-      if self.class == Song
-        hash[self.class.name.downcase]["lyrics"] = read_lyrics(options[:user])[0]
-        hash[self.class.name.downcase]["lyrics_translations"] = self.lyrics_translations.delete_if {|k,v| v.blank?}
+      if self.respond_to?(:lyrics)
+        hash_level["lyrics"] = read_lyrics(options[:user])[0]
+        hash_level["lyrics_translations"] = self.lyrics_translations.delete_if {|k,v| v.blank?}
       end
       
-      if self.class == Event
-        hash[self.class.name.downcase]["abbreviation"] = read_abbreviation(options[:user])[0]
-        hash[self.class.name.downcase]["abbreviation_translations"] = self.abbreviation_translations.delete_if {|k,v| v.blank?}
+      if self.respond_to?(:abbreviation)
+        hash_level["abbreviation"] = read_abbreviation(options[:user])[0]
+        hash_level["abbreviation_translations"] = self.abbreviation_translations.delete_if {|k,v| v.blank?}
       end
       
       if self.class == Tag
-        hash[self.class.name.downcase]["classification"] = self.classification
+        hash_level["classification"] = self.classification
       end
       
-      if options[:include_albums] == true && album_models.include?(self.class)
-        hash[self.class.name.downcase]["albums"] = self.albums.as_json(:user => options[:user])
-      end
+      hash_level.reject! {|k,v| v.blank? }
+      
       return hash
     end
     
     if self.class == Issue
-      return super(:except => banned_attributes - [:status]) #let issue have status
+      banned_attributes = banned_attributes - [:status]
     end
     
-    super(:except => banned_attributes)
+    hash = super(:except => banned_attributes) #let issue have status
+    hash_level = (self.include_root_in_json ? hash[self.class.name.downcase] : hash )
+    hash_level.reject! {|k,v| v.blank? }
+    return hash
+    
+    #super(:except => banned_attributes)
   end
+  
 end

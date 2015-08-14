@@ -3,11 +3,11 @@ class OrganizationsController < ApplicationController
   layout "full", only: [:edit, :new]
   
   def index
-    @organizations = Organization.order(:internal_name).includes(:watchlists, :translations, :tags, albums: [:primary_images, :translations]).page(params[:page])
+    @organizations = Organization.order(:internal_name).includes(:watchlists, :translations, :tags).page(params[:page])
 
     respond_to do |format|
-      format.html # index.html.erb
-      format.json { render json: @organizations.to_json(:user => current_user) }
+      format.html
+      format.json 
     end
   end
 
@@ -20,7 +20,7 @@ class OrganizationsController < ApplicationController
     respond_to do |format|
       format.js
       format.html # show.html.erb
-      format.json { render json: @organization.to_json(:user => current_user, include_albums: true) }
+      format.json {@fields = (params[:fields] || '').split(',')}
     end
   end
   

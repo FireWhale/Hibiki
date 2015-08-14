@@ -26,7 +26,7 @@ class Song < ActiveRecord::Base
     before_validation :convert_names
   
   #Constants
-    SelfRelationships = [['is the same song as', 'Also Appears On', 'Also Appears On', 'Same Song'],
+    SelfRelationships = [['is the same song as', 'Same Song', 'Same Song', 'Same Song'],
       ['is arranged as', 'Arranged As', 'Arranged From', 'Arrangement'],
       ['is arranged from', '-Arrangement'],
       ['is an alternate version of', 'Alternate Version', 'Alternate Version', 'Alternate Version']] 

@@ -3,11 +3,11 @@ class SourcesController < ApplicationController
   layout "full", only: [:edit, :new]
       
   def index
-    @sources = Source.order(:internal_name).includes([:translations, :watchlists, :tags, {albums: [:primary_images, :translations]}]).page(params[:page])
+    @sources = Source.order(:internal_name).includes([:translations, :watchlists, :tags]).page(params[:page])
 
     respond_to do |format|
       format.html # index.html.erb
-      format.json { render json: @sources.to_json(:user => current_user)}
+      format.json
     end
   end
 
@@ -20,7 +20,7 @@ class SourcesController < ApplicationController
     respond_to do |format|
       format.js
       format.html # show.html.erb
-      format.json { render json: @source.to_json(:user => current_user, include_albums: true)}
+      format.json {@fields = (params[:fields] || '').split(',')}
     end
   end
 
