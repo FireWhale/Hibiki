@@ -3,6 +3,8 @@ require "net/http"
 class WatchWorker
   include Sidekiq::Worker
   
+  sidekiq_options expires_in: 3.hours
+  
   def perform    
     @album_links = url_scan("http://vgmdb.net/db/recent.php", "album")
     @scan_links = url_scan("http://vgmdb.net/db/recent.php?do=view_scans", "scan")
@@ -10,14 +12,14 @@ class WatchWorker
     
     links = (@album_links + @scan_links + @product_links).uniq
     #For each album, search for it in our database
-      links.each do |link|
-        #Search for the reference
-        reference = Reference.find_by_url(link)
-        unless reference.nil?
-          album = reference.model
-          album.tags << Tag.find(50) unless album.tags.map(&:id).include?(50) #Tag 50 is the update available tag
-        end
+    links.each do |link|
+      #Search for the reference
+      reference = Reference.find_by_url(link)
+      unless reference.nil?
+        album = reference.model
+        album.tags << Tag.find(50) unless album.tags.map(&:id).include?(50) #Tag 50 is the update available tag
       end
+    end
   end
   
   def url_scan(url, type)

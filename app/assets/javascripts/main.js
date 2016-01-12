@@ -78,6 +78,9 @@ $(window).load(function(){
                 else
                     window.open(x[i]);                    
             };
+            var upperBound = document.getElementById('number').value;
+            var lowerBound = upperBound - 49;
+            $('#scrape-alert').text("generated " + lowerBound + " to " + upperBound);
         });
     };
     

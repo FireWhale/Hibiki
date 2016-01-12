@@ -20,6 +20,13 @@ json.set! json_hash.keys[0] do
       else
         json.songs record.songs.as_json(user: current_user, root: false)
       end
+      
+      #Added to as_json method. Seems pretty fundamental to album attributes. 
+      #json.song_info do
+        #json.total_songs self.songs.count
+        #disc_count = self.songs.map(&:disc_number).uniq.max
+        #json.total_discs = disc_count unless disc_count.nil?
+      #end
     end
     if @fields.blank? || @fields.include?('events')
       json.partial! 'layouts/json/list_with_urls', locals: {records: record.events} unless record.events.empty?

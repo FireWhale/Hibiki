@@ -970,5 +970,3 @@
   };
   $.fn.nanoScroller.Constructor = NanoScroll;
 });
-
-//# sourceMappingURL=jquery.nanoscroller.js.map

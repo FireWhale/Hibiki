@@ -60,6 +60,12 @@ module JsonModule
         hash_level["classification"] = self.classification
       end
       
+      if self.class == Album
+        hash_level["song_info"] = {:total_songs => self.songs.count}
+        disc_count = self.songs.map(&:disc_number).uniq.max
+        hash_level["song_info"][:total_discs] = disc_count unless disc_count.nil?
+      end
+      
       hash_level.reject! {|k,v| v.blank? }
       
       return hash

@@ -194,6 +194,45 @@ describe User do
     it "can send a user_confirmation email"
     #it needs to be confirmed to add watchlists/collections? Maybe in the future
     
+    describe "Initialization settings" do
+      it "initializes with english as a language" do #Maybe set this regionally?
+        expect(create(:user).language_settings).to eq("")
+        expect(create(:user).artist_language_settings).to eq("")
+      end
+      
+      it "initializes with NWS unchecked" do
+        expect(create(:user).display_settings).to_not include("Display NWS")     
+      end
+      
+      it "initializes with LEs checked" do
+        expect(create(:user).display_settings).to include("Display Limited Editions")     
+      end
+      
+      it "initializes with reprints checked" do
+        expect(create(:user).display_settings).to include("Display Reprints")           
+      end
+      
+      it "initializes with ignored checked" do
+        expect(create(:user).display_settings).to include("Display Ignored")        
+      end
+      
+      it "initializes with album art border unchecked" do
+        expect(create(:user).display_settings).to_not include("Outline Album Art")        
+      end
+      
+      it "initializes with bolded AOS unchecked" do
+        expect(create(:user).display_settings).to_not include("Bold AOS")        
+      end
+      
+      it "initializes with profile, collection, and watchlist unchecked" do
+        expect(create(:user).privacy_settings).to match_array([])
+      end
+      
+      it "has User, Any as it's security" do
+        expect(create(:user).abilities).to match_array(["User", "Any"])
+      end
+    end
+    
     describe "get data" do
       it "can get display_settings" do
         user = create(:user)

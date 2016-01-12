@@ -44,8 +44,9 @@ class PagesController < ApplicationController
     authorize! :read, Album
     @query = truncate(params[:search], length: 50, escape: false) #used in html
     @model = params[:model] #for JS
+    @model = @model.split(",").select {|a| ["album", "artist", "source", "organization", "song"].include?(a)} if @model.blank? == false && @model.include?(",")
     @records = nil
-    @search = {:utf8 => params[:utf8], :search => @query} #used
+    @search = {:utf8 => params[:utf8], :search => @query}
     
     respond_to do |format|
       format.html do

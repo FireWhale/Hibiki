@@ -12,7 +12,10 @@
 <% end %>
 <br>
 <%= fields_for :urllist do |f| %>
-  <%= f.text_area :text, :class => 'controls', :rows => '15', :id => "list" %>
+  <%= f.text_area :text, :rows => '15', :id => "list" %>
+  <div id="scrape-alert">
+  	
+  </div>  
   <div class="actions">
     <%= f.submit 'Generate!', :id => "GenerateScrapes"  %>
   </div>    
