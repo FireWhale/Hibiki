@@ -1,6 +1,6 @@
 == Welcome
 
-Welcome to the github for Hibiki, a Ruby-on-Rails musical database focusing on asian music,
+Welcome to the github for Hibiki (www.hibiki.moe), a Ruby-on-Rails musical database focusing on asian music,
 specificially jpop, anime music (anison), doujin music (independent japanese music), 
 and vocaloid/utaite songs. If you like any of this music, you're definitely in the right
 place!
