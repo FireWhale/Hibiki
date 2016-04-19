@@ -25,7 +25,6 @@ lib/llcookies
 /app/models/ability.rb
 /app/workers/post_worker.rb
 /app/workers/scrape_worker.rb
-/config/development.rb
 /config/secrets.yml
 /config/initializers/secret_token.rb
 /config/database.yml

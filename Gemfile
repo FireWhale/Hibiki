@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '4.2.1'
+gem 'rails', '4.2.5'
 gem 'yaml_db'
 gem 'authlogic'
 gem 'bcrypt', '~> 3.1.7' #needed for authlogic 3.4.1
@@ -27,14 +27,14 @@ gem 'protected_attributes'
 gem 'truncate_html'
 
 group :development, :test do
-  gem 'bullet', platforms: [:mingw, :mswin] #Raises notices unoptimized queries
-  gem 'puma', '2.6.0'
+  gem 'bullet', platforms: [:mingw, :mswin, :x64_mingw] #Raises notices unoptimized queries
+  gem 'puma'
   gem 'sunspot_solr' #pre packaged solr distribution
   gem 'progress_bar'
   gem 'rspec-rails'
   gem 'factory_girl_rails'
   gem 'uglifier', '>= 1.0.3'
-  gem 'tzinfo-data', platforms: [:mingw, :mswin] #timezone data not natively in windows
+  gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw] #timezone data not natively in windows
 end
 
 group :test do
