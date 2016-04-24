@@ -15,4 +15,33 @@
 		<nature>org.radrails.rails.core.railsnature</nature>
 		<nature>com.aptana.ruby.core.rubynature</nature>
 	</natures>
+	<filteredResources>
+		<filter>
+			<id>1461421795489</id>
+			<name>images</name>
+			<type>30</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-*</arguments>
+			</matcher>
+		</filter>
+		<filter>
+			<id>1461421795558</id>
+			<name>images</name>
+			<type>30</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-*</arguments>
+			</matcher>
+		</filter>
+		<filter>
+			<id>1461421795589</id>
+			<name>images</name>
+			<type>30</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-*</arguments>
+			</matcher>
+		</filter>
+	</filteredResources>
 </projectDescription>
