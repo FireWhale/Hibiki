@@ -18,7 +18,9 @@
 /public/images/
 
 # Ignore solr files
-/solr/
+/solr/  #Note that solr/configsets/sunspot/conf/schema.xml is force committed, since it contains custom n-gram filters
+
+
 
 # Ignore files with sensitive info
 lib/llcookies
@@ -30,6 +32,7 @@ lib/llcookies
 /config/database.yml
 /doc/maintenance_module.rb
 /doc/fix_module.rb
+
 
 
 
