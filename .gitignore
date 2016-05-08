@@ -19,11 +19,6 @@
 
 # Ignore solr files
 /solr/  #Note that solr/configsets/sunspot/conf/schema.xml is force committed, since it contains custom n-gram filters
-/solr/default/
-/solr/development/
-/solr/solr.xml
-/solr/test/
-/solr/configsets/
 
 # Ignore files with sensitive info
 lib/llcookies
