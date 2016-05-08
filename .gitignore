@@ -17,8 +17,14 @@
 # Ignore public/images
 /public/images/
 
-# Ignore solr files
-/solr/  #Note that solr/configsets/sunspot/conf/schema.xml is force committed, since it contains custom n-gram filters
+# Ignore solr files. Note that solr/configsets/sunspot/conf/schema.xml is force committed, since it contains custom n-gram filters
+solr/*
+!solr/configsets
+*solr/configsets/*
+!solr/configsets/sunspot
+*solr/configsets/sunspot/*
+!solr/configsets/sunspot/conf
+*solr/configsets/sunspot/conf/*
 !solr/configsets/sunspot/conf/schema.xml
 
 # Ignore files with sensitive info
