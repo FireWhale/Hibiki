@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 == Welcome
 
 Welcome to the github for Hibiki (www.hibiki.moe), a Ruby-on-Rails musical database focusing on asian music, specificially jpop, anime music (anison), doujin music (independent japanese music), and vocaloid/utaite songs. If you like any of this music, you're definitely in the right place!
@@ -44,5 +43,3 @@ There are some very good websites already out in the web, such as vgmdb.net,
 the vocaloid wiki, the touhou wiki, and the utaite wiki (and many others). However, all
 of those don't quite exactly fit my needs. So I decided to create a relational 
 database to keep track of all the artists and music I love. 
-
->>>>>>> f12aa3c80e89fd73e0758c57c97c147e380881b2
