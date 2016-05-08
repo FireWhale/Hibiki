@@ -37,7 +37,7 @@
             <div class="image"><%= primary_image_helper(record, record, "thumb", :square => true, :outline => true) %></div>
             <div class="name album-name">
               <h4><%= link_to language_helper(record, :name), record %></h4>
-              <div class="tags"><%= linked_attribute_display(record.tags, '') %></div>
+              <div class="tags"><%= linked_attribute_display(record.tags.meets_security(current_user), '') %></div>
             </div>
             <div class="date"><%= date_helper(record, 'release_date', :calendar_link => false)%></div>
           </div>
@@ -49,7 +49,7 @@
               <div class="image"><%= primary_image_helper(record, record, "thumb", :square => true, :outline => true) %></div>
               <div class="name song-name">
                 <h4><%= link_to language_helper(record, :name), record %></h4>
-                <div class="tags"><%= linked_attribute_display(record.tags, '') %></div>          
+                <div class="tags"><%= linked_attribute_display(record.tags.meets_security(current_user), '') %></div>          
               </div>
               <div class="date"></div>
             <% else %>
@@ -58,7 +58,7 @@
                 <h4><%= link_to "#{record.disc_track_number unless record.track_number.nil?} #{language_helper(record, :name)}", record.album %></h4>
                 <h5>Album: <%= link_to language_helper(record.album, :name), record.album %></h5>        
                 <h5><%= "Duration: #{record.length_as_time}" unless record.length.nil? || record.length == 0 %></h5>
-                <div class="tags"><%= linked_attribute_display(record.tags, '') %></div>          
+                <div class="tags"><%= linked_attribute_display(record.tags.meets_security(current_user), '') %></div>          
               </div>
               <div class="date"><%= date_helper(record.album, 'release_date', :calendar_link => false)%></div>    
             <% end %>

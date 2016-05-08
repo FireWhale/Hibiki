@@ -4,11 +4,11 @@
 # or operating system, you probably want to add a global ignore instead:
 #   git config --global core.excludesfile ~/.gitignore_global
 
-# Ignore bundler config
-/.bundle
+# Ignore bundler config (don't have it anyhow)
+#/.bundle
 
 # Ignore the default SQLite database.
-/db/*.sqlite3
+///db/*.sqlite3
 
 # Ignore all logfiles and tempfiles.
 /log/*
@@ -18,7 +18,12 @@
 /public/images/
 
 # Ignore solr files
-/solr/
+/solr/  #Note that solr/configsets/sunspot/conf/schema.xml is force committed, since it contains custom n-gram filters
+/solr/default/
+/solr/development/
+/solr/solr.xml
+/solr/test/
+/solr/configsets/
 
 # Ignore files with sensitive info
 lib/llcookies
@@ -26,11 +31,11 @@ lib/llcookies
 /app/workers/post_worker.rb
 /app/workers/scrape_worker.rb
 /config/secrets.yml
-/config/initializers/secret_token.rb
+# /config/initializers/secret_token.rb #Doesn't exist anymore
 /config/database.yml
 /doc/maintenance_module.rb
 /doc/fix_module.rb
-/config/environments/development.rb
+
 
 
 
