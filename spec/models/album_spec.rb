@@ -3,8 +3,9 @@ require 'rails_helper'
 
 describe Album do
   include_examples "global model tests" #Global Tests
-  
+
   describe "Concern Tests" do
+    include_examples "it has the association module"
     include_examples "it is a translated model"
     include_examples "it has images"
     include_examples "it has posts"
@@ -15,96 +16,143 @@ describe Album do
     include_examples "it has a custom json method"
     include_examples "it has references"
     include_examples "it has custom pagination"
-    
-    
-    it_behaves_like "it has form_fields"
+
+    include_examples "it has form_fields"
   end
-    
-  describe "Association Tests" do    
+
+  describe "Association Tests" do
     include_examples "it has a primary relation", Artist, ArtistAlbum
     include_examples "it has a primary relation", Organization, AlbumOrganization
     include_examples "it has a primary relation", Source, AlbumSource
     include_examples "it has_many through", Event, AlbumEvent, :with_album_event
-    
-    describe "it has a relationship with songs" do   
+
+    describe "it has a relationship with songs" do
       it "has many songs" do
         expect(create(:album, :with_songs).songs.first).to be_a Song
-        expect(Album.reflect_on_association(:songs).macro).to eq(:has_many)  
+        expect(Album.reflect_on_association(:songs).macro).to eq(:has_many)
       end
-      
+
       it "destroys it's songs when destroyed" do
         album = create(:album, :with_song)
         expect{album.destroy}.to change(Song, :count).by(-1)
       end
-      
+
       it "is valid with songs" do
         album = create(:album)
         list = create_list(:song, 5, album: album)
         expect(album.songs).to match_array(list)
       end
-      
+
       it "is valid without songs" do
         #well the factory doesn't come with songs
         expect(create(:album)).to be_valid
       end
     end
   end
-    
+
   describe "Validation Tests" do
     include_examples "is invalid without an attribute", :internal_name
     include_examples "is invalid without an attribute", :status
     include_examples "is invalid without an attribute", :catalog_number
-    
-    it "is invalid with a duplicate name/release_date/catalogn combination"
-    
+
+    it "is invalid with a duplicate name/release_date/catalog combination" do
+      create(:album, :release_date => Date.today, :release_date_bitmask => 5, :internal_name => "hi", :catalog_number => "hihi")
+      expect(build(:album, :release_date => Date.today, :release_date_bitmask => 5, :internal_name => "hi", :catalog_number => "hihi")).to_not be_valid
+    end
+
     it "is valid with duplicate catalog_numbers" do
       expect(create(:album, catalog_number: "hihi")).to be_valid
       expect(build(:album, catalog_number: "hihi")).to be_valid
-    end     
-    
+    end
+
     include_examples "is valid with or without an attribute", :synonyms, "hi"
     include_examples "is valid with or without an attribute", :info, "Hi this is info"
     include_examples "is valid with or without an attribute", :private_info, "Hi this is private info"
     include_examples "is valid with or without an attribute", :classification, "classification!"
   end
-      
+
   describe "Attribute Tests" do
     include_examples "it has a partial date", :release_date
     it_behaves_like "it has a serialized attribute", :namehash
   end
-  
+
+  describe "Callbacks/Hooks" do
+    describe "After Save: manage_events" do
+      include_examples "manages a primary association", Event, AlbumEvent
+    end
+
+    describe "After Save: manage_organizations" do
+      include_examples "manages a primary association", Organization, AlbumOrganization
+    end
+
+    describe "After Save: manage_artists" do
+      include_examples "manages an artist association"
+    end
+
+    describe "After Save: manage_sources" do
+      include_examples "manages a primary association", Source, AlbumSource
+    end
+
+    describe "After Save: manage_songs" do
+      it "adds new songs" do
+        album = create(:album)
+        album.new_songs = {:internal_name => ["hi"]}
+        expect{album.save}.to change(Song, :count).by(1)
+      end
+
+      it "adds multiple songs" do
+        album = create(:album)
+        album.new_songs = {:internal_name => ["hi", "ho", "he"]}
+        expect{album.save}.to change(Song, :count).by(3)
+      end
+
+      it "adds multiple song attributes" do
+        album = create(:album)
+        attributes1 = attributes_for(:song, :full_attributes)
+        attributes2 = attributes_for(:song, :full_attributes)
+        params = attributes1.inject({}) { |h,(k,v)| h[k] = [v]; h }
+        attributes2.each {|k,v| params[k] << v }
+        album.new_songs = params
+        expect{album.save}.to change(Song, :count).by(2)
+        #Changing some attributes to fit the form of the actual record
+        attributes1[:length] = attributes1[:length].to_i
+        attributes1[:namehash] = attributes1[:namehash].symbolize_keys
+        attributes2[:length] = attributes2[:length].to_i
+        attributes2[:namehash] = attributes2[:namehash].symbolize_keys
+        expect(album.songs.first).to have_attributes(attributes1)
+        expect(album.songs[1]).to have_attributes(attributes2)
+      end
+    end
+  end
+
   describe "Instance Method Tests" do
-    
     describe "returns the right week/month/year" do
       let(:album) {create(:album, release_date: Date.today, release_date_bitmask: 6)}
-      
+
       it "returns the right week" do
         expect(album.week).to eq(Date.today.beginning_of_week(:sunday))
       end
-      
+
       it "takes in a different starting day for the week" do
         expect(album.week("monday")).to eq(Date.today.beginning_of_week(:monday))
       end
-      
+
       it "returns the right month" do
         expect(album.month).to eq(Date.today.beginning_of_month)
       end
-      
+
       it "returns the right year" do
         expect(album.year).to eq(Date.today.beginning_of_year)
       end
-      
+
       it "returns nil if there is no release_date" do
         album_no_date = create(:album, release_date: nil)
         expect(album_no_date.week).to be_nil
         expect(album_no_date.month).to be_nil
         expect(album_no_date.year).to be_nil
       end
-      
-      # it "handles variable dates from day/week/year" 
-      #Thought about it for an hour, and can't see any way these interact.
-    end 
-    
+    end
+
     describe "tests for certain self_relations" do
       it "responds to limited_edition?" do
         album = create(:album)
@@ -113,7 +161,7 @@ describe Album do
         expect(album.limited_edition?).to be_truthy
         expect(album2.limited_edition?).to be_falsey
       end
-      
+
       it "responds to reprint?" do
         album = create(:album)
         album2 = create(:album)
@@ -121,7 +169,7 @@ describe Album do
         expect(album.reprint?).to be_truthy
         expect(album2.reprint?).to be_falsey
       end
-      
+
       it "responds to alternate_printing?" do
         album = create(:album)
         album2 = create(:album)
@@ -131,464 +179,17 @@ describe Album do
       end
     end
   end
-  
-  #Class Method Tests    
-    describe "has a full update method" do
-      include_examples "updates with keys and values"
-      include_examples "updates the reference properly" 
-      include_examples "can upload an image"
-      include_examples "updates namehash properly"
 
-      context "updates artists by id" do
-        it "creates an album_artist" do
-          album = create(:album)
-          attributes = attributes_for(:album)
-          artist = create(:artist, internal_name: 'hihi')
-          attributes.merge!(:new_artist_ids => [artist.id.to_s], :new_artist_categories => ["Performer", "New Artist"])
-          expect{album.full_update_attributes(attributes)}.to change(ArtistAlbum, :count).by(1)
-          expect(album.artists.first.internal_name).to eq("hihi")
-          expect(album.artist_albums.first.category).to eq("4")
-        end
-        
-        it "handles multiple categories" do
-          album = create(:album)
-          attributes = attributes_for(:album)
-          artist = create(:artist, internal_name: 'hihi')
-          attributes.merge!(:new_artist_ids => [artist.id.to_s], :new_artist_categories => ["Performer", "Composer", "New Artist"])
-          expect{album.full_update_attributes(attributes)}.to change(ArtistAlbum, :count).by(1)
-          expect(album.artists.first.internal_name).to eq("hihi")
-          expect(album.artist_albums.first.category).to eq("5")
-        end
-        
-        it "can create multiple album_artists" do
-          album = create(:album)
-          attributes = attributes_for(:album)
-          artist = create(:artist, internal_name: 'hihi')
-          artist2 =create(:artist, internal_name: 'hoho')
-          attributes.merge!(:new_artist_ids => [artist.id.to_s, artist2.id.to_s], :new_artist_categories => ["Performer", "Composer", "New Artist", "Performer", "New Artist" ])
-          expect{album.full_update_attributes(attributes)}.to change(ArtistAlbum, :count).by(2)
-          expect(album.artists.first.internal_name).to eq("hihi")
-          expect(album.artist_albums.first.category).to eq("5")
-          expect(album.artists[1].internal_name).to eq("hoho")
-          expect(album.artist_albums[1].category).to eq("4")
-        end
-        
-        it "does not create artist_albums if it doesn't exist" do
-          album = create(:album)
-          attributes = attributes_for(:album)
-          attributes.merge!(:new_artist_ids => ["999999"], :new_artist_categories => ["Performer", "Composer", "New Artist"])
-          expect{album.full_update_attributes(attributes)}.to change(ArtistAlbum, :count).by(0)
-        end
-        
-        it "updates artist_albums" do
-          album = create(:album)
-          attributes = attributes_for(:album)
-          artist = create(:artist, name: 'hihi')
-          artist_album = create(:artist_album, album: album, artist: artist, category: 33)
-          attributes.merge!(:update_artist_albums => {artist_album.id.to_s => ["Performer", "Arranger", "Composer"]})
-          expect{album.full_update_attributes(attributes)}.to change(ArtistAlbum, :count).by(0)
-          expect(album.artist_albums.first.category).to eq("7")
-        end
-        
-        it "updates multiple artist_albums" do
-          album = create(:album)
-          attributes = attributes_for(:album)
-          artist = create(:artist, name: 'hihi')
-          artist2 = create(:artist, name: 'hihooi')
-          artist_album = create(:artist_album, album: album, artist: artist, category: 33)
-          artist_album2 = create(:artist_album, album: album, artist: artist2, category: 44)
-          attributes.merge!(:update_artist_albums => {artist_album.id.to_s => ["Performer", "Arranger", "Composer"], artist_album2.id.to_s => ["Composer", "FeatArranger"]})
-          expect{album.full_update_attributes(attributes)}.to change(ArtistAlbum, :count).by(0)
-          expect(album.artist_albums.first.category).to eq("7")
-          expect(album.artist_albums[1].category).to eq("33")          
-        end
-        
-        it "destroys artist_albums" do
-          album = create(:album)
-          attributes = attributes_for(:album)
-          artist = create(:artist, name: 'hihi')
-          artist_album = create(:artist_album, album: album, artist: artist, category: 33)
-          attributes.merge!(:update_artist_albums => {artist_album.id.to_s => []})
-          expect{album.full_update_attributes(attributes)}.to change(ArtistAlbum, :count).by(-1)
-        end
-        
-        it "doesn't destroy artists" do
-          album = create(:album)
-          attributes = attributes_for(:album)
-          artist = create(:artist, name: 'hihi')
-          artist_album = create(:artist_album, album: album, artist: artist, category: 33)
-          attributes.merge!(:update_artist_albums => {artist_album.id.to_s => []})
-          expect{album.full_update_attributes(attributes)}.to change(Artist, :count).by(0)          
-        end
-        
-        it "destroy multiple artist_albumss" do 
-          album = create(:album)
-          attributes = attributes_for(:album)
-          artist = create(:artist, name: 'hihi')
-          artist2 = create(:artist, name: 'hihooi')
-          artist_album = create(:artist_album, album: album, artist: artist, category: 33)
-          artist_album2 = create(:artist_album, album: album, artist: artist2, category: 44)
-          attributes.merge!(:update_artist_albums => {artist_album.id.to_s => [], artist_album2.id.to_s => []})
-          expect{album.full_update_attributes(attributes)}.to change(ArtistAlbum, :count).by(-2)
-        end
-        
-      end
-      
-      context "updates sources by id" do
-        it "creates an album_source" do
-          album = create(:album)
-          attributes = attributes_for(:album)
-          source = create(:source, internal_name: 'hihi')
-          attributes.merge!(:new_source_ids => [source.id.to_s])
-          expect{album.full_update_attributes(attributes)}.to change(AlbumSource, :count).by(1)
-          expect(album.sources.first.internal_name).to eq("hihi")
-        end
-        
-        it "creates multiple album_sources" do
-          album = create(:album)
-          attributes = attributes_for(:album)
-          source = create(:source, internal_name: 'hihi')
-          source2 = create(:source, internal_name: 'hoho')
-          attributes.merge!(:new_source_ids => [source.id.to_s, source2.id.to_s])
-          expect{album.full_update_attributes(attributes)}.to change(AlbumSource, :count).by(2)
-          expect(album.sources.map(&:internal_name)).to eq(["hihi", 'hoho'])
-        end
-        
-        it "does not create a source if it doesn't exist" do
-          album = create(:album)
-          attributes = attributes_for(:album)
-          source = create(:source)
-          attributes.merge!(:new_source_ids => ["999999"])
-          expect{album.full_update_attributes(attributes)}.to change(Source, :count).by(0)
-        end
-        
-        it "does not create an album_source if the source doesn't exist" do
-          album = create(:album)
-          attributes = attributes_for(:album)
-          source = create(:source)
-          attributes.merge!(:new_source_ids => ["999999"])
-          expect{album.full_update_attributes(attributes)}.to change(Source, :count).by(0)
-        end
-        
-        it "destroys album_sources" do
-          album = create(:album)
-          attributes = attributes_for(:album)
-          source = create(:source)
-          album_source = create(:album_source, album: album, source: source)
-          attributes.merge!(:remove_album_sources => [album_source.id.to_s])
-          expect{album.full_update_attributes(attributes)}.to change(AlbumSource, :count).by(-1)
-        end
-     
-        it "doesn't destroy sources" do
-          album = create(:album)
-          attributes = attributes_for(:album)
-          source = create(:source)
-          album_source = create(:album_source, album: album, source: source)
-          attributes.merge!(:remove_album_sources => [album_source.id.to_s])
-          expect{album.full_update_attributes(attributes)}.to change(Source, :count).by(0)
-        end
-        
-        it "destroys many album_sources" do
-          album = create(:album)
-          attributes = attributes_for(:album)
-          source = create(:source)
-          source2 = create(:source)
-          album_source = create(:album_source, album: album, source: source)
-          album_source2 = create(:album_source, album: album, source: source2)
-          attributes.merge!(:remove_album_sources => [album_source.id.to_s, album_source2.id.to_s])
-          expect{album.full_update_attributes(attributes)}.to change(AlbumSource, :count).by(-2)
-        end
-      end
-
-      include_examples "can update a primary relationship", Organization, AlbumOrganization
-      
-      context "updates artists through names" do
-        it "creates an album_artist" do
-          album = create(:album)
-          attributes = attributes_for(:album)
-          artist = create(:artist, internal_name: 'hihi')
-          attributes.merge!(:new_artist_names => ['hihi'])
-          attributes.merge!(:new_artist_categories_scraped => ['Performer', 'New Artist'])
-          expect{album.full_update_attributes(attributes)}.to change(ArtistAlbum, :count).by(1)
-          expect(album.artists.first.internal_name).to eq("hihi")
-        end
-       
-        it "creates multiple album_artists" do
-          album = create(:album)
-          attributes = attributes_for(:album)
-          artist = create(:artist, internal_name: 'hihi')
-          attributes.merge!(:new_artist_names => ['hihi', 'wallwall'])
-          attributes.merge!(:new_artist_categories_scraped => ['Performer', 'New Artist', 'Performer', 'New Artist'])
-          expect{album.full_update_attributes(attributes)}.to change(ArtistAlbum, :count).by(2)
-          expect(album.reload.artists.map(&:internal_name)).to match_array(["hihi", "wallwall"])
-          expect(album.artist_albums.first.category).to eq("4")
-        end
-        
-        it "does not create an artist if one exists" do
-          album = create(:album)
-          attributes = attributes_for(:album)
-          artist = create(:artist, internal_name: 'hihi')
-          attributes.merge!(:new_artist_names => ['hihi'])
-          attributes.merge!(:new_artist_categories_scraped => ['Performer', 'New Artist'])
-          expect{album.full_update_attributes(attributes)}.to change(Artist, :count).by(0)
-          expect(album.artists.first.internal_name).to eq("hihi")
-        end
-        
-        it "creates an artist if one does not exist" do
-          album = create(:album)
-          attributes = attributes_for(:album)
-          attributes.merge!(:new_artist_names => ['hihi'])
-          attributes.merge!(:new_artist_categories_scraped => ['Performer', 'New Artist'])
-          expect{album.full_update_attributes(attributes)}.to change(Artist, :count).by(1)
-          expect(album.artists.first.internal_name).to eq("hihi")          
-        end        
-        
-        it "creates an artist with multiple categories" do
-          album = create(:album)
-          attributes = attributes_for(:album)
-          attributes.merge!(:new_artist_names => ['hihi'])
-          attributes.merge!(:new_artist_categories_scraped => ['Performer', 'Composer', 'New Artist'])
-          expect{album.full_update_attributes(attributes)}.to change(Artist, :count).by(1)
-          expect(album.artists.first.internal_name).to eq("hihi")              
-          expect(album.artist_albums.first.category).to eq("5")
-        end
-        
-        it "ignores certain artists that are included in the 'IgnoreArtist' Constant " do
-          album = create(:album)
-          attributes = attributes_for(:album)
-          ignored_artists = Album::IgnoredArtistNames.sample(2)
-          attributes.merge!(:new_artist_names => ['Hey', "ho"] + ignored_artists)
-          attributes.merge!(:new_artist_categories_scraped => ['Performer', 'Composer', 'New Artist', 'Performer', 'New Artist', 'Composer', 'New Artist', 'Composer', 'New Artist'])
-          expect{album.full_update_attributes(attributes)}.to change(Artist, :count).by(2)               
-        end
-      end
-      
-      context "updates sources through names" do
-        it "creates a album_source" do
-          album = create(:album)
-          attributes = attributes_for(:album)
-          source = create(:source, internal_name: 'hihi')
-          attributes.merge!(:new_source_names => ['hihi'])
-          expect{album.full_update_attributes(attributes)}.to change(AlbumSource, :count).by(1)
-          expect(album.sources.first.internal_name).to eq("hihi")
-        end
-        
-        it "creates multiple album_sources" do
-          album = create(:album)
-          attributes = attributes_for(:album)
-          source = create(:source, internal_name: 'hihi')
-          attributes.merge!(:new_source_names => ['hihi', 'wallwall'])
-          expect{album.full_update_attributes(attributes)}.to change(AlbumSource, :count).by(2)
-          expect(album.reload.sources.map(&:internal_name)).to match_array(["hihi", "wallwall"])
-        end
-        
-        it "does not create a source if one exists" do
-          album = create(:album)
-          attributes = attributes_for(:album)
-          source = create(:source, internal_name: 'hihi')
-          attributes.merge!(:new_source_names => ['hihi'])
-          expect{album.full_update_attributes(attributes)}.to change(Source, :count).by(0)
-          expect(album.sources.first.internal_name).to eq("hihi")
-        end
-        
-        it "creates a source if one does not exist" do
-          album = create(:album)
-          attributes = attributes_for(:album)
-          attributes.merge!(:new_source_names => ['hihi'])
-          expect{album.full_update_attributes(attributes)}.to change(Source, :count).by(1)
-          expect(album.sources.first.internal_name).to eq("hihi")          
-        end
-      end
-      
-      context "adds organizations through names" do
-        it "creates an album_organization" do       
-          album = create(:album)
-          attributes = attributes_for(:album)
-          organization = create(:organization, internal_name: 'hihi')
-          attributes.merge!(:new_organization_names => ['hihi'], :new_organization_categories_scraped => ['Publisher'])
-          expect{album.full_update_attributes(attributes)}.to change(AlbumOrganization, :count).by(1)
-          expect(album.organizations.first.internal_name).to eq("hihi")
-          expect(album.album_organizations.first.category).to eq("Publisher")   
-        end
-        
-        
-        it "cretes multiple album_organizations" do
-          album = create(:album)
-          attributes = attributes_for(:album)
-          organization = create(:organization)
-          attributes.merge!(:new_organization_names => ['hihi', 'numba2', 'three'], :new_organization_categories_scraped => ['Publisher','Distributor','Publisher'])
-          expect{album.full_update_attributes(attributes)}.to change(AlbumOrganization, :count).by(3)
-          
-        end
- 
-        it "does not create a new organization if it exists" do
-          album = create(:album)
-          attributes = attributes_for(:album)
-          organization = create(:organization, internal_name: 'hihi')
-          attributes.merge!(:new_organization_names => ['hihi'], :new_organization_categories_scraped => ['Publisher'])
-          expect{album.full_update_attributes(attributes)}.to change(Organization, :count).by(0)
-          
-        end
-        
-        it "creates a new organization if one does not exist" do
-          album = create(:album)
-          attributes = attributes_for(:album)
-          attributes.merge!(:new_organization_names => ['willow'], :new_organization_categories_scraped => ['Publisher'])
-          expect{album.full_update_attributes(attributes)}.to change(Organization, :count).by(1)
-          expect(album.organizations.first.internal_name).to eq("willow")
-          expect(album.album_organizations.first.category).to eq("Publisher")   
-        end
-      end
-      
-      context "it full updates songs" do
-        it "creates a new song" do
-          album = create(:album)
-          attributes = attributes_for(:album)
-          attributes.merge!(:new_songs => {'track_numbers' => ["1"], 'names' => ["hello"]})
-          expect{album.full_update_attributes(attributes)}.to change(Song, :count).by(1)
-          expect(album.songs.first.internal_name).to eq("hello")
-          expect(album.songs.first.track_number).to eq("01")
-        end
-        
-        it "creates multiple songs" do
-          album = create(:album)
-          attributes = attributes_for(:album)
-          attributes.merge!(:new_songs => {'track_numbers' => ["1", "2"], 'names' => ["hello", "song 2"]})
-          expect{album.full_update_attributes(attributes)}.to change(Song, :count).by(2)
-          expect(album.songs.first.internal_name).to eq("hello")
-          expect(album.songs.first.track_number).to eq("01")
-          expect(album.songs[1].internal_name).to eq("song 2")
-          expect(album.songs[1].track_number).to eq("02")
-        end
-        
-        it "creates new songs with lengths and namehashes" do
-          album = create(:album)
-          attributes = attributes_for(:album)
-          attributes.merge!(:new_songs => {'track_numbers' => ["1", "2"], 'names' => ["hello", "song 2"],
-                                           'namehashes' => [{Engliash: "hello", Romaji: "34234"}, {Enaglish: "song 3"}],
-                                           'lengths' => [50, 30]})
-          expect{album.full_update_attributes(attributes)}.to change(Song, :count).by(2)
-          expect(album.songs.first.internal_name).to eq("hello")
-          expect(album.songs.first.track_number).to eq("01")
-          expect(album.songs.first.namehash[:Engliash]).to eq("hello")
-          expect(album.songs.first.length).to eq(50)
-          expect(album.songs[1].internal_name).to eq("song 2")
-          expect(album.songs[1].track_number).to eq("02")     
-          expect(album.songs[1].namehash[:Enaglish]).to eq("song 3")  
-          expect(album.songs[1].length).to eq(30)   
-        end
-        
-        it "does not work if tracknumbers is empty" do
-          album = create(:album)
-          attributes = attributes_for(:album)
-          attributes.merge!(:new_songs => {'names' => ["hello"]})
-          expect{album.full_update_attributes(attributes)}.to change(Song, :count).by(0)
-        end
-        
-        it "does not work if names are empty" do
-          album = create(:album)
-          attributes = attributes_for(:album)
-          attributes.merge!(:new_songs => {'track_numbers' => ["tracky"]})
-          expect{album.full_update_attributes(attributes)}.to change(Song, :count).by(0)
-        end
-        
-      end
-
-      context "it full updates events" do 
-        it "adds an event" do
-          album = create(:album)
-          attributes = attributes_for(:album)
-          event = create(:event, internal_name: "shorty")
-          attributes.merge!(:new_event_names => ["shorty"])
-          expect{album.full_update_attributes(attributes)}.to change(AlbumEvent, :count).by(1)
-          expect(album.events.first).to eq(event)
-        end
-        
-        it "creates events that do not exist" do
-          album = create(:album)
-          attributes = attributes_for(:album)
-          attributes.merge!(:new_event_names => ["shorty"])
-          expect{album.full_update_attributes(attributes)}.to change(Event, :count).by(1)
-          expect(album.events.first.internal_name).to eq("shorty")
-        end
-        
-        it "deletes an albumevent" do
-          album = create(:album)
-          event = create(:event)
-          album_event = create(:album_event, event: event, album: album)
-          attributes = attributes_for(:album)
-          attributes.merge!(:remove_events => [event.id.to_s])
-          expect{album.full_update_attributes(attributes)}.to change(AlbumEvent, :count).by(-1)
-        end
-        
-        it "does not delete the event" do
-          album = create(:album)
-          event = create(:event)
-          album_event = create(:album_event, event: event, album: album)
-          attributes = attributes_for(:album)
-          attributes.merge!(:remove_events => [event.id.to_s])
-          expect{album.full_update_attributes(attributes)}.to change(Event, :count).by(0)
-        end
-        
-        it "does not delete an albumevent that does not exist" do
-          album = create(:album)
-          event = create(:event)
-          album_event = create(:album_event, album: album)
-          attributes = attributes_for(:album)
-          attributes.merge!(:remove_events => [event.id.to_s])
-          expect{album.full_update_attributes(attributes)}.to change(AlbumEvent, :count).by(0)
-        end
-        
-        it "adds multiple events" do
-          album = create(:album)
-          attributes = attributes_for(:album)
-          event = create(:event, internal_name: "shorty")
-          event2 = create(:event, internal_name: "tally")
-          attributes.merge!(:new_event_names => ["shorty", "tally"])
-          expect{album.full_update_attributes(attributes)}.to change(AlbumEvent, :count).by(2)
-          expect(album.events).to match_array([event, event2])          
-        end
-        
-        it "adds multiple events that may or may not exist" do
-          album = create(:album)
-          attributes = attributes_for(:album)
-          event = create(:event, internal_name: "shorty")
-          event2 = create(:event, internal_name: "tally")
-          attributes.merge!(:new_event_names => ["shorty", "tally", "holly"])
-          expect{album.full_update_attributes(attributes)}.to change(AlbumEvent, :count).by(3)
-          expect(album.events.count).to eq(3)   
-          expect(Event.find_by_internal_name("holly")).to be_a Event           
-        end
-        
-        it "removes multiple events" do
-          album = create(:album)
-          event = create(:event)
-          event2 = create(:event)
-          album_event = create(:album_event, event: event, album: album)
-          album_event2 = create(:album_event, event: event2, album: album)
-          attributes = attributes_for(:album)
-          attributes.merge!(:remove_events => [event.id.to_s, event2.id.to_s])
-          expect{album.full_update_attributes(attributes)}.to change(AlbumEvent, :count).by(-2)
-        end
-      end
-      
-      include_examples "can update self-relations"
-      include_examples "updates dates properly", "release_date"
-      include_examples "updates with normal attributes"
-      
-    end
-    
-  #Scope Tests
-  describe "Scoping" do 
+  describe "Scope Tests" do
     it_behaves_like "filters by status", Album::Status
     it_behaves_like "filters by date range", "release_date"
-        
+
     describe "filters by AOS" do
-      let(:album1) {create(:album)} 
+      let(:album1) {create(:album)}
       let(:album2) {create(:album)}
       let(:album3) {create(:album)}
       let(:album4) {create(:album)}
-      
+
       ["artist", "source", "organization"].each do |model|
         describe "by #{model}" do
           join_table_symbol = (model == "artist" ? :artist_album : "album_#{model}".to_sym)
@@ -596,42 +197,42 @@ describe Album do
           let(:record2) {create(model.to_sym)} #album1
           let(:record3) {create(model.to_sym)} #album2
           let(:record4) {create(model.to_sym)} #album3
-          let(:record5) {create(model.to_sym)} 
-          before(:each) do 
-            create(join_table_symbol, album: album1, model.to_sym => record1) 
-            create(join_table_symbol, album: album1, model.to_sym => record2) 
-            create(join_table_symbol, album: album2, model.to_sym => record1) 
-            create(join_table_symbol, album: album2, model.to_sym => record3)  
-            create(join_table_symbol, album: album3, model.to_sym => record4)               
+          let(:record5) {create(model.to_sym)}
+          before(:each) do
+            create(join_table_symbol, album: album1, model.to_sym => record1)
+            create(join_table_symbol, album: album1, model.to_sym => record2)
+            create(join_table_symbol, album: album2, model.to_sym => record1)
+            create(join_table_symbol, album: album2, model.to_sym => record3)
+            create(join_table_symbol, album: album3, model.to_sym => record4)
           end
-          
+
           it "filters by #{model}_id" do
             expect(Album.send("with_#{model}",record1.id)).to match_array([album1,album2])
           end
-          
+
           it "matches on several ids" do
             expect(Album.send("with_#{model}",[record2.id, record4.id])).to match_array([album1,album3])
           end
 
           it "does not duplicate an album if it matches several times" do
-            expect(Album.send("with_#{model}",[record2.id, record1.id])).to match_array([album1,album2])            
+            expect(Album.send("with_#{model}",[record2.id, record1.id])).to match_array([album1,album2])
           end
-          
+
           it "can match on nothing" do
-            expect(Album.send("with_#{model}",record5.id)).to match_array([])            
+            expect(Album.send("with_#{model}",record5.id)).to match_array([])
           end
-                    
+
           it "returns all records if nil is passed in" do
-            expect(Album.send("with_#{model}",nil)).to match_array([album1,album2,album3,album4])                        
+            expect(Album.send("with_#{model}",nil)).to match_array([album1,album2,album3,album4])
           end
-          
+
           it "returns an active record relation" do
-            expect(Album.send("with_#{model}",record5.id).class).to_not be_a(Array)               
+            expect(Album.send("with_#{model}",record5.id).class).to_not be_a(Array)
           end
         end
-        
+
       end
-      
+
       describe "filters by artists, sources, and organizations" do
         let(:artist1) {create(:artist)} #album1, #album2
         let(:artist2) {create(:artist)} #album3
@@ -649,45 +250,45 @@ describe Album do
           create(:album_source, album: album2, source: source1)
           create(:album_source, album: album3, source: source2)
           create(:album_source, album: album4, source: source2)
-          
+
         end
-        
+
         it "filters by artists, sources, and organizations" do
           expect(Album.with_artist_organization_source(artist1.id, organization1.id, source1.id)).to match_array([album1,album2,album4])
         end
-        
+
         it "matches on several ids" do
           expect(Album.with_artist_organization_source(artist2.id, [organization1.id, organization2.id], source1.id)).to match_array([album3,album2,album4])
         end
-        
+
         it "does not duplicate album results" do
-          expect(Album.with_artist_organization_source(artist1.id, organization2.id, source1.id)).to match_array([album1,album2])          
+          expect(Album.with_artist_organization_source(artist1.id, organization2.id, source1.id)).to match_array([album1,album2])
         end
-        
+
         it "can match on nothing" do
-          expect(Album.with_artist_organization_source(nil, organization3.id, nil)).to match_array([])                    
+          expect(Album.with_artist_organization_source(nil, organization3.id, nil)).to match_array([])
         end
-        
+
         it "does not return all if one id is nil" do
-          expect(Album.with_artist_organization_source(artist2.id, nil, [source1.id, source2.id])).to match_array([album2,album4,album3])          
+          expect(Album.with_artist_organization_source(artist2.id, nil, [source1.id, source2.id])).to match_array([album2,album4,album3])
         end
-        
+
         it "returns all if nil is passed into all 3 arguments" do
-          expect(Album.with_artist_organization_source(nil, nil, nil)).to match_array([album1,album2,album3,album4])                    
+          expect(Album.with_artist_organization_source(nil, nil, nil)).to match_array([album1,album2,album3,album4])
         end
-        
+
         it "returns an active record relation" do
-          expect(Album.with_artist_organization_source(artist2.id, nil, nil).class).to_not be_a(Array)                  
+          expect(Album.with_artist_organization_source(artist2.id, nil, nil).class).to_not be_a(Array)
         end
       end
-      
+
     end
-    
+
     describe "filters by user_settings" do
       let(:user1) {create :user}
       let(:user2) {create :user}
       let(:album1) {create :album} #ignored album from user 1
-      let(:album2) {create :album} #ignored album from user 2 
+      let(:album2) {create :album} #ignored album from user 2
       let(:album3) {create :album} #limited edition of album 1
       let(:album4) {create :album} #reprint of album 2
       let(:album5) {create :album} #ignored album from user 1
@@ -701,51 +302,51 @@ describe Album do
         create(:related_albums, album1: album3, album2: album1, category: "Limited Edition")
         create(:related_albums, album1: album4, album2: album2, category: "Reprint")
       end
-      
+
       #1 is show LE
       #4 is show ignored
       #64 is show reprints
-      
+
       it "filters out ignored albums" do
-        user1.update_attribute("display_bitmask", 65) 
+        user1.update_attribute("display_bitmask", 65)
         expect(Album.filter_by_user_settings(user1)).to match_array([album2,album3,album4,album6,album7])
       end
-      
+
       it "filters out reprints" do
-        user1.update_attribute("display_bitmask", 5) 
-        expect(Album.filter_by_user_settings(user1)).to match_array([album1,album2,album3,album5,album6,album7])        
+        user1.update_attribute("display_bitmask", 5)
+        expect(Album.filter_by_user_settings(user1)).to match_array([album1,album2,album3,album5,album6,album7])
       end
-      
+
       it "filters out limited editions" do
-        user1.update_attribute("display_bitmask", 68) 
-        expect(Album.filter_by_user_settings(user1)).to match_array([album1,album2,album4,album5,album6,album7])        
+        user1.update_attribute("display_bitmask", 68)
+        expect(Album.filter_by_user_settings(user1)).to match_array([album1,album2,album4,album5,album6,album7])
       end
-      
+
       it "filters an album out if it matches on LE but not reprint" do
-        user1.update_attribute("display_bitmask", 64) 
+        user1.update_attribute("display_bitmask", 64)
         album8 = create(:album)
         create(:related_albums, album1: album8, album2: album2, category: "Reprint")
         create(:related_albums, album1: album4, album2: album1, category: "Limited Edition")
-        expect(Album.filter_by_user_settings(user1)).to match_array([album2,album6,album7,album8])        
+        expect(Album.filter_by_user_settings(user1)).to match_array([album2,album6,album7,album8])
       end
-      
+
       it "filters an album out if it matches on ignored but not LE" do
         user1.update_attribute("display_bitmask", 1)
         create(:collection, user: user1, collected: album3, relationship: "Ignored")
         create(:related_albums, album1: album6, album2: album1, category: "Limited Edition")
-        expect(Album.filter_by_user_settings(user1)).to match_array([album2,album6,album7])        
+        expect(Album.filter_by_user_settings(user1)).to match_array([album2,album6,album7])
       end
-      
+
       it "returns all if nil is passed in" do
-        expect(Album.filter_by_user_settings(nil)).to match_array([album1,album2,album3,album4,album5,album6,album7])                
+        expect(Album.filter_by_user_settings(nil)).to match_array([album1,album2,album3,album4,album5,album6,album7])
       end
-      
+
       it "returns an active scope relation" do
-        expect(Album.filter_by_user_settings(user1).class).to_not be_a(Array)     
+        expect(Album.filter_by_user_settings(user1).class).to_not be_a(Array)
       end
     end
   end
-    
+
 end
 
 

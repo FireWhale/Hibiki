@@ -226,7 +226,7 @@ describe ScriptsController do
       
       if accessible == true
         context "with valid attributes" do
-          let(:tag) {create(:tag)}
+          let(:tag) {create(:tag, model_bitmask: 1)}
           let(:record) {create(:album)}
           
           it "creates a taglist" do
@@ -257,7 +257,7 @@ describe ScriptsController do
         end
         
         context "with invalid attributes" do
-          let(:tag) {create(:tag)}
+          let(:tag) {create(:tag, model_bitmask: 1)}
           let(:record) {create(:album)}
           
           it "does not add a taglist if there's already one" do
@@ -302,7 +302,7 @@ describe ScriptsController do
     describe '#POST remove_tag' do
       if accessible == true
         context 'with valid params' do
-          let(:tag) {create(:tag)}
+          let(:tag) {create(:tag, model_bitmask: 1)}
           let(:record) {create(:album)}
           before(:each) do
             create(:taglist, tag: tag, subject: record)
@@ -336,7 +336,7 @@ describe ScriptsController do
         end
         
         context 'with invalid params' do
-          let(:tag) {create(:tag)}
+          let(:tag) {create(:tag, model_bitmask: 1)}
           let(:record) {create(:album)}
           before(:each) do
             create(:taglist, tag: tag, subject: record)
@@ -377,7 +377,7 @@ describe ScriptsController do
     activate_authlogic
   end
   
-  context 'public access to artists' do
+  context 'public access to scripts' do
     
     #JS 
     include_examples 'get toggle_albums', true
@@ -393,7 +393,7 @@ describe ScriptsController do
       
   end
   
-  context 'user access to artists' do
+  context 'user access to scripts' do
     before :each do
       @user = create(:user)
       UserSession.create(@user)
@@ -412,7 +412,7 @@ describe ScriptsController do
     
   end
 
-  context 'admin access to artists' do
+  context 'admin access to scripts' do
     before :each do
       @user = create(:admin)
       UserSession.create(@user)

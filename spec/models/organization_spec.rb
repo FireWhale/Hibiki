@@ -2,8 +2,9 @@ require 'rails_helper'
 
 describe Organization do
   include_examples "global model tests" #Global Tests
-  
+
   describe "Concern Tests" do
+    include_examples "it has the association module"
     include_examples "it is a translated model"
     include_examples "it has images"
     include_examples "it has posts"
@@ -14,26 +15,24 @@ describe Organization do
     include_examples "it has a custom json method"
     include_examples "it has references"
     include_examples "it has custom pagination"
-    
-    it_behaves_like "it has form_fields"
+
+    include_examples "it has form_fields"
   end
-  
-  #Association Tests
-    
+
+  describe "Association Tests" do
     it_behaves_like "it has a primary relation", Album, AlbumOrganization
     it_behaves_like "it has a primary relation", Source, SourceOrganization
     it_behaves_like "it has a primary relation", Artist, ArtistOrganization
-    
-  #Validation Tests
+  end
+
+  describe "Validation Tests" do
     include_examples "is invalid without an attribute", :internal_name
     include_examples "is invalid without an attribute", :status
-        
+
     include_examples "is invalid without an attribute in a category", :status, Album::Status, "Album::Status"
     include_examples "is invalid without an attribute in a category", :db_status, Artist::DatabaseStatus, "Artist::DatabaseStatus"
     include_examples "is invalid without an attribute in a category", :activity, Organization::Activity, "Organization::Activity"
     include_examples "is invalid without an attribute in a category", :category, Organization::Categories, "Organization::Categories"
-
-    include_examples "redirects to a new record when db_status is hidden", :organization, "something"
 
     include_examples "is valid with or without an attribute", :synonyms, "hi"
     include_examples "is valid with or without an attribute", :db_status, "Complete"
@@ -43,28 +42,20 @@ describe Organization do
     include_examples "is valid with or without an attribute", :private_info, "Hi this is private info"
     include_examples "is valid with or without an attribute", :synopsis, "Hi this is a synopsis"
     include_examples "is valid with or without an attribute", :popularity, 55
-    
-          
-  #Serialization Tests
+  end
+
+  describe "Attribute Tests" do
     it_behaves_like "it has a partial date", :established
     it_behaves_like "it has a serialized attribute", :namehash
-    
+  end
 
-  #Instance Method Tests
-    
-  #Class Method Tests    
-    context "has a full update method" do
-      include_examples "updates with keys and values"
-      include_examples "updates the reference properly"
-      include_examples "can upload an image"
-      include_examples "updates namehash properly"
-      include_examples "can update a primary relationship", Artist, ArtistOrganization
-      include_examples "can update self-relations"
-      include_examples "updates dates properly", "established"
-      include_examples "updates with normal attributes"      
-    end   
-    
-  describe "Scoping" do 
+  describe "Callbacks/Hooks" do
+    describe "After Save: manage_artists" do
+      include_examples "manages a primary association", Artist, ArtistOrganization
+    end
+  end
+
+  describe "Scoping" do
     it_behaves_like "filters by status", Album::Status
     it_behaves_like "filters by category", Organization::Categories
     it_behaves_like "filters by activity", Organization::Activity

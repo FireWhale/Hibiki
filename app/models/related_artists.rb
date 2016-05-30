@@ -1,6 +1,4 @@
 class RelatedArtists < ActiveRecord::Base
-  attr_accessible :category, :artist1_id, :artist2_id
-
   Relationships = Artist::SelfRelationships.reject {|r| r.count < 3}.map(&:last)
 
   validates :artist1_id, :presence => true, uniqueness: {scope: :artist2_id}

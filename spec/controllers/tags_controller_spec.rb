@@ -21,7 +21,9 @@ describe TagsController do
 
     #Delete
       include_examples "can delete a record", false
-      
+
+    #Strong Parameters
+      include_examples "uses strong parameters", [], [["tag_models"]]
   end
   
   context 'user access to tags' do
@@ -45,7 +47,8 @@ describe TagsController do
     #Delete
       include_examples "can delete a record", false
       
-
+    #Strong Parameters
+      include_examples "uses strong parameters", [], [["tag_models"]]
   end
 
   context 'admin access to tags' do
@@ -68,6 +71,12 @@ describe TagsController do
 
     #Delete
       include_examples "can delete a record", true
+
+    #Strong Parameters
+      include_examples "uses strong parameters",
+      ["internal_name", "classification", "visibility", ["tag_models"],
+       {"name_langs" => "string"},["new_name_langs"], ["new_name_lang_categories"],
+       {"info_langs" => "string"},["new_info_langs"], ["new_info_lang_categories"]], []
   end
 end
 

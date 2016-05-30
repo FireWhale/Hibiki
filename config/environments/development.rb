@@ -31,9 +31,9 @@ Hibiki::Application.configure do
 
   # Only use best-standards-support built into browsers
   config.action_dispatch.best_standards_support = :builtin
-
-  # Raise exception on mass assignment protection for Active Record models
-  config.active_record.mass_assignment_sanitizer = :strict
+  
+  # Raise error on trying to assign unpermitted parameter (according to strong_params)
+  config.action_controller.action_on_unpermitted_parameters = :log
   
   # Do not compress assets
   config.assets.js_compressor = false

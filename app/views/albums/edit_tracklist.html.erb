@@ -47,6 +47,6 @@
     </div>
   </div>
 <% end %>
-    
-<%= render_form(@album.songs, url: update_tracklist_album_path(@album), fields: Song::TracklistEditFields) %>
+
+<%= render_form(@songs, url: update_tracklist_album_path(@album), fields: Song::TracklistEditFields) %>
 

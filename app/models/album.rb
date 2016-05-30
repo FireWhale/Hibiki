@@ -1,16 +1,7 @@
 class Album < ActiveRecord::Base
-  #Attributes
-    attr_accessible :internal_name, :synonyms, :namehash, :catalog_number, #Names!
-                    :status, :classification,
-                    :info, :private_info, 
-                    :release_date, :release_date_bitmask #bitmask is needed for scraping
-    
-    serialize :namehash
-  
-  #Default Scope
-  
+
   #Modules
-    include FullUpdateModule
+    include AssociationModule
     include SolrSearchModule
     include LanguageModule
     include JsonModule
@@ -22,14 +13,38 @@ class Album < ActiveRecord::Base
       include ReferenceModule
       include CollectionModule
 
+  #Attributes
+    serialize :namehash
+
+    attr_accessor :new_events
+    attr_accessor :new_events_by_name
+    attr_accessor :remove_album_events
+
+    attr_accessor :new_artists
+    attr_accessor :update_artist_albums
+
+    attr_accessor :new_organizations
+    attr_accessor :new_organizations_by_name
+    attr_accessor :update_album_organizations
+    attr_accessor :remove_album_organizations
+
+    attr_accessor :new_sources
+    attr_accessor :new_sources_by_name
+    attr_accessor :remove_album_sources
+
+    attr_accessor :new_songs
+
   #Callbacks/Hooks
-    before_validation :convert_names
-    
-   
+    after_save :manage_events
+    after_save :manage_organizations
+    after_save :manage_artists
+    after_save :manage_sources
+    after_save :manage_songs
+
   #Multiple Model Constants - Put here for lack of a better place
     ReferenceLinks = [['vgmdb.net',:VGMdb], ['Last.FM',:lastpppfm], #seriously, going to sub ppp for a period
-    ['Generasia Wiki',:generasia_wiki], ['Wikipedia.org',:wikipedia], 
-    ['jpopsuki.eu',:jpopsuki], ['vndb.org',:visual_novel_database], 
+    ['Generasia Wiki',:generasia_wiki], ['Wikipedia.org',:wikipedia],
+    ['jpopsuki.eu',:jpopsuki], ['vndb.org',:visual_novel_database],
     ['Anime News Network', :anime_news_network],
     ['Vocaloid wiki', :vocaloid_wiki],['Utaite wiki', :utaite_wiki],
     ['Touhou wiki', :touhou_wiki], ['Vocaloid db', :vocaloid_DB],
@@ -41,12 +56,12 @@ class Album < ActiveRecord::Base
     ['Official Blog', :official_blog],
     ['Twitter', :twitter],
     ['Other', :other_reference ]]
-    
+
     Status = ['Released', 'Unreleased', 'Hidden', 'Private']
       #Hidden - Just a placeholder in the database - maaya => maaya sakamoto
       #Private - Things that are out of scope of the database but I still like
-      
-  #Model Constants    
+
+  #Model Constants
     SelfRelationships = [['is a limited edition of', "Normal Versions", "Limited Editions", 'Limited Edition'],
     ['has the limited edition', '-Limited Edition'],
     ['is a reprint of', "Reprinted From", "Reprints", 'Reprint'],
@@ -58,24 +73,14 @@ class Album < ActiveRecord::Base
     ['is an instrumental version of', "Normal Versions", "Instrumental Versions", 'Instrumental'],
     ['has the instrumental version', '-Instrumental']]
 
-    FullUpdateFields = {reference: true, events: true, songs: true, sources_for_album: true, artists_for_album: [:new_artist_ids, :new_artist_categories, :update_artist_albums],
-                        scrapes: {organization: [:new_organization_names, :new_organization_categories_scraped],
-                                  sources: [:new_source_names],
-                                  artists: [:new_artist_names, :new_artist_categories_scraped]},
-                        relations_by_id: {organization: [:new_organization_ids, :new_organization_categories, :update_album_organizations, :remove_album_organizations, AlbumOrganization, "album_organizations"]},
-                        self_relations: [:new_related_album_ids, :new_related_album_categories, :update_related_albums, :remove_related_albums],
-                        images: true,
-                        languages: [:name, :info],
-                        dates: ["release_date"]}
-                        
     FormFields = [{type: "markup", tag_name: "div class='col-md-6'"},
                   {type: "text", attribute: :internal_name, label: "Internal Name:"},
                   {type: "text", attribute: :synonyms, label: "Synonyms:"},
                   {type: "language_fields", attribute: :name},
-                  {type: "text", attribute: :catalog_number, label: "Catalog Number:"}, 
-                  {type: "date", attribute: :release_date, label: "Release Date:"}, 
+                  {type: "text", attribute: :catalog_number, label: "Catalog Number:"},
+                  {type: "date", attribute: :release_date, label: "Release Date:"},
                   {type: "select", attribute: :status, label: "Status:", categories: Album::Status},
-                  {type: "text", attribute: :classification, label: "Classification:"}, 
+                  {type: "text", attribute: :classification, label: "Classification:"},
                   {type: "references"}, {type: "events"}, {type: "images"},
                   {type: "tags", div_class: "well", title: "Tags"},
                   {type: "language_fields", attribute: :info},
@@ -92,7 +97,7 @@ class Album < ActiveRecord::Base
     #Artistreplace is used to replace names with IDs when adding artists by name to an album.
     #Since adding by name only applies to scrapes, we need a way to differeniate artists
     #with the same name. This will give a "default" ID to use, as well as keep track of
-    #artists with the same name. 
+    #artists with the same name.
     Artistreplace = [
       ['SHIHO', 39004 ], #2 artists. I've Sound SHIHO (39004) in favor of Stereopony SHIHO(3221)
       ['96', 39007 ], #2 artists. IOSYS guitarist (39007) in favor of guitarfreak's 96 (868))
@@ -103,100 +108,116 @@ class Album < ActiveRecord::Base
       ['JIN', 1434 ], #Vocaloid producer over Musician and Beatmania Singer
       ['Peco', 5927], #Liz Triangle artist over some 1997 ost artist
     ]
-    
+
     #Ignore Artist Names - for ignoring certain names when scraping, particulary organizations in parenthesis
     IgnoredArtistNames = [")", "()", "(", '(Elements Garden)', '(Angel Note)', "(CROW'SCLAW)", '(C9)', '?']
-    
+
   #Validation
-    validates :internal_name, presence: true 
+    validates :internal_name, presence: true
     validates :status, presence: true
     validates :catalog_number, presence: true, uniqueness: {scope: [:internal_name, :release_date]}
     validates :release_date, presence: true, unless: -> {self.release_date_bitmask.nil?}
     validates :release_date_bitmask, presence: true, unless: -> {self.release_date.nil?}
-   
-   
+
+
   #associations
-    #Primary Associations                 
+    #Primary Associations
       has_many :album_sources
       has_many :sources, through: :album_sources, dependent: :destroy
-      
+
       has_many :artist_albums
       has_many :artists, through: :artist_albums, dependent: :destroy
-      
+
       has_many :album_organizations
       has_many :organizations, through: :album_organizations, dependent: :destroy
 
       has_many :songs, dependent: :destroy
-      
+
     #Secondary Associations
       has_many :album_events
       has_many :events, through: :album_events, dependent: :destroy
-        
-  #Scopes  
+
+  #Scopes
     scope :with_status, ->(statuses) {where('status IN (?)', statuses)}
     scope :in_date_range, ->(start_date, end_date) {where("albums.release_date >= ? and albums.release_date <= ? ", start_date, end_date)}
-        
+
     #These following three scopes are necessary because with_aos handles nil differently
     scope :artist_proc, ->(artist_ids) {joins(:artist_albums).where('artist_albums.artist_id IN (?)', artist_ids).uniq}
     scope :source_proc, ->(source_ids) {joins(:album_sources).where('album_sources.source_id IN (?)', source_ids).uniq}
     scope :organization_proc, ->(organization_ids) {joins(:album_organizations).where('album_organizations.organization_id IN (?)', organization_ids).uniq}
-    
+
     scope :with_artist, ->(artist_ids) { artist_proc(artist_ids) unless artist_ids.nil?}
     scope :with_source, ->(source_ids) { source_proc(source_ids) unless source_ids.nil?}
     scope :with_organization, ->(organization_ids) {organization_proc(organization_ids) unless organization_ids.nil?}
     scope :with_artist_organization_source, ->(artist_ids, organization_ids, source_ids) {from("((#{Album.artist_proc(artist_ids).to_sql}) union (#{Album.source_proc(source_ids).to_sql}) union (#{Album.organization_proc(organization_ids).to_sql})) #{Album.table_name} ").references(:artist_albums, :album_sources, :album_organizations) unless artist_ids.nil? && organization_ids.nil? && source_ids.nil?}
-    
+
     #User Settings
     scope :filter_by_user_settings, ->(user) {not_in_collection(user.id, user.album_filter).without_self_relation_categories(user.album_filter) unless user.nil?}
-    
-  #Gem Stuff  
+
+  #Gem Stuff
     #Pagination
-    paginates_per 50        
+    paginates_per 50
 
   #For sorting albums
     def week(start_day = "sunday") #For sorting by week
       self.release_date? ? self.release_date.beginning_of_week(start_day.to_sym) : nil
     end
-    
+
     def month #For sorting by month
       self.release_date? ? self.release_date.beginning_of_month : nil
     end
-    
+
     def year
       self.release_date? ? self.release_date.beginning_of_year : nil
     end
 
-  
+
   #Limited Edition and reprint check
     def limited_edition?
       self.related_album_relations1.map(&:category).include?("Limited Edition")
     end
-  
+
     def reprint?
       self.related_album_relations1.map(&:category).include?("Reprint")
     end
-    
+
     def alternate_printing?
-      self.related_album_relations1.map(&:category).include?("Alternate Printing")      
+      self.related_album_relations1.map(&:category).include?("Alternate Printing")
     end
 
   private
+    def manage_events
+      self.manage_primary_relation(Event,AlbumEvent)
+    end
 
-  def convert_names
-    @name_hash = self.namehash
-    unless @name_hash.blank?
-      #Convert the ones we want to convert
-      @name_hash.each do |k,v|
-        if [:English, :Romaji, :Japanese].include?(k)
-          self.write_attribute(:name, v, locale: "hibiki_#{k.to_s.downcase[0..1]}".to_sym) unless v.nil?
-          @name_hash.except!(k) #Remove the key from the hash
+    def manage_artists
+      self.manage_artist_relation
+    end
+
+    def manage_sources
+      self.manage_primary_relation(Source,AlbumSource)
+    end
+
+    def manage_organizations
+      self.manage_primary_relation(Organization,AlbumOrganization)
+    end
+
+    def manage_songs
+      #Update - Not implemented since this is for updating the relationship. Not the song itself.
+      #         There is no categorization of the relationship between songs and albums (they always just belong to an album)
+      #Destroy - Not implemented at this time. Manually delete songs.
+
+      #Create
+      new_song_values = HashWithIndifferentAccess.new(self.new_songs)
+      unless new_song_values.blank?
+       new_song_values.values.transpose.each do |info|
+          attributes = [new_song_values.keys,info].transpose.to_h
+          attributes[:status] = "Unreleased"
+          self.songs.create(attributes)
         end
       end
-      self.namehash = (@name_hash.empty? ? nil : @name_hash)
     end
-    #Remove duplicates from synonym
-    @name_translations = self.name_translations.values
-    self.synonyms = nil if @name_translations.include?(self.synonyms)
-  end
-  
+
+
+
 end

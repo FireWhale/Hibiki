@@ -1,6 +1,4 @@
 class RelatedSongs < ActiveRecord::Base
-  attr_accessible :category, :song1_id, :song2_id
-
   Relationships = Song::SelfRelationships.map { |relation| relation[3]}.reject(&:nil?)
 
   validates :song1_id, :presence => true, uniqueness: {scope: :song2_id}

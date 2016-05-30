@@ -5,7 +5,7 @@ gem 'yaml_db'
 gem 'authlogic'
 gem 'bcrypt', '~> 3.1.7' #needed for authlogic 3.4.1
 gem 'scrypt', '1.2.1' #needed for authlogic 3.4.1
-gem 'cancan'
+gem 'cancancan'
 gem 'kaminari' #pagination
 gem 'jbuilder'
 gem 'sass-rails',   '>= 3.2'
@@ -23,7 +23,6 @@ gem 'mojinizer'
 gem 'sidekiq'
 gem 'mysql2'
 gem 'whenever', :require => false #Cron job gem
-gem 'protected_attributes'
 gem 'truncate_html'
 
 group :development, :test do

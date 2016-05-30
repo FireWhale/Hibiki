@@ -1,17 +1,19 @@
-class Season < ActiveRecord::Base
-  #Attributes
-    attr_accessible :name, :start_date, :end_date  
-  
-  #Modules
-    include FullUpdateModule
+class Season < ActiveRecord::Base  
+  #Concerns
+    include AssociationModule
     include JsonModule
     #Association Modules
       include ImageModule
   
-  #Constants
-    FullUpdateFields = {images: ["id", "seasonimages/", "Primary"],
-                        relations_by_id: {source: [:new_source_ids, :new_source_categories, :update_source_seasons, :remove_source_seasons, SourceSeason, "source_seasons"]}}  
-  
+  #Attributes
+    attr_accessor :new_sources
+    attr_accessor :remove_source_seasons
+    attr_accessor :update_source_seasons
+    
+  #Callbacks/Hooks
+    after_save :manage_sources
+      
+  #Constants  
     FormFields = [{type: "text", attribute: :name, label: "Name"},
                   {type: "date", attribute: :start_date, label: "Start Date:"}, 
                   {type: "date", attribute: :end_date, label: "End Date:"},
@@ -26,4 +28,9 @@ class Season < ActiveRecord::Base
   #Associations
     has_many :source_seasons, dependent: :destroy
     has_many :sources, :through => :source_seasons
+    
+  private
+    def manage_sources
+      self.manage_primary_relation(Source,SourceSeason)
+    end
 end

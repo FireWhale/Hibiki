@@ -41,8 +41,10 @@ class EventsController < ApplicationController
   end
   
   def create
+    @event = Event.new(event_params)
+    
     respond_to do |format|
-      if @event.full_save(params[:event])
+      if @event.save
         format.html { redirect_to @event, notice: 'Event was successfully created.' }
         format.json { render json: @event, status: :created, location: @event }
       else
@@ -57,7 +59,7 @@ class EventsController < ApplicationController
     @event = Event.find(params[:id])
     
     respond_to do |format|
-      if @event.full_update_attributes(params[:event])
+      if @event.update_attributes(event_params)
         format.html { redirect_to @event, notice: 'Event was successfully updated.' }
         format.json { head :no_content }
       else
@@ -76,4 +78,25 @@ class EventsController < ApplicationController
       format.json { head :no_content }
     end
   end
+  
+  class EventParams
+    def self.filter(params,current_user)
+      if current_user && current_user.abilities.include?("Admin")
+        params.require(:event).permit("internal_name", "shorthand", "db_status", "start_date", "end_date",
+                                      :new_references => [:site_name => [], :url => []], :update_references => [:site_name, :url],
+                                      :new_name_langs => [], :new_name_lang_categories => [], :name_langs => params[:event][:name_langs].try(:keys),
+                                      :new_info_langs => [], :new_info_lang_categories => [], :info_langs => params[:event][:info_langs].try(:keys),
+                                      :new_abbreviation_langs => [], :new_abbreviation_lang_categories => [], :abbreviation_langs => params[:event][:abbreviation_langs].try(:keys))
+      elsif current_user
+        params.require(:event).permit()
+      else
+        params.require(:event).permit()
+      end          
+    end
+  end
+  
+  private
+    def event_params
+      EventParams.filter(params,current_user)
+    end  
 end

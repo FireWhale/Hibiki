@@ -1,6 +1,4 @@
-class SourceOrganization < ActiveRecord::Base
-  attr_accessible :organization_id, :source_id, :category
-  
+class SourceOrganization < ActiveRecord::Base  
   #Constants
     Categories = ['Publisher','Distributor','Developer']
     

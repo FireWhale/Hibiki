@@ -6,7 +6,7 @@ describe EventsController do
     activate_authlogic
   end
   
-  context 'public access to events' do
+  describe 'public access to events' do
     #Shows
       include_examples 'has an index page', true, :start_date
       include_examples "has a show page", true
@@ -22,9 +22,12 @@ describe EventsController do
     #Delete
       include_examples "can delete a record", false
       
+    #Strong Parameters
+      include_examples "uses strong parameters"
+      
   end
   
-  context 'user access to events' do
+  describe 'user access to events' do
     before :each do
       @user = create(:user)
       UserSession.create(@user)
@@ -45,10 +48,12 @@ describe EventsController do
     #Delete
       include_examples "can delete a record", false
       
-
+    #Strong Parameters
+      include_examples "uses strong parameters"
+      
   end
 
-  context 'admin access to events' do
+  describe 'admin access to events' do
     before :each do
       @user = create(:admin)
       UserSession.create(@user)
@@ -68,6 +73,13 @@ describe EventsController do
 
     #Delete
       include_examples "can delete a record", true
+      
+    #Strong Parameters
+      include_examples "uses strong parameters", ["internal_name", "shorthand", "db_status","start_date", "end_date",
+                                                  {"name_langs" => "string"},["new_name_langs"], ["new_name_lang_categories"],
+                                                  {"abbreviation_langs" => "string"},["new_abbreviation_langs"], ["new_abbreviation_lang_categories"],
+                                                  {"info_langs" => "string"},["new_info_langs"], ["new_info_lang_categories"],
+                                                  {"new_references" => {"new" => ["site_name", "url"]}}, {"update_references" => {"update" => ["url", "site_name"]}}], []
   end
    
 end

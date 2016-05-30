@@ -21,6 +21,9 @@ describe ImagesController do
     #Delete
       include_examples "can delete a record", false
       
+    #Strong Parameters
+      include_examples "uses strong parameters"
+      
   end
   
   context 'user access to images' do
@@ -41,6 +44,9 @@ describe ImagesController do
 
     #Delete
       include_examples "can delete a record", false
+      
+    #Strong Parameters
+      include_examples "uses strong parameters"
 
   end
 
@@ -62,6 +68,10 @@ describe ImagesController do
 
     #Delete
       include_examples "can delete a record", true
+      
+    #Strong Parameters
+      include_examples "uses strong parameters", ["name", "path", "primary_flag", "rating", "llimagelink", "medium_path", "thumb_path", 
+                                                  "width", "height", "medium_width", "medium_height", "thumb_width", "thumb_height"], []
   end
    
 end

@@ -135,7 +135,7 @@ class ScriptsController < ApplicationController
         @field_names = params[:field_names]
         @field_class = params[:field_class]
         #If text_area is flagged, use a text area instead of text_field
-        @text_area_field_names = params[:text_area_field_names]
+        @text_area_field_names = params[:text_area_field_names]        
       #Category list names
         @category_field_names = params[:category_field_names]
         @categories = params[:category_select]

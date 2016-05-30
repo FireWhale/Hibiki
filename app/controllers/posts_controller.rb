@@ -64,8 +64,10 @@ class PostsController < ApplicationController
   end
     
   def create
+    @post = Post.new(post_params)
+    
     respond_to do |format|
-      if @post.full_save(params[:post])
+      if @post.save
         format.html { redirect_to @post, notice: 'Post Created!' }
         format.json { render json: @post, status: :created, location: @post }
       else
@@ -79,7 +81,7 @@ class PostsController < ApplicationController
     @post = Post.find(params[:id])
 
     respond_to do |format|
-      if @post.full_update_attributes(params[:post])
+      if @post.update_attributes(post_params)
         format.html { redirect_to @post, notice: 'Post was successfully updated.' }
         format.json { head :no_content }
       else
@@ -100,4 +102,20 @@ class PostsController < ApplicationController
     end
   end
   
+  class PostParams    
+    def self.filter(params,current_user)
+      if current_user && current_user.abilities.include?("Admin")
+        params.require(:post).permit(:title, :content, :status, :visibility, :category, :new_images => [])
+      elsif current_user
+        params.require(:post).permit()
+      else
+        params.require(:post).permit()
+      end     
+    end
+  end
+  
+  private
+    def post_params
+      PostParams.filter(params,current_user)
+    end  
 end

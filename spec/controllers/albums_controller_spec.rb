@@ -5,13 +5,13 @@ Sidekiq::Testing.fake!
 describe AlbumsController do
   shared_examples "has an edit_tracklist page" do |accessible|
     describe 'GET #edit_tracklist' do
-      
+
       it "populates an album record" do
         album = create(:album)
         get :edit_tracklist, id: album
         expect(assigns(:album)).to eq album
       end
-      
+
       it "responds to json" do
         album = create(:album)
         get :edit_tracklist, id: album, format: :json
@@ -21,7 +21,7 @@ describe AlbumsController do
           expect(response.status).to eq(403)
         end
       end
-       
+
       it "renders the :edit_tracklist template" do
         album = create(:album)
         get :edit_tracklist, id: album
@@ -29,7 +29,7 @@ describe AlbumsController do
       end
     end
   end
-   
+
   shared_examples "can post update_tracklist" do |accessible|
     describe 'POST #update_tracklist' do
       if accessible == true
@@ -38,21 +38,20 @@ describe AlbumsController do
           put :update_tracklist, id: album.id
           expect(assigns(:album)).to eq album
         end
-                
+
         it "updates each song in the album" do
           album = create(:album, :with_songs)
           new_info = attributes_for(:song, internal_name: "hohoho")
-          song_info = {album.songs.first.id => new_info}
-          put :update_tracklist, id: album.id, song: song_info
+          put :update_tracklist, id: album.id, song: {album.songs.first.id.to_s => new_info}
           expect(album.songs.first.reload.internal_name).to eq("hohoho")
         end
-                
+
         it "redirects to the album" do
           album = create(:album, :with_songs)
           put :update_tracklist, id: album.id
           expect(response).to redirect_to album_path(assigns[:album])
         end
-        
+
         it "responds to json" do
           album = create(:album, :with_songs)
           put :update_tracklist, id: album.id, format: :json
@@ -66,7 +65,7 @@ describe AlbumsController do
           put :update_tracklist, id: album.id, song: song_info
           expect(album.songs.first.reload.name).to_not eq("hohoho")
         end
-        
+
         it "redirects to the access denied" do
           album = create(:album, :with_songs)
           put :update_tracklist, id: album.id
@@ -75,13 +74,13 @@ describe AlbumsController do
       end
     end
   end
-  
+
   shared_examples "can post rescrape" do |accessible|
     describe 'POST #rescrape' do
       before(:each) do
         Sidekiq::Worker.clear_all
       end
-      
+
       if accessible == true
         it "locates the album" do
           album = create(:album, :with_reference)
@@ -89,43 +88,43 @@ describe AlbumsController do
           put :rescrape, id: album.id
           expect(assigns(:album)).to eq(album)
         end
-        
+
         it "locates the rescrape post" do
           album = create(:album, :with_reference)
           post = create(:post, category: "Rescrape Result", content: "hi")
           put :rescrape, id: album.id
           expect(assigns(:post)).to eq(post)
         end
-        
+
         it "redirects to the album" do
           album = create(:album, :with_reference)
           post = create(:post, category: "Rescrape Result", content: "hi")
           put :rescrape, id: album.id
           expect(response).to redirect_to album_path(assigns[:album])
         end
-        
+
         it "responds to json" do
           album = create(:album, :with_reference)
           post = create(:post, category: "Rescrape Result", content: "hi")
           put :rescrape, id: album.id, format: :json
-          expect(response.status).to eq(204) #204 No Content -> ajax success event          
+          expect(response.status).to eq(204) #204 No Content -> ajax success event
         end
-        
+
         it "responds to a get request" do
           album = create(:album, :with_reference)
           post = create(:post, category: "Rescrape Result", content: "hi")
           get :rescrape, id: album.id
-          expect(response).to redirect_to album_path(assigns[:album])          
+          expect(response).to redirect_to album_path(assigns[:album])
         end
-        
-        context 'with vgmdb reference' do          
+
+        context 'with vgmdb reference' do
           it "sends off a sidekiq request" do
             album = create(:album)
             create(:reference, model: album, site_name: "VGMdb")
             post = create(:post, category: "Rescrape Result", content: "hi")
             expect{put :rescrape, id: album.id}.to change(ScrapeWorker.jobs, :size).by(1)
           end
-          
+
           it "sends a sidekiq request with get" do
             album = create(:album)
             create(:reference, model: album, site_name: "VGMdb")
@@ -133,7 +132,7 @@ describe AlbumsController do
             expect{get :rescrape, id: album.id}.to change(ScrapeWorker.jobs, :size).by(1)
           end
         end
-        
+
         context 'without vgmdb reference' do
           it "does not send off a sidekiq request" do
             album = create(:album)
@@ -142,14 +141,14 @@ describe AlbumsController do
             expect{get :rescrape, id: album.id}.to change(ScrapeWorker.jobs, :size).by(0)
           end
         end
-        
-      else        
+
+      else
         it "does not send off a sidekiq requset" do
           album = create(:album, :with_reference)
           post = create(:post, category: "Rescrape Result", content: "hi")
           expect{put :rescrape, id: album.id}.to change(ScrapeWorker.jobs, :size).by(0)
         end
-        
+
         it "redirects to the access denied" do
           album = create(:album, :with_reference)
           post = create(:post, category: "Rescrape Result", content: "hi")
@@ -158,47 +157,21 @@ describe AlbumsController do
         end
       end
     end
-      
+
   end
-    
-  
+
+
   #Authenticate
   before :each do
     activate_authlogic
   end
-  
-  context 'public access to albums' do          
+
+  context 'public access to albums' do
     #Shows
       include_examples 'has an index page', true, :release_date
       include_examples "has a show page", true
       include_examples "has an images page", true, :album_art
-      
-    #Edits
-      include_examples "has a new page", false
-      include_examples "has an edit page", false
-      include_examples "has an edit_tracklist page", false
 
-    #Posts
-      include_examples "can post create", false
-      include_examples "can post update", false, :internal_name
-      include_examples "can post update_tracklist", false
-      include_examples "can post rescrape", false
-
-    #Delete
-      include_examples "can delete a record", false      
-  end
-  
-  context 'user access to albums' do
-    before :each do
-      @user = create(:user)
-      UserSession.create(@user)
-    end    
-      
-    #Shows
-      include_examples 'has an index page', true, :release_date
-      include_examples "has a show page", true
-      include_examples "has an images page", true, :album_art
-      
     #Edits
       include_examples "has a new page", false
       include_examples "has an edit page", false
@@ -212,7 +185,39 @@ describe AlbumsController do
 
     #Delete
       include_examples "can delete a record", false
-      
+
+    #Strong Parameters
+      include_examples "uses strong parameters", [],[{"new_references" => {"new" => ["site_name", "url"]}}, {"update_references" => {"update" => ["url", "site_name"]}}]
+
+  end
+
+  context 'user access to albums' do
+    before :each do
+      @user = create(:user)
+      UserSession.create(@user)
+    end
+
+    #Shows
+      include_examples 'has an index page', true, :release_date
+      include_examples "has a show page", true
+      include_examples "has an images page", true, :album_art
+
+    #Edits
+      include_examples "has a new page", false
+      include_examples "has an edit page", false
+      include_examples "has an edit_tracklist page", false
+
+    #Posts
+      include_examples "can post create", false
+      include_examples "can post update", false, :internal_name
+      include_examples "can post update_tracklist", false
+      include_examples "can post rescrape", false
+
+    #Delete
+      include_examples "can delete a record", false
+
+    #Strong Parameters
+      include_examples "uses strong parameters", [],[{"new_references" => {"new" => ["site_name", "url"]}}, {"update_references" => {"update" => ["url", "site_name"]}}]
 
   end
 
@@ -221,12 +226,12 @@ describe AlbumsController do
       @user = create(:admin)
       UserSession.create(@user)
     end
-          
+
     #Shows
       include_examples 'has an index page', true, :release_date
       include_examples "has a show page", true
       include_examples "has an images page",true, :album_art
-      
+
     #Edits
       include_examples "has a new page", true
       include_examples "has an edit page", true
@@ -240,8 +245,33 @@ describe AlbumsController do
 
     #Delete
       include_examples "can delete a record", true
+
+    #Strong Parameters
+      include_examples "uses strong parameters", [
+        "internal_name", "synonyms", "catalog_number", "release_date", "status", "classification", "info", "private_info",
+        ["new_images"], ["remove_album_sources"], ["remove_album_organizations"], ["remove_related_albums"], ["remove_album_events"], {"namehash" => "string"},
+        {"name_langs" => "string"},["new_name_langs"], ["new_name_lang_categories"],
+        {"info_langs" => "string"},["new_info_langs"], ["new_info_lang_categories"],
+        {"new_related_albums" => {"new" => ["id", "category"]}}, {"update_related_albums" => {"update" => ["category"]}},
+        {"new_artists" => {"new" => ["id", "category"]}}, {"update_artist_albums" => {"update" => [["category"]]}},
+        {"new_organizations" => {"new" => ["id", "category"]}}, {"update_album_organizations" => {"update" => ["category"]}},
+        {"new_sources" => {"new" => ["id"]}}, {"new_events" => {"new" => ["id"]}},
+        {"new_songs" => {"new" => ["track_number", "internal_name"]}},
+        {"new_references" => {"new" => ["site_name", "url"]}}, {"update_references" => {"update" => ["url", "site_name"]}}], []
+
+      include_examples "uses strong parameters", [
+        {"song" => {"update" => ["internal_name", "disc_number", "track_number", "length", {"namehash" => "string"}, ["remove_song_sources"], ["remove_related_songs"],
+                                  {"name_langs" => "string"},["new_name_langs"], ["new_name_lang_categories"],
+                                  {"lyrics_langs" => "string"},["new_lyrics_langs"], ["new_lyrics_lang_categories"],
+                                  {"new_artists" => {"new" => ["id", "category"]}}, {"update_artist_songs" => {"update" => [["category"]]}},
+                                  {"new_sources" => {"new" => ["id", "classification", "op_ed_number", "ep_numbers"]}}, {"update_song_sources" => {"update" => ["classification", "op_ed_number", "ep_numbers"]}},
+                                  {"new_related_songs" => {"new" => ["id", "category"]}}, {"update_related_songs" => {"update" => ["category"]}},
+                                  ]}},
+      ],[], "tracklist_filter"
+
+
   end
-        
+
 end
 
 

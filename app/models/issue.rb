@@ -1,8 +1,4 @@
-class Issue < ActiveRecord::Base
-  attr_accessible :name, :category, :description, 
-                  :resolution, :private_info, :status, 
-                  :priority, :visibility, :difficulty
-  
+class Issue < ActiveRecord::Base  
   #Concerns
     include JsonModule
   

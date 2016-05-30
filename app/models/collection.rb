@@ -1,6 +1,4 @@
-class Collection < ActiveRecord::Base
-  attr_accessible :collected_id, :collected_type, :rating, :relationship, :user_comment, :date_obtained
-  
+class Collection < ActiveRecord::Base  
   Relationship = %w[Collected Ignored Wishlisted]
   
   validates :collected_type, inclusion: %w[Album Song]

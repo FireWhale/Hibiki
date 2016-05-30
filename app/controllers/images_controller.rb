@@ -32,7 +32,7 @@ class ImagesController < ApplicationController
     @image = Image.find(params[:id])
 
     respond_to do |format|
-      if @image.update_attributes(params[:image])
+      if @image.update_attributes(image_params)
         format.html { redirect_to @image, notice: 'Image was successfully updated.' }
         format.json { head :no_content }
       else
@@ -59,4 +59,22 @@ class ImagesController < ApplicationController
       format.json { head :no_content }
     end
   end
+  
+  class ImageParams
+    def self.filter(params,current_user)
+      if current_user && current_user.abilities.include?("Admin")
+        params.require(:image).permit(:name, :rating, :llimagelink, :primary_flag, :path, :medium_path, :thumb_path,
+                                      :width, :height, :medium_width, :medium_height, :thumb_width, :thumb_height)
+      elsif current_user
+        params.require(:image).permit()
+      else
+        params.require(:image).permit()
+      end        
+    end
+  end
+  
+  private
+    def image_params
+      ImageParams.filter(params,current_user)
+    end
 end

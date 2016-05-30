@@ -6,13 +6,13 @@
       <div>
         <%= link_to relation.artist.internal_name, relation.artist %>
         <% categories = Artist.get_credits(relation.category) %>
-        <%= hidden_field_tag "#{form_prefix}[update_artist_#{record.class.to_s.downcase}s][#{relation.id.to_s}][]" %>
+        <%= hidden_field_tag "#{form_prefix}[update_artist_#{record.class.to_s.downcase}s][#{relation.id.to_s}][category][]" %>
         <% Artist::Credits.each_with_index do |credit,n| %>
-          <%= check_box_tag "#{form_prefix}[update_artist_#{record.class.to_s.downcase}s][#{relation.id.to_s}][]", credit, categories.include?(credit) %> <%= Artist::CreditsAbbr[n] %> 
+          <%= check_box_tag "#{form_prefix}[update_artist_#{record.class.to_s.downcase}s][#{relation.id.to_s}][category][]", credit, categories.include?(credit) %> <%= Artist::CreditsAbbr[n] %>
         <% end %>
       </div>
     <% end %>
   <% end %>
   <div id='<%= "Artists" + record.id.to_s %>'></div>
-  <%= link_to "Add an Artist", add_model_path(parent_div: "#Artists#{record.id.to_s}", field_names: "#{form_prefix}[new_artist_ids]", artist_category_names: "#{form_prefix}[new_artist_categories][]", autocomplete_model: "artist" ), :remote => true %></br></br>     
+  <%= link_to "Add an Artist", add_model_path(parent_div: "#Artists#{record.id.to_s}", field_names: "#{form_prefix}[new_artists][id]", artist_category_names: "#{form_prefix}[new_artists][category][]", autocomplete_model: "artist" ), :remote => true %></br></br>
 </div>

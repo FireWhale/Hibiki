@@ -1,6 +1,4 @@
 class AlbumOrganization < ActiveRecord::Base
-  attr_accessible :album_id, :category, :organization_id
-
   #Constants
     Categories = ['Publisher','Distributor']
     

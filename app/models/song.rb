@@ -1,15 +1,6 @@
 class Song < ActiveRecord::Base
-  #Attributes
-    attr_accessible :internal_name, :synonyms, :namehash, #Names!
-                    :status, :info, :private_info, #Database and Info
-                    :track_number, :disc_number, :length, :lyrics, #more detailed info!
-                    :release_date, :album_id #Dates and album ID
-    attr_accessor   :duration #for editing a song
-    
-    serialize :namehash
-    
   #Modules
-    include FullUpdateModule
+    include AssociationModule
     include SolrSearchModule
     include LanguageModule
     include JsonModule
@@ -21,32 +12,37 @@ class Song < ActiveRecord::Base
       include ReferenceModule
       include CollectionModule
 
+  #Attributes
+    serialize :namehash
+    
+    attr_accessor :new_sources
+    attr_accessor :update_song_sources
+    attr_accessor :remove_song_sources
+    
+    attr_accessor :new_artists
+    attr_accessor :update_artist_songs
+        
   #Callbacks/Hooks
+    before_save :pull_data_from_album
     before_save :format_track_number
-    before_validation :convert_names
+    after_save :manage_sources
+    after_save :manage_artists
   
   #Constants
     SelfRelationships = [['is the same song as', 'Same Song', 'Same Song', 'Same Song'],
       ['is arranged as', 'Arranged As', 'Arranged From', 'Arrangement'],
       ['is arranged from', '-Arrangement'],
       ['is an alternate version of', 'Alternate Version', 'Alternate Version', 'Alternate Version']] 
-
-    FullUpdateFields = {reference: true, sources_for_song: true, lengths: true, artists_for_song: [:new_artist_ids, :new_artist_categories, :update_artist_songs],
-                        self_relations: [:new_related_song_ids, :new_related_song_categories, :update_related_songs, :remove_related_songs],
-                        images: ["id", "songimages/", "Primary"],
-                        dates: ["release_date"],
-                        languages: [:name, :info, :lyrics]}
     
     FormFields = [{type: "markup", tag_name: "div class='col-md-6'"},
                   {type: "text", attribute: :internal_name, label: "Internal Name:"},
                   {type: "text", attribute: :synonyms, label: "Synonyms:"},
                   {type: "language_fields", attribute: :name},
-                  {type: "text", attribute: :album_id, label: "Album ID:"},
                   {type: "select", attribute: :status, label: "Status:", categories: Album::Status},
                   {type: "date", attribute: :release_date, label: "Release Date:"},
                   {type: "text", attribute: :track_number, label: "Track Number:"},
                   {type: "text", attribute: :disc_number, label: "Disc Number:"},
-                  {type: "text", attribute: :length, label: "Length:"},
+                  {type: "text", attribute: :length, label: "Length (mm:ss or seconds):"},
                   {type: "references"}, {type: "images"},
                   {type: "tags", div_class: "well", title: "Tags"},
                   {type: "language_fields", attribute: :info},
@@ -63,7 +59,7 @@ class Song < ActiveRecord::Base
                            {type: "text", attribute: :internal_name, no_div: true}, 
                            {type: "text", attribute: :disc_number, no_div: true, field_class: "input-xmini", label: "Disc #:"},
                            {type: "text", attribute: :track_number, no_div: true, field_class: "input-xmini", label: "Track #:"},
-                           {type: "text", attribute: :length, no_div: true, label: "Length:"},
+                           {type: "text", attribute: :length, no_div: true, label: "Length (mm:ss or seconds):"},
                            {type: "id", no_div: true, label: "ID:"},
                            {type: "markup", tag_name: "div ", add_id: true}, {type: "markup", tag_name: "div class='row'"}, {type: "markup", tag_name: "div class='col-md-4'"}, {type: "markup", tag_name: "br"},
                            {type: "namehash"}, 
@@ -128,45 +124,30 @@ class Song < ActiveRecord::Base
   end
   
   private
-
-  def format_track_number
-    track_number = self.track_number
-    unless track_number.nil?
-      if track_number.include?(".")
-        self.disc_number = track_number.split(".")[0] 
-        self.track_number = track_number.split(".")[1]
-      end
-      if self.track_number.length < 2
-        self.track_number =  self.track_number.rjust(2,'0')
-      end
-    end    
-  end
-
-  def convert_names
-    @name_hash = self.namehash
-    unless @name_hash.blank?
-      #Compare entries in the namehash to remove duplicates
-      unless @name_hash[:English].blank? && @name_hash[:Japanese].blank?
-        if @name_hash[:English] == @name_hash[:Japanese]
-          if @name_hash[:Japanese].contains_japanese?
-            @name_hash[:English] = nil
-          else
-            @name_hash[:Japanese] = nil
-          end
+    def format_track_number
+      track_number = self.track_number
+      unless track_number.nil?
+        if track_number.include?(".")
+          self.disc_number = track_number.split(".")[0] 
+          self.track_number = track_number.split(".")[1]
         end
-      end
-      #Convert the ones we want to convert
-      @name_hash.each do |k,v|
-        if [:English, :Romaji, :Japanese].include?(k)
-          self.write_attribute(:name, v, locale: "hibiki_#{k.to_s.downcase[0..1]}".to_sym) unless v.nil?
-          @name_hash.except!(k) #Remove the key from the hash
-        end
-      end
-      self.namehash = (@name_hash.empty? ? nil : @name_hash)
+        self.track_number =  self.track_number.rjust(2,'0') if self.track_number.length < 2
+      end    
     end
-    #Remove duplicates from synonym
-    @name_translations = self.name_translations.values
-    self.synonyms = nil if @name_translations.include?(self.synonyms)
-  end
+    
+    def manage_sources
+      self.manage_primary_relation(Source,SongSource)
+    end
+    
+    def manage_artists
+      self.manage_artist_relation
+    end
+    
+    def pull_data_from_album
+      unless self.album.nil? || self.album.release_date.nil? || self.album.release_date_bitmask.nil?
+        self.release_date = self.album.release_date
+        self.release_date_bitmask = self.album.release_date_bitmask
+      end
+    end
 
 end

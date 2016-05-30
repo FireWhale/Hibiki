@@ -3,13 +3,13 @@
 <div<%= ' id="'.html_safe + opts[:sub_div_id] + '"'.html_safe unless opts[:sub_div_id].nil? %>>
   <% if record.songs.nil? == false %>
     <% record.songs.each do |song| %>
-      <div>    
-        <%= song.track_number %>
+      <div>
+      	<%= song.disc_number.blank? ? song.track_number : "#{song.disc_number}.#{song.track_number}" %>
         <%= song.internal_name %>
       </div>
     <% end %>
   <% end %>
   <div id="SongFields"></div>
-  <%= link_to "Add a Song", add_model_path(parent_div: "#SongFields", field_names: "#{form_prefix}[new_songs][names]", label: "Name:", song_info: "#{form_prefix}[new_songs][track_numbers]"), :remote => true %></br></br>     
+  <%= link_to "Add a Song", add_model_path(parent_div: "#SongFields", field_names: "#{form_prefix}[new_songs][internal_name]", label: "Name:", song_info: "#{form_prefix}[new_songs][track_number]"), :remote => true %></br></br>
 </div>
 

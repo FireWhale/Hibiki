@@ -35,10 +35,10 @@ module TagTests
       end
       
       describe "Scopes" do
-        let(:tag1) {create(:tag)}
-        let(:tag2) {create(:tag)}
-        let(:tag3) {create(:tag)}
-        let(:tag4) {create(:tag)}
+        let(:tag1) {create(:tag, model_bitmask: 63)}
+        let(:tag2) {create(:tag, model_bitmask: 63)}
+        let(:tag3) {create(:tag, model_bitmask: 63)}
+        let(:tag4) {create(:tag, model_bitmask: 63)}
         let(:record1) {create(model_symbol)} #tags 1
         let(:record2) {create(model_symbol)} #tags 1 and 2
         let(:record3) {create(model_symbol)} #tags 2 and 3

@@ -93,7 +93,7 @@
             text-align: center;
           }
           .track_name{ @include make-sm-column(10); }
-          .track_duration, .album_date { 
+          .track_length, .album_date { 
             @include make-sm-column(1); 
             text-align: center;
           }
@@ -244,7 +244,7 @@
         width: 15%;
         text-align: center;
       }
-      .duration {
+      .length {
         width: 10%;
       }
       a {

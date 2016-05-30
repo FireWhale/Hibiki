@@ -1,20 +1,45 @@
 <%= fields_for form_prefix, record do |f| %>
   <div class="single-form">
     <p id="notice"><%= notice %></p>
-    <div class="section-header"><h3>Language</h3></div>  
-    <div class="section-content">
-      <div class="form-language">
-        Albums, songs, and source material: 
-        <%= select_tag "#{form_prefix}[language_settings][]", options_for_select(User::Languages.map { |e| [e.capitalize, e]}, current_user.language_settings.split(",").first) %>
+
+    <% if can? :language, Album %>
+      <div class="section-header"><h3>Languages (Advanced)</h3></div>
+      <div class="section-content">
+        <h5>Set the order of your languages (Highest available will be displayed first):</h5>
+        <div class="secondary-languages">
+          <% (User::Languages).sort_by { |a| current_user.language_settings.split(",").index(a) || 10 }.each do |language| %>
+            <div class="language">
+              <%= language.capitalize %>
+              <%= hidden_field_tag "#{form_prefix}[language_form_settings][]", language %>
+            </div>
+          <% end %>
+        </div>
+        <h5>Artist/organization languages:</h5>
+        <div class="secondary-languages">
+          <% (User::Languages).sort_by { |a| current_user.artist_language_settings.split(",").index(a) || 10 }.each do |language| %>
+            <div class="language">
+              <%= language.capitalize %>
+              <%= hidden_field_tag "#{form_prefix}[artist_language_form_settings][]", language %>
+            </div>
+          <% end %>
+        </div>
       </div>
-    </div>
-    <div class="section-content">
-      <div class="form-language">
-        Artists and organizations: 
-        <%= select_tag "#{form_prefix}[artist_language_settings][]", options_for_select(User::Languages.map { |e| [e.capitalize, e]}, current_user.artist_language_settings.split(",").first) %>
-      </div>  
-    </div>
-    
+    <% else %>
+      <div class="section-header"><h3>Language</h3></div>
+      <div class="section-content">
+        <div class="form-language">
+          Albums, songs, and source material:
+          <%= select_tag "#{form_prefix}[language_form_settings][]", options_for_select(User::Languages.map { |e| [e.capitalize, e]}, current_user.language_settings.split(",").first) %>
+        </div>
+      </div>
+      <div class="section-content">
+        <div class="form-language">
+          Artists and organizations:
+          <%= select_tag "#{form_prefix}[artist_language_form_settings][]", options_for_select(User::Languages.map { |e| [e.capitalize, e]}, current_user.artist_language_settings.split(",").first) %>
+        </div>
+      </div>
+    <% end %>
+
     <div class="section-header"><h3>Content</h3></div>
     <div class="section-content sub-section">
       <h5>Display these types of content:</h5>
@@ -35,7 +60,7 @@
         <%= label_tag "content-ignored", "Ignored albums (as marked in your #{link_to 'collection', collection_user_path })".html_safe %>
       </div>
     </div>
-      
+
     <div class="section-content">
       <h5>Tweak how information is displayed:</h5>
       <div class="form-checkbox">
@@ -50,11 +75,11 @@
         <div class="form-checkbox">
           <%= check_box_tag "#{form_prefix}[display_settings][]", "Bold For Editing", current_user.display_settings.include?("Bold For Editing"), id: 'content-editing' %>
           <%= label_tag "content-editing", "Italicize artists that have a completed status" %>
-        </div>    
-      <% end %> 
+        </div>
+      <% end %>
     </div>
 
-    <div class="section-header"><h3>Privacy</h3></div>    
+    <div class="section-header"><h3>Privacy</h3></div>
     <div class="section-content">
       <h5>Allow people to view your personal pages:</h5>
       <div class="form-checkbox">
@@ -68,38 +93,14 @@
       <div class="form-checkbox">
         <%= check_box_tag "#{form_prefix}[privacy_settings][]", "Show Watchlist", current_user.privacy_settings.include?("Show Watchlist"), id: 'privacy-watchlist' %>
         <%= label_tag "privacy-watchlist", "Watchlist" %>
-      </div>    
-    </div>
-    
-    <% if can? :language, Album %>
-      <div class="section-header"><h3>Advanced language settings</h3></div>  
-      <div class="section-content">
-        <h5>Set the order of your back-up languages:</h5>
-        <div class="secondary-languages">
-          <% (User::Languages - [current_user.language_settings.split(",").first]).sort_by { |a| current_user.language_settings.split(",").index(a) || 10 }.each do |language| %>
-            <div class="language">
-              <%= language.capitalize %>
-              <%= hidden_field_tag "#{form_prefix}[language_settings][]", language %>
-            </div>
-          <% end %>
-        </div>
-        <h5>Artist/organization backup languages:</h5>
-        <div class="secondary-languages">
-          <% (User::Languages - [current_user.artist_language_settings.split(",").first]).sort_by { |a| current_user.artist_language_settings.split(",").index(a) || 10 }.each do |language| %>
-            <div class="language">
-              <%= language.capitalize %>
-              <%= hidden_field_tag "#{form_prefix}[artist_language_settings][]", language %>
-            </div>
-          <% end %>
-        </div>
-        
       </div>
-    <% end %>
-    
+    </div>
+
+
     <div class="actions submit">
       <%= submit_tag %>
     </div>
-    
+
   </div>
 
 <% end %>

@@ -43,7 +43,7 @@ class IssuesController < ApplicationController
   end
     
   def create
-    @issue = Issue.new(params[:issue])
+    @issue = Issue.new(issue_params)
     
     respond_to do |format|
       if @issue.save
@@ -60,7 +60,7 @@ class IssuesController < ApplicationController
     @issue = Issue.find(params[:id])
     
     respond_to do |format|
-      if @issue.update_attributes(params[:issue])
+      if @issue.update_attributes(issue_params)
         format.html { redirect_to @issue, notice: 'Issue was successfully updated.' }
         format.json { head :no_content }
       else
@@ -68,7 +68,6 @@ class IssuesController < ApplicationController
         format.json { render json: @issue.errors, status: :unprocessable_entity }
       end
     end
-    
   end
   
   def destroy
@@ -81,4 +80,20 @@ class IssuesController < ApplicationController
     end
   end
   
+  class IssueParams
+    def self.filter(params,current_user)
+      if current_user && current_user.abilities.include?("Admin")
+        params.require(:issue).permit(:name, :category, :description, :private_info, :status, :priority, :visibility, :resolution, :difficulty)
+      elsif current_user
+        params.require(:issue).permit()
+      else
+        params.require(:issue).permit()
+      end     
+    end
+  end
+  
+  private
+    def issue_params
+      IssueParams.filter(params,current_user)
+    end  
 end

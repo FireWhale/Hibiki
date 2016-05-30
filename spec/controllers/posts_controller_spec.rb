@@ -25,7 +25,8 @@ describe PostsController do
     #Delete
       include_examples "can delete a record", false
       
-      
+    #Strong Parameters
+      include_examples "uses strong parameters"
   end
   
   context 'user access to posts' do
@@ -51,7 +52,8 @@ describe PostsController do
     #Delete
       include_examples "can delete a record", false
       
-
+   #Strong Parameters
+      include_examples "uses strong parameters"
   end
 
   context 'admin access to posts' do
@@ -75,6 +77,11 @@ describe PostsController do
 
     #Delete
       include_examples "can delete a record", true
+
+   #Strong Parameters
+      include_examples "uses strong parameters",
+      ["category", "content", "visibility","title", "status", ["new_images"]],
+      ["id", "timestamp", "created_at", "updated_at" ]
   end
    
 end

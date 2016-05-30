@@ -63,8 +63,10 @@ class SeasonsController < ApplicationController
   end
 
   def create
+    @season = Season.new(season_params)
+    
     respond_to do |format|
-      if @season.full_save(params[:season])
+      if @season.save
         format.html { redirect_to @season, notice: 'Season was successfully created.' }
         format.json { render json: @season, status: :created, location: @season }
       else
@@ -78,7 +80,7 @@ class SeasonsController < ApplicationController
     @season = Season.find(params[:id])
     
     respond_to do |format|
-      if @season.full_update_attributes(params[:season])
+      if @season.update_attributes(season_params)
         format.html { redirect_to @season, notice: 'Season was successfully updated.' }
         format.json { head :no_content }
       else
@@ -97,4 +99,26 @@ class SeasonsController < ApplicationController
       format.json { head :no_content }
     end
   end
+  
+  class SeasonParams
+    def self.filter(params,current_user)
+      if current_user && current_user.abilities.include?("Admin")
+        params.require(:season).permit(:name, :start_date, :end_date, 
+                                       :new_images => [], :remove_source_seasons => [],
+                                       :new_sources => [:id => [], :category => []],
+                                       :update_source_seasons => :category)
+      elsif current_user
+        params.require(:season).permit()
+      else
+        params.require(:season).permit()
+      end          
+    end
+  end
+  
+  private
+    def season_params
+      SeasonParams.filter(params,current_user)
+    end
+    
+    
 end

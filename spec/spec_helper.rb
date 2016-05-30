@@ -26,7 +26,7 @@ require 'bullet'
 RSpec.configure do |config|
   #Authlogic
   config.include Authlogic::TestCase
-  
+
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest
   # assertions if you prefer.
@@ -58,28 +58,40 @@ RSpec.configure do |config|
 
   # This setting enables warnings. It's recommended, but in some cases may
   # be too noisy due to issues in dependencies.
-  #config.warnings = true  
-  
+  #config.warnings = true
+
   # Run specs in random order to surface order dependencies. If you find an
   # order dependency and want to debug it, you can fix the order by providing
   # the seed, which is printed after each run.
   #     --seed 1234
   config.order = :random
-    
+
   #Bullet testing for SQL queries
   if Bullet.enable?
     config.before(:each) do
       Bullet.start_request
     end
-  
+
     config.after(:each) do
       Bullet.perform_out_of_channel_notifications if Bullet.notification?
       Bullet.end_request
-    end    
+    end
   end
-  
+  config.after(:all) do
+    if Rails.env.test?
+      FileUtils.rm_rf(Dir.glob(Rails.root.join("spec/test_env/images/albums/*")))
+      FileUtils.rm_rf(Dir.glob(Rails.root.join("spec/test_env/images/artists/*")))
+      FileUtils.rm_rf(Dir.glob(Rails.root.join("spec/test_env/images/organizations/*")))
+      FileUtils.rm_rf(Dir.glob(Rails.root.join("spec/test_env/images/posts/*")))
+      FileUtils.rm_rf(Dir.glob(Rails.root.join("spec/test_env/images/seasons/*")))
+      FileUtils.rm_rf(Dir.glob(Rails.root.join("spec/test_env/images/sources/*")))
+      FileUtils.rm_rf(Dir.glob(Rails.root.join("spec/test_env/images/songs/*")))
+      FileUtils.rm_rf(Dir.glob(Rails.root.join("spec/test_env/images/users/*")))
+    end
+  end
+
   #Sidekiq testing
-  
+
 # The settings below are suggested to provide a good initial experience
 # with RSpec, but feel free to customize to your heart's content.
 =begin

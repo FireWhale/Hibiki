@@ -41,8 +41,10 @@ class TagsController < ApplicationController
   end
 
   def create
+    @tag = Tag.new(tag_params)
+    
     respond_to do |format|
-      if @tag.full_save(params[:tag])
+      if @tag.save
         format.html { redirect_to @tag, notice: 'Tag was successfully created.' }
         format.json { render json: @tag, status: :created, location: @tag }
       else
@@ -56,7 +58,7 @@ class TagsController < ApplicationController
     @tag = Tag.find(params[:id])
     
     respond_to do |format|
-      if @tag.full_update_attributes(params[:tag])
+      if @tag.update_attributes(tag_params)
         format.html { redirect_to @tag, notice: 'Tag was successfully updated.' }
         format.json { head :no_content }
       else
@@ -75,4 +77,23 @@ class TagsController < ApplicationController
       format.json { head :no_content }
     end
   end
+  
+  class TagParams
+    def self.filter(params,current_user)
+      if current_user && current_user.abilities.include?("Admin")
+        params.require(:tag).permit(:internal_name,:classification, :visibility, :tag_models => [],
+                                    :new_name_langs => [], :new_name_lang_categories => [], :name_langs => params[:tag][:name_langs].try(:keys),
+                                    :new_info_langs => [], :new_info_lang_categories => [], :info_langs => params[:tag][:info_langs].try(:keys))
+      elsif current_user
+        params.require(:tag).permit()
+       else
+        params.require(:tag).permit()
+      end     
+    end
+  end
+  
+  private
+    def tag_params
+      TagParams.filter(params,current_user)
+    end
 end

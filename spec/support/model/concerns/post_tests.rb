@@ -41,7 +41,7 @@ module PostTests
           postlist = create(:postlist, post: post, model: record)
           expect(record.posts).to eq([post]) #For some reason, need this to make it register posts
           record.destroy
-          expect(post.reload.status).to eq("Deleted Records")
+          expect(post.reload.status).to eq("Has Deleted Records")
         end
       end
       

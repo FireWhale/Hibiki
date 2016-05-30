@@ -26,11 +26,10 @@ RSpec.configure do |config|
   #Controller
   config.include CrudTests, type: :controller
   config.include ImageRouteTests, type: :controller
-  
+
   #Model
   config.include AssociationTests, type: :model
   config.include AttributeTests, type: :model
-  config.include FullUpdateTests, type: :model
   config.include GlobalModelTests, type: :model
   config.include ImageTests, type: :model
   config.include LanguageTests, type: :model
@@ -40,21 +39,21 @@ RSpec.configure do |config|
   config.include SearchTests, type: :model
   config.include TagTests, type: :model
   config.include WatchlistTests, type: :model
-  
+
   #database cleaner
   config.before(:suite) do
     DatabaseCleaner.strategy = :transaction
     DatabaseCleaner.clean_with(:truncation)
   end
-  
+
   config.before(:each) do
     DatabaseCleaner.start
   end
-  
+
   config.after(:each) do
     DatabaseCleaner.clean
   end
-  
+
   # If you're not using ActiveRecord, or you'd prefer not to run each of your
   # examples within a transaction, remove the following line or assign false
   # instead of true.
@@ -65,9 +64,9 @@ RSpec.configure do |config|
     # Just use expect
     c.syntax = :expect
   end
-  
+
   #Capybara wait time
-  Capybara.default_wait_time = 5
+  Capybara.default_max_wait_time = 5
 
   #automatically tags controllers as controllers and so forth
   config.infer_spec_type_from_file_location!

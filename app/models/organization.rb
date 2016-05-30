@@ -1,15 +1,7 @@
-class Organization < ActiveRecord::Base
-  #Attributes
-    attr_accessible :internal_name, :synonyms, :namehash, #Names!
-                    :status, :db_status, :category, :activity, #Database Stuff!
-                    :info, :private_info, :synopsis, #Text Info!
-                    :established, #Dates!
-                    :popularity #Not yet implemented
-     
-    serialize :namehash
+class Organization < ActiveRecord::Base  
       
   #Modules
-    include FullUpdateModule
+    include AssociationModule
     include SolrSearchModule
     include LanguageModule
     include JsonModule
@@ -20,10 +12,17 @@ class Organization < ActiveRecord::Base
       include TagModule
       include ReferenceModule
       include WatchlistModule
-
+  
+  #Attributes   
+    serialize :namehash
+    
+    attr_accessor :new_artists
+    attr_accessor :update_artist_organizations
+    attr_accessor :remove_artist_organizations
+    
   #Callbacks/Hooks
-    before_validation :convert_names
-      
+    after_save :manage_artists
+  
   #Categories
     Activity = ["Active", "Hiatus", "Dissolved"]
     Categories = ["Label","Doujin Group","Game Company"]
@@ -34,13 +33,6 @@ class Organization < ActiveRecord::Base
     ['was a collaboration of', '-Collab'],
     ['has a collab', 'Collborations', 'Is a Collaboration Of', 'Collab'],
     ['is partners with', 'Partners', 'Partners', 'Partner']]
-    
-    FullUpdateFields = {reference: true,
-                        relations_by_id: {artist: [:new_artist_ids, :new_artist_categories, :update_artist_organizations, :remove_artist_organizations, ArtistOrganization, "artist_organizations"]},
-                        self_relations: [:new_related_organization_ids, :new_related_organization_categories, :update_related_organizations, :remove_related_organizations],
-                        images: ["id", "orgimages/","Primary"],
-                        languages: [:name, :info],
-                        dates: ["established"]}
 
     FormFields = [{type: "markup", tag_name: "div class='col-md-6'"},
                   {type: "text", attribute: :internal_name, label: "Internal Name:"},
@@ -94,22 +86,7 @@ class Organization < ActiveRecord::Base
     paginates_per 50
   
   private
-
-  def convert_names
-    @name_hash = self.namehash
-    unless @name_hash.blank?
-      #Convert the ones we want to convert
-      @name_hash.each do |k,v|
-        if [:English, :Romaji, :Japanese].include?(k)
-          self.write_attribute(:name, v, locale: "hibiki_#{k.to_s.downcase[0..1]}".to_sym) unless v.nil?
-          @name_hash.except!(k) #Remove the key from the hash
-        end
-      end
-      self.namehash = (@name_hash.empty? ? nil : @name_hash)
+    def manage_artists
+      self.manage_primary_relation(Artist,ArtistOrganization)
     end
-    #Remove duplicates from synonym
-    @name_translations = self.name_translations.values
-    self.synonyms = nil if @name_translations.include?(self.synonyms)
-  end  
-
 end

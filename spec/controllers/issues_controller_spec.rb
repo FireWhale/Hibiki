@@ -23,6 +23,8 @@ describe IssuesController do
     #Delete
       include_examples "can delete a record", false
       
+    #Strong Parameters
+      include_examples "uses strong parameters"
   end
   
    context 'user access to issues' do
@@ -46,7 +48,8 @@ describe IssuesController do
     #Delete
       include_examples "can delete a record", false
       
-
+    #Strong Parameters
+      include_examples "uses strong parameters"
   end
 
   context 'admin access to issues' do
@@ -69,8 +72,10 @@ describe IssuesController do
 
     #Delete
       include_examples "can delete a record", true
+      
+    #Strong Parameters
+      include_examples "uses strong parameters", ["name", "priority", "category", "description", "resolution", "private_info", "status", "visibility", "difficulty"],[]
   end
-   
 end
 
 

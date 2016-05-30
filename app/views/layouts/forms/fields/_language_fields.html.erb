@@ -19,18 +19,18 @@
   <% end %>
   <div id="<%= "#{opts[:attribute]}LangFields#{record.id.to_s}" %>"></div>
   <% if opts[:attribute] == :lyrics || opts[:attribute] == :info %>
-    <%= link_to "Add another #{opts[:attribute]} language", 
-    add_model_path(:parent_div => "##{opts[:attribute]}LangFields#{record.id.to_s}", 
-    category_field_names: "#{form_prefix}[new_#{opts[:attribute]}_lang_categories]", 
-    category_select: User::LocaleLanguages, 
+    <%= link_to "Add another #{opts[:attribute]} language",
+    add_model_path(:parent_div => "##{opts[:attribute]}LangFields#{record.id.to_s}",
+    category_field_names: "#{form_prefix}[new_#{opts[:attribute]}_lang_categories]",
+    category_select: LanguageModule::Locales,
     label: opts[:attribute].capitalize,
-    text_area_field_names: "#{form_prefix}[new_#{opts[:attribute]}_langs]"), :remote => true %></br></br>   
+    text_area_field_names: "#{form_prefix}[new_#{opts[:attribute]}_langs]"), :remote => true %></br></br>
   <% else %>
-    <%= link_to "Add another #{opts[:attribute]} language", 
-    add_model_path(:parent_div => "##{opts[:attribute]}LangFields#{record.id.to_s}", 
-    category_field_names: "#{form_prefix}[new_#{opts[:attribute]}_lang_categories]", 
-    category_select: User::LocaleLanguages, 
+    <%= link_to "Add another #{opts[:attribute]} language",
+    add_model_path(:parent_div => "##{opts[:attribute]}LangFields#{record.id.to_s}",
+    category_field_names: "#{form_prefix}[new_#{opts[:attribute]}_lang_categories]",
+    category_select: LanguageModule::Locales,
     label: opts[:attribute].capitalize,
-    field_names: "#{form_prefix}[new_#{opts[:attribute]}_langs]"), :remote => true %></br></br>     
-  <% end %>       
+    field_names: "#{form_prefix}[new_#{opts[:attribute]}_langs]"), :remote => true %></br></br>
+  <% end %>
 </div>

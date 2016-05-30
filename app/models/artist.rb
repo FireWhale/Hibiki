@@ -1,16 +1,7 @@
 class Artist < ActiveRecord::Base
-  #Attributes
-    attr_accessible :internal_name, :synonyms, :namehash, #Names!
-                    :status, :db_status, :category, :activity, #Database Stuff!
-                    :info, :private_info, :synopsis, #Text Info!
-                    :gender, :blood_type, :birth_place, #More Detailed Info!
-                    :birth_date, :debut_date, #Dates!
-                    :popularity #Not yet implemented
-  
-    serialize :namehash
-  
+
   #Modules
-    include FullUpdateModule
+    include AssociationModule
     include SolrSearchModule
     include LanguageModule
     include JsonModule
@@ -22,8 +13,15 @@ class Artist < ActiveRecord::Base
       include ReferenceModule
       include WatchlistModule
 
+  #Attributes
+    serialize :namehash
+      
+    attr_accessor :new_organizations
+    attr_accessor :update_artist_organizations
+    attr_accessor :remove_artist_organizations
+    
   #Callbacks/Hooks
-    before_validation :convert_names
+    after_save :manage_organizations
     
   #Cateogires
     Categories = ['Group','Person','Unit','Synthesized']
@@ -54,14 +52,7 @@ class Artist < ActiveRecord::Base
     ['is a former member of', '-Former Member'], #aka Former Unit
     ['had the former member', 'Former Members', 'Former Member Of','Former Member'],
     ['provided the voice of','Voices', 'Voiced by', 'Voice'],
-    ['is the voide of','-Voice']]
-
-    FullUpdateFields = {reference: true,
-                        relations_by_id: {organization: [:new_organization_ids, :new_organization_categories, :update_artist_organizations, :remove_artist_organizations, ArtistOrganization, "artist_organizations"]},
-                        self_relations: [:new_related_artist_ids, :new_related_artist_categories, :update_related_artists, :remove_related_artists],
-                        images: true,
-                        languages: [:name, :info],
-                        dates: ["birth_date", "debut_date"]}  
+    ['is the voice of','-Voice']]
                         
     FormFields = [{type: "markup", tag_name: "div class='col-md-6'"},
                   {type: "text", attribute: :internal_name, label: "Internal Name:"},
@@ -127,22 +118,9 @@ class Artist < ActiveRecord::Base
       bitmask = bitmask.to_i if bitmask.class == String
       (Artist::Credits).reject { |r| ((bitmask || 0 ) & 2**(Artist::Credits).index(r)).zero?}
     end
-
-  def convert_names
-    @name_hash = self.namehash
-    unless @name_hash.blank?
-      #Convert the ones we want to convert
-      @name_hash.each do |k,v|
-        if [:English, :Romaji, :Japanese].include?(k)
-          self.write_attribute(:name, v, locale: "hibiki_#{k.to_s.downcase[0..1]}".to_sym) unless v.nil?
-          @name_hash.except!(k) #Remove the key from the hash
-        end
-      end
-      self.namehash = (@name_hash.empty? ? nil : @name_hash)
-    end
-    #Remove duplicates from synonym
-    @name_translations = self.name_translations.values
-    self.synonyms = nil if @name_translations.include?(self.synonyms)
-  end
-  
+    
+  private
+    def manage_organizations
+      self.manage_primary_relation(Organization,ArtistOrganization)
+    end    
 end

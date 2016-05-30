@@ -24,7 +24,15 @@ describe SongsController do
     #Delete
       include_examples "can delete a record", false
       
-      
+    #Strong Parameters
+      include_examples "uses strong parameters", [], ["internal_name", "namehash", "status", "release_date", "track_number", "disc_number",
+        "length", "synonyms", ["new_images"],["remove_related_songs"], ["remove_song_sources"], {"info_langs" => "string"},["new_info_langs"], ["new_info_lang_categories"],
+        {"name_langs" => "string"},["new_name_langs"], ["new_name_lang_categories"],
+        {"lyrics_langs" => "string"},["new_lyrics_langs"], ["new_lyrics_lang_categories"],
+        {"new_artists" => {"new" => ["id", "category"]}}, {"update_artist_songs" => {"update" => [["category"]]}},
+        {"new_sources" => {"new" => ["id", "classification", "op_ed_number", "ep_numbers"]}}, {"update_song_sources" => {"update" => ["classification", "op_ed_number", "ep_numbers"]}},
+        {"new_related_songs" => {"new" => ["id", "category"]}}, {"update_related_songs" => {"update" => ["category"]}},
+        {"new_references" => {"new" => ["site_name", "url"]}}, {"update_references" => {"update" => ["url", "site_name"]}}]
   end
   
   context 'user access to songs' do
@@ -49,7 +57,15 @@ describe SongsController do
     #Delete
       include_examples "can delete a record", false
       
-
+    #Strong Parameters
+      include_examples "uses strong parameters", [], ["internal_name", "namehash", "status", "release_date", "track_number", "disc_number",
+        "length", "synonyms", ["new_images"],["remove_related_songs"], ["remove_song_sources"], {"info_langs" => "string"},["new_info_langs"], ["new_info_lang_categories"],
+        {"name_langs" => "string"},["new_name_langs"], ["new_name_lang_categories"],
+        {"lyrics_langs" => "string"},["new_lyrics_langs"], ["new_lyrics_lang_categories"],
+        {"new_artists" => {"new" => ["id", "category"]}}, {"update_artist_songs" => {"update" => [["category"]]}},
+        {"new_sources" => {"new" => ["id", "classification", "op_ed_number", "ep_numbers"]}}, {"update_song_sources" => {"update" => ["classification", "op_ed_number", "ep_numbers"]}},
+        {"new_related_songs" => {"new" => ["id", "category"]}}, {"update_related_songs" => {"update" => ["category"]}},
+        {"new_references" => {"new" => ["site_name", "url"]}}, {"update_references" => {"update" => ["url", "site_name"]}}]
   end
 
   context 'admin access to songs' do
@@ -73,6 +89,18 @@ describe SongsController do
 
     #Delete
       include_examples "can delete a record", true
+      
+    #Strong Parameters
+      include_examples "uses strong parameters", [
+        "internal_name", "info", "private_info", "status", "release_date", "track_number", "disc_number",
+        "length", "synonyms", ["new_images"],["remove_related_songs"], ["remove_song_sources"], {"namehash" => "string"},
+        {"info_langs" => "string"},["new_info_langs"], ["new_info_lang_categories"],
+        {"name_langs" => "string"},["new_name_langs"], ["new_name_lang_categories"],
+        {"lyrics_langs" => "string"},["new_lyrics_langs"], ["new_lyrics_lang_categories"],
+        {"new_artists" => {"new" => ["id", "category"]}}, {"update_artist_songs" => {"update" => [["category"]]}},
+        {"new_sources" => {"new" => ["id", "classification", "op_ed_number", "ep_numbers"]}}, {"update_song_sources" => {"update" => ["classification", "op_ed_number", "ep_numbers"]}},
+        {"new_related_songs" => {"new" => ["id", "category"]}}, {"update_related_songs" => {"update" => ["category"]}},
+        {"new_references" => {"new" => ["site_name", "url"]}}, {"update_references" => {"update" => ["url", "site_name"]}}], []
   end
    
 end

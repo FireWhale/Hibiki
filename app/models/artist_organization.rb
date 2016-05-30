@@ -1,6 +1,4 @@
 class ArtistOrganization < ActiveRecord::Base
-  attr_accessible :artist_id, :category, :organization_id  
-
   #Constants
     Categories = ['Member','Founder','Former Member','Label']
     

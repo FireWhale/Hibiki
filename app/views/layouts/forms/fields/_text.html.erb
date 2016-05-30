@@ -1,4 +1,4 @@
 <%= fields_for form_prefix, record do |f| %>
   <%= render "layouts/forms/fields/label", label: opts[:label], form_prefix: form_prefix, record: record, attribute: opts[:attribute] %>
-  <%= f.text_field opts[:attribute], class: opts[:field_class] %>
+  <%= f.text_field(opts[:attribute], value: (opts[:attribute] == :length ? record.length_as_time : record.send(opts[:attribute]) ), class: opts[:field_class]) %>
 <% end %>

@@ -18,7 +18,7 @@
   <% end %>
   <div id='<%= "Sources" + record.id.to_s %>'></div>
   <%= link_to "Add a Source", add_model_path(parent_div: "#Sources#{record.id.to_s}", 
-                                            field_names: "#{form_prefix}[new_sources][ids]", 
+                                            field_names: "#{form_prefix}[new_sources][id]", 
                                             category_field_names: "#{form_prefix}[new_sources][classification]", 
                                             category_select: [""] + SongSource::Relationship, 
                                             song_source: form_prefix, autocomplete_model: "source" ), :remote => true %></br></br>     

@@ -17,14 +17,13 @@ $(document).ready(function(){
                 }
             });
             $('#date-begin').html(Math.floor($('#date-slider').slider('values', 0) / 12) + 1970);
-            $('#date-end').html(Math.floor($('#date-slider').slider('values', 1) / 12) + 1970);           
+            $('#date-end').html(Math.floor($('#date-slider').slider('values', 1) / 12) + 1970);
         } else {
             $('#date-slider').slider({
                 min: 0,
                 max: getUpperLimit(),
                 value: getUpperLimit() - 12,
                 slide: function( event, ui) {
-                    console.log(Math.floor(ui.value / 12) + 1970);
                     $('#date-begin').html(getMonthName(ui.value) + " " + (parseInt(Math.floor(ui.value / 12), 10) + 1970));
                 },
                 stop: function( event, ui) {
@@ -39,24 +38,24 @@ $(document).ready(function(){
 
 $(window).load(function(){
     if ($('#grid').length > 0 ) {
-        
+
         //Sidebar lengths
         if ($(".sidebar").length > 0 ) {
             $(".sidebar").each(function(){
                 setHeight($(this));
             });
-            
+
             $(window).resize(function(){
                 $(".sidebar").each(function(){
                     setHeight($(this));
                 });
                 setHeight($("#grid-content"));
             });
-        };      
+        };
         if ($("#grid-content").length > 0){
             setHeight($("#grid-content"));
         };
-                
+
         $('#left-sidebar').nanoScroller();
         $('#right-sidebar').nanoScroller();
         $('#grid-content').nanoScroller();
@@ -64,16 +63,16 @@ $(window).load(function(){
         $('.nano-content').scroll(function() {
             $(window).scroll();
         });
-        
+
     }
-    
-    
+
+
     if ($('#grid-albums').length > 0 ) {
-        
+
         //Set Special flag to not send requests while another request is processed.
         var requestActive = false,
             newPage = true;
-        
+
         //function needs to go here for firefox
         function callHashChange() {
             if(requestActive === false) {
@@ -95,7 +94,7 @@ $(window).load(function(){
                         dataArray['date2'] = current_date;
                         dataArray['sort'] = "Week";
                     };
-                    
+
                 };
                 //change the class of the divs in the hash, in case of reload
                 if(newPage == true ) {
@@ -111,32 +110,32 @@ $(window).load(function(){
                                 $(this).find('div.count > span').html('');
                             };
                             if(count > 0) {
-                                $(this).find('div.count > span').html(count);  
-                            }                        
-                        });                        
+                                $(this).find('div.count > span').html(count);
+                            }
+                        });
                     };
                     if ("col" in dataArray) {
                         var colArray = dataArray['col'].split(',');
                         jQuery.each(colArray, function(index, value) {
                             $("a[data-col='" + this + "']").addClass('active');
                             $("a[data-col='" + this + "']").parent().children('span').addClass("glyphicon-ok");
-                        });        
+                        });
                     };
                     if ("rel" in dataArray) {
                         var relArray = dataArray['rel'].split(',');
                         jQuery.each(relArray, function(index, value) {
                             $("a[data-rel='" + this + "']").addClass('active');
                             $("a[data-rel='" + this + "']").parent().children('span').addClass("glyphicon-ok");
-                        });     
+                        });
                     };
-                    if ("tag" in dataArray) {         
+                    if ("tag" in dataArray) {
                         var tagArray = dataArray['tag'].split(',');
                         jQuery.each(tagArray, function(index, value) {
                             $("a[data-tag='" + this + "']").addClass('active');
                             $("a[data-tag='" + this + "']").parent().children('span').addClass("glyphicon-ok");
-                        });  
+                        });
                     };
-                    if ("date1" in dataArray && "date2" in dataArray) {  
+                    if ("date1" in dataArray && "date2" in dataArray) {
                         var date1 = dataArray['date1'];
                         var date2 = dataArray['date2'];
                         if($('#left-sidebar').length > 0 ) {
@@ -147,7 +146,7 @@ $(window).load(function(){
                             if(isNaN(date2) === false) {
                                 $('#date-slider').slider("values", 1, date2);
                                 $('#date-end').html(Math.floor(dataArray['date2'] / 12) + 1970);
-                            }                            
+                            }
                         } else {
                             if(isNaN(date1) === false) {
                                 $('#date-slider').slider("value", date1);
@@ -155,7 +154,7 @@ $(window).load(function(){
                             };
                         };
                     };
-                    if ("sort" in dataArray) {            
+                    if ("sort" in dataArray) {
                         var sort = dataArray['sort'];
                         $("a[data-sort='" + sort + "']").addClass('active');
                         newPage = false;
@@ -182,13 +181,13 @@ $(window).load(function(){
                         });
                     };
                     requestActive = false;
-                });                  
+                });
             };
         };
-        
+
         //Click Detection
         $(".sidebar").delegate("a", "click", function() {
-            //Apply class 
+            //Apply class
             if($(this).hasClass('sort-link')) {
                 $('.sort-link').removeClass('active');
             };
@@ -198,19 +197,18 @@ $(window).load(function(){
             };
             if($(this).parent().hasClass('item')){
                 var count = $(this).parents().eq(2).find('a.active').length;
-                console.log($(this).parents().eq(2));
                 if(count == 0){
                     $(this).parents().eq(2).find('div.count > span').html('');
                 };
                 if(count > 0) {
-                    $(this).parents().eq(2).find('div.count > span').html(count);  
-                }          
+                    $(this).parents().eq(2).find('div.count > span').html(count);
+                }
             };
-            
+
             changeHash();
-            return false;  
+            return false;
         });
-        
+
         //Grouping toggling:
         $("#selection-sidebar").delegate(".group-label", "click", function() {
             $(this).parent().find('.group-items').slideToggle(300, function() {
@@ -221,20 +219,20 @@ $(window).load(function(){
         });
         //Just in case we start clicking, we'll wait .5 secs and check the window hash
         setTimeout(callHashChange, 200);
-            
+
         //Hash Change
-        $(window).bind('hashchange', callHashChange );  
-        
+        $(window).bind('hashchange', callHashChange );
+
     };
-    
-    
+
+
 });
 
 function setHeight(element){
     var windowBottom = $(window).height();
     var elementTop = element.offset().top;
     var elementHeight = windowBottom - elementTop;
-    element.css({ height: elementHeight });                      
+    element.css({ height: elementHeight });
 };
 
 function getUpperLimit() {
@@ -246,7 +244,6 @@ function getMonthName(number) {
     var monthNames = ["January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"
     ];
-    console.log(number);
     return (monthNames[number % 12]);
 }
 
@@ -266,7 +263,7 @@ function changeHash() {
     }).get().join();
     var sort = $("#sorting >.sort-items >.sort-item >.active").first().data('sort');
         //If we have "use slider selected"
-        if($('#left-sidebar').length > 0 ) {           
+        if($('#left-sidebar').length > 0 ) {
             var date1 = (Math.floor($("#date-slider").slider('values', 0) / 12) * 12);
             var date2 = (Math.floor($("#date-slider").slider('values', 1) / 12) * 12) + 11;
         } else {

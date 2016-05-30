@@ -11,4 +11,4 @@
 <% end %>
 
 <div id="<%= "references#{record.id}"%>"></div>
-<%= link_to "Add a Reference", add_model_path(parent_div: "#references#{record.id.to_s}", secondary_category_field_names: "#{form_prefix}[new_references][site_names]", field_class: "input-xlarge", label: '', secondary_label: "New Reference Link: ", secondary_category_select: Reference::SiteNames, field_names: "#{form_prefix}[new_references][urls]"), :remote => true %><br><br>      
+<%= link_to "Add a Reference", add_model_path(parent_div: "#references#{record.id.to_s}", secondary_category_field_names: "#{form_prefix}[new_references][site_name]", field_class: "input-xlarge", label: '', secondary_label: "New Reference Link: ", secondary_category_select: Reference::SiteNames, field_names: "#{form_prefix}[new_references][url]"), :remote => true %><br><br>      

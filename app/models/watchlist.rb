@@ -1,6 +1,4 @@
 class Watchlist < ActiveRecord::Base
-  attr_accessible :user_id, :watched_id, :watched_type,
-                  :position, :grouping_category
     
   validates :watched_type, inclusion: %w[Artist Organization Source]
   validates :user, presence: true

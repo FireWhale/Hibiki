@@ -62,8 +62,14 @@ class SongsController < ApplicationController
   end
 
   def create
+    new_params = song_params
+    handle_length_assignment(new_params)
+    handle_partial_date_assignment(new_params,Song)
+    
+    @song = Song.new(new_params)
+    
     respond_to do |format|
-      if @song.full_save(params[:song])
+      if @song.save
         format.html { redirect_to @song, notice: 'Song was successfully created.' }
         format.json { render json: @song, status: :created, location: @song }
       else
@@ -74,10 +80,14 @@ class SongsController < ApplicationController
   end
 
   def update
-    @song = Song.find(params[:id])
+    new_params = song_params
+    handle_length_assignment(new_params)
+    handle_partial_date_assignment(new_params,Song)
 
+    @song = Song.find(params[:id])
+    
     respond_to do |format|
-      if @song.full_update_attributes(params[:song])
+      if @song.update_attributes(new_params)
         format.html { redirect_to @song, notice: 'Song was successfully updated.' }
         format.json { head :no_content }
       else
@@ -96,4 +106,30 @@ class SongsController < ApplicationController
       format.json { head :no_content }
     end
   end
+  
+  class SongParams
+    def self.filter(params,current_user)
+      if current_user && current_user.abilities.include?("Admin")
+        params.require(:song).permit("internal_name","track_number","length","release_date","synonyms","info","private_info",
+                                     "disc_number", "status", "new_images" => [], "remove_song_sources" => [], "remove_related_songs" => [], "namehash" => params[:song][:namehash].try(:keys),
+                                     "new_references" => [:site_name => [], :url => []], "update_references" => [:site_name, :url], 
+                                     :new_name_langs => [], :new_name_lang_categories => [], :name_langs => params[:song][:name_langs].try(:keys),
+                                     :new_info_langs => [], :new_info_lang_categories => [], :info_langs => params[:song][:info_langs].try(:keys),
+                                     :new_lyrics_langs => [], :new_lyrics_lang_categories => [], :lyrics_langs => params[:song][:lyrics_langs].try(:keys), 
+                                     :new_related_songs => [:id => [], :category =>[]], :update_related_songs => :category,
+                                     :new_artists => [:id => [], :category => []], :update_artist_songs => {:category => []},
+                                     :new_sources => [:id => [], :classification => [], :op_ed_number => [], :ep_numbers => []], :update_song_sources => [:classification, :op_ed_number, :ep_numbers]
+                                       )
+      elsif current_user
+        params.require(:song).permit()
+      else
+        params.require(:song).permit()
+      end             
+    end
+  end
+  
+  private
+    def song_params
+      SongParams.filter(params,current_user)
+    end
 end

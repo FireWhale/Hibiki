@@ -22,6 +22,16 @@ describe OrganizationsController do
 
     #Delete
       include_examples "can delete a record", false
+
+    #Strong Parameters
+      include_examples "uses strong parameters", [],[
+        "internal_name", "info", "private_info", "synonyms", "synopsis", "status", 
+        "db_status", "activity", "category", "established", ["new_images"], ["remove_artist_organizations"], ["remove_related_organizations"], {"namehash" => "string"},
+        {"name_langs" => "string"},["new_name_langs"], ["new_name_lang_categories"],
+        {"info_langs" => "string"},["new_info_langs"], ["new_info_lang_categories"],
+        {"new_related_organizations" => {"new" => ["id", "category"]}}, {"update_related_organizations" => {"update" => ["category"]}},
+        {"new_artists" => {"new" => ["id", "category"]}}, {"update_artist_organizations" => {"update" => ["category"]}},        
+        {"new_references" => {"new" => ["site_name", "url"]}}, {"update_references" => {"update" => ["url", "site_name"]}}]
             
   end
   
@@ -47,6 +57,16 @@ describe OrganizationsController do
     #Delete
       include_examples "can delete a record", false
 
+    #Strong Parameters
+      include_examples "uses strong parameters", [],[
+        "internal_name", "info", "private_info", "synonyms", "synopsis", "status", 
+        "db_status", "activity", "category", "established", ["new_images"], ["remove_artist_organizations"], ["remove_related_organizations"], {"namehash" => "string"},
+        {"name_langs" => "string"},["new_name_langs"], ["new_name_lang_categories"],
+        {"info_langs" => "string"},["new_info_langs"], ["new_info_lang_categories"],
+        {"new_related_organizations" => {"new" => ["id", "category"]}}, {"update_related_organizations" => {"update" => ["category"]}},
+        {"new_artists" => {"new" => ["id", "category"]}}, {"update_artist_organizations" => {"update" => ["category"]}},        
+        {"new_references" => {"new" => ["site_name", "url"]}}, {"update_references" => {"update" => ["url", "site_name"]}}]
+
   end
 
   context 'admin access to organizations' do
@@ -70,6 +90,17 @@ describe OrganizationsController do
 
     #Delete
       include_examples "can delete a record", true
+
+    #Strong Parameters
+      include_examples "uses strong parameters", [
+        "internal_name", "info", "private_info", "synonyms", "synopsis", "status", 
+        "db_status", "activity", "category", "established", ["new_images"], ["remove_artist_organizations"], ["remove_related_organizations"], {"namehash" => "string"},
+        {"name_langs" => "string"},["new_name_langs"], ["new_name_lang_categories"],
+        {"info_langs" => "string"},["new_info_langs"], ["new_info_lang_categories"],
+        {"new_related_organizations" => {"new" => ["id", "category"]}}, {"update_related_organizations" => {"update" => ["category"]}},
+        {"new_artists" => {"new" => ["id", "category"]}}, {"update_artist_organizations" => {"update" => ["category"]}},        
+        {"new_references" => {"new" => ["site_name", "url"]}}, {"update_references" => {"update" => ["url", "site_name"]}}], []
+
   end
    
 end
