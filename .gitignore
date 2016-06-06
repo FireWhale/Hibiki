@@ -24,7 +24,6 @@ solr/*
 # Ignore files with sensitive info
 /lib/llcookies
 /app/models/ability.rb
-/app/workers/post_worker.rb
 /app/workers/scrape_worker.rb
 /app/workers/watch_worker.rb
 /config/secrets.yml
