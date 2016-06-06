@@ -5,10 +5,10 @@ describe Reference do
 
   it_behaves_like "it is a polymorphic model", [Album, Artist, Organization, Source, Song, Event, User], "model"
 
-  it "is invalid with duplicate site_names on the same model" do
+  it "is invalid with duplicate urls on the same model" do
     model = create(:album)
-    reference = create(:reference, site_name: "VGMdb", model: model)
-    expect(build(:reference, site_name: "VGMdb", model: model)).to_not be_valid
+    reference = create(:reference, site_name: "VGMdb", url: "hi", model: model)
+    expect(build(:reference, site_name: "Twitter", url: "hi", model: model)).to_not be_valid
   end
 
   #Validation Tests

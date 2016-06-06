@@ -23,6 +23,7 @@ module ReferenceModule
           self.references.create(site_name: reference[0], url: reference[1]) unless reference[0].blank? || reference[1].blank?
         end
       end
+
       update_references = HashWithIndifferentAccess.new(self.update_references)
       unless update_references.blank?
         update_references.each do |id, info|

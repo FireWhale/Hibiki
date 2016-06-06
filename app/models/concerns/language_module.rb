@@ -7,32 +7,41 @@ module LanguageModule
   #These methods are necessary because the default globalize methods don't work for the app.
 
   included do
-    translates :name
-    translates :info
-    translates :lyrics if self.name == "Song"
-    translates :abbreviation if self.name == "Event"
+    if ["Album", "Song", "Source", "Artist", "Organization", "Event", "Tag"].include?(self.name)
+      translates :name
+      translates :info
+      translates :lyrics if self.name == "Song"
+      translates :abbreviation if self.name == "Event"
 
-    attr_accessor :name_langs
-    attr_accessor :new_name_langs
-    attr_accessor :new_name_lang_categories
+      attr_accessor :name_langs
+      attr_accessor :new_name_langs
+      attr_accessor :new_name_lang_categories
 
-    attr_accessor :info_langs
-    attr_accessor :new_info_langs
-    attr_accessor :new_info_lang_categories
+      attr_accessor :info_langs
+      attr_accessor :new_info_langs
+      attr_accessor :new_info_lang_categories
 
-    if self.name == "Song"
-      attr_accessor :lyrics_langs
-      attr_accessor :new_lyrics_langs
-      attr_accessor :new_lyrics_lang_categories
+      if self.name == "Song"
+        attr_accessor :lyrics_langs
+        attr_accessor :new_lyrics_langs
+        attr_accessor :new_lyrics_lang_categories
+      end
+
+      if self.name == "Event"
+        attr_accessor :abbreviation_langs
+        attr_accessor :new_abbreviation_langs
+        attr_accessor :new_abbreviation_lang_categories
+      end
+
+    elsif ["ArtistAlbum", "ArtistSong"].include?(self.name)
+      translates :display_name
+
+      attr_accessor :display_name_langs
+      attr_accessor :new_display_name_langs
+      attr_accessor :new_display_name_lang_categories
     end
 
-    if self.name == "Event"
-      attr_accessor :abbreviation_langs
-      attr_accessor :new_abbreviation_langs
-      attr_accessor :new_abbreviation_lang_categories
-    end
-
-    before_validation :convert_names unless self.name == "Event" || self.name == "Tag"
+    before_validation :convert_names unless ["Event", "Tag", "ArtistAlbum", "ArtistSong"].include?(self.name)
     before_validation :manage_locale_info #After convert_names since this is higher presidence
   end
 
@@ -64,6 +73,34 @@ module LanguageModule
     #return name_array
     return name_array
   end
+
+  def read_display_name(user = nil)
+    #Initialize an array
+    name_array = []
+
+    #figure out which setting to use
+    priority_languages = get_languages(self,user)
+
+    #Get translations from the artist_album/artist_song first
+    display_name_translations = self.display_name_translations
+    artist_name_translations = self.artist.name_translations
+    priority_languages.split(",").each do |lang|
+      name_array << display_name_translations.delete("hibiki_#{lang[0..1]}")
+      name_array << artist_name_translations.delete("hibiki_#{lang[0..1]}")
+    end
+    display_name_translations.each { |k,v| name_array << v } #add remaining name_translations
+    artist_name_translations.each { |k,v| name_array << v } #add remaining name_translations
+
+    #Add internal_name of artist
+    name_array << self.artist.internal_name
+
+    #Get rid of nil values in info_translations
+    name_array.reject! { |a| a.blank? }
+
+    #Return the array
+    return name_array
+  end
+
 
   def read_info(user = nil)
     #Gets info. only from info and untranslated info
@@ -130,7 +167,7 @@ module LanguageModule
 
   private
     def get_languages(record,user)
-      if record.class == Artist || record.class == Organization
+      if [Artist, Organization,ArtistAlbum,ArtistSong].include?(record.class)
         language_settings = "artist_language_settings"
       else
         language_settings = "language_settings"
@@ -144,30 +181,6 @@ module LanguageModule
         end
       else
         priority_languages = user.send(language_settings)
-      end
-    end
-
-    def manage_locale_info
-      self.translated_attribute_names.each do |field|
-        #New
-        new_locale_values = self.send("new_#{field}_langs")
-        new_locale_categories = self.send("new_#{field}_lang_categories")
-        unless new_locale_values.blank? || new_locale_categories.blank?
-          new_locale_values.zip(new_locale_categories).each do |pair|
-            if LanguageModule::Locales.include?(pair[1].to_sym)
-              self.write_attribute(field, pair[0], locale: pair[1].to_sym)
-            end
-          end
-        end
-        #Update - Handle old values second since they take priority over values from new languages
-        old_locales = self.send("#{field}_langs")
-        unless old_locales.blank?
-          old_locales.each do |locale, value|
-            if LanguageModule::Locales.include?(locale.to_sym)
-              self.write_attribute(field, value, locale: locale.to_sym)
-            end
-          end
-        end
       end
     end
 
@@ -200,4 +213,29 @@ module LanguageModule
       all_name_translations = self.name_translations.values
       self.synonyms = nil if all_name_translations.include?(self.synonyms)
     end
+
+    def manage_locale_info
+      self.translated_attribute_names.each do |field|
+        #New
+        new_locale_values = self.send("new_#{field}_langs")
+        new_locale_categories = self.send("new_#{field}_lang_categories")
+        unless new_locale_values.blank? || new_locale_categories.blank?
+          new_locale_values.zip(new_locale_categories).each do |pair|
+            if LanguageModule::Locales.include?(pair[1].to_sym)
+              self.write_attribute(field, pair[0], locale: pair[1].to_sym)
+            end
+          end
+        end
+        #Update - Handle old values second since they take priority over values from new languages
+        old_locales = self.send("#{field}_langs")
+        unless old_locales.blank?
+          old_locales.each do |locale, value|
+            if LanguageModule::Locales.include?(locale.to_sym)
+              self.write_attribute(field, value, locale: locale.to_sym)
+            end
+          end
+        end
+      end
+    end
+
 end

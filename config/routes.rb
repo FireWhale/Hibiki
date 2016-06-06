@@ -17,6 +17,7 @@ Hibiki::Application.routes.draw do
     member do
       get 'albumart', :action => 'album_art'
       get 'edit_tracklist'
+      post 'update_tracklist'
       patch 'update_tracklist'
       get 'tracklist_export'
       match 'rescrape', action: 'rescrape', via: [:get, :post]

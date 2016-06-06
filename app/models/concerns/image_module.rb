@@ -16,8 +16,8 @@ module ImageModule
 
   private
     def add_images
-      unless new_images.blank?
-        new_images.each do |image|
+      unless self.new_images.blank?
+        self.new_images.each do |image|
           full_dir_path = "#{Rails.application.secrets.image_directory}/#{self.class.model_name.plural}/#{self.id}"
           Dir.mkdir(full_dir_path) unless File.exists?(full_dir_path)
           image_name = image.original_filename.strip

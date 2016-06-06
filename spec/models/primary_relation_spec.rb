@@ -41,6 +41,10 @@ end
 describe ArtistAlbum do
   include_examples "global model tests" #Global Tests
 
+  describe "Modules" do
+    include_examples "it is a translated model"
+  end
+
   #Shared Examples
     it_behaves_like "a join table", Artist, Album
     it_behaves_like "it has an artist bitmask", :artist_album
@@ -56,6 +60,10 @@ end
 
 describe ArtistSong do
   include_examples "global model tests" #Global Tests
+
+  describe "Modules" do
+    include_examples "it is a translated model"
+  end
 
   #Shared Examples
     it_behaves_like "a join table", Artist, Song

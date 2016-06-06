@@ -9,6 +9,7 @@ class Album < ActiveRecord::Base
       include SelfRelationModule
       include ImageModule
       include PostModule
+      include LogModule
       include TagModule
       include ReferenceModule
       include CollectionModule
@@ -42,21 +43,6 @@ class Album < ActiveRecord::Base
     after_save :manage_songs
 
   #Multiple Model Constants - Put here for lack of a better place
-    ReferenceLinks = [['vgmdb.net',:VGMdb], ['Last.FM',:lastpppfm], #seriously, going to sub ppp for a period
-    ['Generasia Wiki',:generasia_wiki], ['Wikipedia.org',:wikipedia],
-    ['jpopsuki.eu',:jpopsuki], ['vndb.org',:visual_novel_database],
-    ['Anime News Network', :anime_news_network],
-    ['Vocaloid wiki', :vocaloid_wiki],['Utaite wiki', :utaite_wiki],
-    ['Touhou wiki', :touhou_wiki], ['Vocaloid db', :vocaloid_DB],
-    ['Utaite db', :utaite_DB],
-    ['Circus-co.jp',:circuspppco],['Comiket Website', :comiket],
-    ['Official Website', :official],
-    ['MyAnimeList', :myAnimeList],['IMDb', :iMDb],
-    ['cdJapan', :CDJapan],
-    ['Official Blog', :official_blog],
-    ['Twitter', :twitter],
-    ['Other', :other_reference ]]
-
     Status = ['Released', 'Unreleased', 'Hidden', 'Private']
       #Hidden - Just a placeholder in the database - maaya => maaya sakamoto
       #Private - Things that are out of scope of the database but I still like

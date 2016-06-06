@@ -107,7 +107,7 @@ module AssociationTests
           record = create(class_symbol)
         end
         number = Array(3..10).sample
-        if [Imagelist, Postlist, Taglist, Watchlist, Collection].include?(join_model_class)
+        if [Imagelist, Postlist, Taglist, Loglist, Watchlist, Collection].include?(join_model_class)
           join_trait = "with_#{related_class_string}".to_sym
           list = create_list(join_model_symbol, number, join_trait, class_symbol => record)
         else

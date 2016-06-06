@@ -154,18 +154,9 @@ class AlbumsController < ApplicationController
 
   def rescrape
     @album = Album.find(params[:id])
-    @post = Post.where(category: "Rescrape Result").last
-    if @post.content.length > 10000
-      @post = Post.new(:content => "Rescrape tracker. Replaces Post ##{@post.id} on #{Date.today.to_s}\n",
-                      :visibility => "Scraper", :category => "Rescrape Result", :status => "Released")
-      @post.save
-    end
 
     unless @album.references('VGMdb').nil?
-      scrapehash = {}
-      scrapehash[:rescrape_vgmdb] = [@album.id]
-
-      ScrapeWorker.perform_async(scrapehash,@post.id)
+      ScrapeWorker.perform_async({:rescrape => {:vgmdb_albums => [@album.id]}})
       @album.taglists.where(:tag_id => 50).first.destroy unless @album.taglists.where(:tag_id => 50).blank?
     end
 

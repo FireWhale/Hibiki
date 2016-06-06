@@ -1,9 +1,9 @@
-class ImagesController < ApplicationController  
+class ImagesController < ApplicationController
   load_and_authorize_resource
 
   def index
     @images = Image.page(params[:page])
-    
+
     respond_to do |format|
       format.html # index.html.erb
       format.json
@@ -18,10 +18,10 @@ class ImagesController < ApplicationController
       format.json {@fields = (params[:fields] || '').split(',')}
     end
   end
-  
+
   def edit
     @image = Image.find(params[:id])
-    
+
     respond_to do |format|
       format.html # edit.html.erb
       format.json { render json: @image }
@@ -41,7 +41,7 @@ class ImagesController < ApplicationController
       end
     end
   end
-  
+
   def destroy
     @image = Image.find(params[:id])
     if @image.imagelists.empty? == false
@@ -59,20 +59,19 @@ class ImagesController < ApplicationController
       format.json { head :no_content }
     end
   end
-  
+
   class ImageParams
     def self.filter(params,current_user)
       if current_user && current_user.abilities.include?("Admin")
-        params.require(:image).permit(:name, :rating, :llimagelink, :primary_flag, :path, :medium_path, :thumb_path,
-                                      :width, :height, :medium_width, :medium_height, :thumb_width, :thumb_height)
+        params.require(:image).permit(:name, :rating,:primary_flag)
       elsif current_user
         params.require(:image).permit()
       else
         params.require(:image).permit()
-      end        
+      end
     end
   end
-  
+
   private
     def image_params
       ImageParams.filter(params,current_user)

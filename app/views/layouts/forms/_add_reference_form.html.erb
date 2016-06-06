@@ -2,10 +2,10 @@
   <% if @fields_for.nil? == false %>
     <%= fields_for (@fields_for + "[types]") do |f| %>
       <%= f.label '', "Reference Link:", :class => "control-label" %>
-      <%= f.select '', Album::ReferenceLinks, :include_blank => true %>   
-    <% end %>   
-    <%= fields_for (@fields_for + "[links]") do |f| %>                
+      <%= f.select '', Reference::ReferenceLinks, :include_blank => true %>
+    <% end %>
+    <%= fields_for (@fields_for + "[links]") do |f| %>
       <%= f.text_field '', class: "input-xlarge" %>
-    <% end %>           
+    <% end %>
   <% end %>
 </div>

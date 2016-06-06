@@ -6,6 +6,7 @@ describe Event do
   describe "Concern Tests" do
     include_examples "it has the association module"
     include_examples "it is a translated model"
+    include_examples "it has logs"
     include_examples "it has a custom json method"
     include_examples "it has references"
 

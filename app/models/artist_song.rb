@@ -1,4 +1,8 @@
 class ArtistSong < ActiveRecord::Base
+
+  #Modules
+    include LanguageModule
+
   #Callbacks
     after_save :update_album
 

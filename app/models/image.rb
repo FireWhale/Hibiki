@@ -14,16 +14,16 @@ class Image < ActiveRecord::Base
     FormFields = [{type: "text", attribute: :name, label: "Name:", field_class: "input-xlarge"},
                   {type: "select", attribute: :primary_flag,label: "Primary flag:", categories: Image::PrimaryFlags},
                   {type: "select", attribute: :rating, label: "NWS/SFW:", categories: Image::Rating},
-                  {type: "text", attribute: :llimagelink, label: "ETI Image Link:", field_class: "input-xlarge"},
-                  {type: "text", attribute: :path, label: "Path:", field_class: "input-xlarge"},
-                  {type: "text", attribute: :medium_path, label: "Medium Path:", field_class: "input-xlarge"},
-                  {type: "text", attribute: :thumb_path, label: "Thumb Path:", field_class: "input-xlarge"},
-                  {type: "text", attribute: :width, label: "Width:", no_div: true},
-                  {type: "text", attribute: :height, label: "Height:", no_div: true},
-                  {type: "text", attribute: :medium_width, label: "Medium Width:", no_div: true},
-                  {type: "text", attribute: :medium_height, label: "Medium Height:", no_div: true},
-                  {type: "text", attribute: :thumb_width, label: "Thumb Width:", no_div: true},
-                  {type: "text", attribute: :thumb_height, label: "Thumb Height:", no_div: true}]
+                  {type: "info", attribute: :llimagelink, label: "ETI Image Link:", field_class: "input-xlarge"},
+                  {type: "info", attribute: :path, label: "Path:", field_class: "input-xlarge"},
+                  {type: "info", attribute: :medium_path, label: "Medium Path:", field_class: "input-xlarge"},
+                  {type: "info", attribute: :thumb_path, label: "Thumb Path:", field_class: "input-xlarge"},
+                  {type: "info", attribute: :width, label: "Width:"},
+                  {type: "info", attribute: :height, label: "Height:"},
+                  {type: "info", attribute: :medium_width, label: "Medium Width:"},
+                  {type: "info", attribute: :medium_height, label: "Medium Height:"},
+                  {type: "info", attribute: :thumb_width, label: "Thumb Width:"},
+                  {type: "info", attribute: :thumb_height, label: "Thumb Height:"}]
 
   #Validation
     validates :name, presence: true

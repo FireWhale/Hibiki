@@ -87,6 +87,18 @@ module GlobalModelTests
         end
       end
 
+      describe "Logs" do
+        if [Album, Song, Artist, Source, Organization, Event].include?(described_class)
+          it "has the post module" do
+            expect(described_class.included_modules).to include(LogModule)
+          end
+        else
+          it "does not have the post module" do
+            expect(described_class.included_modules).to_not include(LogModule)
+          end
+        end
+      end
+
       describe "Tags" do
         if [Album, Artist, Song, Source, Organization, Post].include?(described_class)
           it "has the tag module" do
@@ -112,12 +124,14 @@ module GlobalModelTests
       end
 
       describe "Translations" do
-        if [Artist, Source, Organization, Album, Song, Event, Tag].include?(described_class)
+        if [Artist, Source, Organization, Album, Song, Event, Tag, ArtistSong, ArtistAlbum].include?(described_class)
           it "has the listed translations" do #This tests the translates :att1, :att2 line
             if described_class == Song
               expect(build(model_symbol).translated_attributes).to eq({"name"=>nil, "info"=>nil, "lyrics"=>nil})
             elsif described_class == Event
               expect(build(model_symbol).translated_attributes).to eq({"name"=>nil, "info"=>nil, "abbreviation"=>nil})
+            elsif described_class ==  ArtistSong || described_class == ArtistAlbum
+              expect(build(model_symbol).translated_attributes).to eq({"display_name"=>nil})
             else
               expect(build(model_symbol).translated_attributes).to eq({"name"=>nil, "info"=>nil})
             end

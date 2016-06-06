@@ -4,32 +4,32 @@
       <%= f.label '', "This #{@self_relationship_model}"%><%= f.select '', @self_relationship_model.constantize::SelfRelationships %>
     <% end %>
   <% end %>
-  
+
   <% unless @song_info.nil? %>
     <%= fields_for @song_info do |f| %>
       <%= f.label '', 'Track Number: ' %>
       <%= f.text_field '', :class => 'input-xmini'  %>
     <% end %>
   <% end %>
-  
+
   <% unless @secondary_categories.nil? || @secondary_category_field_names.nil? %>
     <%= fields_for @secondary_category_field_names do |f| %>
       <%= f.label '', @secondary_label%>
       <%= f.select '', @secondary_categories %>
     <% end %>
   <% end %>
-  
+
   <% unless @field_names.nil? %>
     <%= fields_for @field_names do |f| %>
   		<%= f.label '', @label %>
   		<% if @autocomplete_model.nil? %>
-  		  <%= f.text_field '', :value => @default_value, :class => @field_class %>
+  			<%= f.text_field '', :value => @default_value, :class => @field_class %>
       <% else %>
-        <%= f.autocomplete_field '', autocomplete_path({:model => @autocomplete_model}), :value => @default_value %>
+      	<%= f.autocomplete_field '', autocomplete_path({:model => @autocomplete_model}), :value => @default_value %>
       <% end %>
     <% end %>
   <% end %>
-    
+
   <% unless @categories.nil? || @category_field_names.nil? %>
     <%= fields_for @category_field_names do |f| %>
       <%= f.select '', @categories %>
@@ -40,15 +40,27 @@
     <%= fields_for @text_area_field_names do |f| %>
       <%= f.text_area '', rows: 2, :value => @default_value, class: "col-md-12" %>
     <% end %>
-  <% end %>  
-  
+  <% end %>
+
   <% unless @artist_category_names.nil? %>
     <% Artist::Credits.each_with_index do |credit,n| %>
-      <%= check_box_tag @artist_category_names, credit %> <%= Artist::CreditsAbbr[n] %> 
+      <%= check_box_tag @artist_category_names, credit %> <%= Artist::CreditsAbbr[n] %>
     <% end %>
-    <%= hidden_field_tag @artist_category_names, "New Artist" %>  
+    <%= hidden_field_tag @artist_category_names, "New Artist" %>
   <% end %>
-  
+
+	<% unless @artist_display_names.nil? %>
+		<%= fields_for @artist_display_names do |g| %>
+			<%= g.fields_for 'names' do |f|%>
+				<%= f.label 'display_name', 'Display Name: '%>
+				<%= f.text_field '' %>
+			<% end %>
+			<%= g.fields_for 'languages' do |f|%>
+				<%= f.select '', LanguageModule::Locales %>
+			<% end %>
+		<% end %>
+	<% end %>
+
   <% unless @song_source.nil? %>
     <%= fields_for "#{@song_source}[new_sources][op_ed_number]" do |f| %>
       <%= f.label '', "#:" %>

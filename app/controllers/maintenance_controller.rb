@@ -20,34 +20,23 @@ class MaintenanceController < ApplicationController
     def scrape
       authorize! :scrape, Album
 
-      scrapehash = {}
-      vgmdb_albums = []
+      scrapehash = {:scrape => {}}
       raw_vgmdb_albums = params[:vgmdb_albums][:text] unless params[:vgmdb_albums].nil?
+
       unless raw_vgmdb_albums.nil?
         raw_vgmdb_albums.split("\n").reject { |a| a.empty?}.select { |a| a.starts_with?("http://") }.each do |each|
-          (scrapehash[:vgmdb_albums] ||= []) << each.chomp("\r")
+          (scrapehash[:scrape][:vgmdb_albums] ||= []) << each.chomp("\r")
         end
       end
-      scrapehash[:vgmdb_albums] = vgmdb_albums unless vgmdb_albums.empty?
-      scrapehash[:vgmdb_artists] = params[:vgmdb_artists] unless params[:vgmdb_artists].nil? || params[:vgmdb_artists] == [""]
-      scrapehash[:vgmdb_organizations] = params[:vgmdb_organizations] unless params[:vgmdb_organizations].nil? || params[:vgmdb_organizations] == [""]
-      scrapehash[:cdjapan_albums] = params[:cdjapan_albums] unless params[:cdjapan_albums].nil? || params[:cdjapan_albums] == [""]
-      scrapehash[:manifo_albums] = params[:manifo_albums] unless params[:manifo_albums].nil? || params[:manifo_albums] == [""]
 
-      unless scrapehash.empty?
-        postmessage = "Scrape started at " + Time.now.to_s + " with inputs: "
-        scrapehash.each do |k,v|
-          postmessage << "\n\n#{k.to_s.humanize}:"
-          v.each {|link| postmessage << "\n"  + link}
-        end
+      scrapehash[:scrape][:vgmdb_artist_source] = params[:vgmdb_artists] unless params[:vgmdb_artists].nil? || params[:vgmdb_artists] == [""]
+      scrapehash[:scrape][:vgmdb_organization] = params[:vgmdb_organizations] unless params[:vgmdb_organizations].nil? || params[:vgmdb_organizations] == [""]
 
-        @post = Post.create(category: "Scrape Result", status: "Released", visibility: "Scraper", content: postmessage)
-        ScrapeWorker.perform_async(scrapehash,@post.id)
-      end
+      ScrapeWorker.perform_async(scrapehash) unless scrapehash[:scrape].empty?
 
       respond_to do |format|
-        unless @post.nil?
-          format.html { redirect_to(maintenance_scrape_results_path(:post_id => @post.id)) }
+        unless scrapehash[:scrape].empty?
+          format.html { redirect_to(maintenance_scrape_results_path(:log_id => (Log.last.try(:id).to_i + 1))) }
           format.json { head :no_content }
         else
           format.html { redirect_to maintenance_new_scrape_path, notice: 'No links were specified!' }
@@ -58,27 +47,22 @@ class MaintenanceController < ApplicationController
 
     def scrape_results
       authorize! :scrape, Album
-      unless params[:post_id].nil?
-        @post = Post.find(params[:post_id])
-      else
-        @post = Post.with_category(["Scrape Result", "Rescrape Result"]).last
-      end
+      @log = params[:log_id].nil? ? Log.last : Log.find(params[:log_id])
 
       album_ids = []
       @failedurls = []
       @duplicate_albums = []
-      unless @post.nil? || @post.content.nil?
-        @post.content.force_encoding("UTF-8")
-        @post.content.scan(/\[FAILED\]\[[a-z0-9\.:\/]+\]\[\d{1,5}\]/).each do |each|
+      unless @log.nil? || @log.content.nil?
+        @log.content.scan(/\[FAILURE\]\[[a-z0-9\.:\/]+\]\[\d{1,5}\]/).each do |each|
           album = Album.find_by_id(each.split("][")[2].chomp("]"))
           @duplicate_albums << [each.split("][")[1], album ] unless album.nil?
           @failed_urls << each.split("][")[1] if album.nil?
         end
-        @post.content.scan(/\[PASSED\]\[\d{1,5}\]/).each do |each|
+        @log.content.scan(/\[SUCCESS\]\[\d{1,5}\]/).each do |each|
           album_ids << each[9..-1].chomp("]")
         end
       end
-      @albums = Album.find(album_ids)
+      @albums = Album.find([])
       @count = @failedurls.count + @albums.count + @duplicate_albums.count
 
       respond_to do |format|

@@ -60,7 +60,7 @@ module AssociationModule
         record = self.send("artist_#{self.class.model_name.plural}").find_by_id(k)
         unless record.nil?
           bitmask = Artist.get_bitmask(v[:category])
-          bitmask == 0 ? record.destroy : record.update_attributes(:category => bitmask)
+          bitmask == 0 ? record.destroy : record.update_attributes(:category => bitmask, new_display_name_langs: v[:display_name].try(:[],"names"), new_display_name_lang_categories: v[:display_name].try(:[],"languages"))
         end
       end
     end
@@ -70,13 +70,32 @@ module AssociationModule
     unless add_artists.blank?
       if add_artists.key?(:id) && add_artists[:category].blank? == false
         categories = add_artists[:category]
+        display_names = add_artists[:display_name].try(:[],"names")
+        display_name_languages = add_artists[:display_name].try(:[],"languages")
+
         categories.pop if categories.last == "New Artist" #Remove the last "New Artist" from the array
         categories = categories.split { |i| i == "New Artist"}
-        add_artists[:id].zip(categories).each do |info|
+
+        if display_names.nil?
+          display_names = Array.new(add_artists[:id].length)
+        else
+          display_names.pop if display_names.last == "New Artist"
+          display_names = display_names.split { |i| i == "New Artist"}
+        end
+
+        if display_name_languages.nil?
+          display_name_languages = Array.new(add_artists[:id].length)
+        else
+          display_name_languages.pop if display_name_languages.last == "New Artist"
+          display_name_languages = display_name_languages.split { |i| i == "New Artist"}
+        end
+
+
+        add_artists[:id].zip(categories,display_names, display_name_languages).each do |info|
           unless info[0].blank? || info[0].blank?
             bitmask = Artist.get_bitmask(info[1])
             artist = Artist.find_by_id(info[0])
-            self.send("artist_#{self.class.model_name.plural}").create(artist: artist, category: bitmask) unless artist.nil?
+            self.send("artist_#{self.class.model_name.plural}").create(artist: artist, category: bitmask, new_display_name_langs: info[2], new_display_name_lang_categories: info[3]) unless artist.nil?
           end
         end
       end

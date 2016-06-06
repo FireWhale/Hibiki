@@ -24,7 +24,7 @@ class User < ActiveRecord::Base
 
   #Validation
     validates :name, presence: true, length: { minimum: 3, maximum: 20}
-    validates :email, uniqueness: { :case_sensitive => false }, allow_blank: true
+    validates :email, uniqueness: { :case_sensitive => false },presence: true
     validates :crypted_password, presence: true
     validates :password_salt, presence: true
     validates_format_of :password, without: ->(user) {/#{user.name}/}, message: "must not contain username", unless: -> {self.password.nil?}

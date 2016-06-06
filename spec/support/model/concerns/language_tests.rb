@@ -30,7 +30,7 @@ module LanguageTests
 
       describe "Callbacks/Hooks" do
         describe "convert_names" do
-          if [Event,Tag].include? described_class
+          if [Event,Tag,ArtistAlbum,ArtistSong].include? described_class
             it "does not receive convert_names on save" do
               record = build(model_symbol)
               expect(record).to_not receive(:convert_names)

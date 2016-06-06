@@ -8,6 +8,7 @@ describe Artist do
     include_examples "it is a translated model"
     include_examples "it has images"
     include_examples "it has posts"
+    include_examples "it has logs"
     include_examples "it has tags"
     include_examples "it has watchlists"
     include_examples "it has self-relations"

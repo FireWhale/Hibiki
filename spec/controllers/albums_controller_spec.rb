@@ -89,13 +89,6 @@ describe AlbumsController do
           expect(assigns(:album)).to eq(album)
         end
 
-        it "locates the rescrape post" do
-          album = create(:album, :with_reference)
-          post = create(:post, category: "Rescrape Result", content: "hi")
-          put :rescrape, id: album.id
-          expect(assigns(:post)).to eq(post)
-        end
-
         it "redirects to the album" do
           album = create(:album, :with_reference)
           post = create(:post, category: "Rescrape Result", content: "hi")

@@ -4,6 +4,8 @@ class Event < ActiveRecord::Base
     include LanguageModule
     include JsonModule
     include ReferenceModule
+    #Associaton Modules
+      include LogModule
 
   #Constants
     FormFields = [{type: "text", attribute: :internal_name, label: "Internal Name:"},

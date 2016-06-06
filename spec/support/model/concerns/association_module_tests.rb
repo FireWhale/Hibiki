@@ -147,6 +147,18 @@ module AssociationModuleTests
         expect(join_record.reload.category).to eq(Artist.get_bitmask(credits).to_s)
       end
 
+      it "updates a relation's display name translations" do
+        record = create(model_symbol)
+        join_record = create(join_model_symbol, model_symbol => record)
+        credits = Artist::Credits.sample(4)
+        params = {join_record.id.to_s => {:category => credits,
+                                          :display_name => {:names => ["eng!"], :languages => [:hibiki_en]}}}
+        record.send("update_artist_#{described_class.model_name.plural}=", params)
+        record.save
+        expect(join_record.reload.category).to eq(Artist.get_bitmask(credits).to_s)
+        expect(join_record.display_name(:hibiki_en)).to eq("eng!")
+      end
+
       it "doesn't update a relation not on the record" do
         record = create(model_symbol)
         join_record = create(join_model_symbol)
@@ -192,6 +204,17 @@ module AssociationModuleTests
         record.new_artists = params
         record.save
         expect(record.send("artist_#{model_symbol}s").first.category).to eq(Artist.get_bitmask(credits).to_s)
+      end
+
+      it "adds display_name translations to new relations" do
+        record = create(model_symbol)
+        artist = create(:artist)
+        credits = Artist::Credits.sample(4)
+        params = {"id" => [artist.id], :category => credits,
+                  :display_name => {:names => ["eng!", "japanese!"], :languages => [:hibiki_en, :hibiki_ja]}}
+        record.new_artists = params
+        record.save
+        expect(record.send("artist_#{model_symbol}s").first.display_name(:hibiki_ja)).to eq("japanese!")
       end
 
       it "creates multiple new records" do
