@@ -72,9 +72,8 @@ class MaintenanceController < ApplicationController
 
     def generate_urls
       authorize! :scrape, Album
-      #First we find the vgmdb album we're on.
-      post = Post.find(571)
-      @number = post.content.partition(": ").last
+      redis = Redis.new
+      @number = redis.get("vgmdb_album_number")
 
       respond_to do |format|
         format.html
@@ -83,10 +82,8 @@ class MaintenanceController < ApplicationController
 
     def update_scrape_number
       authorize! :scrape, Album
-      #Simple method to change the post number of the record post
-      @post = Post.find(571)
-      @post.content = "Lastest VGMDB Album: " + params[:vgmdb_number][:id] unless params[:vgmdb_number].nil?
-      @post.save
+      redis = Redis.new
+      redis.set("vgmdb_album_number", params[:vgmdb_number].try(:[],:id))
 
       respond_to do |format|
         format.html { head :no_content }
