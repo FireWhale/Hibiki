@@ -29,8 +29,8 @@ class MaintenanceController < ApplicationController
         end
       end
 
-      scrapehash[:scrape][:vgmdb_artist_source] = params[:vgmdb_artists] unless params[:vgmdb_artists].nil? || params[:vgmdb_artists] == [""]
-      scrapehash[:scrape][:vgmdb_organization] = params[:vgmdb_organizations] unless params[:vgmdb_organizations].nil? || params[:vgmdb_organizations] == [""]
+      scrapehash[:scrape][:vgmdb_artist_source] = params[:vgmdb_artists] unless params[:vgmdb_artists].blank?
+      scrapehash[:scrape][:vgmdb_organization] = params[:vgmdb_organizations] unless params[:vgmdb_organizations].blank?
 
       ScrapeWorker.perform_async(scrapehash) unless scrapehash[:scrape].empty?
 
