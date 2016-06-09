@@ -15,6 +15,5 @@
 #
 
 every 3.hours do
-  runner "WatchWorker.perform_async", :environment => 'development' 
+  runner "WatchWorker.perform_async", :environment => 'development'
 end
-
