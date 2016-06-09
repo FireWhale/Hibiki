@@ -13,7 +13,14 @@
 #   rake "some:great:rake:task"
 # end
 #
+require 'yaml'
+
+@secrets = YAML.load_file("#{File.dirname(__FILE__)}/secrets.yml")
 
 every 3.hours do
   runner "WatchWorker.perform_async", :environment => 'development'
+end
+
+every 1.month, at: 'start of the month at 2 am' do
+  command "mysqldump -u root -p#{@secrets["development"]["mysql_password"]} hibiki_development > /vagrant/mysqldumps/`date +%Y-%m-%d`_dump.sql"
 end
