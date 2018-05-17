@@ -1,4 +1,4 @@
-class Taglist < ActiveRecord::Base  
+class Taglist < ApplicationRecord
   #Validation
     validates :tag, presence: true
     validates :subject, presence: true

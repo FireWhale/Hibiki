@@ -17,25 +17,25 @@ describe UsersController do
        if accessible == true
           it "responds to html" do
             record = create(:album)
-            get :collect, record_type: record.class.to_s, record_id: record.id, relationship: "Collected"
+            get :collect, params: {record_type: record.class.to_s, record_id: record.id, relationship: "Collected"}
             expect(response).to redirect_to record
           end
 
           it "responds to js" do
             record = create(:album)
-            xhr :post, :collect, record_type: record.class.to_s, record_id: record.id
+            post :collect, xhr: true, params: {record_type: record.class.to_s, record_id: record.id}
             expect(response).to render_template(:collect)
           end
 
           context "with valid params" do
             it "creates a collection" do
               record = create(:album)
-              expect{get :collect, record_type: record.class.to_s, record_id: record.id, relationship: "Collected"}.to change(Collection, :count).by(1)
+              expect{get :collect, params: {record_type: record.class.to_s, record_id: record.id, relationship: "Collected"}}.to change(Collection, :count).by(1)
             end
 
             it "assigns @record" do
               record = create(:song)
-              get :collect, record_type: record.class.to_s, record_id: record.id, relationship: "Collected"
+              get :collect, params: {record_type: record.class.to_s, record_id: record.id, relationship: "Collected"}
               expect(assigns(:record)).to eq(record)
             end
           end
@@ -43,7 +43,7 @@ describe UsersController do
           context "without valid params" do
             it "does not create a collection" do
               record = create(:song)
-              expect{get :collect, record_type: record.class.to_s, record_id: record.id}.to change(Collection,:count).by(0)
+              expect{get :collect, params: {record_type: record.class.to_s, record_id: record.id}}.to change(Collection,:count).by(0)
             end
           end
         else
@@ -53,7 +53,7 @@ describe UsersController do
           end
 
           it "gives forbidden with js" do
-            xhr :post, :collect, format: :js
+            post :collect, xhr: true, format: :js
             expect(response.status).to eq(403) #forbidden
           end
         end
@@ -64,14 +64,14 @@ describe UsersController do
           it "responds to html" do
             record = create(:album)
             create(:collection, user: @user, collected: record)
-            get :uncollect, record_type: record.class.to_s, record_id: record.id
+            get :uncollect, params: {record_type: record.class.to_s, record_id: record.id}
             expect(response).to redirect_to record
           end
 
           it "responds to js" do
             record = create(:album)
             create(:collection, user: @user, collected: record)
-            xhr :post, :uncollect, record_type: record.class.to_s, record_id: record.id
+            post :uncollect, xhr: true, params: {record_type: record.class.to_s, record_id: record.id}
             expect(response).to render_template(:uncollect)
           end
 
@@ -79,13 +79,13 @@ describe UsersController do
             it "destroys a collection" do
               record = create(:album)
               create(:collection, user: @user, collected: record)
-              expect{xhr :post, :uncollect, record_type: record.class.to_s, record_id: record.id}.to change(Collection,:count).by(-1)
+              expect{post :uncollect, xhr: true, params: {record_type: record.class.to_s, record_id: record.id}}.to change(Collection,:count).by(-1)
             end
 
             it "assigns a record" do
               record = create(:album)
               create(:collection, user: @user, collected: record)
-              xhr :post, :uncollect, record_type: record.class.to_s, record_id: record.id
+              post :uncollect, xhr: true, params: {record_type: record.class.to_s, record_id: record.id}
               expect(assigns(:record)).to eq(record)
             end
           end
@@ -94,7 +94,7 @@ describe UsersController do
             it "does not destroy a collection" do
               record = create(:album)
               create(:collection, user: @user, collected: record)
-              expect{xhr :post, :uncollect, record_type: "Artist", record_id: record.id}.to change(Collection,:count).by(0)
+              expect{post :uncollect, xhr: true, params: {record_type: "Artist", record_id: record.id}}.to change(Collection,:count).by(0)
             end
           end
         else
@@ -104,7 +104,7 @@ describe UsersController do
           end
 
           it "gives forbidden with js" do
-            xhr :post, :uncollect, format: :js
+            post :uncollect, xhr: true, format: :js
             expect(response.status).to eq(403) #forbidden
           end
         end
@@ -116,25 +116,25 @@ describe UsersController do
         if accessible == true
           it "responds to html" do
             record = create(:artist)
-            get :watch, watched_type: record.class.to_s, watched_id: record.id
+            get :watch, params: {watched_type: record.class.to_s, watched_id: record.id}
             expect(response).to redirect_to record
           end
 
           it "responds to js" do
             record = create(:organization)
-            xhr :post, :watch, watched_type: record.class.to_s, watched_id: record.id
+            post :watch, xhr: true, params: {watched_type: record.class.to_s, watched_id: record.id}
             expect(response).to render_template(:watch)
           end
 
           context "with valid params" do
             it "creates a collection" do
               record = create(:source)
-              expect{get :watch, watched_type: record.class.to_s, watched_id: record.id}.to change(Watchlist, :count).by(1)
+              expect{get :watch, params: {watched_type: record.class.to_s, watched_id: record.id}}.to change(Watchlist, :count).by(1)
             end
 
             it "assigns @record" do
               record = create(:organization)
-              get :watch, watched_type: record.class.to_s, watched_id: record.id
+              get :watch, params: {watched_type: record.class.to_s, watched_id: record.id}
               expect(assigns(:watched)).to eq(record)
             end
           end
@@ -142,7 +142,7 @@ describe UsersController do
           context "without valid params" do
             it "does not create a collection" do
               record = create(:source)
-              expect{get :watch, watched_type: "Song", watched_id: record.id}.to change(Watchlist,:count).by(0)
+              expect{get :watch, params: {watched_type: "Song", watched_id: record.id}}.to change(Watchlist,:count).by(0)
             end
           end
         else
@@ -152,7 +152,7 @@ describe UsersController do
           end
 
           it "gives forbidden with js" do
-            xhr :post, :watch, format: :js
+            post :watch, xhr: true, format: :js
             expect(response.status).to eq(403) #forbidden
           end
         end
@@ -163,14 +163,14 @@ describe UsersController do
           it "responds to html" do
             record = create(:artist)
             create(:watchlist, user: @user, watched: record)
-            get :unwatch, watched_type: record.class.to_s, watched_id: record.id
+            get :unwatch, params: {watched_type: record.class.to_s, watched_id: record.id}
             expect(response).to redirect_to record
           end
 
           it "responds to js" do
             record = create(:source)
             create(:watchlist, user: @user, watched: record)
-            xhr :post, :unwatch, watched_type: record.class.to_s, watched_id: record.id
+            post :unwatch, xhr: true, params: {watched_type: record.class.to_s, watched_id: record.id}
             expect(response).to render_template(:unwatch)
           end
 
@@ -178,13 +178,13 @@ describe UsersController do
             it "destroys a collection" do
               record = create(:organization)
               create(:watchlist, user: @user, watched: record)
-              expect{xhr :post, :unwatch, watched_type: record.class.to_s, watched_id: record.id}.to change(Watchlist,:count).by(-1)
+              expect{post :unwatch, xhr: true, params: {watched_type: record.class.to_s, watched_id: record.id}}.to change(Watchlist,:count).by(-1)
             end
 
             it "assigns a record" do
               record = create(:artist)
               create(:watchlist, user: @user, watched: record)
-              xhr :post, :unwatch, watched_type: record.class.to_s, watched_id: record.id
+              post :unwatch, xhr:true, params: {watched_type: record.class.to_s, watched_id: record.id}
               expect(assigns(:watched)).to eq(record)
             end
           end
@@ -193,7 +193,7 @@ describe UsersController do
             it "does not destroy a collection" do
               record = create(:source)
               create(:watchlist, user: @user, watched: record)
-              expect{xhr :post, :unwatch, watched_type: "Song", watched_id: record.id}.to change(Watchlist,:count).by(0)
+              expect{post :unwatch, xhr: true, params: {watched_type: "Song", watched_id: record.id}}.to change(Watchlist,:count).by(0)
             end
           end
         else
@@ -203,7 +203,7 @@ describe UsersController do
           end
 
           it "gives forbidden with js" do
-            xhr :post, :unwatch, format: :js
+            post :unwatch, xhr: true, format: :js
             expect(response.status).to eq(403) #forbidden
           end
         end
@@ -223,17 +223,17 @@ describe UsersController do
             end
 
             it "populates a user record" do
-              get :show, id: user
+              get :show, params: {id: user}
               expect(assigns(:user)).to eq(user)
             end
 
             it "renders the show template" do
-              get :show, id: user
+              get :show, params: {id: user}
               expect(response).to render_template(:show)
             end
 
             it "returns a json object" do
-              get :show, id: user, format: :json
+              get :show, params: {id: user}, format: :json
               expect(response.headers['Content-Type']).to match 'application/json'
               expect(response.body).to eq(user.to_json)
             end
@@ -247,17 +247,17 @@ describe UsersController do
             end
 
             it "populates a user record" do
-              get :show, id: user
+              get :show, params: {id: user}
               expect(assigns(:user)).to eq(user)
             end
 
             it "renders the private_page template" do
-              get :show, id: user
+              get :show, params: {id: user}
               expect(response).to render_template(:private_page)
             end
 
             it "returns forbidden with json" do
-              get :show, id: user, format: :json
+              get :show, params: {id: user}, format: :json
               expect(response.status).to eq(403) #forbidden
             end
           end
@@ -285,13 +285,13 @@ describe UsersController do
         else
           it "does not assign a user" do
             user = create(:user)
-            get :show, id: user
+            get :show, params: {id: user}
             expect(assigns(:user)).to be_nil
           end
 
           it "renders access denied" do
             user = create(:user)
-            get :show, id: user
+            get :show, params: {id: user}
             expect(response).to render_template("pages/access_denied")
           end
         end
@@ -303,24 +303,24 @@ describe UsersController do
         let(:user) {create(:user)}
         if accessible == true
           it "has an overview page" do
-            get :overview, id: user
+            get :overview, params: {id: user}
             expect(response).to render_template(:overview)
           end
 
           it "assigns a user" do
-            get :overview, id: user
+            get :overview, params: {id: user}
             expect(assigns(:user)).to eq(user)
           end
 
           it "responds to json" do
-            get :overview, id: user, format: :json
+            get :overview, params: {id: user}, format: :json
             expect(response.headers['Content-Type']).to match 'application/json'
             expect(response.body).to eq(user.to_json)
           end
         else
           it "renders access denied" do
             user = create(:user)
-            get :overview, id: user
+            get :overview, params: {id: user}
             expect(response).to render_template("pages/access_denied")
           end
         end
@@ -338,22 +338,22 @@ describe UsersController do
             end
 
             it "populates a user variable" do
-              get :watchlist, id: user
+              get :watchlist, params: {id: user}
               expect(assigns(:user)).to eq(user)
             end
 
             it "populates a watched variable" do
-              get :watchlist, id: user
+              get :watchlist, params: {id: user}
               expect(assigns(:watched)).to be_a Hash
             end
 
             it "renders the watchlist template" do
-              get :watchlist, id: user
+              get :watchlist, params: {id: user}
               expect(response).to render_template(:watchlist)
             end
 
             it "returns a json object" do
-              get :watchlist, id: user, format: :json
+              get :watchlist, params: {id: user}, format: :json
               expect(response.headers['Content-Type']).to match 'application/json'
               expect(response.body).to eq(user.watchlists.map(&:watched).to_json)
             end
@@ -367,17 +367,17 @@ describe UsersController do
             end
 
             it "populates a user record" do
-              get :watchlist, id: user
+              get :watchlist, params: {id: user}
               expect(assigns(:user)).to eq(user)
             end
 
             it "renders the private_page template" do
-              get :watchlist, id: user
+              get :watchlist, params: {id: user}
               expect(response).to render_template(:private_page)
             end
 
             it "returns forbidden with json" do
-              get :watchlist, id: user, format: :json
+              get :watchlist, params: {id: user}, format: :json
               expect(response.status).to eq(403) #forbidden
             end
           end
@@ -410,13 +410,13 @@ describe UsersController do
         else
           it "does not assign a user" do
             user = create(:user)
-            get :watchlist, id: user
+            get :watchlist, params: {id: user}
             expect(assigns(:user)).to be_nil
           end
 
           it "renders access denied" do
             user = create(:user)
-            get :watchlist, id: user
+            get :watchlist, params: {id: user}
             expect(response).to render_template("pages/access_denied")
           end
         end
@@ -434,38 +434,38 @@ describe UsersController do
             end
 
             it "populates a user variable" do
-              get :collection, id: user
+              get :collection, params: {id: user}
               expect(assigns(:user)).to eq(user)
             end
 
             it "populates a records variable" do
-              get :collection, id: user
+              get :collection, params: {id: user}
               expect(assigns(:records)).to be_a Array
             end
 
             it "renders the collection template" do
-              get :collection, id: user
+              get :collection, params: {id: user}
               expect(response).to render_template(:collection)
             end
 
             it "returns a json object" do
-              get :collection, id: user, format: :json
+              get :collection, params: {id: user}, format: :json
               expect(response.headers['Content-Type']).to match 'application/json'
               expect(response.body).to eq(user.collections.map(&:collected).to_json)
             end
 
             it "populates a type variable" do
-              get :collection, id: user
+              get :collection, params: {id: user}
               expect(assigns(:type)).to eq('collected')
             end
 
             it "matches the type variable if passed in" do
-              get :collection, id: user, type: "ignored"
+              get :collection, params: {id: user, type: "ignored"}
               expect(assigns(:type)).to eq("ignored")
             end
 
             it "responds to js" do
-              xhr :get, :collection, id: user, format: :js
+              get :collection, xhr: true, params: {id: user}, format: :js
               expect(response).to render_template(:collection)
             end
           end
@@ -478,22 +478,22 @@ describe UsersController do
             end
 
             it "populates a user record" do
-              get :collection, id: user
+              get :collection, params: {id: user}
               expect(assigns(:user)).to eq(user)
             end
 
             it "renders the private_page template" do
-              get :collection, id: user
+              get :collection, params: {id: user}
               expect(response).to render_template(:private_page)
             end
 
             it "returns forbidden with json" do
-              get :collection, id: user, format: :json
+              get :collection, params: {id: user}, format: :json
               expect(response.status).to eq(403) #forbidden
             end
 
             it "responds to js" do
-              xhr :get, :collection, id: user, format: :js
+              get :collection, xhr: true, params: {id: user}, format: :js
               expect(response.status).to eq(403) #forbidden
             end
           end
@@ -527,7 +527,7 @@ describe UsersController do
               end
 
               it "responds to js" do
-                xhr :get, :collection, id: @user, format: :js
+                get :collection, xhr: true, params: {id: @user}, format: :js
                 expect(response).to render_template(:collection)
               end
             end
@@ -536,13 +536,13 @@ describe UsersController do
         else
           it "does not assign a user" do
             user = create(:user)
-            get :watchlist, id: user
+            get :watchlist, params: {id: user}
             expect(assigns(:user)).to be_nil
           end
 
           it "renders access denied" do
             user = create(:user)
-            get :watchlist, id: user
+            get :watchlist, params: {id: user}
             expect(response).to render_template("pages/access_denied")
           end
         end
@@ -606,24 +606,24 @@ describe UsersController do
         let(:user) {create(:user)}
 
         it 'renders new' do
-          get :edit_security, id: user
+          get :edit_security, params: {id: user}
           valid_permissions(:edit_security, accessible)
         end
 
         if accessible == true
           it 'assigns a new user' do
-            get :edit_security, id: user
+            get :edit_security, params: {id: user}
             expect(assigns(:user)).to eq(user)
           end
 
           it "renders json" do
-            get :edit_security, id: user, format: :json
+            get :edit_security, params: {id: user}, format: :json
             expect(response.headers['Content-Type']).to match 'application/json'
             expect(response.body).to eq(user.to_json)
           end
         else
           it "renders access denied as json" do
-            get :edit_security, id: user, format: :json
+            get :edit_security, params: {id: user}, format: :json
             expect(response.status).to eq(403) #forbidden
           end
         end
@@ -636,18 +636,18 @@ describe UsersController do
         if accessible == true
           context "the user's edit_profile" do
             it 'assigns user' do
-              get :edit_profile, id: @user
+              get :edit_profile, params: {id: @user}
               expect(assigns(:user)).to eq(@user)
             end
 
             it "renders json" do
-              get :edit_profile, id: @user, format: :json
+              get :edit_profile, params: {id: @user}, format: :json
               expect(response.headers['Content-Type']).to match 'application/json'
               expect(response.body).to eq(@user.to_json)
             end
 
             it "renders edit_profile" do
-              get :edit_profile, id: @user
+              get :edit_profile, params: {id: @user}
               expect(response).to render_template(:edit_profile)
             end
 
@@ -656,7 +656,7 @@ describe UsersController do
           context "someone else's edit_profile" do
             it "renders access denied" do
               user = create(:user)
-              get :edit_profile, id: user
+              get :edit_profile, params: {id: user}
               unless @user.abilities.include?("Admin")  #remove when admin abilities are implemented
                 expect(response). to render_template("pages/access_denied")
               else
@@ -666,7 +666,7 @@ describe UsersController do
 
             it "renders forbidden as json" do
               user = create(:user)
-              get :edit_profile, id: user, format: :json
+              get :edit_profile, params: {id: user}, format: :json
               unless @user.abilities.include?("Admin")  #remove when admin abilities are implemented
                 expect(response.status).to eq(403) #forbidden
               else
@@ -677,13 +677,13 @@ describe UsersController do
         else
           it "renders access denied" do
             user = create(:user)
-            get :edit_profile, id: user
+            get :edit_profile, params: {id: user}
             expect(response). to render_template("pages/access_denied")
           end
 
           it "renders access denied as json" do
             user = create(:user)
-            get :edit_profile, id: user, format: :json
+            get :edit_profile, params: {id: user}, format: :json
             expect(response.status).to eq(403) #forbidden
           end
         end
@@ -696,18 +696,18 @@ describe UsersController do
         if accessible == true
           context "the user's edit_watchlist" do
             it 'assigns user' do
-              get :edit_watchlist, id: @user
+              get :edit_watchlist, params: {id: @user}
               expect(assigns(:user)).to eq(@user)
             end
 
             it "renders json" do
-              get :edit_watchlist, id: @user, format: :json
+              get :edit_watchlist, params: {id: @user}, format: :json
               expect(response.headers['Content-Type']).to match 'application/json'
               expect(response.body).to eq(@user.to_json)
             end
 
             it "renders edit_watchlist" do
-              get :edit_watchlist, id: @user
+              get :edit_watchlist, params: {id: @user}
               expect(response).to render_template(:edit_watchlist)
             end
 
@@ -716,7 +716,7 @@ describe UsersController do
           context "someone else's edit_watchlist" do
             it "renders access denied" do
               user = create(:user)
-              get :edit_watchlist, id: user
+              get :edit_watchlist, params: {id: user}
               unless @user.abilities.include?("Admin")  #remove when admin abilities are implemented
                 expect(response). to render_template("pages/access_denied")
               else
@@ -726,7 +726,7 @@ describe UsersController do
 
             it "renders forbidden as json" do
               user = create(:user)
-              get :edit_watchlist, id: user, format: :json
+              get :edit_watchlist, params: {id: user}, format: :json
               unless @user.abilities.include?("Admin")  #remove when admin abilities are implemented
                 expect(response.status).to eq(403) #forbidden
               else
@@ -737,13 +737,13 @@ describe UsersController do
         else
           it "renders access denied" do
             user = create(:user)
-            get :edit_watchlist, id: user
+            get :edit_watchlist, params: {id: user}
             expect(response). to render_template("pages/access_denied")
           end
 
           it "renders access denied as json" do
             user = create(:user)
-            get :edit_watchlist, id: user, format: :json
+            get :edit_watchlist, params: {id: user}, format: :json
             expect(response.status).to eq(403) #forbidden
           end
         end
@@ -758,64 +758,64 @@ describe UsersController do
           if not_logged_in
             context 'with valid params' do
               it "makes a user" do
-                expect{post :create, user: attributes_for(:user)}.to change(User, :count).by(1)
+                expect{post :create, params: {user: attributes_for(:user)}}.to change(User, :count).by(1)
               end
 
               it "assigns a user" do
-                post :create, user: attributes_for(:user)
+                post :create, params: {user: attributes_for(:user)}
                 expect(assigns(:user)).to be_a User
               end
 
               it "redirects to their edit_profile" do
-                post :create, user: attributes_for(:user)
+                post :create, params: {user: attributes_for(:user)}
                 expect(response).to redirect_to action: :edit_profile, id: User.last.id
               end
 
               it "has a notice" do
-                post :create, user: attributes_for(:user)
+                post :create, params: {user: attributes_for(:user)}
                 expect(flash[:notice]).to eq("Welcome to Hibiki! I highly recommend adjusting these settings to your preferences.")
               end
 
               it "renders the user as json" do
-                post :create, user: attributes_for(:user), format: :json
+                post :create, params: {user: attributes_for(:user)}, format: :json
                 expect(response.body).to eq(User.last.to_json)
               end
             end
 
             context 'without valid params' do
               it "does not create a user" do
-                expect{post :create, user: {:name => "bo"}}.to change(User, :count).by(0)
+                expect{post :create, params: {user: {:name => "bo"}}}.to change(User, :count).by(0)
               end
 
               it "should assign a user" do
-                post :create, user: {:name => "bo"}
+                post :create, params: {user: {:name => "bo"}}
                 expect(assigns(:user)).to be_a_new User
               end
 
               it "renders new" do
-                post :create, user: {:name => "bo"}
+                post :create, params: {user: {:name => "bo"}}
                 expect(response).to render_template :new
               end
 
               it "renders unprocessable entity with json" do
-                post :create, user: {:name => "bo"}, format: :json
+                post :create, params: {user: {:name => "bo"}}, format: :json
                 expect(response.status).to eq(422) #aka Unprocessable entity /unprocess
               end
             end
           else
             context 'already logged in' do
               it "redirects to the front page" do
-                post :create, user: attributes_for(:user)
+                post :create, params: {user: attributes_for(:user)}
                 expect(response).to redirect_to(root_path)
               end
 
               it "renders 403 with json" do
-                post :create, user: attributes_for(:user), format: :json
+                post :create, params: {user: attributes_for(:user)}, format: :json
                 expect(response.status).to eq(403) #forbidden
               end
 
               it "does not make a user" do
-                expect{post :create, user: attributes_for(:user)}.to change(User, :count).by(0)
+                expect{post :create, params: {user: attributes_for(:user)}}.to change(User, :count).by(0)
               end
 
             end
@@ -832,7 +832,7 @@ describe UsersController do
           end
 
           it "does not make a user" do
-            expect{post :create, user: attributes_for(:user)}.to change(User, :count).by(0)
+            expect{post :create, params: {user: attributes_for(:user)}}.to change(User, :count).by(0)
           end
         end
       end
@@ -844,34 +844,34 @@ describe UsersController do
 
         if accessible == true
           it "assigns the user" do
-            post :update_security, id: user, user: {security_array: ["User", "Confident"]}
+            post :update_security, params: {id: user, user: {security_array: ["User", "Confident"]}}
             expect(assigns(:user)).to eq(user)
           end
 
           context 'with valid params' do
             it "updates the users security" do
-              post :update_security, user: {security_array: ["User", "Confident"]}, id: user
+              post :update_security, params: {user: {security_array: ["User", "Confident"]}, id: user}
               expect(user.reload.security).to eq("6")
               expect(user.reload.abilities).to match_array(["User", "Confident", "Any"])
             end
 
             it "has a notice" do
-              post :update_security, user: {security_array: ["User", "Confident"]}, id: user
+              post :update_security, params: {user: {security_array: ["User", "Confident"]}, id: user}
               expect(flash[:notice]).to eq "Security was successfully updated."
             end
 
             it "renders overview" do
-              post :update_security, id: user, user: {security_array: ["User", "Confident"]}
+              post :update_security, params: {id: user, user: {security_array: ["User", "Confident"]}}
               expect(response).to redirect_to action: :overview, id: User.last.id
             end
 
             it "responds with success with json" do
-              post :update_security, id: user, user: {security_array: ["User", "Confident"]}, format: :json
+              post :update_security, params: {id: user, user: {security_array: ["User", "Confident"]}}, format: :json
               expect(response.status).to eq(204) #204 No Content no content -> ajax success event
             end
 
             it "can update status" do
-              post :update_security, id: user, user: {security_array: ["User"], status: "Deactivated"}, format: :json
+              post :update_security, params: {id: user, user: {security_array: ["User"], status: "Deactivated"}}, format: :json
               expect(user.reload.status).to eq("Deactivated")
             end
 
@@ -879,24 +879,24 @@ describe UsersController do
 
           context 'with invalid params' do
             it 'renders edit_security' do
-              post :update_security, user: {status: "hoo"}, id: user
+              post :update_security, params: {user: {status: "hoo"}, id: user}
               expect(response).to render_template(:edit_security)
             end
 
             it 'renders unprocessable_entity' do
-              post :update_security, user: {status: "hi"}, id: user, format: :json
+              post :update_security, params: {user: {status: "hi"}, id: user}, format: :json
               expect(response.status).to eq(422) #aka Unprocessable entity /unprocess
             end
           end
 
         else
           it "renders access denied" do
-            post :update_security, id: user, user: {security_array: ["User", "Confident"]}
+            post :update_security, params: {id: user, user: {security_array: ["User", "Confident"]}}
             expect(response).to render_template("pages/access_denied")
           end
 
           it "renders 403 with json" do
-            post :update_security, id: user, user: {security_array: ["User", "Confident"]}, format: :json
+            post :update_security, params: {id: user, user: {security_array: ["User", "Confident"]}}, format: :json
             expect(response.status).to eq(403) #forbidden
           end
 
@@ -911,7 +911,7 @@ describe UsersController do
 
         if accessible == true
           it "assigns the user" do
-            post :update_profile, id: user, user: {display_form_settings: ["Display Limited Editions"]}
+            post :update_profile, params: {id: user, user: {display_form_settings: ["Display Limited Editions"]}}
             expect(assigns(:user)).to eq(user)
           end
 
@@ -919,26 +919,26 @@ describe UsersController do
             context 'with valid params' do
               it "calls update_attributes" do
                 expect_any_instance_of(User).to receive(:update_attributes)
-                post :update_profile, id: @user, user: {display_form_settings: ["Display Limited Editions"]}
+                post :update_profile, params: {id: @user, user: {display_form_settings: ["Display Limited Editions"]}}
               end
 
               it "updates some settings" do
-                post :update_profile, id: @user, user: {display_form_settings: ["Display Limited Editions"]}
+                post :update_profile, params: {id: @user, user: {display_form_settings: ["Display Limited Editions"]}}
                 expect(@user.reload.display_bitmask).to eq(1)
               end
 
               it "has a notice" do
-                post :update_profile, id: @user, user: {language_form_settings: ["english", "korean"]}
+                post :update_profile, params: {id: @user, user: {language_form_settings: ["english", "korean"]}}
                 expect(flash[:notice]).to eq('Profile was successfully updated.')
               end
 
               it "renders edit_profile" do
-                post :update_profile, id: @user, user: {artist_language_form_settings: ["english", "korean"]}
+                post :update_profile, params: {id: @user, user: {artist_language_form_settings: ["english", "korean"]}}
                 expect(response).to redirect_to action: :edit_profile, id: User.last.id
               end
 
               it "renders success as json" do
-                post :update_profile, id: @user, user: {privacy_settings: ["Show Watchlist", "Show Profile"]}, format: :json
+                post :update_profile, params: {id: @user, user: {privacy_settings: ["Show Watchlist", "Show Profile"]}}, format: :json
                 expect(response.status).to eq(204) #204 No Content no content -> ajax success event
               end
             end
@@ -947,12 +947,12 @@ describe UsersController do
               #There's no way there are invalid params?
               #There's no way to have @user.update_attributes return false in this method, I think.
               # it "renders edit_profile" do
-                # post :update_profile, id: @user, user: {ho: "Hah"}
+                # post :update_profile, params: {id: @user, user: {ho: "Hah"}}
                 # expect(response).to render_template(:edit_profile)
               # end
 #
               # it "renders unprocessible entity as json" do
-                # post :update_profile, id: @user, user: {"haha" => "ha"}, format: :json
+                # post :update_profile, params: {id: @user, user: {"haha" => "ha"}}, format: :json
                 # expect(response.status).to eq(422) #aka Unprocessable entity /unprocess
               # end
             end
@@ -960,17 +960,17 @@ describe UsersController do
 
           context "on another user" do
             it "renders access denied" do
-              post :update_profile, id: user, user: {display_settings: ["Show Limited Editions"]}
+              post :update_profile, params: {id: user, user: {display_settings: ["Show Limited Editions"]}}
               expect(response).to render_template("pages/access_denied")
             end
 
             it "renders 403 with json" do
-              post :update_profile, id: user, user: {display_settings: ["Show Limited Editions"]}, format: :json
+              post :update_profile, params: {id: user, user: {display_settings: ["Show Limited Editions"]}}, format: :json
               expect(response.status).to eq(403) #forbidden
             end
 
             it "does not update any settings" do
-              post :update_profile, id: user, user: {display_settings: ["Show Limited Editions"]}
+              post :update_profile, params: {id: user, user: {display_settings: ["Show Limited Editions"]}}
               expect(user.reload.display_bitmask).to_not eq(1)
             end
           end
@@ -978,12 +978,12 @@ describe UsersController do
         else
 
           it "renders access denied" do
-            post :update_profile, id: user, user: {display_settings: ["Show Limited Editions"]}
+            post :update_profile, params: {id: user, user: {display_settings: ["Show Limited Editions"]}}
             expect(response).to render_template("pages/access_denied")
           end
 
           it "renders 403 with json" do
-            post :update_profile, id: user, user: {display_settings: ["Show Limited Editions"]}, format: :json
+            post :update_profile, params: {id: user, user: {display_settings: ["Show Limited Editions"]}}, format: :json
             expect(response.status).to eq(403) #forbidden
           end
 
@@ -995,9 +995,11 @@ describe UsersController do
       describe 'POST #update_watchlist' do
         let(:user) {create(:user, :with_multiple_watchlists)}
 
+        it "uses strong parameters" #This requires adding a method to users to update all of their watchlists.
+
         if accessible == true
           it "assigns the user" do
-            post :update_watchlist, id: user
+            post :update_watchlist, params: {id:user}
             expect(assigns(:user)).to eq(user)
           end
 
@@ -1008,22 +1010,22 @@ describe UsersController do
               end
 
               it "updates a watchlist" do
-                post :update_watchlist, id: @user, watchlists: {"0" => {name: "haha", records: @user.watchlists.map(&:id)}}
+                post :update_watchlist, params: {id:@user, watchlists: {"0" => {name: "haha", records: @user.watchlists.map(&:id)}}}
                 expect(@user.reload.watchlists.first.grouping_category).to eq("haha")
               end
 
               it "has a notice" do
-                post :update_watchlist, id: @user, watchlists: {"0" => {name: "haha", records: @user.watchlists.map(&:id)}}
+                post :update_watchlist, params: {id:@user, watchlists: {"0" => {name: "haha", records: @user.watchlists.map(&:id)}}}
                 expect(flash[:notice]).to eq('Watchlist was successfully updated.')
               end
 
               it "renders edit_watchlist" do
-                post :update_watchlist, id: @user, watchlists: {"0" => {name: "haha", records: @user.watchlists.map(&:id)}}
+                post :update_watchlist, params: {id:@user, watchlists: {"0" => {name: "haha", records: @user.watchlists.map(&:id)}}}
                 expect(response).to redirect_to action: :edit_watchlist, id: User.last.id
               end
 
               it "renders success as json" do
-                post :update_watchlist, id: @user, watchlists: {"0" => {name: "haha", records: @user.watchlists.map(&:id)}}, format: :json
+                post :update_watchlist, params: {id:@user, watchlists: {"0" => {name: "haha", records: @user.watchlists.map(&:id)}}}, format: :json
                 expect(response.status).to eq(204) #204 No Content no content -> ajax success event
               end
             end
@@ -1032,12 +1034,12 @@ describe UsersController do
               #Invalid parameter: grouping category is > 43 characters
 
               it "renders edit_profile" do
-                post :update_watchlist, id: @user
+                post :update_watchlist, params: {id:@user}
                 expect(response).to render_template(:edit_watchlist)
               end
 
               it "renders unprocessible entity as json" do
-                post :update_watchlist, id: @user, format: :json
+                post :update_watchlist, params: {id:@user}, format: :json
                 expect(response.status).to eq(422) #aka Unprocessable entity /unprocess
               end
             end
@@ -1045,39 +1047,39 @@ describe UsersController do
 
           context "on another user" do
             it "renders access denied" do
-              post :update_watchlist, id: user, watchlists: {"0" => {name: "haha", records: user.watchlists.map(&:id)}}
+              post :update_watchlist, params: {id:user, watchlists: {"0" => {name: "haha", records: user.watchlists.map(&:id)}}}
               expect(response).to render_template("pages/access_denied")
             end
 
             it "renders 403 with json" do
-              post :update_watchlist, id: user, watchlists: {"0" => {name: "haha", records: user.watchlists.map(&:id)}}, format: :json
+              post :update_watchlist, params: {id:user, watchlists: {"0" => {name: "haha", records: user.watchlists.map(&:id)}}}, format: :json
               expect(response.status).to eq(403) #forbidden
             end
 
             it "does not call save on watchlists" do
               expect_any_instance_of(Watchlist).to_not receive(:save)
-              post :update_watchlist, id: user, watchlists: {"0" => {name: "haha", records: user.watchlists.map(&:id)}}
+              post :update_watchlist, params: {id:user, watchlists: {"0" => {name: "haha", records: user.watchlists.map(&:id)}}}
             end
 
             it "does not update any watchlists" do
-              post :update_watchlist, id: user, watchlists: {"0" => {name: "haha", records: user.watchlists.map(&:id)}}
+              post :update_watchlist, params: {id:user, watchlists: {"0" => {name: "haha", records: user.watchlists.map(&:id)}}}
               expect(user.reload.watchlists.first.grouping_category).to_not eq("haha")
             end
           end
         else
           it "renders access denied" do
-            post :update_watchlist, id: user, watchlists: {"0" => {name: "haha", records: user.watchlists.map(&:id)}}
+            post :update_watchlist, params: {id:user, watchlists: {"0" => {name: "haha", records: user.watchlists.map(&:id)}}}
             expect(response).to render_template("pages/access_denied")
           end
 
           it "renders 403 with json" do
-            post :update_watchlist, id: user, watchlists: {"0" => {name: "haha", records: user.watchlists.map(&:id)}}, format: :json
+            post :update_watchlist, params: {id:user, watchlists: {"0" => {name: "haha", records: user.watchlists.map(&:id)}}}, format: :json
             expect(response.status).to eq(403) #forbidden
           end
 
           it "does not call save on watchlists" do
             expect_any_instance_of(Watchlist).to_not receive(:save)
-            post :update_watchlist, id: user, watchlists: {"0" => {name: "haha", records: user.watchlists.map(&:id)}}
+            post :update_watchlist, params: {id:user, watchlists: {"0" => {name: "haha", records: user.watchlists.map(&:id)}}}
           end
         end
       end
@@ -1087,7 +1089,7 @@ describe UsersController do
     describe 'GET #add_grouping' do
       if accessible == true
         it "renders js" do
-          xhr :get, :add_grouping, format: :js
+          get :add_grouping, xhr: true, format: :js
           expect(response).to render_template(:add_grouping)
         end
       else
@@ -1097,7 +1099,7 @@ describe UsersController do
         end
 
         it "renders forbidden with js" do
-          xhr :get, :add_grouping, format: :js
+          get :add_grouping, xhr: true, format: :js
           expect(response.status).to eq(403) #forbidden
         end
       end
@@ -1138,7 +1140,7 @@ describe UsersController do
     include_examples "can delete a record", false
 
     #Strong Parameters
-    include_examples "uses strong parameters", ["password", "name", "password_confirmation", "email"], []
+    include_examples "uses strong parameters", valid_params: ["password", "name", "password_confirmation", "email"]
 
   end
 
@@ -1176,9 +1178,9 @@ describe UsersController do
     include_examples "can delete a record", false
 
     #Strong Parameters
-    include_examples "uses strong parameters", [],["password", "name", "password_confirmation", "email"]
-    include_examples "uses strong parameters", [["language_form_settings"], ["artist_language_form_settings"],
-                                                ["display_form_settings"],["privacy_form_settings"]],[], "profile_filter", "user"
+    include_examples "uses strong parameters", invalid_params: ["password", "name", "password_confirmation", "email"]
+    include_examples "uses strong parameters", valid_params: [["language_form_settings"], ["artist_language_form_settings"],
+                                                ["display_form_settings"],["privacy_form_settings"]], filter_method: "profile_filter"
 
   end
 
@@ -1216,10 +1218,10 @@ describe UsersController do
     include_examples "can delete a record", true
 
     #Strong Parameters
-    include_examples "uses strong parameters", [],["password", "name", "password_confirmation", "email"]
-    include_examples "uses strong parameters", ["status", ["security_array"]], [], "security_filter", "user"
-    include_examples "uses strong parameters", [["language_form_settings"], ["artist_language_form_settings"],
-                                                ["display_form_settings"],["privacy_form_settings"]],[], "profile_filter", "user"
+    include_examples "uses strong parameters", invalid_params: ["password", "name", "password_confirmation", "email"]
+    include_examples "uses strong parameters", valid_params: ["status", ["security_array"]], filter_method: "security_filter"
+    include_examples "uses strong parameters", valid_params: [["language_form_settings"], ["artist_language_form_settings"],
+                                                              ["display_form_settings"],["privacy_form_settings"]],filter_method: "profile_filter"
 
   end
 end

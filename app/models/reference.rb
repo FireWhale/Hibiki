@@ -1,4 +1,4 @@
-class Reference < ActiveRecord::Base
+class Reference < ApplicationRecord
   SiteNames = ["VGMdb", "Circus Website", "Generasia Wiki", "CDJapan", "Official Website",
                "Wikipedia", "Vocaloid Wiki", "Other Reference", "Utaite Wiki", "Touhou Wiki",
                "Vocaloid DB", "Utaite DB", "Last.fm", "Official Blog", "Twitter", "Jpopsuki",

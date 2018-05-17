@@ -24,7 +24,7 @@ describe SeasonsController do
       include_examples "can delete a record", false
       
     #Strong Parameters
-      include_examples "uses strong parameters", [], [["remove_source_seasons"], {"new_sources" => {"new" => ["id", "category"]}},{"update_source_seasons" => {"update" => ["category"]}}]
+      include_examples "uses strong parameters", invalid_params: [["remove_source_seasons"], {"new_sources" => {"new" => ["id", "category"]}},{"update_source_seasons" => {"update" => ["category"]}}]
 
   end
   
@@ -51,7 +51,7 @@ describe SeasonsController do
       include_examples "can delete a record", false
       
     #Strong Parameters
-      include_examples "uses strong parameters", [], [["remove_source_seasons"], {"new_sources" => {"new" => ["id", "category"]}},{"update_source_seasons" => {"update" => ["category"]}}]
+      include_examples "uses strong parameters", invalid_params: [["remove_source_seasons"], {"new_sources" => {"new" => ["id", "category"]}},{"update_source_seasons" => {"update" => ["category"]}}]
 
   end
 
@@ -78,8 +78,8 @@ describe SeasonsController do
       include_examples "can delete a record", true
       
     #Strong Parameters
-      include_examples "uses strong parameters", ["name", "start_date", "end_date",  ["new_images"], 
-                                                  ["remove_source_seasons"], {"new_sources" => {"new" => ["id", "category"]}},{"update_source_seasons" => {"update" => ["category"]}}], []
+      include_examples "uses strong parameters", valid_params: ["name", "start_date", "end_date",  ["new_images"],
+                                                  ["remove_source_seasons"], {"new_sources" => {"new" => ["id", "category"]}},{"update_source_seasons" => {"update" => ["category"]}}]
       
   end
   

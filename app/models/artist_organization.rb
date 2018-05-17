@@ -1,4 +1,4 @@
-class ArtistOrganization < ActiveRecord::Base
+class ArtistOrganization < ApplicationRecord
   #Constants
     Categories = ['Member','Founder','Former Member','Label']
     

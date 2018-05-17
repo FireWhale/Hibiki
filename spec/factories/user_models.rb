@@ -1,7 +1,7 @@
 # encoding: utf-8
 require 'faker'
 
-FactoryGirl.define do
+FactoryBot.define do
   #User Models -
     factory :user do
       name {Faker::Lorem.characters(10)}

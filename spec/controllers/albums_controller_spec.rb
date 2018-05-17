@@ -8,13 +8,13 @@ describe AlbumsController do
 
       it "populates an album record" do
         album = create(:album)
-        get :edit_tracklist, id: album
+        get :edit_tracklist, params: {id: album}
         expect(assigns(:album)).to eq album
       end
 
       it "responds to json" do
         album = create(:album)
-        get :edit_tracklist, id: album, format: :json
+        get :edit_tracklist, format: :json, params: {id: album}
         if accessible == true
           expect(response.body).to eq(album.to_json)
         else
@@ -24,7 +24,7 @@ describe AlbumsController do
 
       it "renders the :edit_tracklist template" do
         album = create(:album)
-        get :edit_tracklist, id: album
+        get :edit_tracklist, params: {id: album}
         valid_permissions(:edit_tracklist, accessible)
       end
     end
@@ -35,26 +35,26 @@ describe AlbumsController do
       if accessible == true
         it "locates the album" do
           album = create(:album, :with_songs)
-          put :update_tracklist, id: album.id
+          put :update_tracklist, params: {id: album}
           expect(assigns(:album)).to eq album
         end
 
         it "updates each song in the album" do
           album = create(:album, :with_songs)
           new_info = attributes_for(:song, internal_name: "hohoho")
-          put :update_tracklist, id: album.id, song: {album.songs.first.id.to_s => new_info}
+          put :update_tracklist, params: {id: album, song: {album.songs.first.id.to_s => new_info}}
           expect(album.songs.first.reload.internal_name).to eq("hohoho")
         end
 
         it "redirects to the album" do
           album = create(:album, :with_songs)
-          put :update_tracklist, id: album.id
+          put :update_tracklist,params: {id: album}
           expect(response).to redirect_to album_path(assigns[:album])
         end
 
         it "responds to json" do
           album = create(:album, :with_songs)
-          put :update_tracklist, id: album.id, format: :json
+          put :update_tracklist,params: {id: album}, format: :json
           expect(response.status).to eq(204) #204 No Content -> ajax success event
         end
       else
@@ -62,13 +62,13 @@ describe AlbumsController do
           album = create(:album, :with_songs)
           new_info = attributes_for(:song, name: "hohoho")
           song_info = {album.songs.first.id => new_info}
-          put :update_tracklist, id: album.id, song: song_info
+          put :update_tracklist,params: {id: album, song: song_info}
           expect(album.songs.first.reload.name).to_not eq("hohoho")
         end
 
         it "redirects to the access denied" do
           album = create(:album, :with_songs)
-          put :update_tracklist, id: album.id
+          put :update_tracklist,params: {id: album}
           expect(response).to render_template("pages/access_denied")
         end
       end
@@ -85,28 +85,28 @@ describe AlbumsController do
         it "locates the album" do
           album = create(:album, :with_reference)
           post = create(:post, category: "Rescrape Result", content: "hi")
-          put :rescrape, id: album.id
+          put :rescrape,params: {id: album}
           expect(assigns(:album)).to eq(album)
         end
 
         it "redirects to the album" do
           album = create(:album, :with_reference)
           post = create(:post, category: "Rescrape Result", content: "hi")
-          put :rescrape, id: album.id
+          put :rescrape,params: {id: album}
           expect(response).to redirect_to album_path(assigns[:album])
         end
 
         it "responds to json" do
           album = create(:album, :with_reference)
           post = create(:post, category: "Rescrape Result", content: "hi")
-          put :rescrape, id: album.id, format: :json
+          put :rescrape,params: {id: album}, format: :json
           expect(response.status).to eq(204) #204 No Content -> ajax success event
         end
 
         it "responds to a get request" do
           album = create(:album, :with_reference)
           post = create(:post, category: "Rescrape Result", content: "hi")
-          get :rescrape, id: album.id
+          get :rescrape,params: {id: album}
           expect(response).to redirect_to album_path(assigns[:album])
         end
 
@@ -115,14 +115,14 @@ describe AlbumsController do
             album = create(:album)
             create(:reference, model: album, site_name: "VGMdb")
             post = create(:post, category: "Rescrape Result", content: "hi")
-            expect{put :rescrape, id: album.id}.to change(ScrapeWorker.jobs, :size).by(1)
+            expect{put :rescrape,params: {id: album}}.to change(ScrapeWorker.jobs, :size).by(1)
           end
 
           it "sends a sidekiq request with get" do
             album = create(:album)
             create(:reference, model: album, site_name: "VGMdb")
             post = create(:post, category: "Rescrape Result", content: "hi")
-            expect{get :rescrape, id: album.id}.to change(ScrapeWorker.jobs, :size).by(1)
+            expect{get :rescrape,params: {id: album}}.to change(ScrapeWorker.jobs, :size).by(1)
           end
         end
 
@@ -131,7 +131,7 @@ describe AlbumsController do
             album = create(:album)
             create(:reference, model: album, site_name: "Twitter")
             post = create(:post, category: "Rescrape Result", content: "hi")
-            expect{get :rescrape, id: album.id}.to change(ScrapeWorker.jobs, :size).by(0)
+            expect{get :rescrape,params: {id: album}}.to change(ScrapeWorker.jobs, :size).by(0)
           end
         end
 
@@ -139,13 +139,13 @@ describe AlbumsController do
         it "does not send off a sidekiq requset" do
           album = create(:album, :with_reference)
           post = create(:post, category: "Rescrape Result", content: "hi")
-          expect{put :rescrape, id: album.id}.to change(ScrapeWorker.jobs, :size).by(0)
+          expect{put :rescrape,params: {id: album}}.to change(ScrapeWorker.jobs, :size).by(0)
         end
 
         it "redirects to the access denied" do
           album = create(:album, :with_reference)
           post = create(:post, category: "Rescrape Result", content: "hi")
-          put :rescrape, id: album.id
+          put :rescrape,params: {id: album}
           expect(response).to render_template("pages/access_denied")
         end
       end
@@ -180,7 +180,7 @@ describe AlbumsController do
       include_examples "can delete a record", false
 
     #Strong Parameters
-      include_examples "uses strong parameters", [],[{"new_references" => {"new" => ["site_name", "url"]}}, {"update_references" => {"update" => ["url", "site_name"]}}]
+      include_examples "uses strong parameters", invalid_params: [{"new_references" => {"new" => ["site_name", "url"]}}, {"update_references" => {"update" => ["url", "site_name"]}}]
 
   end
 
@@ -210,7 +210,7 @@ describe AlbumsController do
       include_examples "can delete a record", false
 
     #Strong Parameters
-      include_examples "uses strong parameters", [],[{"new_references" => {"new" => ["site_name", "url"]}}, {"update_references" => {"update" => ["url", "site_name"]}}]
+      include_examples "uses strong parameters", invalid_params: [{"new_references" => {"new" => ["site_name", "url"]}}, {"update_references" => {"update" => ["url", "site_name"]}}]
 
   end
 
@@ -240,27 +240,24 @@ describe AlbumsController do
       include_examples "can delete a record", true
 
     #Strong Parameters
-      include_examples "uses strong parameters", [
-        "internal_name", "synonyms", "catalog_number", "release_date", "status", "classification", "info", "private_info",
-        ["new_images"], ["remove_album_sources"], ["remove_album_organizations"], ["remove_related_albums"], ["remove_album_events"], {"namehash" => "string"},
-        {"name_langs" => "string"},["new_name_langs"], ["new_name_lang_categories"],
-        {"info_langs" => "string"},["new_info_langs"], ["new_info_lang_categories"],
-        {"new_related_albums" => {"new" => ["id", "category"]}}, {"update_related_albums" => {"update" => ["category"]}},
-        {"new_artists" => {"new" => ["id", "category"]}}, {"update_artist_albums" => {"update" => [["category"]]}},
-        {"new_organizations" => {"new" => ["id", "category"]}}, {"update_album_organizations" => {"update" => ["category"]}},
-        {"new_sources" => {"new" => ["id"]}}, {"new_events" => {"new" => ["id"]}},
-        {"new_songs" => {"new" => ["track_number", "internal_name"]}},
-        {"new_references" => {"new" => ["site_name", "url"]}}, {"update_references" => {"update" => ["url", "site_name"]}}], []
+    include_examples "uses strong parameters", valid_params: ["internal_name", "synonyms", "catalog_number", "release_date", "status", "classification", "info", "private_info",
+                                                              ["new_images"], ["remove_album_sources"], ["remove_album_organizations"], ["remove_related_albums"], ["remove_album_events"], {"namehash" => "string"},
+                                                              {"name_langs" => "string"},["new_name_langs"], ["new_name_lang_categories"],
+                                                              {"info_langs" => "string"},["new_info_langs"], ["new_info_lang_categories"],
+                                                              {"new_related_albums" => {"new" => ["id", "category"]}}, {"update_related_albums" => {"update" => ["category"]}},
+                                                              {"new_artists" => {"new" => ["id", "category"]}}, {"update_artist_albums" => {"update" => [["category"]]}},
+                                                              {"new_organizations" => {"new" => ["id", "category"]}}, {"update_album_organizations" => {"update" => ["category"]}},
+                                                              {"new_sources" => {"new" => ["id"]}}, {"new_events" => {"new" => ["id"]}},
+                                                              {"new_songs" => {"new" => ["track_number", "internal_name"]}},
+                                                              {"new_references" => {"new" => ["site_name", "url"]}}, {"update_references" => {"update" => ["url", "site_name"]}}]
 
-      include_examples "uses strong parameters", [
-        {"song" => {"update" => ["internal_name", "disc_number", "track_number", "length", {"namehash" => "string"}, ["remove_song_sources"], ["remove_related_songs"],
-                                  {"name_langs" => "string"},["new_name_langs"], ["new_name_lang_categories"],
-                                  {"lyrics_langs" => "string"},["new_lyrics_langs"], ["new_lyrics_lang_categories"],
-                                  {"new_artists" => {"new" => ["id", "category"]}}, {"update_artist_songs" => {"update" => [["category"]]}},
-                                  {"new_sources" => {"new" => ["id", "classification", "op_ed_number", "ep_numbers"]}}, {"update_song_sources" => {"update" => ["classification", "op_ed_number", "ep_numbers"]}},
-                                  {"new_related_songs" => {"new" => ["id", "category"]}}, {"update_related_songs" => {"update" => ["category"]}},
-                                  ]}},
-      ],[], "tracklist_filter"
+      include_examples "uses strong parameters", valid_params: [{"song" => {"update" => ["internal_name", "disc_number", "track_number", "length", {"namehash" => "string"}, ["remove_song_sources"], ["remove_related_songs"],
+                                                                  {"name_langs" => "string"},["new_name_langs"], ["new_name_lang_categories"],
+                                                                  {"lyrics_langs" => "string"},["new_lyrics_langs"], ["new_lyrics_lang_categories"],
+                                                                  {"new_artists" => {"new" => ["id", "category"]}}, {"update_artist_songs" => {"update" => [["category"]]}},
+                                                                  {"new_sources" => {"new" => ["id", "classification", "op_ed_number", "ep_numbers"]}}, {"update_song_sources" => {"update" => ["classification", "op_ed_number", "ep_numbers"]}},
+                                                                  {"new_related_songs" => {"new" => ["id", "category"]}}, {"update_related_songs" => {"update" => ["category"]}}]}}],
+                                                      filter_method: "tracklist_filter", base_key: "none"
 
 
   end

@@ -43,7 +43,7 @@ module SelfRelationModule
   private
     def manage_self_relations
       #Update
-      update_related = HashWithIndifferentAccess.new(self.send("update_related_#{self.class.model_name.plural}"))
+      update_related = ActiveSupport::HashWithIndifferentAccess.new(self.send("update_related_#{self.class.model_name.plural}"))
       unless update_related.blank?
         update_related.each do |k,v|
           record = self.send("related_#{self.class.model_name.param_key}_relations").find_by_id(k)
@@ -66,7 +66,7 @@ module SelfRelationModule
       end
 
       #Create
-      create_related = HashWithIndifferentAccess.new(self.send("new_related_#{self.class.model_name.plural}"))
+      create_related = ActiveSupport::HashWithIndifferentAccess.new(self.send("new_related_#{self.class.model_name.plural}"))
       unless create_related.blank? || create_related[:id].blank? || create_related[:category].blank?
         create_related[:id].zip(create_related[:category]).each do |info|
           record = self.class.find_by_id(info[0])

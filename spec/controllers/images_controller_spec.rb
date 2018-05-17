@@ -70,7 +70,7 @@ describe ImagesController do
       include_examples "can delete a record", true
 
     #Strong Parameters
-      include_examples "uses strong parameters", ["name", "primary_flag", "rating" ], []
+      include_examples "uses strong parameters", valid_params: ["name", "primary_flag", "rating" ]
   end
 
 end

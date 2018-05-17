@@ -1,4 +1,4 @@
-class SourceOrganization < ActiveRecord::Base  
+class SourceOrganization < ApplicationRecord
   #Constants
     Categories = ['Publisher','Distributor','Developer']
     

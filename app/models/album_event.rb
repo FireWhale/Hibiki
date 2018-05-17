@@ -1,4 +1,4 @@
-class AlbumEvent < ActiveRecord::Base
+class AlbumEvent < ApplicationRecord
   #Associations
     belongs_to :album
     belongs_to :event

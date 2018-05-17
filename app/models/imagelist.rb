@@ -1,4 +1,4 @@
-class Imagelist < ActiveRecord::Base
+class Imagelist < ApplicationRecord
 
   #Callbacks/Hooks
     after_destroy :destroy_images

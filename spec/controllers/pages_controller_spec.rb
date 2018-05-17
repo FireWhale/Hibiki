@@ -81,13 +81,13 @@ describe PagesController do
       it "accepts count as a param " do
         number = Array(20..50).sample
         create_list(:album, 200)
-        get :random_albums, count: number
+        get :random_albums, params: {count: number}
         expect(assigns(:albums).count).to eq(number)
       end
       
       it "limits count to 250 albums" do
         create_list(:album, 300)
-        get :random_albums, count: 600
+        get :random_albums, params: {count: 600}
         expect(assigns(:albums).count).to eq(250)
       end
       
@@ -133,19 +133,19 @@ describe PagesController do
   shared_examples "can search" do |accessible|
     describe 'GET #search' do
       it "renders the search template" do
-        get :search, search: "haha"
+        get :search, params: {search: "haha"}
         valid_permissions(:search, accessible)
       end
       
       ["album", "artist", "source", "song", "organization"].each do |model|          
         it "populates #{model} total_count" do
-          get :search, search: "haha"
+          get :search, params: {search: "haha"}
           expect(assigns("#{model}_count".to_sym)).to_not be_nil            
         end
       end
         
       it "responds to js" do
-        xhr :get, :search, search: "haha", format: :js
+        get :search, xhr: true, params: {search: "haha"}, format: :js
         expect(response).to render_template :search
       end
       
@@ -188,23 +188,23 @@ describe PagesController do
             let(:user) {create(:user)}
             
             it "locates the user" do
-              post :request_password_reset_email, email: user.email
+              post :request_password_reset_email, params: {email: user.email}
               expect(assigns(:user)).to eq(user)
             end
                         
             it "sends off an email" do
-              expect{post :request_password_reset_email, email: user.email}.to change(ActionMailer::Base.deliveries, :count).by(1)
+              expect{post :request_password_reset_email, params: {email: user.email}}.to change(ActionMailer::Base.deliveries, :count).by(1)
             end
             
             it "uses the deliver_password_reset_instructions! method" do
               expect_any_instance_of(User).to receive(:deliver_password_reset_instructions!)
-              post :request_password_reset_email, email: user.email
+              post :request_password_reset_email, params: {email: user.email}
             end
           end
           
           context "without valid email" do
             it "does not send off an email" do
-              expect{post :request_password_reset_email, email: "fake@email.com"}.to change(ActionMailer::Base.deliveries, :count).by(0)              
+              expect{post :request_password_reset_email, params: {email: "fake@email.com"}}.to change(ActionMailer::Base.deliveries, :count).by(0)
             end
           end
           
@@ -216,7 +216,7 @@ describe PagesController do
                     
           it "does not send off an email" do
             user = create(:user)
-            expect{post :request_password_reset_email, email: user.email}.to change(ActionMailer::Base.deliveries, :count).by(0)              
+            expect{post :request_password_reset_email, params: {email: user.email}}.to change(ActionMailer::Base.deliveries, :count).by(0)
           end
         end
       end
@@ -231,7 +231,7 @@ describe PagesController do
             it "finds and assigns a user" do
               user = create(:user)
               user.reset_perishable_token!
-              get :reset_password_page, token: user.perishable_token
+              get :reset_password_page, params: {token: user.perishable_token}
               expect(assigns(:user)).to eq(user)
             end
           end
@@ -246,7 +246,7 @@ describe PagesController do
           it "does not find or assign a user even with a valid token" do
             user = create(:user)
             user.reset_perishable_token!
-            get :reset_password_page, token: user.perishable_token
+            get :reset_password_page, params: {token: user.perishable_token}
             expect(assigns(:user)).to be_nil
           end
         end
@@ -264,22 +264,22 @@ describe PagesController do
               end
               
               it "assigns a user" do
-                post :reset_password, user: {:token => user.perishable_token, password: "hahapass44", password_confirmation: "hahapass44"}
+                post :reset_password, params: {user: {:token => user.perishable_token, password: "hahapass44", password_confirmation: "hahapass44"}}
                 expect(assigns(:user)).to eq(user)        
               end
               
               it "changes the password" do
-                post :reset_password, user: {:token => user.perishable_token, password: "hahapass44", password_confirmation: "hahapass44"}
+                post :reset_password, params: {user: {:token => user.perishable_token, password: "hahapass44", password_confirmation: "hahapass44"}}
                 expect(user.reload.valid_password?("hahapass44")).to eq(true)
               end
               
               it "redirects to root" do
-                post :reset_password, user: {:token => user.perishable_token, password: "hahapass44", password_confirmation: "hahapass44"}
+                post :reset_password, params: {user: {:token => user.perishable_token, password: "hahapass44", password_confirmation: "hahapass44"}}
                 expect(response).to redirect_to(:root)
               end
               
               it "responds to json" do
-                post :reset_password, user: {:token => user.perishable_token, password: "hahapass44", password_confirmation: "hahapass44"}, format: :json
+                post :reset_password, params: {user: {:token => user.perishable_token, password: "hahapass44", password_confirmation: "hahapass44"}}, format: :json
                 expect(response.status).to eq(204) #204 No Content no content -> ajax success event
               end
               
@@ -293,27 +293,27 @@ describe PagesController do
               end
               
               it "assigns user" do
-                post :reset_password, user: {:token => user.perishable_token}
+                post :reset_password, params: {user: {:token => user.perishable_token}}
                 expect(assigns(:user)).to eq(user)               
               end
               
               it "assigns a token" do
-                post :reset_password, user: {:token => user.perishable_token}
+                post :reset_password, params: {user: {:token => user.perishable_token}}
                 expect(assigns(:token)).to eq(user.perishable_token)               
               end
               
               it "renders reset_password_path again" do
-                post :reset_password, user: {:token => user.perishable_token}
+                post :reset_password, params: {user: {:token => user.perishable_token}}
                 expect(response).to render_template :reset_password_page
               end
               
               it "renders user errors as json" do
-                post :reset_password, user: {:token => user.perishable_token}, format: :json
+                post :reset_password, params: {user: {:token => user.perishable_token}}, format: :json
                 expect(response.body).to eq(assigns(:user).errors.to_hash.except!(:crypted_password, :password_salt).to_json)
               end
               
               it "has unprocessable entity as json" do
-                post :reset_password, user: {:token => user.perishable_token}, format: :json
+                post :reset_password, params: {user: {:token => user.perishable_token}}, format: :json
                 expect(response.status).to eq(422) #aka Unprocessable entity /unprocess
               end
             end
@@ -321,17 +321,17 @@ describe PagesController do
           
           context "without valid token" do
             it "redirects to root" do
-              post :reset_password, user: {:token => "well"}
+              post :reset_password, params: {user: {:token => "well"}}
               expect(response).to redirect_to(:root)
             end
             
             it "renders unprocessable_entity with json" do
-              post :reset_password, user: {:token => "well"}, format: :json
+              post :reset_password, params: {user: {:token => "well"}}, format: :json
               expect(response.status).to eq(422) #aka Unprocessable entity /unprocess
             end
             
             it "does not assign a user" do
-              post :reset_password, user: {:token => "well"}
+              post :reset_password, params: {user: {:token => "well"}}
               expect(assigns(:user)).to be_nil
             end
           end    

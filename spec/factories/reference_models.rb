@@ -1,7 +1,7 @@
 # encoding: utf-8
 require 'faker' 
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :reference do
     #Reequired Attributes
     site_name {Reference::SiteNames.sample}

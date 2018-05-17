@@ -1,10 +1,10 @@
 source 'https://rubygems.org'
 
-gem 'rails', '4.2.5'
+gem 'rails', '5.2'
 gem 'yaml_db'
 gem 'authlogic'
-gem 'bcrypt', '~> 3.1.7' #needed for authlogic 3.4.1
-gem 'scrypt', '1.2.1' #needed for authlogic 3.4.1
+gem 'bcrypt', '~> 3.1.7', platform: 'ruby' #needed for authlogic 3.4.1
+gem 'scrypt' #needed for authlogic 3.4.1
 gem 'cancancan'
 gem 'kaminari' #pagination
 gem 'jbuilder'
@@ -18,7 +18,8 @@ gem 'rails-jquery-autocomplete'
 gem 'lazyload-rails'
 gem 'mini_magick' #Image manipulation
 gem 'sunspot_rails'
-gem 'globalize'
+gem 'globalize', git: 'https://github.com/globalize/globalize'
+gem 'activemodel-serializers-xml' #For globalize
 gem 'mojinizer'
 gem 'sidekiq'
 gem 'mysql2'
@@ -31,7 +32,8 @@ group :development, :test do
   gem 'sunspot_solr' #pre packaged solr distribution
   gem 'progress_bar'
   gem 'rspec-rails'
-  gem 'factory_girl_rails'
+  gem 'rails-controller-testing'
+  gem 'factory_bot_rails'
   gem 'uglifier', '>= 1.0.3'
   gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw] #timezone data not natively in windows
 end

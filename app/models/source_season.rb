@@ -1,4 +1,4 @@
-class SourceSeason < ActiveRecord::Base
+class SourceSeason < ApplicationRecord
   
   Categories = ["Airing","Previous Season Leftover","Movie","OVA/ONA/Special","Short"]
   

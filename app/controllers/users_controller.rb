@@ -274,7 +274,7 @@ class UsersController < ApplicationController
 
     watchlists = params[:watchlists]
     unless watchlists.nil? || @user != current_user
-      watchlists.deep_symbolize_keys.each do |grouping, values|
+      watchlists.permit!.to_h.deep_symbolize_keys.each do |grouping, values|
         unless grouping.nil? || grouping.empty? || values[:records].nil?
           values[:records].each do |id|
             watchlist = Watchlist.find_by_id(id)

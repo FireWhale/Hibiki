@@ -75,11 +75,11 @@ describe EventsController do
       include_examples "can delete a record", true
       
     #Strong Parameters
-      include_examples "uses strong parameters", ["internal_name", "shorthand", "db_status","start_date", "end_date",
+      include_examples "uses strong parameters", valid_params: ["internal_name", "shorthand", "db_status","start_date", "end_date",
                                                   {"name_langs" => "string"},["new_name_langs"], ["new_name_lang_categories"],
                                                   {"abbreviation_langs" => "string"},["new_abbreviation_langs"], ["new_abbreviation_lang_categories"],
                                                   {"info_langs" => "string"},["new_info_langs"], ["new_info_lang_categories"],
-                                                  {"new_references" => {"new" => ["site_name", "url"]}}, {"update_references" => {"update" => ["url", "site_name"]}}], []
+                                                  {"new_references" => {"new" => ["site_name", "url"]}}, {"update_references" => {"update" => ["url", "site_name"]}}]
   end
    
 end

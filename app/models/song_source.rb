@@ -1,4 +1,4 @@
-class SongSource < ActiveRecord::Base
+class SongSource < ApplicationRecord
   #Callbacks
     after_save :update_album
 

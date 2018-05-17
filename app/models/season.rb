@@ -1,4 +1,4 @@
-class Season < ActiveRecord::Base  
+class Season < ApplicationRecord
   #Concerns
     include AssociationModule
     include JsonModule

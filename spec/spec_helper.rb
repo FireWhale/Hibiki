@@ -19,6 +19,7 @@ require "capybara/rspec"
 require 'rubygems'
 ENV["RAILS_ENV"] ||= 'test'
 require 'sunspot_test/rspec'
+require 'sunspot/rails/spec_helper'
 require 'authlogic'
 require 'authlogic/test_case'
 require 'bullet'
@@ -88,6 +89,15 @@ RSpec.configure do |config|
       FileUtils.rm_rf(Dir.glob(Rails.root.join("spec/test_env/images/songs/*")))
       FileUtils.rm_rf(Dir.glob(Rails.root.join("spec/test_env/images/users/*")))
     end
+  end
+
+  #Sunspot Stub Out
+  config.before(:each) do
+    ::Sunspot.session = ::Sunspot::Rails::StubSessionProxy.new(::Sunspot.session)
+  end
+
+  config.after(:each) do
+    ::Sunspot.session = ::Sunspot.session.original_session
   end
 
   #Sidekiq testing

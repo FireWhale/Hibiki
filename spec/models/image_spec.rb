@@ -19,8 +19,8 @@ describe Image do
       end
 
       it "deletes the actual image when destroyed" do
-        album = create(:album)
-        album.update_attributes(attributes_for(:album, :image_form_attributes))#creates an actual image
+        image_file = ActionDispatch::Http::UploadedFile.new(:tempfile => File.new("#{Rails.root}/spec/support/data/large_test_image.jpg", 'rb'), :filename => 'large_test_image.jpg')
+        album = create(:album, new_images: [image_file])
         image = album.images.first
         full_path = Rails.root.join(Rails.application.secrets.image_directory,image.path)
         expect(File).to exist(full_path)
@@ -29,8 +29,8 @@ describe Image do
       end
 
       it "deletes the folder the images were in if there are no more images" do
-        album = create(:album)
-        album.update_attributes(attributes_for(:album, :image_form_attributes))#creates an actual image
+        image_file = ActionDispatch::Http::UploadedFile.new(:tempfile => File.new("#{Rails.root}/spec/support/data/large_test_image.jpg", 'rb'), :filename => 'large_test_image.jpg')
+        album = create(:album, new_images: [image_file])
         image = album.images.first
         full_path = Rails.root.join(Rails.application.secrets.image_directory,image.path)
         directory = full_path.dirname

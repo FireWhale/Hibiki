@@ -24,6 +24,9 @@ solr/*
 *solr/configsets/sunspot/conf/*
 !solr/configsets/sunspot/conf/schema.xml
 
+# Ignore Rubymine Files
+/.idea/*
+
 # Ignore files with sensitive info
 /lib/llcookies
 /app/models/ability.rb

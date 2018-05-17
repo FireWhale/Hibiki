@@ -79,9 +79,8 @@ describe PostsController do
       include_examples "can delete a record", true
 
    #Strong Parameters
-      include_examples "uses strong parameters",
-      ["category", "content", "visibility","title", "status", ["new_images"]],
-      ["id", "timestamp", "created_at", "updated_at" ]
+      include_examples "uses strong parameters", valid_params: ["category", "content", "visibility","title", "status", ["new_images"]],
+                                                     invalid_params: ["id", "timestamp", "created_at", "updated_at" ]
   end
    
 end

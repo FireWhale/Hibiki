@@ -1,4 +1,4 @@
-class ArtistAlbum < ActiveRecord::Base
+class ArtistAlbum < ApplicationRecord
 
   #Modules
     include LanguageModule

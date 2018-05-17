@@ -25,7 +25,7 @@ module TagModule
       end
 
       #Create Taglists
-      new_tags = HashWithIndifferentAccess.new(self.new_tags)
+      new_tags = ActiveSupport::HashWithIndifferentAccess.new(self.new_tags)
       unless new_tags.blank?
         new_tags[:id].try(:each) do |id|
           tag = Tag.find_by_id(id)
@@ -34,7 +34,7 @@ module TagModule
       end
 
       #Create Taglists by name
-      new_tags_by_name = HashWithIndifferentAccess.new(self.new_tags_by_name)
+      new_tags_by_name = ActiveSupport::HashWithIndifferentAccess.new(self.new_tags_by_name)
       unless new_tags_by_name.blank?
         new_tags_by_name[:internal_name].try(:each) do |name|
           tag = Tag.find_by_internal_name(name)

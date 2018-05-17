@@ -1,7 +1,7 @@
 # encoding: utf-8
 require 'faker'
 
-FactoryGirl.define do
+FactoryBot.define do
   #Primary Join Table Models - A Lot
     factory :album_organization do
       category {AlbumOrganization::Categories.sample}

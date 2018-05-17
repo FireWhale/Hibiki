@@ -1,7 +1,7 @@
 # encoding: utf-8
 require 'faker' 
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :image do 
     #Required Attributes
     name {Faker::Lorem.word}

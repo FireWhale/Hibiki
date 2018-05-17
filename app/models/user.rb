@@ -1,4 +1,4 @@
-class User < ActiveRecord::Base
+class User < ApplicationRecord
   #Modules
     #Association Modules
       include ImageModule

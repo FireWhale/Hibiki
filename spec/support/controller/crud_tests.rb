@@ -121,7 +121,7 @@ module CrudTests
             list = create_list(model_symbol, 10, visibility: ability)
             status = Issue::Status.sample
             filtered_list = list.select { |item| item.status == status}
-            get :index, status: status
+            get :index, params: {status: status}
             expect(assigns("#{model_symbol}s".to_sym)).to match_array filtered_list
           end
 
@@ -130,7 +130,7 @@ module CrudTests
             list = create_list(model_symbol, 10, visibility: ability)
             category = Issue::Categories.sample
             filtered_list = list.select { |item| item.category == category}
-            get :index, category: category
+            get :index, params: { category: category}
             expect(assigns("#{model_symbol}s".to_sym)).to match_array filtered_list
           end
         end
@@ -154,7 +154,7 @@ module CrudTests
             list = create_list(model_symbol, 10, :with_tag, visibility: ability, category: "Blog Post")
             tag1 = list[0].tags.first
             tag2 = list[1].tags.first
-            get :index, tags: [tag1.id, tag2.id]
+            get :index, params: {tags: [tag1.id, tag2.id] }
             expect(assigns("#{model_symbol}s".to_sym)).to match_array(list.first(2))
           end
 
@@ -163,7 +163,7 @@ module CrudTests
             list = create_list(model_symbol, 10, :with_tag, visibility: ability, category: "Blog Post")
             tag1 = list[0].tags.first
             tag2 = list[1].tags.first
-            get :index, tags: [tag1.id, tag2.id]
+            get :index, params: {tags: [tag1.id, tag2.id]}
             expect(assigns(:tags)).to match_array([tag1, tag2])
           end
         end
@@ -183,7 +183,7 @@ module CrudTests
         if accessible == true
           it "populates a #{model_symbol} record" do
             record = create(model_symbol)
-            get :show, id: record
+            get :show, params: {id: record}
             expect(assigns(model_symbol)).to eq(record)
           end
 
@@ -194,7 +194,7 @@ module CrudTests
             else
               record = create(model_symbol)
             end
-            get :show, id: record, format: :json
+            get :show, params: {id: record}, format: :json
             expect(response.headers['Content-Type']).to match 'application/json'
             expect(response).to render_template("#{model_symbol}s/show")
           end
@@ -206,20 +206,20 @@ module CrudTests
             #more gutcheck than anything.
             it "does not populate a #{model_symbol} record" do
               record = create(model_symbol)
-              get :show, id: record
+              get :show, params: {id: record}
               expect(assigns(model_symbol)).to be_nil
             end
           end
 
           it "returns access denied does not populate" do
             record = create(model_symbol)
-            get :show, id: record
+            get :show, params: {id: record}
             expect(response).to render_template("pages/access_denied")
           end
 
           it "returns forbidden with json" do
             record = create(model_symbol)
-            get :show, id: record, format: :json
+            get :show, params: {id: record}, format: :json
             expect(response.status).to eq(403) #forbidden
           end
         end
@@ -230,7 +230,7 @@ module CrudTests
           it "renders the :show template if it matches security" do
             ability = @user.nil? ? "Any" : (@user.abilities).sample
             record = create(model_symbol, visibility: ability)
-            get :show, id: record
+            get :show, params: {id: record}
             valid_permissions(:show, accessible)
           end
 
@@ -238,7 +238,7 @@ module CrudTests
             abilities = @user.nil? ? ["Any"] : @user.abilities
             ability = (Ability::Abilities - abilities).sample
             record = create(model_symbol, visibility: ability)
-            get :show, id: record
+            get :show, params: {id: record}
             if abilities.include?("Admin")
               #This is just an unfortunate result of the way admins have
               #access to all templates
@@ -255,7 +255,7 @@ module CrudTests
             it "renders the album" do
               album = create(:album)
               record = create(:song, album: album)
-              get :show, id: record
+              get :show, params: {id: record}
               expect(response).to redirect_to("/albums/#{album.id}#song-#{record.id}")
             end
           end
@@ -263,14 +263,14 @@ module CrudTests
           context 'without an album' do
             it "renders the :show template" do
               record = create(model_symbol)
-              get :show, id: record
+              get :show, params: {id: record}
               expect(response).to render_template("songs/show")
             end
           end
         else
           it "renders the :show template" do
             record = create(model_symbol)
-            get :show, id: record
+            get :show, params: {id: record}
             valid_permissions(:show, accessible)
           end
         end
@@ -278,7 +278,7 @@ module CrudTests
         if model_class == Album || model_class == Song
           it "prepares a credits variable" do
             record = create(model_symbol)
-            get :show, id: record
+            get :show, params: {id: record}
             expect(assigns(:credits)).to be_a(Hash)
           end
         end
@@ -286,7 +286,7 @@ module CrudTests
         if model_class == Album
           it "prepares an organizations variable"  do
             record = create(model_symbol)
-            get :show, id: record
+            get :show, params: {id: record}
             expect(assigns(:organizations)).to be_a(Hash)
           end
         end
@@ -294,7 +294,7 @@ module CrudTests
         if model_class == Season
           it "populates a sources variable" do
             record = create(model_symbol)
-            get :show, id: record
+            get :show, params: {id: record}
             expect(assigns(:sources)).to be_a(Hash)
           end
         end
@@ -302,7 +302,7 @@ module CrudTests
         if model_class == Artist || model_class == Organization || model_class == Album || model_class == Source || model_class == Song
           it "prepares a related variable" do
             record = create(model_symbol)
-            get :show, id: record
+            get :show, params: {id: record}
             expect(assigns(:related)).to be_a(Hash)
           end
         end
@@ -310,13 +310,13 @@ module CrudTests
         if model_class == Artist || model_class == Organization || model_class == Source || model_class == Event
           it "assigns an albums variable" do
             record = create(model_symbol, :with_albums)
-            get :show, id: record
+            get :show, params: {id: record}
             expect(assigns(:albums)).to match_array(record.albums)
           end
 
           it "orders the albums by reverse release_date" do
             record = create(model_symbol, :with_albums)
-            get :show, id: record
+            get :show, params: {id: record}
             assigns(:albums).to_a.each_cons(2) do |records|
                 expect([0,1]).to include(records[0].release_date <=> records[1].release_date)
             end
@@ -328,7 +328,7 @@ module CrudTests
               albums = record.albums
               create(:collection, collected: albums.first, user: @user, relationship: "Ignored")
               @user.update_attribute(:display_bitmask, 57) #Does not display ignored
-              get :show, id: record
+              get :show, params: {id: record}
               expect(assigns(:albums)).to match_array(albums - [albums.first])
             end
           end
@@ -338,12 +338,12 @@ module CrudTests
             #Just that page is being called on the albums
             record = create(model_symbol)
             expect(Album).to receive(:page)
-            get :show, id: record
+            get :show, params: {id: record}
           end
 
           it "responds to js" do
             record = create(model_symbol)
-            xhr :get, :show, id: record, format: :js
+            get :show, xhr: true, params: {id: record}, format: :js
             expect(response).to render_template :show
           end
         end
@@ -389,13 +389,13 @@ module CrudTests
       describe 'GET #edit' do
         it "populates a #{model_symbol} record" do
           record = create(model_symbol)
-          get :edit, id: record
+          get :edit, params: {id: record}
           expect(assigns(model_symbol)).to eq record
         end
 
         it "returns a json object" do
           record = create(model_symbol)
-          get :edit, id: record, format: :json
+          get :edit, params: {id: record}, format: :json
           if accessible == true
             expect(response.headers['Content-Type']).to match 'application/json'
             record.namehash = {} if record.respond_to?(:namehash)
@@ -407,7 +407,7 @@ module CrudTests
 
         it "renders the :edit template" do
           record = create(model_symbol)
-          get :edit, id: record
+          get :edit, params: {id: record}
           valid_permissions(:edit, accessible)
         end
       end
@@ -424,21 +424,21 @@ module CrudTests
 
           context "with valid attributes" do
             it "saves the new #{model_symbol}" do
-              expect{post :create, model_symbol => attributes_for(model_symbol, :form_input)}.to change(model_class, :count).by(1)
+              expect{post :create, params:{model_symbol => attributes_for(model_symbol, :form_input)}}.to change(model_class, :count).by(1)
             end
 
             it "#{model_param_class.name} to receive filter" do
               expect(model_param_class).to receive(:filter).twice #two because of cancancan
-              post :create, model_symbol => attributes_for(model_symbol, :form_input)
+              post :create,params:{model_symbol => attributes_for(model_symbol, :form_input)}
             end
 
             it "redirects to show" do
-              post :create, model_symbol => attributes_for(model_symbol, :form_input)
+              post :create, params:{model_symbol => attributes_for(model_symbol, :form_input)}
               expect(response).to redirect_to send("#{model_symbol}_path",(assigns[model_symbol]))
             end
 
             it "responds to json" do
-              expect{post :create, model_symbol => attributes_for(model_symbol, :form_input), format: :json}.to change(model_class, :count).by(1)
+              expect{post :create, params:{model_symbol => attributes_for(model_symbol, :form_input)}, format: :json}.to change(model_class, :count).by(1)
               expect(response.headers['Content-Type']).to match 'application/json'
               expect(response.body).to eq(model_class.last.to_json)
             end
@@ -446,41 +446,41 @@ module CrudTests
             if [Album, Song].include? model_class
               it "calls handle_length_format on params's length attributes" do
                 expect_any_instance_of(described_class).to receive(:handle_length_assignment)
-                post :create, model_symbol => attributes_for(model_symbol, :form_input)
+                post :create, params:{model_symbol => attributes_for(model_symbol, :form_input)}
               end
             end
 
             if [Song,Album,Artist,Organization,Source].include? model_class
               it "calls handle_partial_date_assignment on params's date attributes" do
                 expect_any_instance_of(described_class).to receive(:handle_partial_date_assignment)
-                post :create, model_symbol => attributes_for(model_symbol, :form_input)
+                post :create, params:{model_symbol => attributes_for(model_symbol, :form_input)}
               end
             end
           end
 
           context "with invalid attributes" do
             it "does not save the new #{model_symbol}" do
-              expect{post :create, model_symbol => attributes_for(model_symbol, :invalid)}.to change(model_class, :count).by(0)
+              expect{post :create, params:{model_symbol => attributes_for(model_symbol, :invalid)}}.to change(model_class, :count).by(0)
             end
 
             it "renders the :new template" do
-              post :create, model_symbol => attributes_for(model_symbol, :invalid)
+              post :create, params:{model_symbol => attributes_for(model_symbol, :invalid)}
               expect(response).to render_template :new
             end
 
             it "responds to json" do
-              post :create, model_symbol => attributes_for(model_symbol, :invalid), format: :json
+              post :create, params:{model_symbol => attributes_for(model_symbol, :invalid)}, format: :json
               expect(response.status).to eq(422) #aka Unprocessable entity /unprocess
             end
           end
 
         else
           it "does not save the new #{model_symbol}" do
-            expect{post :create, model_symbol => attributes_for(model_symbol)}.to change(model_class, :count).by(0)
+            expect{post :create, params:{model_symbol => attributes_for(model_symbol)}}.to change(model_class, :count).by(0)
           end
 
           it "renders the access_denied template" do
-            post :create, model_symbol => attributes_for(model_symbol)
+            post :create, params:{model_symbol => attributes_for(model_symbol)}
             expect(response).to render_template("pages/access_denied")
           end
 
@@ -499,38 +499,38 @@ module CrudTests
 
         if accessible == true
           it "locates the requested #{model_symbol}" do
-            put :update, id: record.id, model_symbol => attributes_for(model_symbol)
+            put :update, params: {id: record, model_symbol => attributes_for(model_symbol)}
             expect(assigns(model_symbol)).to eq(record)
           end
 
           context "with valid attributes" do
             it "updates the #{model_symbol}" do
-              put :update, id: record.id, model_symbol => attributes_for(model_symbol, attribute => "valid!")
+              put :update, params: {id: record, model_symbol => attributes_for(model_symbol, attribute => "valid!")}
               record.reload
               expect(record.send(attribute.to_s)).to eq("valid!")
             end
 
             it "redirects to the #{model_symbol}" do
-              put :update, id: record, model_symbol => attributes_for(model_symbol)
+              put :update, params: {id: record, model_symbol => attributes_for(model_symbol)}
               expect(response).to redirect_to record
             end
 
             it "responds to json" do
-              put :update, id: record, model_symbol => attributes_for(model_symbol), format: :json
+              put :update, params: {id: record, model_symbol => attributes_for(model_symbol)}, format: :json
               expect(response.status).to eq(204) #204 No Content no content -> ajax success event
             end
 
             if [Album, Song].include? model_class
               it "calls handle_length_format on params's length attributes" do
                 expect_any_instance_of(described_class).to receive(:handle_length_assignment)
-                post(:update, {id: record, model_symbol => attributes_for(model_symbol, :form_input)})
+                post(:update, params: {id: record, model_symbol => attributes_for(model_symbol, :form_input)})
               end
             end
 
             if [Song,Album,Artist,Organization,Source].include? model_class
               it "calls handle_partial_date_assignment on params's date attributes" do
                 expect_any_instance_of(described_class).to receive(:handle_partial_date_assignment)
-                post(:update, {id: record, model_symbol => attributes_for(model_symbol, :form_input)})
+                post(:update, params: {id: record, model_symbol => attributes_for(model_symbol, :form_input)})
               end
             end
 
@@ -542,11 +542,11 @@ module CrudTests
             #but I'll keep it until it doesn't work. Less modularity here = better tests
             it "does not update the #{model_symbol}" do
               if model_class == Event
-                put :update, id: record.id, model_symbol => attributes_for(model_symbol, attribute => "", shorthand: "")
+                put :update, params: {id: record, model_symbol => attributes_for(model_symbol, attribute => "", shorthand: "")}
               elsif model_class == Post
-                put :update, id: record.id, model_symbol => attributes_for(model_symbol, category: "", attribute => "")
+                put :update, params: {id: record, model_symbol => attributes_for(model_symbol, category: "", attribute => "")}
               else
-                put :update, id: record.id, model_symbol => attributes_for(model_symbol, attribute => "")
+                put :update, params: {id: record, model_symbol => attributes_for(model_symbol, attribute => "")}
               end
               record.reload
               expect(record.send(attribute)).to_not eq("")
@@ -554,22 +554,22 @@ module CrudTests
 
             it "renders the #edit template" do
               if model_class == Event
-                put :update, id: record.id, model_symbol => attributes_for(model_symbol, attribute => "", shorthand: "")
+                put :update, params: {id: record, model_symbol => attributes_for(model_symbol, attribute => "", shorthand: "")}
               elsif model_class == Post
-                put :update, id: record.id, model_symbol => attributes_for(model_symbol, category: "", attribute => "")
+                put :update, params: {id: record, model_symbol => attributes_for(model_symbol, category: "", attribute => "")}
               else
-                put :update, id: record.id, model_symbol => attributes_for(model_symbol, attribute => "")
+                put :update, params: {id: record, model_symbol => attributes_for(model_symbol, attribute => "")}
               end
               expect(response).to render_template("edit")
             end
 
             it "responds to json" do
               if model_class == Event
-                put :update, id: record.id, model_symbol => attributes_for(model_symbol, attribute => "", shorthand: ""), format: :json
+                put :update, params: {id: record, model_symbol => attributes_for(model_symbol, attribute => "", shorthand: "")}, format: :json
               elsif model_class == Post
-                put :update, id: record.id, model_symbol => attributes_for(model_symbol, category: "", attribute => ""), format: :json
+                put :update, params: {id: record, model_symbol => attributes_for(model_symbol, category: "", attribute => "")}, format: :json
               else
-                put :update, id: record.id, model_symbol => attributes_for(model_symbol, attribute => ""), format: :json
+                put :update, params: {id: record, model_symbol => attributes_for(model_symbol, attribute => "")}, format: :json
               end
               expect(response.status).to eq(422) #aka Unprocessable entity
             end
@@ -580,13 +580,13 @@ module CrudTests
 
           it "does not update the #{model_symbol}" do
             original_value = record.send(attribute.to_s)
-            put :update, id: record.id, model_symbol => attributes_for(model_symbol, attribute => "valid!")
+            put :update, params: {id: record, model_symbol => attributes_for(model_symbol, attribute => "valid!")}
             record.reload
             expect(record.send(attribute.to_s)).to eq(original_value)
           end
 
           it "redirects to access_denied" do
-            put :update, id: record.id, model_symbol => attributes_for(model_symbol)
+            put :update, params: {id: record, model_symbol => attributes_for(model_symbol)}
             expect(response).to render_template("pages/access_denied")
           end
         end
@@ -603,39 +603,39 @@ module CrudTests
         if accessible == true
           it "destroys the #{model_symbol}" do
             record = create(model_symbol)
-            expect{delete :destroy, id: record}.to change(model_class, :count).by(-1)
+            expect{delete :destroy, params: {id: record}}.to change(model_class, :count).by(-1)
           end
 
           if model_class == Image
             it "redirects to the record" do
               record = create(model_symbol, :with_imagelist_album)
               album = record.models.first
-              delete :destroy, id: record
+              delete :destroy, params: {id: record}
               expect(response).to redirect_to album
             end
           else
             it "redirects to #index" do
               record = create(model_symbol)
-              delete :destroy, id: record
+              delete :destroy, params: {id: record}
               expect(response).to redirect_to send("#{model_symbol}s_url")
             end
           end
 
           it "responds to json" do
             record = create(model_symbol)
-            delete :destroy, id: record, format: :json
+            delete :destroy, params: {id: record}, format: :json
             expect(response.status).to eq(204)
           end
 
         else
           it "does not destroy the #{model_symbol}" do
             record = create(model_symbol)
-            expect{delete :destroy, id: record}.to change(model_class, :count).by(0)
+            expect{delete :destroy, params: {id: record}}.to change(model_class, :count).by(0)
           end
 
           it "redirects to access denied" do
             record = create(model_symbol)
-            delete :destroy, id: record
+            delete :destroy, params: {id: record}
             expect(response).to render_template("pages/access_denied")
           end
 

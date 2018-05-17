@@ -1,4 +1,4 @@
-class Event < ActiveRecord::Base
+class Event < ApplicationRecord
   #Modules
     include AssociationModule #Not used atm, but in the future could add albums through event edit.
     include LanguageModule

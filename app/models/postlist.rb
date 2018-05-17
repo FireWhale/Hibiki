@@ -1,4 +1,4 @@
-class Postlist < ActiveRecord::Base  
+class Postlist < ApplicationRecord
   belongs_to :post
   belongs_to :model, polymorphic: :true
   

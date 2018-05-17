@@ -1,4 +1,4 @@
-class RelatedArtists < ActiveRecord::Base
+class RelatedArtists < ApplicationRecord
   Relationships = Artist::SelfRelationships.reject {|r| r.count < 3}.map(&:last)
 
   validates :artist1_id, :presence => true, uniqueness: {scope: :artist2_id}

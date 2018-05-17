@@ -21,8 +21,8 @@ require 'rspec/rails'
 Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }
 
 RSpec.configure do |config|
-  # Factory Girl Syntax
-  config.include FactoryGirl::Syntax::Methods
+  # Factory Bot Syntax
+  config.include FactoryBot::Syntax::Methods
   #Controller
   config.include CrudTests, type: :controller
   config.include ImageRouteTests, type: :controller

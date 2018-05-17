@@ -1,4 +1,4 @@
-class Album < ActiveRecord::Base
+class Album < ApplicationRecord
 
   #Modules
     include AssociationModule
@@ -128,14 +128,12 @@ class Album < ActiveRecord::Base
     scope :in_date_range, ->(start_date, end_date) {where("albums.release_date >= ? and albums.release_date <= ? ", start_date, end_date)}
 
     #These following three scopes are necessary because with_aos handles nil differently
-    scope :artist_proc, ->(artist_ids) {joins(:artist_albums).where('artist_albums.artist_id IN (?)', artist_ids).uniq}
-    scope :source_proc, ->(source_ids) {joins(:album_sources).where('album_sources.source_id IN (?)', source_ids).uniq}
-    scope :organization_proc, ->(organization_ids) {joins(:album_organizations).where('album_organizations.organization_id IN (?)', organization_ids).uniq}
-
-    scope :with_artist, ->(artist_ids) { artist_proc(artist_ids) unless artist_ids.nil?}
-    scope :with_source, ->(source_ids) { source_proc(source_ids) unless source_ids.nil?}
-    scope :with_organization, ->(organization_ids) {organization_proc(organization_ids) unless organization_ids.nil?}
-    scope :with_artist_organization_source, ->(artist_ids, organization_ids, source_ids) {from("((#{Album.artist_proc(artist_ids).to_sql}) union (#{Album.source_proc(source_ids).to_sql}) union (#{Album.organization_proc(organization_ids).to_sql})) #{Album.table_name} ").references(:artist_albums, :album_sources, :album_organizations) unless artist_ids.nil? && organization_ids.nil? && source_ids.nil?}
+    scope :with_artist, ->(artist_ids) {joins(:artist_albums).where('artist_albums.artist_id IN (?)', artist_ids).uniq unless artist_ids.nil?}
+    scope :with_source, ->(source_ids) {joins(:album_sources).where('album_sources.source_id IN (?)', source_ids).uniq unless source_ids.nil?}
+    scope :with_organization, ->(organization_ids) {joins(:album_organizations).where('album_organizations.organization_id IN (?)', organization_ids).uniq unless organization_ids.nil?}
+    scope :with_artist_organization_source, ->(artist_ids, organization_ids, source_ids) {from("((#{Album.joins(:artist_albums).where("artist_albums.artist_id IN (?)", artist_ids).to_sql})
+                                                                             union (#{Album.joins(:album_sources).where('album_sources.source_id IN (?)', source_ids).to_sql})
+                                                                             union (#{Album.joins(:album_organizations).where('album_organizations.organization_id IN (?)', organization_ids).to_sql})) #{Album.table_name} ").references(:artist_albums, :album_sources, :album_organizations) unless artist_ids.nil? && organization_ids.nil? && source_ids.nil?}
 
     #User Settings
     scope :filter_by_user_settings, ->(user) {not_in_collection(user.id, user.album_filter).without_self_relation_categories(user.album_filter) unless user.nil?}
@@ -194,11 +192,10 @@ class Album < ActiveRecord::Base
       #Destroy - Not implemented at this time. Manually delete songs.
 
       #Create
-      new_song_values = HashWithIndifferentAccess.new(self.new_songs)
+      new_song_values = ActiveSupport::HashWithIndifferentAccess.new(self.new_songs)
       unless new_song_values.blank?
        new_song_values.values.transpose.each do |info|
           attributes = [new_song_values.keys,info].transpose.to_h
-          attributes[:status] = "Unreleased"
           self.songs.create(attributes)
         end
       end

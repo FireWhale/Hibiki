@@ -1,4 +1,4 @@
-class Loglist < ActiveRecord::Base
+class Loglist < ApplicationRecord
   belongs_to :log
   belongs_to :model, polymorphic: :true
 

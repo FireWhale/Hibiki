@@ -30,7 +30,7 @@ describe MaintenanceController do
       if accessible == true
         it "accepts a log id" do
           logs = create_list(:log, 5, category: "Scrape")
-          get :scrape_results, log_id: logs.first.id
+          get :scrape_results, params: {log_id: logs.first.id}
           expect(assigns(:log)).to eq(logs.first)
         end
 
@@ -56,21 +56,21 @@ describe MaintenanceController do
 
         context "with a valid url" do
           it "redirects to scrape results" do
-            post :scrape, vgmdb_artists: ["wa"]
+            post :scrape, params: {vgmdb_artists: ["wa"]}
             expect(response).to redirect_to %r(maintenance/scrape_results) #good enough
           end
 
           it "sends off a sidekiq request" do
-            expect{post :scrape, vgmdb_artists: ["wa"]}.to change(ScrapeWorker.jobs, :size).by(1)
+            expect{post :scrape, params: {vgmdb_artists: ["wa"]}}.to change(ScrapeWorker.jobs, :size).by(1)
           end
 
 
           it "sends off a sidekiq request with json" do
-            expect{post :scrape, vgmdb_artists: ["wa"], format: :json}.to change(ScrapeWorker.jobs, :size).by(1)
+            expect{post :scrape, params: {vgmdb_artists: ["wa"]}, format: :json}.to change(ScrapeWorker.jobs, :size).by(1)
           end
 
           it "responds with json" do
-            post :scrape, vgmdb_artists: ["wa"], format: :json
+            post :scrape, params: {vgmdb_artists: ["wa"]}, format: :json
             expect(response.status).to eq(204) #204 No Content -> ajax success event
           end
         end
@@ -82,7 +82,7 @@ describe MaintenanceController do
           end
 
            it "does not send off a sidekiq request" do
-            expect{post :scrape, vgmdb_artisats: ["wa"]}.to change(ScrapeWorker.jobs, :size).by(0)
+            expect{post :scrape, params: {vgmdb_artisats: ["wa"]}}.to change(ScrapeWorker.jobs, :size).by(0)
           end
 
           it "responds with json" do
@@ -98,11 +98,11 @@ describe MaintenanceController do
         end
 
         it "does not create a post" do
-          expect{post :scrape, vgmdb_artists: ["wa"]}.to change(Post,:count).by(0)
+          expect{post :scrape, params: {vgmdb_artists: ["wa"]}}.to change(Post,:count).by(0)
         end
 
         it "does not send off a sidekiq request" do
-          expect{post :scrape, vgmdb_artists: ["wa"], format: :json}.to change(ScrapeWorker.jobs, :size).by(0)
+          expect{post :scrape, params: {vgmdb_artists: ["wa"]}, format: :json}.to change(ScrapeWorker.jobs, :size).by(0)
         end
       end
     end
@@ -112,16 +112,10 @@ describe MaintenanceController do
         it "responds with json" do
           posta = create(:post, content: "hi: 424")
           allow(Post).to receive(:find).and_return(posta)
-          post :update_scrape_number, vgmdb_number: {id: 500}
+          post :update_scrape_number, params: {vgmdb_number: {id: 500}}
           expect(response.status).to eq(204) #204 No Content -> ajax success event
         end
 
-        it "saves the post with the vgmdb_number" do
-          posta = create(:post, content: "hi: 424")
-          allow(Post).to receive(:find).and_return(posta)
-          post :update_scrape_number, vgmdb_number: {id: 500}
-          expect(assigns(:post)).to eq(posta)
-        end
       else
         it "should render access_denied" do
           post :update_scrape_number

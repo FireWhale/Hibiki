@@ -74,7 +74,7 @@ describe IssuesController do
       include_examples "can delete a record", true
       
     #Strong Parameters
-      include_examples "uses strong parameters", ["name", "priority", "category", "description", "resolution", "private_info", "status", "visibility", "difficulty"],[]
+      include_examples "uses strong parameters", valid_params: ["name", "priority", "category", "description", "resolution", "private_info", "status", "visibility", "difficulty"]
   end
 end
 

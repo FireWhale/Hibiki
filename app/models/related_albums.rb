@@ -1,4 +1,4 @@
-class RelatedAlbums < ActiveRecord::Base
+class RelatedAlbums < ApplicationRecord
   Relationships = Album::SelfRelationships.map { |relation| relation[3]}.reject(&:nil?)
 
   validates :album1_id, :presence => true, uniqueness: {scope: :album2_id}

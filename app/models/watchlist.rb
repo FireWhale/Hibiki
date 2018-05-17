@@ -1,4 +1,4 @@
-class Watchlist < ActiveRecord::Base
+class Watchlist < ApplicationRecord
     
   validates :watched_type, inclusion: %w[Artist Organization Source]
   validates :user, presence: true

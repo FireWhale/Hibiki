@@ -1,4 +1,4 @@
-class AlbumSource < ActiveRecord::Base
+class AlbumSource < ApplicationRecord
   #Associations
     belongs_to :album
     belongs_to :source

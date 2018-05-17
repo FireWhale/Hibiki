@@ -1,7 +1,7 @@
 # encoding: utf-8
 require 'faker'
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :album do
     internal_name {Faker::Lorem.sentence}
     status {Album::Status.sample}

@@ -24,8 +24,7 @@ describe SourcesController do
       include_examples "can delete a record", false
 
     #Strong Parameters
-      include_examples "uses strong parameters", [],[
-        "internal_name", "info", "private_info", "status", "synonyms", "plot_summary", "synopsis",
+      include_examples "uses strong parameters", invalid_params: ["internal_name", "info", "private_info", "status", "synonyms", "plot_summary", "synopsis",
         "db_status", "category", "activity", "release_date", "end_date", ["new_images"], ["remove_source_organizations"], ["remove_related_sources"], {"namehash" => "string"},
         {"name_langs" => "string"},["new_name_langs"], ["new_name_lang_categories"],
         {"info_langs" => "string"},["new_info_langs"], ["new_info_lang_categories"],
@@ -58,8 +57,7 @@ describe SourcesController do
       include_examples "can delete a record", false
       
     #Strong Parameters
-      include_examples "uses strong parameters", [],[
-        "internal_name", "info", "private_info", "status", "synonyms", "plot_summary", "synopsis",
+      include_examples "uses strong parameters", invalid_params: ["internal_name", "info", "private_info", "status", "synonyms", "plot_summary", "synopsis",
         "db_status", "category", "activity", "release_date", "end_date", ["new_images"],["remove_source_organizations"], ["remove_related_sources"], {"namehash" => "string"},
         {"name_langs" => "string"},["new_name_langs"], ["new_name_lang_categories"],
         {"info_langs" => "string"},["new_info_langs"], ["new_info_lang_categories"],
@@ -92,14 +90,13 @@ describe SourcesController do
       include_examples "can delete a record", true
 
     #Strong Parameters
-      include_examples "uses strong parameters", [
-        "internal_name", "info", "private_info", "status", "synonyms", "plot_summary", "synopsis",
+      include_examples "uses strong parameters", valid_params: ["internal_name", "info", "private_info", "status", "synonyms", "plot_summary", "synopsis",
         "db_status", "category", "activity", "release_date", "end_date", ["new_images"], ["remove_source_organizations"], ["remove_related_sources"], {"namehash" => "string"},
         {"name_langs" => "string"},["new_name_langs"], ["new_name_lang_categories"],
         {"info_langs" => "string"},["new_info_langs"], ["new_info_lang_categories"],
         {"new_related_sources" => {"new" => ["id", "category"]}}, {"update_related_sources" => {"update" => ["category"]}},
         {"new_organizations" => {"new" => ["id", "category"]}}, {"update_source_organizations" => {"update" => ["category"]}},
-        {"new_references" => {"new" => ["site_name", "url"]}}, {"update_references" => {"update" => ["url", "site_name"]}}], []
+        {"new_references" => {"new" => ["site_name", "url"]}}, {"update_references" => {"update" => ["url", "site_name"]}}]
   
   end
    

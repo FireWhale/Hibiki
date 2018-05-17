@@ -2,24 +2,18 @@ require 'rails_helper'
 
 module StrongParametersTests
 
-  shared_examples 'strong_param rewrite planning' do |options = {}|
-    valid_params = options{:valid_params} || []
-    invalid_params = options[:invalid_params] || []
-    filter_method = options[:method] || []
-    base_key = options[:base_key] #Don't think I actually want this. should specify in valid_params if there's a base key
-    extra_parameters = options[:extra_parameters] #added to final hash
-
-    #Building the parameter hash
-  end
-
-  shared_examples 'uses strong parameters' do |valid_params = [],invalid_params = [], filter_method = "filter", base_key = nil|
+  shared_examples 'uses strong parameters' do |options = {}|
     model_class = described_class.controller_name.classify.constantize
     model_symbol = model_class.model_name.param_key.to_sym
     model_param_class = described_class.const_get("#{described_class.controller_name.classify}Params")
 
-    if filter_method == "filter"
-      base_key = model_symbol
+    #Format and grab params
+    valid_params = options[:valid_params] || []
+    invalid_params = options[:invalid_params] || []
+    filter_method = options[:filter_method] || "filter"
+    base_key = options[:base_key] == "none" ? nil : options[:base_key] || model_symbol  #If there's a root key added to final hash or not
 
+    if filter_method == "filter"
       #Add all unlisted attributes as invalid
       invalid_params = (invalid_params + (model_class.attribute_names - valid_params)).uniq
       if model_class.attribute_names.include?("namehash")
@@ -55,8 +49,6 @@ module StrongParametersTests
         invalid_params << {"update_related_#{model_class.model_name.plural}" => {"5" => {"category" => "Cats!"}}} if valid_params.select {|a| a.is_a?(Hash) ?  a.key?("update_related_#{model_class.model_name.plural}") : false }.empty?
         invalid_params << ["remove_related_#{model_class.model_name.plural}"] unless valid_params.include?(["remove_related_#{model_class.model_name.plural}"])
       end
-
-
     end
 
     describe 'Strong Parameters' do
@@ -80,7 +72,7 @@ module StrongParametersTests
             valid_param_hash[param[0]] = [param[0]] if param.is_a? Array
             valid_param_hash[param.keys[0]] = param_generator(param.values[0]) if param.is_a? Hash
           end
-          valid_parameters = parameter_object(valid_param_hash,base_key)
+          valid_parameters = parameter_object(valid_param_hash,base_key).permit!
           strong_params = model_param_class.send(filter_method,params,@user)
           expect(strong_params).to eq(base_key.nil? ? valid_parameters : valid_parameters[base_key])
         end
@@ -89,23 +81,26 @@ module StrongParametersTests
           valid_params.each do |param|
             if param.is_a? String
               it "accepts #{param} as a valid scalar" do
-                params = parameter_object({param => "string"}, base_key)
+                params = parameter_object({param => "string"}, base_key) #defaults as not permitted
                 params[:id] = @user.id if filter_method == "profile_filter"
                 strong_params = model_param_class.send(filter_method,params,@user)
+                params.permit! #Sets the params as permitted
                 expect(strong_params).to eq(base_key.nil? ? params : params[base_key])
               end
             elsif param.is_a? Array
               it "accepts #{param[0]} as an valid array" do
-                params = parameter_object({param[0] => [param[0]]}, base_key)
+                params = parameter_object({param[0] => [param[0]]}, base_key)  #defaults as not permitted
                 params[:id] = @user.id if filter_method == "profile_filter"
                 strong_params = model_param_class.send(filter_method,params,@user)
+                params.permit! #Sets the params as permitted
                 expect(strong_params).to eq(base_key.nil? ? params : params[base_key])
               end
             elsif param.is_a? Hash
               it "accepts #{param.keys[0]} as a valid hash" do
-                params = parameter_object({param.keys[0] => param_generator(param.values[0])}, base_key)
+                params = parameter_object({param.keys[0] => param_generator(param.values[0])}, base_key) #defaults as not permitted
                 params[:id] = @user.id if filter_method == "profile_filter"
                 strong_params = model_param_class.send(filter_method,params,@user)
+                params.permit! #Sets the params as permitted
                 expect(strong_params).to eq(base_key.nil? ? params : params[base_key])
               end
             end
@@ -172,5 +167,7 @@ module StrongParametersTests
         {key: "value", hash: {newhash: "oh no!"}}
       end
     end
+
   end
+
 end

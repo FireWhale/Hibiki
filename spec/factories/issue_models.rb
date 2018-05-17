@@ -1,7 +1,7 @@
 # encoding: utf-8
 require 'faker' 
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :issue do
     name {Faker::Lorem.sentence}
     category {Issue::Categories.sample}

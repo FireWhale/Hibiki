@@ -17,14 +17,14 @@ module ReferenceModule
 
   private
     def manage_references
-      new_references = HashWithIndifferentAccess.new(self.new_references)
+      new_references = ActiveSupport::HashWithIndifferentAccess.new(self.new_references)
       unless new_references.blank?
         new_references[:site_name].zip(new_references[:url]).each do |reference|
           self.references.create(site_name: reference[0], url: reference[1]) unless reference[0].blank? || reference[1].blank?
         end
       end
 
-      update_references = HashWithIndifferentAccess.new(self.update_references)
+      update_references = ActiveSupport::HashWithIndifferentAccess.new(self.update_references)
       unless update_references.blank?
         update_references.each do |id, info|
           reference = self.references.find_by_id(id.to_s)

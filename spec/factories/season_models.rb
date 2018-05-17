@@ -1,7 +1,7 @@
 # encoding: utf-8
 require 'faker'
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :season do
     name {Faker::Lorem.word}
     start_date {Faker::Date.between(2.years.ago, Date.today)}

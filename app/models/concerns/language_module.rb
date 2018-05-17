@@ -185,7 +185,7 @@ module LanguageModule
     end
 
     def convert_names
-      name_hash = HashWithIndifferentAccess.new(self.namehash)
+      name_hash = ActiveSupport::HashWithIndifferentAccess.new(self.namehash)
       unless name_hash.blank?
         name_hash.delete_if { |k,v| v.blank? }
         #Compare entries in the namehash to remove duplicates for songs only.

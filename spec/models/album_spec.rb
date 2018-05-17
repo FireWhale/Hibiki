@@ -97,13 +97,13 @@ describe Album do
     describe "After Save: manage_songs" do
       it "adds new songs" do
         album = create(:album)
-        album.new_songs = {:internal_name => ["hi"]}
+        album.new_songs = {:internal_name => ["hi"], :status => ["Released"]}
         expect{album.save}.to change(Song, :count).by(1)
       end
 
       it "adds multiple songs" do
         album = create(:album)
-        album.new_songs = {:internal_name => ["hi", "ho", "he"]}
+        album.new_songs = {:internal_name => ["hi", "ho", "he"], :status => ["Unreleased", "Released", "Private"]}
         expect{album.save}.to change(Song, :count).by(3)
       end
 
@@ -117,9 +117,7 @@ describe Album do
         expect{album.save}.to change(Song, :count).by(2)
         #Changing some attributes to fit the form of the actual record
         attributes1[:length] = attributes1[:length].to_i
-        attributes1[:namehash] = attributes1[:namehash].symbolize_keys
         attributes2[:length] = attributes2[:length].to_i
-        attributes2[:namehash] = attributes2[:namehash].symbolize_keys
         expect(album.songs.first).to have_attributes(attributes1)
         expect(album.songs[1]).to have_attributes(attributes2)
       end

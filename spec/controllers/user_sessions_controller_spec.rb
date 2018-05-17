@@ -9,17 +9,19 @@ describe UserSessionsController do
           let(:user) {create(:user)}
           
           it "saves the new user_session" do
-            post :create, user_session: {:name => user.name, password: 'hehepassword1'}
+            p "hi"
+            p @user
+            post :create, params: {user_session: {:name => user.name, password: 'hehepassword1'}}
             expect(UserSession.find.record).to eq(user)
           end
           
           it "redirects to root" do #change eventually to last page? requires a cookie I think
-            post :create, user_session: {:name => user.name, password: 'hehepassword1'}
+            post :create, params: {user_session: {:name => user.name, password: 'hehepassword1'}}
             expect(response).to redirect_to :root
           end
           
           it "responds to json" do
-            post :create, user_session: {:name => user.name, password: 'hehepassword1'}, format: :json
+            post :create, params: {user_session: {:name => user.name, password: 'hehepassword1'}}, format: :json
             expect(response.status).to eq(204) #204 No Content no content -> ajax success event            
           end         
         end
@@ -28,7 +30,7 @@ describe UserSessionsController do
           let(:user) {create(:user)}
           
           it "does not save a user_session" do
-            post :create, user_session: {:name => user.name, password: 'wrong pass'}
+            post :create, params: {user_session: {:name => user.name, password: 'wrong pass'}}
             if @user.nil?
               expect(UserSession.find).to be_nil
             else
@@ -37,12 +39,12 @@ describe UserSessionsController do
           end
           
           it "renders the new template" do
-            post :create, user_session: {:name => user.name, password: 'wrong pass'}
-            expect(response).to render_template(:new)            
+            post :create, params: {user_session: {:name => user.name, password: 'wrong pass'}}
+            expect(response).to render_template(:new)
           end
           
           it "respond to json" do
-            post :create, user_session: {:name => user.name, password: 'wrong pass'}, format: :json
+            post :create, params: {user_session: {:name => user.name, password: 'wrong pass'}}, format: :json
             expect(response.status).to eq(422) #unprocessible entity            
           end
           
@@ -51,7 +53,7 @@ describe UserSessionsController do
       else
         it "does not save a new user_session" do
           user = create(:user)
-          post :create, user_session: {:name => user.name, password: 'hehepassword1'}
+          post :create, params: {user_session: {:name => user.name, password: 'hehepassword1'}}
           if @user.nil?
             expect(UserSession.find).to be_nil
           else
@@ -61,7 +63,7 @@ describe UserSessionsController do
         
         it "renders the access_denied template" do
           user = create(:user)
-          post :create, user_session: {:name => user.name, password: 'hehepassword1'}
+          post :create, params: {user_session: {:name => user.name, password: 'hehepassword1'}}
           expect(response).to render_template('pages/access_denied')
         end
       end

@@ -1,7 +1,7 @@
 # encoding: utf-8
 require 'faker' 
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :post do
     category "Rescrape Result"
     visibility {Ability::Abilities.sample}

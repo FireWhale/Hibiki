@@ -1,4 +1,4 @@
-class AlbumOrganization < ActiveRecord::Base
+class AlbumOrganization < ApplicationRecord
   #Constants
     Categories = ['Publisher','Distributor']
     

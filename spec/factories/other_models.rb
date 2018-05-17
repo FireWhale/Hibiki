@@ -1,7 +1,7 @@
 # encoding: utf-8
 require 'faker' 
 
-FactoryGirl.define do    
+FactoryBot.define do
   #Tertiary Models - ability, user_sesion
     factory :ability do
       

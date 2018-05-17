@@ -1,7 +1,7 @@
 # encoding: utf-8
 require 'faker'
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :event do
     #Required Attributes
     internal_name {Faker::Lorem.sentence}

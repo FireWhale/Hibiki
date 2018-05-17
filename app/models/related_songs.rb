@@ -1,4 +1,4 @@
-class RelatedSongs < ActiveRecord::Base
+class RelatedSongs < ApplicationRecord
   Relationships = Song::SelfRelationships.map { |relation| relation[3]}.reject(&:nil?)
 
   validates :song1_id, :presence => true, uniqueness: {scope: :song2_id}

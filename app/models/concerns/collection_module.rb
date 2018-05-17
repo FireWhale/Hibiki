@@ -5,10 +5,9 @@ module CollectionModule
     has_many :collections, dependent: :destroy, as: :collected
     has_many :collectors, through: :collections, source: :user
 
-    
-    scope :in_collection, ->(userids, *relationships) {first_pass = joins(:collections).where("collections.user_id IN (?)", userids).uniq unless userids.nil?
-                                                       relationships.empty? || relationships == [nil] ? first_pass : first_pass.where("collections.relationship IN (?)", relationships.flatten) unless userids.nil?}
-    scope :not_in_collection, ->(user_ids, relationships = Collection::Relationship) {joins("LEFT OUTER JOIN(#{Collection.where("collections.user_id IN (?)", user_ids).where(:collected_type => self.to_s).where("collections.relationship IN (?)", relationships).to_sql}) c1 ON c1.collected_id = #{self.table_name}.id").where(:c1 => {:id => nil}) unless user_ids.nil?}
+    scope :in_collection, ->(userids, *relationships) {joins(:collections).where("collections.user_id IN (?) AND collections.relationship IN (?)", userids, relationships.empty? || relationships == [nil] ? Collection::Relationship : relationships.flatten & Collection::Relationship).distinct unless userids.nil?}
+
+    scope :not_in_collection, ->(userids, *relationships) {joins("LEFT OUTER JOIN(#{Collection.where("collections.user_id IN (?) AND collections.relationship IN (?)", userids, relationships.empty? || relationships == [nil] ? Collection::Relationship : relationships.flatten & Collection::Relationship).to_sql}) c1 ON c1.collected_id = #{self.table_name}.id").where(:c1 => {:id => nil}) unless userids.nil?}
   end
   
   def collected?(user)

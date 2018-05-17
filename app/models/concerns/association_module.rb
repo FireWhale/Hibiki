@@ -19,7 +19,7 @@ module AssociationModule
     end
 
     #Create New Relations
-    new_relations = HashWithIndifferentAccess.new(self.send("new_#{model.model_name.plural}"))
+    new_relations = ActiveSupport::HashWithIndifferentAccess.new(self.send("new_#{model.model_name.plural}"))
     unless new_relations.blank?
       if new_relations.key?(:id)
         new_relations[:id].zip(new_relations.except(:id).values.transpose).each do |info|
@@ -32,7 +32,7 @@ module AssociationModule
     end
 
     #Create New Relations By Name!
-    new_relations_by_name = HashWithIndifferentAccess.new(self.try("new_#{model.model_name.plural}_by_name"))
+    new_relations_by_name = ActiveSupport::HashWithIndifferentAccess.new(self.try("new_#{model.model_name.plural}_by_name"))
     unless new_relations_by_name.blank?
       if new_relations_by_name.key?(:internal_name)
         new_relations_by_name[:internal_name].zip(new_relations_by_name.except(:internal_name).values.transpose).each do |info|
@@ -54,7 +54,7 @@ module AssociationModule
 
   def manage_artist_relation
     #Update relations
-    update_artist_relations = HashWithIndifferentAccess.new(self.send("update_artist_#{self.class.model_name.plural}"))
+    update_artist_relations = ActiveSupport::HashWithIndifferentAccess.new(self.send("update_artist_#{self.class.model_name.plural}"))
     unless update_artist_relations.blank?
       update_artist_relations.each do |k,v|
         record = self.send("artist_#{self.class.model_name.plural}").find_by_id(k)
@@ -66,7 +66,7 @@ module AssociationModule
     end
 
     #Add artists
-    add_artists = HashWithIndifferentAccess.new(self.new_artists)
+    add_artists = ActiveSupport::HashWithIndifferentAccess.new(self.new_artists)
     unless add_artists.blank?
       if add_artists.key?(:id) && add_artists[:category].blank? == false
         categories = add_artists[:category]

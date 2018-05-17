@@ -1,6 +1,6 @@
 require 'faker'
 
-FactoryGirl.define do
+FactoryBot.define do
   #Polymorphics!
   trait(:with_image) {after(:create) {|record| create(:imagelist, model: record)}}
   trait(:with_post) {after(:create) { |record| create(:postlist, model: record)}}
@@ -50,7 +50,7 @@ FactoryGirl.define do
   end
 
   trait :image_form_attributes do
-    new_images {[ActionDispatch::Http::UploadedFile.new(:tempfile => File.new("#{Rails.root}/spec/support/data/test_image.png", 'rb'), :filename => 'test_image.png')]}
+    new_images {Rack::Test::UploadedFile.new(File.new(Rails.root.join("spec/support/data/test_image.png"), 'rb'), nil, true)}
   end
 
   trait :reference_form_attributes do

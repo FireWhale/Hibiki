@@ -24,15 +24,14 @@ describe ArtistsController do
       include_examples "can delete a record", false
       
       #Strong Parameters
-      include_examples "uses strong parameters", [],[
-        "internal_name", "info", "synonyms", "status", "db_status", "activity", "category", "private_info", "synopsis", 
-        "debut_date", "birth_date", "gender", "blood_type", "birth_place", ["new_images"], ["remove_artist_organizations"], ["remove_related_artists"], {"namehash" => "string"},
-        {"name_langs" => "string"},["new_name_langs"], ["new_name_lang_categories"],
-        {"info_langs" => "string"},["new_info_langs"], ["new_info_lang_categories"],
-        {"new_related_artists" => {"new" => ["id", "category"]}}, {"update_related_artists" => {"update" => ["category"]}},
-        {"new_organizations" => {"new" => ["id", "category"]}}, {"update_artist_organizations" => {"update" => ["category"]}},
-        {"new_references" => {"new" => ["site_name", "url"]}}, {"update_references" => {"update" => ["url", "site_name"]}}]
-      
+      include_examples "uses strong parameters", invalid_params: ["internal_name", "info", "synonyms", "status", "db_status", "activity", "category", "private_info", "synopsis",
+                                                                      "debut_date", "birth_date", "gender", "blood_type", "birth_place", ["new_images"], ["remove_artist_organizations"], ["remove_related_artists"], {"namehash" => "string"},
+                                                                      {"name_langs" => "string"},["new_name_langs"], ["new_name_lang_categories"],
+                                                                      {"info_langs" => "string"},["new_info_langs"], ["new_info_lang_categories"],
+                                                                      {"new_related_artists" => {"new" => ["id", "category"]}}, {"update_related_artists" => {"update" => ["category"]}},
+                                                                      {"new_organizations" => {"new" => ["id", "category"]}}, {"update_artist_organizations" => {"update" => ["category"]}},
+                                                                      {"new_references" => {"new" => ["site_name", "url"]}}, {"update_references" => {"update" => ["url", "site_name"]}}]
+
   end
   
   context 'user access to artists' do
@@ -58,14 +57,13 @@ describe ArtistsController do
       include_examples "can delete a record", false
       
       #Strong Parameters
-      include_examples "uses strong parameters", [],[
-        "internal_name", "info", "synonyms", "status", "db_status", "activity", "category", "private_info", "synopsis", 
-        "debut_date", "birth_date", "gender", "blood_type", "birth_place", ["new_images"], ["remove_artist_organizations"], ["remove_related_artists"], {"namehash" => "string"},
-        {"name_langs" => "string"},["new_name_langs"], ["new_name_lang_categories"],
-        {"info_langs" => "string"},["new_info_langs"], ["new_info_lang_categories"],
-        {"new_related_artists" => {"new" => ["id", "category"]}}, {"update_related_artists" => {"update" => ["category"]}},
-        {"new_organizations" => {"new" => ["id", "category"]}}, {"update_artist_organizations" => {"update" => ["category"]}},
-        {"new_references" => {"new" => ["site_name", "url"]}}, {"update_references" => {"update" => ["url", "site_name"]}}]
+      include_examples "uses strong parameters", invalid_params: ["internal_name", "info", "synonyms", "status", "db_status", "activity", "category", "private_info", "synopsis",
+                                                                      "debut_date", "birth_date", "gender", "blood_type", "birth_place", ["new_images"], ["remove_artist_organizations"], ["remove_related_artists"], {"namehash" => "string"},
+                                                                      {"name_langs" => "string"},["new_name_langs"], ["new_name_lang_categories"],
+                                                                      {"info_langs" => "string"},["new_info_langs"], ["new_info_lang_categories"],
+                                                                      {"new_related_artists" => {"new" => ["id", "category"]}}, {"update_related_artists" => {"update" => ["category"]}},
+                                                                      {"new_organizations" => {"new" => ["id", "category"]}}, {"update_artist_organizations" => {"update" => ["category"]}},
+                                                                      {"new_references" => {"new" => ["site_name", "url"]}}, {"update_references" => {"update" => ["url", "site_name"]}}]
 
   end
 
@@ -92,14 +90,13 @@ describe ArtistsController do
       include_examples "can delete a record", true
   
       #Strong Parameters
-      include_examples "uses strong parameters", [
-        "internal_name", "info", "synonyms", "status", "db_status", "activity", "category", "private_info", "synopsis", 
-        "debut_date", "birth_date", "gender", "blood_type", "birth_place", ["new_images"], ["remove_artist_organizations"], ["remove_related_artists"], {"namehash" => "string"},
-        {"name_langs" => "string"},["new_name_langs"], ["new_name_lang_categories"],
-        {"info_langs" => "string"},["new_info_langs"], ["new_info_lang_categories"],
-        {"new_related_artists" => {"new" => ["id", "category"]}}, {"update_related_artists" => {"update" => ["category"]}},
-        {"new_organizations" => {"new" => ["id", "category"]}}, {"update_artist_organizations" => {"update" => ["category"]}},
-        {"new_references" => {"new" => ["site_name", "url"]}}, {"update_references" => {"update" => ["url", "site_name"]}}], []
+      include_examples "uses strong parameters", valid_params: ["internal_name", "info", "synonyms", "status", "db_status", "activity", "category", "private_info", "synopsis",
+                                                                    "debut_date", "birth_date", "gender", "blood_type", "birth_place", ["new_images"], ["remove_artist_organizations"], ["remove_related_artists"], {"namehash" => "string"},
+                                                                    {"name_langs" => "string"},["new_name_langs"], ["new_name_lang_categories"],
+                                                                    {"info_langs" => "string"},["new_info_langs"], ["new_info_lang_categories"],
+                                                                    {"new_related_artists" => {"new" => ["id", "category"]}}, {"update_related_artists" => {"update" => ["category"]}},
+                                                                    {"new_organizations" => {"new" => ["id", "category"]}}, {"update_artist_organizations" => {"update" => ["category"]}},
+                                                                    {"new_references" => {"new" => ["site_name", "url"]}}, {"update_references" => {"update" => ["url", "site_name"]}}]
   end
    
 end

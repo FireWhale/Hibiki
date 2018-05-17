@@ -25,6 +25,9 @@ Hibiki::Application.configure do
   
   #Disable mailer logging
   config.action_mailer.logger = nil
+
+  #Quiet Assets
+  config.assets.quiet = true
   
   # Print deprecation notices to the Rails logger
   config.active_support.deprecation = :log
