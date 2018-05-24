@@ -25,11 +25,11 @@ gem 'sidekiq'
 gem 'mysql2'
 gem 'whenever', :require => false #Cron job gem
 gem 'truncate_html'
+gem 'sunspot_solr' #pre packaged solr distribution (Remove once you install true solr)
 
 group :development, :test do
   gem 'bullet', platforms: [:mingw, :mswin, :x64_mingw] #Raises notices unoptimized queries
   gem 'puma'
-  gem 'sunspot_solr' #pre packaged solr distribution
   gem 'progress_bar'
   gem 'rspec-rails'
   gem 'rails-controller-testing'
