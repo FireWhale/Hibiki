@@ -5,6 +5,7 @@ class Album < ApplicationRecord
     include SolrSearchModule
     include LanguageModule
     include JsonModule
+    include DateModule
     #Association Modules
       include SelfRelationModule
       include ImageModule

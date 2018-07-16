@@ -1,4 +1,8 @@
 class Collection < ApplicationRecord
+
+  #Modules
+    include DateModule
+
   Relationship = %w[Collected Ignored Wishlisted]
   
   validates :collected_type, inclusion: %w[Album Song]

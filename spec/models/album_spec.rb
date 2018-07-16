@@ -17,6 +17,7 @@ describe Album do
     include_examples "it has a custom json method"
     include_examples "it has references"
     include_examples "it has custom pagination"
+    include_examples "it has partial dates"
 
     include_examples "it has form_fields"
   end

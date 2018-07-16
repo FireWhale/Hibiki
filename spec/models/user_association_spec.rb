@@ -12,7 +12,11 @@ end
 
 describe Collection do
   include_examples "global model tests" #Global Tests
-    
+
+  describe "Concern Tests" do
+    include_examples "it has partial dates"
+  end
+
   it_behaves_like "it is a polymorphic join model", User, [Album, Song], "collected"
   
   include_examples "is invalid without an attribute", :relationship

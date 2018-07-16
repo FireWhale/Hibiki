@@ -100,7 +100,7 @@ module ApplicationHelper
       #this can display a record's attribute nicely and cleanly, along with description
       unless record.send(attribute).nil?
         if record.send(attribute).instance_of?(String)
-          if record.send(attribute).empty? == false
+          unless record.send(attribute).empty?
             (text.empty? ? "" : content_tag(:b, text + ": ")).concat(record.send(attribute)).concat(tag(:br)).html_safe        
           end
         elsif record.send(attribute).instance_of?(Date)
@@ -125,28 +125,22 @@ module ApplicationHelper
     end
     
     def date_helper(record,attribute, options = {})
-      if record.respond_to?("#{attribute}_bitmask") == false
-        string = record.send(attribute).to_formatted_s(:long)
-      elsif record.send(attribute + '_bitmask') == 6
-        string = record.send(attribute).year.to_s
-      elsif record.send(attribute + '_bitmask') == 4
-        string = record.send(attribute).to_formatted_s(:month_and_year)
-      elsif record.send(attribute + '_bitmask') == 1
-        string = record.send(attribute).to_formatted_s(:month_and_day)
+      if record.respond_to?("#{attribute}_formatted")
+        string = record.send("#{attribute}_formatted")
       else
         string = record.send(attribute).to_formatted_s(:long)
       end
-      if attribute != 'release_date' || options[:calendar_link] == false 
+      if attribute != 'release_date' || options[:calendar_link] == false
         string
       else
         link_to string, calendar_url(:date => record.send(attribute))
       end
     end
-    
+
     def reference_helper(record)
       #Well this has a lot of tweaks to the reference symbols to make them presentatble to the public.
       unless record.references.empty?
-        (content_tag(:b) do 
+        (content_tag(:b) do
            "References: "
         end).concat(record.references.meets_security(current_user).map {|ref| link_to ref.site_name, ref.url}.join(' | ').html_safe).concat(tag(:br)).html_safe
       end
@@ -156,10 +150,10 @@ module ApplicationHelper
     def render_form(records, opts = {})
       records = records.target if records.respond_to?("target") && records.target.class == Array
       multi_flag = true if records.class == Array
-      records = [records] unless records.class == Array  
+      records = [records] unless records.class == Array
       render "layouts/forms/form", records: records, url: opts[:url], form_prefix: opts[:form_prefix], fields: opts[:fields], multi_flag: multi_flag, submit_title: opts[:submit_title], no_submit_tag: opts[:no_submit_tag]
     end
-  
+
     def fields_helper(record, opts = {})
       model = record.class.model_name.param_key
       fields = opts[:fields] || record.class::FormFields
@@ -175,7 +169,7 @@ module ApplicationHelper
         output = output + ">".html_safe
         opts[:no_div] = true
       elsif opts[:type] == "well_hide"
-        output = render :partial => 'layouts/forms/well_toggle', locals: {:div_id => record.id, :toggle_id => "Song#{record.id}Toggle"} 
+        output = render :partial => 'layouts/forms/well_toggle', locals: {:div_id => record.id, :toggle_id => "Song#{record.id}Toggle"}
         opts[:no_div] = true
       else
         output =  render "layouts/forms/fields/#{opts[:type]}", opts: opts, form_prefix: form_prefix, record: record
@@ -183,7 +177,7 @@ module ApplicationHelper
       opts[:no_div] == true ? output : content_tag(:div, class: opts[:div_class], id: opts[:div_id]) {output}
     end
 
-  #Post Helper - for parsing a post's content and replacing with hyperlinks and images     
+  #Post Helper - for parsing a post's content and replacing with hyperlinks and images
     def post_content_helper(content, identifier, characters=99999)
       formatted_content = format_content(content, characters)
       render "posts/show_content", content: formatted_content, id: identifier
