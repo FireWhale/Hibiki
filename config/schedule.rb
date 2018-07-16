@@ -22,5 +22,6 @@ every 3.hours do
 end
 
 every 1.month, at: 'start of the month at 2 am' do
-  command "mysqldump -u root -p#{@secrets["development"]["mysql_password"]} hibiki_development > /vagrant/mysqldumps/`date +%Y-%m-%d`_dump.sql"
+  command "mysqldump -u root -p#{@secrets["development"]["mysql_password"]} hibiki_development > /vagrant/mysqldumps/development/`date +%Y-%m-%d`_dev_dump.sql"
+  command "mysqldump -u root -p#{@secrets["development"]["mysql_password"]} hibiki_production > /vagrant/mysqldumps/production/`date +%Y-%m-%d`_prd_dump.sql"
 end

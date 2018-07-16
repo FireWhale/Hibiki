@@ -45,7 +45,7 @@ Hibiki::Application.configure do
   config.assets.debug = true
   config.eager_load = false
   
-  #Bullet Monitoring SQL queries
+  # Bullet Monitoring SQL queries
   if RUBY_PLATFORM.downcase == "i386-mingw32"
     config.after_initialize do
       Bullet.enable = true
