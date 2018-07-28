@@ -17,12 +17,6 @@
 # Ignore solr files. Note that solr/configsets/sunspot/conf/schema.xml is the exception, since it contains custom n-gram filters
 solr/*
 !solr/configsets
-*solr/configsets/*
-!solr/configsets/sunspot
-*solr/configsets/sunspot/*
-!solr/configsets/sunspot/conf
-*solr/configsets/sunspot/conf/*
-!solr/configsets/sunspot/conf/schema.xml
 
 # Ignore Rubymine Files
 /.idea/*
