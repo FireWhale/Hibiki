@@ -50,8 +50,6 @@ describe Artist do
   end
 
   describe "Attribute Tests" do
-    it_behaves_like "it has a partial date", :birth_date
-    it_behaves_like "it has a partial date", :debut_date
     it_behaves_like "it has a serialized attribute", :namehash
   end
 

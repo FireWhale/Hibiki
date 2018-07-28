@@ -103,8 +103,6 @@ class Album < ApplicationRecord
     validates :internal_name, presence: true
     validates :status, presence: true
     validates :catalog_number, presence: true, uniqueness: {scope: [:internal_name, :release_date]}
-    validates :release_date, presence: true, unless: -> {self.release_date_bitmask.nil?}
-    validates :release_date_bitmask, presence: true, unless: -> {self.release_date.nil?}
 
 
   #associations

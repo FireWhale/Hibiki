@@ -44,26 +44,6 @@ module AttributeTests
       end
     end
 
-    shared_examples "it has a partial date" do |attribute|
-      model_symbol = described_class.model_name.param_key.to_sym
-
-      #Validations
-        it "is valid with a #{attribute} and #{attribute}_bitmask" do
-          expect(build(model_symbol, attribute => Date.today, "#{attribute}_bitmask".to_sym => 2)).to be_valid
-        end
-
-        it "is valid without both a #{attribute} and #{attribute}_bitmask" do
-          expect(build(model_symbol, attribute => nil, "#{attribute}_bitmask".to_sym => nil)).to be_valid
-        end
-
-        it "is not valid if it has a #{attribute} and not a #{attribute}_bitmask" do
-          expect(build(model_symbol, attribute => Date.today, "#{attribute}_bitmask".to_sym => nil)).to_not be_valid
-        end
-
-        it "is not valid if it has a #{attribute}_bitmask and not a #{attribute}" do
-          expect(build(model_symbol, attribute => nil, "#{attribute}_bitmask".to_sym => 2)).to_not be_valid
-        end
-    end
 
   #Attribute Accessor
     shared_examples "attribute accessor methods" do |model, attribute|

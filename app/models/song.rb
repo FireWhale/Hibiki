@@ -85,8 +85,6 @@ class Song < ApplicationRecord
     validates :internal_name, presence: true
     validates :status, presence: true, inclusion: Album::Status
     validates :album, presence: true, unless: ->(song){song.album_id.nil?}
-    validates :release_date, presence: true, unless: -> {self.release_date_bitmask.nil?}
-    validates :release_date_bitmask, presence: true, unless: -> {self.release_date.nil?}
 
   #Asscoiations
     #Primary Associations

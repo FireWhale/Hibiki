@@ -47,7 +47,6 @@ describe Organization do
   end
 
   describe "Attribute Tests" do
-    it_behaves_like "it has a partial date", :established
     it_behaves_like "it has a serialized attribute", :namehash
   end
 

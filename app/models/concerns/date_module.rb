@@ -4,6 +4,10 @@ module DateModule
   included do
 
     self.attribute_names.select { |n| self.attribute_names.include?("#{n}_bitmask")}.each do |date_name|
+
+      validates date_name.to_sym, presence: true, unless: -> {self.send("#{date_name}_bitmask").nil?}
+      validates "#{date_name}_bitmask".to_sym, presence: true, unless: -> {self.send(date_name).nil?}
+
       define_method "#{date_name}_formatted" do
         if self.send("#{date_name}_bitmask") == 6 #Missing Day, Month
           self.send(date_name).year.to_s

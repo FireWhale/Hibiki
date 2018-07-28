@@ -27,11 +27,11 @@ gem 'sidekiq'
 gem 'mysql2'
 gem 'whenever', :require => false #Cron job gem
 gem 'truncate_html'
-gem 'sunspot_solr' #pre packaged solr distribution (Remove once you install true solr)
 gem 'puma' #Server
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 group :development, :test do
+  gem 'sunspot_solr' #pre packaged solr distribution (Remove once you install true solr)
   gem 'bullet', platforms: [:mingw, :mswin, :x64_mingw] #Raises notices unoptimized queries
   gem 'progress_bar'
   gem 'rspec-rails'

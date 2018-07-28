@@ -24,7 +24,6 @@ describe Collection do
   include_examples "is valid with or without an attribute", :user_comment, "Anime"
   include_examples "is valid with or without an attribute", :rating, 5
 
-  include_examples "it has a partial date", :date_obtained
 
   
 end

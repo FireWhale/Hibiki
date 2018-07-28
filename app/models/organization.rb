@@ -64,8 +64,6 @@ class Organization < ApplicationRecord
     validates :db_status, inclusion: Artist::DatabaseStatus, allow_nil: true, allow_blank: true
     validates :activity, inclusion: Organization::Activity, allow_nil: true, allow_blank: true
     validates :category, inclusion: Organization::Categories, allow_nil: true, allow_blank: true
-    validates :established, presence: true, unless: -> {self.established_bitmask.nil?}
-    validates :established_bitmask, presence: true, unless: -> {self.established.nil?}
 
   #Associations
     #Primary Associations

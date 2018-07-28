@@ -60,7 +60,6 @@ describe User do
     include_examples "is valid with or without an attribute", :language_settings, "hi"
     include_examples "is valid with or without an attribute", :artist_language_settings, "hi"
 
-    it_behaves_like "it has a partial date", :birth_date
   end
 
   describe "Instance Method Tests" do

@@ -4,6 +4,7 @@ class User < ApplicationRecord
       include ImageModule
       include JsonModule
       include ReferenceModule
+      include DateModule
 
   #Attributes
     attr_accessor :security_array
@@ -30,8 +31,6 @@ class User < ApplicationRecord
     validates_format_of :password, without: ->(user) {/#{user.name}/}, message: "must not contain username", unless: -> {self.password.nil?}
     validates_format_of :password, with: /(?=.*[A-Za-z])(?=.*[0-9])[A-Za-z0-9]+/, message: "must contain at least one letter and one number", unless: -> {self.password.nil?}
     validates :security, presence: true, inclusion: Array(0..(2**Ability::Abilities.count - 1)).map(&:to_s)
-    validates :birth_date, presence: true, unless: -> {self.birth_date_bitmask.nil?}
-    validates :birth_date_bitmask, presence: true, unless: -> {self.birth_date.nil?}
     validates :status, inclusion: ["Deactivated", ""], unless: -> {self.status.nil?}
 
   #Authetication and Security

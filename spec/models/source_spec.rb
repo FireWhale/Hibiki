@@ -55,8 +55,6 @@ describe Source do
   end
 
   describe "Serialization Tests" do
-    it_behaves_like "it has a partial date", :release_date
-    it_behaves_like "it has a partial date", :end_date
     it_behaves_like "it has a serialized attribute", :namehash
   end
 

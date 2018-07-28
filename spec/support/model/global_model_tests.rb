@@ -183,7 +183,7 @@ module GlobalModelTests
       end
 
       describe 'Partial Dates' do
-        if [Artist, Source, Organization, Album, Song, Collection].include?(described_class)
+        if [Artist, Source, Organization, Album, Song, Collection, User].include?(described_class)
           it "has the partial date module" do
             expect(described_class.included_modules).to include(DateModule)
           end

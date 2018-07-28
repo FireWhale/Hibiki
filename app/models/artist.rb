@@ -85,10 +85,6 @@ class Artist < ApplicationRecord
     validates :db_status, inclusion: Artist::DatabaseStatus, allow_nil: true, allow_blank: true
     validates :activity, inclusion: Artist::Activity, allow_nil: true, allow_blank: true
     validates :category, inclusion: Artist::Categories, allow_nil: true, allow_blank: true
-    validates :birth_date, presence: true, unless: -> {self.birth_date_bitmask.nil?}
-    validates :birth_date_bitmask, presence: true, unless: -> {self.birth_date.nil?}
-    validates :debut_date, presence: true, unless: -> {self.debut_date_bitmask.nil?}
-    validates :debut_date_bitmask, presence: true, unless: -> {self.debut_date.nil?}
 
   #Associations
     #Primary Associations

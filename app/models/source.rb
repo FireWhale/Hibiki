@@ -74,10 +74,6 @@ class Source < ApplicationRecord
     validates :db_status, inclusion: Artist::DatabaseStatus, allow_nil: true, allow_blank: true
     validates :activity, inclusion: Source::Activity, allow_nil: true, allow_blank: true
     validates :category, inclusion: Source::Categories, allow_nil: true, allow_blank: true
-    validates :release_date, presence: true, unless: -> {self.release_date_bitmask.nil?}
-    validates :release_date_bitmask, presence: true, unless: -> {self.release_date.nil?}
-    validates :end_date, presence: true, unless: -> {self.end_date_bitmask.nil?}
-    validates :end_date_bitmask, presence: true, unless: -> {self.end_date.nil?}
 
   #Associations
     #Primary Aassociations

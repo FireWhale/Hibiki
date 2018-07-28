@@ -28,7 +28,7 @@ class ApplicationController < ActionController::Base
 
   def handle_partial_date_assignment(params,model)
     unless params.blank?
-      date_fields = model.attribute_names.select { |i| i.ends_with?("bitmask")}.map { |i| i.chomp("_bitmask") }
+      date_fields = model.attribute_names.select { |n| model.attribute_names.include?("#{n}_bitmask")}
       date_fields.each do |field|
         date_conversion(params,field) #do the first level first.
         params.each do |k,v|

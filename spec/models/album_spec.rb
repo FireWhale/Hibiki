@@ -74,7 +74,6 @@ describe Album do
   end
 
   describe "Attribute Tests" do
-    include_examples "it has a partial date", :release_date
     it_behaves_like "it has a serialized attribute", :namehash
   end
 
