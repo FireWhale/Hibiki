@@ -68,7 +68,7 @@ module AssociationModule
     #Add artists
     add_artists = ActiveSupport::HashWithIndifferentAccess.new(self.new_artists)
     unless add_artists.blank?
-      if add_artists.key?(:id) && add_artists[:category].blank? == false
+      if add_artists.key?(:id) && add_artists[:category].blank? == false #Add by ID and category
         categories = add_artists[:category]
         display_names = add_artists[:display_name].try(:[],"names")
         display_name_languages = add_artists[:display_name].try(:[],"languages")
@@ -99,13 +99,19 @@ module AssociationModule
           end
         end
       end
-      if add_artists.key?(:internal_name) && add_artists[:category_by_name].blank? == false
+
+      if add_artists.key?(:internal_name) && add_artists[:category_by_name].blank? == false #add by name and category
         replace_artists = Album::Artistreplace
         ignored_artists = Album::IgnoredArtistNames
         categories = add_artists[:category_by_name]
         categories.pop if categories.last == "New Artist" #Remove the last "New Artist" from the array
         categories = categories.split { |i| i == "New Artist"}
-        add_artists[:internal_name].zip(categories).each do |info|
+        if add_artists[:display_language_by_name].blank?
+          name_languages = add_artists[:internal_name].map { |w| :hibiki_en}
+        else
+          name_languages = add_artists[:display_language_by_name]
+        end
+        add_artists[:internal_name].zip(categories,name_languages).each do |info|
           unless info[0].blank? || info[1].blank? || ignored_artists.include?(info[0])
             bitmask = Artist.get_bitmask(info[1])
             if replace_artists.map {|n| n[0]}.include?(info[0]) #if found in replace artists, replace the artist
@@ -114,7 +120,7 @@ module AssociationModule
               artist = Artist.find_by_internal_name(info[0])
               artist = Artist.create(internal_name: info[0], status: "Unreleased") if artist.nil?
             end
-            self.send("artist_#{self.class.model_name.plural}").create(artist: artist, category: bitmask)
+            self.send("artist_#{self.class.model_name.plural}").create(artist: artist, category: bitmask, new_display_name_langs: info[0], new_display_name_lang_categories: info[2])
           end
         end
       end
