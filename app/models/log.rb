@@ -28,4 +28,26 @@ class Log < ApplicationRecord
     def add_to_content(text)
       self.update_attribute(:content, (self.reload.content || "") + text)
     end
+
+  #Class Methods
+    def self.find_last(category)
+        self.where(category: category).last
+    end
+
+    def self.find_or_create_by_length(category, length)
+        log = find_last(category)
+        if log.nil?
+           log = Log.create(category: category, content: "[New Log] No previous log found!")
+        elsif log.content.length > length
+            log.add_to_content("[End Log] Content length limit reached at #{Time.now}")
+            log = Log.create(category: category, content: "[New Log] Content length reached on old log")
+        end
+        return log
+    end
+
+
+  private
+    def check_length
+
+    end
 end
