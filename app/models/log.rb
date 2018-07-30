@@ -38,16 +38,11 @@ class Log < ApplicationRecord
         log = find_last(category)
         if log.nil?
            log = Log.create(category: category, content: "[New Log] No previous log found!")
-        elsif log.content.length > length
+        elsif log.content.nil? == false && log.content.length > length
             log.add_to_content("[End Log] Content length limit reached at #{Time.now}")
             log = Log.create(category: category, content: "[New Log] Content length reached on old log")
         end
         return log
     end
 
-
-  private
-    def check_length
-
-    end
 end

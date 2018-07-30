@@ -23,6 +23,36 @@ describe Log do
     it_behaves_like "filters by category", Log::Categories
   end
 
+  describe "Class Methods" do
+    describe "find_last(category)" do
+      it "returns nothing without a valid category" do
+        expect(Log.find_last("not existing")).to be_nil
+      end
+
+      it "returns a record with a valid category" do
+        log = create(:log, category: "Scrape")
+        expect(Log.find_last("Scrape")).to eq(log)
+      end
+    end
+
+    describe "find_or_create_by_length" do
+      it "doesn't create a log if the length is okay" do
+        log = create(:log, category: "Rescrape")
+        expect(Log.find_or_create_by_length("Rescrape",1000)).to eq(log)
+      end
+
+      it "creates a log if the length is too long" do
+        log = create(:log, category: "Rescrape", content: "long")
+        expect(Log.find_or_create_by_length("Rescrape",1)).to_not eq(log)
+      end
+
+      it "creates a log if there is no previous log" do
+        expect(Log.find_or_create_by_length("Rescrape",1000)).to be_a(Log)
+      end
+
+    end
+  end
+
   describe "Instance Methods" do
     describe "models" do
       it "returns a list of loglist records" do
