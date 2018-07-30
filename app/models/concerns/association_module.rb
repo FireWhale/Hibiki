@@ -36,7 +36,7 @@ module AssociationModule
             record.save
           end
           attributes = {model.model_name.param_key.to_sym => record}
-          attributes = attributes.merge([new_relations.except(:id).keys,info[2]].transpose.to_h) unless info[2].nil?
+          attributes = attributes.merge([new_relations.except(:id, :url_by_id).keys,info[2]].transpose.to_h) unless info[2].nil?
           self.send("#{join_model.model_name.plural}").create(attributes) unless record.nil?
         end
       end
@@ -62,8 +62,8 @@ module AssociationModule
               record = model.create(:internal_name => info[0], status: "Unreleased") if record.nil?
             end
             if record.nil? == false && record.references("VGMdb").nil? && info[1].blank? == false #Handle urls
-                record.new_references = info[1]
-                record.save
+              record.new_references = info[1]
+              record.save
             end
             attributes = {model.model_name.param_key.to_sym => record}
             attributes = attributes.merge([new_relations_by_name.except(:internal_name,:url_by_name).keys,info[2]].transpose.to_h) unless info[2].nil?
@@ -112,12 +112,13 @@ module AssociationModule
           display_name_languages = display_name_languages.split { |i| i == "New Artist"}
         end
 
-
         if add_artists[:url_by_id].nil?
           id_urls = Array.new(add_artists[:id].length)
         else
           id_urls = add_artists[:url_by_id]
         end
+
+        print id_urls
 
         add_artists[:id].zip(categories,display_names, display_name_languages,id_urls).each do |info|
           unless info[0].blank? || info[0].blank?

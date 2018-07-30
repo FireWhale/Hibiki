@@ -86,6 +86,64 @@ module AssociationModuleTests
           expect(record.send(join_model.model_name.plural).first).to have_attributes(new_attributes)
         end
 
+        it "adds urls by internal_name to new record" do
+          record = create(model_symbol)
+          new_references = {:site_name => ["MyAnimeList"], :url => ["MyAnimeList"]}
+          record.send("new_#{primary_model.model_name.plural}_by_name=", {internal_name: ["hi"], url_by_name: [new_references]})
+          expect{record.save}.to change(Reference, :count).by(1)
+        end
+
+        it "adds urls by internal_name to existing record" do
+          record = create(model_symbol)
+          primary_record = create(primary_model.model_name.singular.to_sym)
+          new_attributes = attributes_for(join_model_symbol, :full_attributes)
+          new_hash = new_attributes.inject({}) { |h,(k,v)| h[k] = [v]; h }
+          new_hash["internal_name"] = [primary_record.internal_name]
+          new_hash["url_by_name"] = [{:site_name => ["MyAnimeList"], :url => ["MyAnimeList"]}]
+          record.send("new_#{primary_model.model_name.plural}_by_name=", new_hash)
+          expect{record.save}.to change(join_model, :count).by(1)
+          expect(primary_record.references("MyAnimeList")).to be_a(Reference)
+        end
+
+        it "doesn't overwrite existing urls when adding urls by name (VGMdb only)" do
+          record = create(model_symbol)
+          primary_record = create(primary_model.model_name.singular.to_sym)
+          primary_record.new_references = {:site_name => ["VGMdb"], :url => ["previous"]}
+          primary_record.save
+          new_attributes = attributes_for(join_model_symbol, :full_attributes)
+          new_hash = new_attributes.inject({}) { |h,(k,v)| h[k] = [v]; h }
+          new_hash["internal_name"] = [primary_record.internal_name]
+          new_hash["url_by_name"] = [{:site_name => ["VGMdb"], :url => ["MyAnimeList"]}]
+          record.send("new_#{primary_model.model_name.plural}_by_name=", new_hash)
+          expect{record.save}.to change(Reference, :count).by(0)
+          expect(primary_record.references("VGMdb").url).to eq("previous")
+        end
+
+        it "adds urls by id" do
+          record = create(model_symbol)
+          primary_record = create(primary_model.model_name.singular.to_sym)
+          new_attributes = attributes_for(join_model_symbol, :full_attributes)
+          new_hash = new_attributes.inject({}) { |h,(k,v)| h[k] = [v]; h }
+          new_hash["id"] = [primary_record.id]
+          new_hash["url_by_id"] = [{:site_name => ["VGMdb"], :url => ["MyAnimeList"]}]
+          record.send("new_#{primary_model.model_name.plural}=", new_hash)
+          expect{record.save}.to change(Reference, :count).by(1)
+        end
+
+        it "doesn't overwrite existing urls when adding urls by id (VGMdb only)" do
+          record = create(model_symbol)
+          primary_record = create(primary_model.model_name.singular.to_sym)
+          primary_record.new_references = {:site_name => ["VGMdb"], :url => ["previous"]}
+          primary_record.save
+          new_attributes = attributes_for(join_model_symbol, :full_attributes)
+          new_hash = new_attributes.inject({}) { |h,(k,v)| h[k] = [v]; h }
+          new_hash["id"] = [primary_record.id]
+          new_hash["url_by_id"] = [{:site_name => ["VGMdb"], :url => ["MyAnimeList"]}]
+          record.send("new_#{primary_model.model_name.plural}=", new_hash)
+          expect{record.save}.to change(Reference, :count).by(0)
+          expect(primary_record.references("VGMdb").url).to eq("previous")
+        end
+
         it "can add records by internal_name and id at the same time" do
           record = create(model_symbol)
           primary_record = create(primary_model.model_name.singular.to_sym)
@@ -241,6 +299,58 @@ module AssociationModuleTests
         expect{record.save}.to change(join_model, :count).by(2)
         expect(record.send("artist_#{model_symbol}s").first.category).to eq(Artist.get_bitmask(credits).to_s)
         expect(record.send("artist_#{model_symbol}s")[1].category).to eq(Artist.get_bitmask(credits2).to_s)
+      end
+
+      it "adds urls by internal_name to new record" do
+        record = create(model_symbol)
+        credits = Artist::Credits.sample(4)
+        params = {"internal_name" => ["name"], :category_by_name => credits, url_by_name: [{:site_name => ["MyAnimeList"], :url => ["MyAnimeList"]}]}
+        record.new_artists = params
+        expect{record.save}.to change(Reference, :count).by(1)
+      end
+
+      it "adds urls by internal_name to existing record" do
+        record = create(model_symbol)
+        artist = create(:artist)
+        credits = Artist::Credits.sample(4)
+        params = {"internal_name" => [artist.internal_name], :category_by_name => credits, url_by_name: [{:site_name => ["MyAnimeList"], :url => ["MyAnimeList"]}]}
+        record.new_artists = params
+        expect{record.save}.to change(Reference, :count).by(1)
+        expect(artist.references("MyAnimeList")).to be_a(Reference)
+      end
+
+      it "doesn't overwrite existing urls when adding urls by name (VGMdb only)" do
+        record = create(model_symbol)
+        artist = create(:artist)
+        artist.new_references = {:site_name => ["VGMdb"], :url => ["previous"]}
+        artist.save
+        credits = Artist::Credits.sample(4)
+        params = {"internal_name" => [artist.internal_name], :category_by_name => credits, url_by_name: [{:site_name => ["VGMdb"], :url => ["MyAnimeList"]}]}
+        record.new_artists = params
+        expect{record.save}.to change(Reference, :count).by(0)
+        expect(artist.references("VGMdb").url).to eq("previous")
+      end
+
+      it "adds urls by id" do
+        record = create(model_symbol)
+        artist = create(:artist)
+        credits = Artist::Credits.sample(4)
+        params = {"id" => [artist.id], :category => credits, url_by_id: [{:site_name => ["VGMdb"], :url => ["MyAnimeList"]}]}
+        record.new_artists = params
+        expect{record.save}.to change(Reference, :count).by(1)
+        expect(artist.references("VGMdb").url).to eq("MyAnimeList")
+      end
+
+      it "doesn't overwrite existing urls when adding urls by id (VGMdb only)" do
+        record = create(model_symbol)
+        artist = create(:artist)
+        artist.new_references = {:site_name => ["VGMdb"], :url => ["previous"]}
+        artist.save
+        credits = Artist::Credits.sample(4)
+        params = {"id" => [artist.id], :category => credits, url_by_id: [{:site_name => ["VGMdb"], :url => ["MyAnimeList"]}]}
+        record.new_artists = params
+        expect{record.save}.to change(join_model, :count).by(1)
+        expect(artist.references("VGMdb").url).to eq("previous")
       end
 
       it "adds by both name and id" do
