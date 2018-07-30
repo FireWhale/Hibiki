@@ -150,9 +150,7 @@ describe AlbumsController do
         end
       end
     end
-
   end
-
 
   #Authenticate
   before :each do

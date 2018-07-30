@@ -100,8 +100,8 @@ describe SongsController do
         {"new_sources" => {"new" => ["id", "classification", "op_ed_number", "ep_numbers"]}}, {"update_song_sources" => {"update" => ["classification", "op_ed_number", "ep_numbers"]}},
         {"new_related_songs" => {"new" => ["id", "category"]}}, {"update_related_songs" => {"update" => ["category"]}},
         {"new_references" => {"new" => ["site_name", "url"]}}, {"update_references" => {"update" => ["url", "site_name"]}}]
+
   end
-   
 end
 
 

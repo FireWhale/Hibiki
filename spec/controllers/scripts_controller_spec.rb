@@ -389,8 +389,7 @@ describe ScriptsController do
     
     include_examples 'post add_tag', false
     include_examples 'post remove_tag', false
-    
-      
+
   end
   
   context 'user access to scripts' do

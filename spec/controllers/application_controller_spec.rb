@@ -33,7 +33,6 @@ describe ApplicationController do
         expect(response.status).to eq(403)
       end  
     end
-
     
     context "ActiveRecord::RecordNotFound" do
       it "renders record_not_found" do

@@ -24,7 +24,7 @@ describe EventsController do
       
     #Strong Parameters
       include_examples "uses strong parameters"
-      
+
   end
   
   describe 'user access to events' do
@@ -81,7 +81,6 @@ describe EventsController do
                                                   {"info_langs" => "string"},["new_info_langs"], ["new_info_lang_categories"],
                                                   {"new_references" => {"new" => ["site_name", "url"]}}, {"update_references" => {"update" => ["url", "site_name"]}}]
   end
-   
 end
 
 

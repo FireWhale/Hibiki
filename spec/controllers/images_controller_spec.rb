@@ -71,8 +71,8 @@ describe ImagesController do
 
     #Strong Parameters
       include_examples "uses strong parameters", valid_params: ["name", "primary_flag", "rating" ]
-  end
 
+  end
 end
 
 

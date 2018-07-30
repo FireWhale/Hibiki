@@ -650,7 +650,6 @@ describe UsersController do
               get :edit_profile, params: {id: @user}
               expect(response).to render_template(:edit_profile)
             end
-
           end
 
           context "someone else's edit_profile" do

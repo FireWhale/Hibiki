@@ -57,7 +57,6 @@ describe PagesController do
     end
   end
   
-  
   shared_examples "accesses the help page" do |accessible|
     describe 'GET #help' do
       it "renders the help template" do

@@ -99,7 +99,6 @@ describe OrganizationsController do
         {"new_references" => {"new" => ["site_name", "url"]}}, {"update_references" => {"update" => ["url", "site_name"]}}]
 
   end
-   
 end
 
 
