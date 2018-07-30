@@ -48,7 +48,7 @@ Hibiki::Application.configure do
   # Bullet Monitoring SQL queries
   if RUBY_PLATFORM.downcase == "i386-mingw32"
     config.after_initialize do
-      Bullet.enable = true
+      Bullet.enable = false
       Bullet.alert = true
       Bullet.bullet_logger = true
       Bullet.add_whitelist :type => :unused_eager_loading, :class_name => "Artist", :association => :watchlists

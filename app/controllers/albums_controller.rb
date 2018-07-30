@@ -161,8 +161,13 @@ class AlbumsController < ApplicationController
     end
 
     respond_to do |format|
-      format.html { redirect_to @album, notice: "Rescraped" }
-      format.json { head :no_content }
+      unless @album.references('VGMdb').nil?
+        format.html { redirect_to @album, notice: "Rescraped" }
+        format.json { head :no_content }
+      else
+        format.html { redirect_to @album, notice: "Failed! No VGMdb Reference Listed!" }
+        format.json { head :no_content }
+      end
     end
   end
 

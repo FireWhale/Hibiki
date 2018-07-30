@@ -17,7 +17,7 @@ module DateModule
           self.send(date_name).to_formatted_s(:month_and_day)
         elsif self.send("#{date_name}_bitmask") == 7 #Missing all 3
           nil
-        else
+        else #bitmask of 0
           self.send(date_name).to_formatted_s(:long)
         end
       end
