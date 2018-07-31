@@ -118,8 +118,6 @@ module AssociationModule
           id_urls = add_artists[:url_by_id]
         end
 
-        print id_urls
-
         add_artists[:id].zip(categories,display_names, display_name_languages,id_urls).each do |info|
           unless info[0].blank? || info[0].blank?
             bitmask = Artist.get_bitmask(info[1])

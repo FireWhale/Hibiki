@@ -5,51 +5,61 @@
 
 <% end %>
 <h5>Created at: <%= @log.created_at %></h5>
-<h5>Last 58 characters: <%= @log.content[-58..-1] %></h5>
-<div>
-  <%= link_to "Previous Log", maintenance_scrape_results_path(:log_id => @log.id - 1) %>
-  <%= link_to "Next Log", maintenance_scrape_results_path(:log_id => @log.id + 1) %>
-</div>
+<h5>Type: <%= @log.category %></h5>
+<% if @log.content.include?("[End Log]") %>
+  <h5><%= "End of Log found: #{@log.content.partition('[End Log]').last}"  %></h5>
+<% else %>
+  <h5>No End of Log found! Last 58 characters: <%= @log.content[-58..-1] %></h5>
+<% end %>
+<% @log_links.each do |k,log_id| %>
+  <h5><%= link_to k, maintenance_scrape_results_path(:log_id => log_id) %></h5>
+<% end %>
 
 <div class='row'>
   <div class='col-md-6'>
     <div>
-      <h4>Failed URLS</h4>
-      <% unless @failed_urls.blank? %>
-        <%= failed_urls.each do |url| %>
-          <div><%= link_to url[0], url[0] %></div>
-        <% end %>
-      <% end %>
-      <% unless @duplicate_albums.nil? %>
-        <% @duplicate_albums.each do |url| %>
-          <% if url[1].references.blank? == false%>
-            <div><%= link_to url[0], url[0] %>: <%= link_to url[1].references.first.url, url[1] %> <% if url[1].references.first.url == url[0] %><%= image_tag('/assets/tick.png') %><% else %> <%= image_tag('/assets/cross.png') %><% end %></div>
-          <% end %>
-        <% end %>
-      <% else %>
-      <div>No Failed URLs!</div>
-      <% end %>
-    </div>
-    <div>
-      <h5>Raw Content</h5>
+      <h4>Raw Content</h4>
       <%= simple_format @log.content %>
     </div>
   </div>
   <div class='col-md-6'>
-    <h4>Passed URLS</h4>
-    <% @albums.each do |album| %>
-      <div class="row">
-        <div class="col-md-3">
-          <%= primary_image_helper(album, album, "thumb", :outline_flag => true, :square => true) %>
+
+    <div>
+      <h4><%= "Failed URLS (Count: #{@failed_urls.count})" %></h4>
+      <% if @failed_urls.blank? %>
+        <h5>No Failed Urls!</h5>
+      <% else %>
+        <% @failed_urls.each do |failure| %>
+          <h6><%= failure %></h6>
+        <% end %>
+      <% end %>
+    </div>
+    <div>
+      <h4>Successful URLS</h4>
+      <% if @successful_urls.blank? %>
+        <h5>No Successful Urls!</h5>
+      <% else %>
+        <% @successful_urls.each do |success| %>
+          <h6><%= success  %></h6>
+        <% end %>
+      <% end %>
+    </div>
+    <div>
+      <h4><%= "Linked Albums (Count: #{@albums.count})" %></h4>
+      <% @albums.each do |album| %>
+        <div class="row">
+          <div class="col-md-3">
+            <%= primary_image_helper(album, album, "thumb", :outline_flag => true, :square => true) %>
+          </div>
+          <div class="col-md-9">
+            <%= link_to album.internal_name, album %> (ID: <%= album.id %>)  <%= link_to "Edit", edit_album_path(album)  %><br>
+            <%= album.classification %><br>
+            <%= album.release_date %> <br>
+            <%= link_to album.references.first.url, album.references.first.url %>
+          </div>
         </div>
-        <div class="col-md-9">
-          <%= link_to album.internal_name, album %> (ID: <%= album.id %>)  <%= link_to "Edit", edit_album_path(album)  %><br>
-          <%= album.classification %><br>
-          <%= album.release_date %> <br>
-          <%= link_to album.references.first.url, album.references.first.url %>
-        </div>
-      </div>
-    <% end %>
+      <% end %>
+    </div>
   </div>
 </div>
 

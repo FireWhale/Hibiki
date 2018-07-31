@@ -23,8 +23,9 @@ class MaintenanceController < ApplicationController
       scrapehash = {:scrape => {}}
       raw_vgmdb_albums = params[:vgmdb_albums][:text] unless params[:vgmdb_albums].nil?
 
-      unless raw_vgmdb_albums.nil?
-        raw_vgmdb_albums.split("\n").reject { |a| a.empty?}.select { |a| a.starts_with?("http://") }.each do |each|
+
+      unless raw_vgmdb_albums.blank?
+        raw_vgmdb_albums.split("\n").reject { |a| a.empty?}.map { |a| a.gsub("https://","http://")}.select { |a| a.starts_with?("http://") }.each do |each|
           (scrapehash[:scrape][:vgmdb_albums] ||= []) << each.chomp("\r")
         end
       end
@@ -47,23 +48,45 @@ class MaintenanceController < ApplicationController
 
     def scrape_results
       authorize! :scrape, Album
-      @log = params[:log_id].nil? ? Log.last : Log.find(params[:log_id])
+      if params[:log_id].blank? == false
+        @log = Log.find_by_id(params[:log_id])
+        @error_message = "Couldn't find Log with log_id ##{params[:log_id]}" if @log.nil?
+      elsif params[:log_category].blank? == false
+        @log = Log.find_last(params[:log_category])
+        @error_message = "Couldn't find Log with category ##{params[:log_category]}" if @log.nil?
+      end
+      @log = Log.last if @log.nil?
+
+      #Add other logs to navigation
+      @log_links = {}
+
+      prev_log_id = Log.where(category: @log.category).where("id < ?", @log.id).last
+      next_log_id = Log.where(category: @log.category).where("id > ?", @log.id).first
+      @log_links["Previous #{@log.category} log"] = prev_log_id unless prev_log_id.nil?
+      @log_links["Next #{@log.category} log"] = next_log_id unless next_log_id.nil?
+
+      Log::Categories.each do |cat|
+        log = Log.find_last(cat)
+        @log_links["Last #{cat} log"] = log.id unless log.nil?
+      end
+
+      @albums = @log.albums
+
+      @successful_urls = []
+      @failed_urls = []
 
       album_ids = []
-      @failedurls = []
-      @duplicate_albums = []
       unless @log.nil? || @log.content.nil?
-        @log.content.scan(/\[FAILURE\]\[[a-z0-9\.:\/]+\]\[\d{1,5}\]/).each do |each|
-          album = Album.find_by_id(each.split("][")[2].chomp("]"))
-          @duplicate_albums << [each.split("][")[1], album ] unless album.nil?
-          @failed_urls << each.split("][")[1] if album.nil?
+        @log.content.scan(/\[FAILURE\]\[[a-z0-9\.:\/]+\].+?\n/).each do |line|
+          error_array = line.split("]").map { |s| s.sub(/^\[/,'')} #splits by ] and removes [ from beginning
+          @failed_urls << "#{error_array[1]}: #{error_array[2]}"
         end
-        @log.content.scan(/\[SUCCESS\]\[\d{1,5}\]/).each do |each|
-          album_ids << each[9..-1].chomp("]")
+        @log.content.scan(/\[SUCCESS\]\[[a-z0-9\.:\/]+\].+?\n/).each do |line|
+          success_array = line.split("]").map { |s| s.sub(/^\[/,'')} #splits by ] and removes [ from beginning
+          album = @albums.find_by(id: success_array[1])
+          @successful_urls << "#{album.nil? ? 'Deleted?' : album.id}: #{success_array[2]}"
         end
       end
-      @albums = Album.find([])
-      @count = @failedurls.count + @albums.count + @duplicate_albums.count
 
       respond_to do |format|
         format.html
