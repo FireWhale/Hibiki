@@ -11,8 +11,10 @@
 <% else %>
   <h5>No End of Log found! Last 58 characters: <%= @log.content[-58..-1] %></h5>
 <% end %>
-<% @log_links.each do |k,log_id| %>
-  <h5><%= link_to k, maintenance_scrape_results_path(:log_id => log_id) %></h5>
+<% @log_links.each do |k,log| %>
+  <% unless log.nil? %>
+    <h5><%= link_to k, maintenance_scrape_results_path(:log_id => log.id) %></h5>
+  <% end %>
 <% end %>
 
 <div class='row'>
@@ -25,39 +27,43 @@
   <div class='col-md-6'>
 
     <div>
-      <h4><%= "Failed URLS (Count: #{@failed_urls.count})" %></h4>
-      <% if @failed_urls.blank? %>
+      <h4><%= "Failed URLS (Count: #{@parsed[:failed_urls].count})" %></h4>
+      <% if  @parsed[:failed_urls].blank? %>
         <h5>No Failed Urls!</h5>
       <% else %>
-        <% @failed_urls.each do |failure| %>
+        <%  @parsed[:failed_urls].each do |failure| %>
           <h6><%= failure %></h6>
         <% end %>
       <% end %>
     </div>
     <div>
-      <h4>Successful URLS</h4>
-      <% if @successful_urls.blank? %>
+      <h4><%= "Successful URLS (Count: #{@parsed[:successful_urls].count})" %></h4>
+      <% if @parsed[:successful_urls].blank? %>
         <h5>No Successful Urls!</h5>
       <% else %>
-        <% @successful_urls.each do |success| %>
+        <%  @parsed[:successful_urls].each do |success| %>
           <h6><%= success  %></h6>
         <% end %>
       <% end %>
     </div>
     <div>
-      <h4><%= "Linked Albums (Count: #{@albums.count})" %></h4>
-      <% @albums.each do |album| %>
-        <div class="row">
-          <div class="col-md-3">
-            <%= primary_image_helper(album, album, "thumb", :outline_flag => true, :square => true) %>
+      <h4><%= "Linked Albums (Count: #{@log.albums.count})" %></h4>
+      <% if @log.albums.blank? %>
+        <h5>No Linked Albums!</h5>
+      <% else %>
+        <% @log.albums..each do |album| %>
+          <div class="row">
+            <div class="col-md-3">
+              <%= primary_image_helper(album, album, "thumb", :outline_flag => true, :square => true) %>
+            </div>
+            <div class="col-md-9">
+              <%= link_to album.internal_name, album %> (ID: <%= album.id %>)  <%= link_to "Edit", edit_album_path(album)  %><br>
+              <%= album.classification %><br>
+              <%= album.release_date %> <br>
+              <%= link_to album.references.first.url, album.references.first.url %>
+            </div>
           </div>
-          <div class="col-md-9">
-            <%= link_to album.internal_name, album %> (ID: <%= album.id %>)  <%= link_to "Edit", edit_album_path(album)  %><br>
-            <%= album.classification %><br>
-            <%= album.release_date %> <br>
-            <%= link_to album.references.first.url, album.references.first.url %>
-          </div>
-        </div>
+        <% end %>
       <% end %>
     </div>
   </div>

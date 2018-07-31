@@ -60,31 +60,26 @@ class MaintenanceController < ApplicationController
       #Add other logs to navigation
       @log_links = {}
 
-      prev_log_id = Log.where(category: @log.category).where("id < ?", @log.id).last
-      next_log_id = Log.where(category: @log.category).where("id > ?", @log.id).first
-      @log_links["Previous #{@log.category} log"] = prev_log_id unless prev_log_id.nil?
-      @log_links["Next #{@log.category} log"] = next_log_id unless next_log_id.nil?
+      @log_links["Previous #{@log.category} log"] = @log.previous_log unless @log.nil?
+      @log_links["Next #{@log.category} log"] = @log.next_log unless  @log.nil?
 
       Log::Categories.each do |cat|
         log = Log.find_last(cat)
-        @log_links["Last #{cat} log"] = log.id unless log.nil?
+        @log_links["Last #{cat} log"] = log unless log.nil?
       end
 
-      @albums = @log.albums
-
-      @successful_urls = []
-      @failed_urls = []
+      @parsed = {successful_urls: [], failed_urls: []}
 
       album_ids = []
       unless @log.nil? || @log.content.nil?
         @log.content.scan(/\[FAILURE\]\[[a-z0-9\.:\/]+\].+?\n/).each do |line|
           error_array = line.split("]").map { |s| s.sub(/^\[/,'')} #splits by ] and removes [ from beginning
-          @failed_urls << "#{error_array[1]}: #{error_array[2]}"
+          @parsed[:failed_urls] << "#{error_array[1]}: #{error_array[2]}"
         end
         @log.content.scan(/\[SUCCESS\]\[[a-z0-9\.:\/]+\].+?\n/).each do |line|
           success_array = line.split("]").map { |s| s.sub(/^\[/,'')} #splits by ] and removes [ from beginning
           album = @albums.find_by(id: success_array[1])
-          @successful_urls << "#{album.nil? ? 'Deleted?' : album.id}: #{success_array[2]}"
+          @parsed[:successful_urls] << "#{album.nil? ? 'Deleted?' : album.id}: #{success_array[2]}"
         end
       end
 

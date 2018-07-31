@@ -81,8 +81,39 @@ describe Log do
         expect(log.reload.content).to eq("hi Add! new add!")
       end
     end
-  end
 
+    describe "previous_log" do
+      it "returns nil if there is no previous log" do
+        log = create(:log)
+        expect(log.previous_log).to be_nil
+      end
+
+      it "returns the previous log of the same category"do
+        log1 = create(:log, category: "Scrape")
+        log2 = create(:log, category: "Rescrape")
+        log3 = create(:log, category: "Scrape")
+        expect(log3.previous_log).to eq(log1)
+        expect(log3.previous_log).to_not eq(log2)
+      end
+
+    end
+
+    describe "next_log" do
+      it "returns nil if there is no next log" do
+        log = create(:log)
+        expect(log.next_log).to be_nil
+      end
+
+      it "returns the previous log of the same category" do
+        log1 = create(:log, category: "Scrape")
+        log2 = create(:log, category: "Rescrape")
+        log3 = create(:log, category: "Scrape")
+        expect(log1.next_log).to eq(log3)
+        expect(log1.next_log).to_not eq(log2)
+      end
+
+    end
+  end
 end
 
 describe Loglist do

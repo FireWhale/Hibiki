@@ -34,6 +34,14 @@ describe MaintenanceController do
           expect(assigns(:log)).to eq(logs.first)
         end
 
+        it "accepts a log category" do
+          log = create(:log, category: "Rescrape")
+          logs = create_list(:log, 5, category: "Scrape")
+          get :scrape_results, params: {log_category: log.category}
+          expect(assigns(:log)).to eq(log)
+
+        end
+
         it "uses the last log if no log is provided" do
           logs = create_list(:log, 5, category: "Scrape")
           get :scrape_results

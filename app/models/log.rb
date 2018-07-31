@@ -28,7 +28,15 @@ class Log < ApplicationRecord
     def add_to_content(text)
       self.update_attribute(:content, (self.reload.content || "") + text)
     end
-    
+
+    def previous_log
+        Log.where(category: self.category).where("id < ?", self.id).last
+    end
+
+    def next_log
+        Log.where(category: self.category).where("id > ?", self.id).first
+    end
+
   #Class Methods
     def self.find_last(category)
         self.where(category: category).last
