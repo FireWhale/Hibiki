@@ -1,7 +1,7 @@
 <% content_for :title do %>Scrape Results - Log #<%= @log.id%><% end %>
 
 <% content_for :header do %>
-  <h2 class="text-center">Scrape Results (Log #<%= @log.id%>: <%= @albums.count %>/<%= @count %> Albums)</h2>
+  <h2 class="text-center">Scrape Results (Log #<%= @log.id%>: <%= @log.albums.count %> Albums)</h2>
 
 <% end %>
 <h5>Created at: <%= @log.created_at %></h5>
@@ -51,7 +51,7 @@
       <% if @log.albums.blank? %>
         <h5>No Linked Albums!</h5>
       <% else %>
-        <% @log.albums..each do |album| %>
+        <% @log.albums.each do |album| %>
           <div class="row">
             <div class="col-md-3">
               <%= primary_image_helper(album, album, "thumb", :outline_flag => true, :square => true) %>

@@ -78,7 +78,7 @@ class MaintenanceController < ApplicationController
         end
         @log.content.scan(/\[SUCCESS\]\[[a-z0-9\.:\/]+\].+?\n/).each do |line|
           success_array = line.split("]").map { |s| s.sub(/^\[/,'')} #splits by ] and removes [ from beginning
-          album = @albums.find_by(id: success_array[1])
+          album = @log.albums.find_by(id: success_array[1])
           @parsed[:successful_urls] << "#{album.nil? ? 'Deleted?' : album.id}: #{success_array[2]}"
         end
       end
