@@ -40,7 +40,7 @@ chdir APP_ROOT do
   #Create image directories
   puts "\n== Creating Image directories =="
   ['albums','artists','organizations','posts','seasons','songs','sources','users'].each do |model|
-    mkdir_p "images/#{model}"
+    mkdir_p "public/images/#{model}"
   end
 
 end
