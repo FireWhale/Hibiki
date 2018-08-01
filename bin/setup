@@ -20,6 +20,9 @@ chdir APP_ROOT do
   # Install JavaScript dependencies if using Yarn
   # system('bin/yarn')
 
+  #Create logs directory + files?
+  # maybe
+
   puts "\n== Preparing database =="
   system! 'bundle exec rake db:drop db:create:all db:structure:load'
 
@@ -30,11 +33,14 @@ chdir APP_ROOT do
   unless File.exist?('../config/solr_schema.xml')
     cp 'config/solr_schema.xml', 'solr/configsets/sunspot/conf/schema.xml'
   end
-  #puts "\n== Stopping solr =="
-  #system! 'bundle exec rake sunspot:solr:reindex'
 
   puts "\n== Stopping solr =="
   system! 'bundle exec rake sunspot:solr:stop'
 
+  #Create image directories
+  puts "\n== Creating Image directories =="
+  ['albums','artists','organizations','posts','seasons','songs','sources','users'].each do |model|
+    mkdir_p "images/#{model}"
+  end
 
 end
