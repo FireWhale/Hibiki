@@ -1,0 +1,13 @@
+#yml for neo4j configuration
+
+development:
+  type: server_db
+  url: http://localhost:7474
+
+test:
+  type: server_db
+  url: http://localhost:7575
+
+production:
+  type: server_db
+  url: http://neo4j:password@localhost:7000

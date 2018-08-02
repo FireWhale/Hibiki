@@ -27,6 +27,8 @@ gem 'sidekiq'
 gem 'mysql2'
 gem 'whenever', :require => false #Cron job gem
 gem 'truncate_html'
+gem 'neo4j' #Neo4J graph database
+gem 'neo4j-rake_tasks' #rake tasts for neo4j
 gem 'puma' #Server
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
