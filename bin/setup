@@ -41,12 +41,8 @@ chdir APP_ROOT do
   system! 'bundle exec rake neo4j:install[community-latest]'
   puts "\n== Starting Neo4J server =="
   system! 'bundle exec rake neo4j:start'
-  puts "\n== Copying solr config file =="
-  if File.exist?('../db/neo4j/schema.yml')
-    system! 'bundle exec rake neo4j:schema:load[true]'
-  else
-    system! 'bundle exec rake neo4j:migrate'
-  end
+  puts "\n== Updating constraints =="
+  system! 'bundle exec rake neo4j:schema:load[true]'
   puts "\n== Stopping neo4j instance =="
   system! 'bundle exec rake neo4j:stop'
 
