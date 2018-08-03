@@ -30,10 +30,25 @@ Hibiki::Application.configure do
   config.active_support.deprecation = :stderr
   
   config.eager_load = false
-  
-  #In Rails 5.0, tests will be executed randomly. to opt in (yes we are opting in),
-  config.active_support.test_order = :random
-  
+
+  #Testing
+    #In Rails 5.0, tests will be executed randomly. to opt in (yes we are opting in),
+    config.active_support.test_order = :random
+
+    #Rspec and Testing Code
+    config.generators do |g|
+      g.test_framework :rspec,
+                       :fixtures => true,
+                       :view_specs => true,
+                       :helper_specs => false,
+                       :routing_specs => false,
+                       :controller_specs => true,
+                       :request_specs => true
+      g.fixture_replacement :factory_bot, :dir => "spec/factories"
+    end
+
+
+
   config.after_initialize do
     Bullet.enable = true
     Bullet.bullet_logger = true

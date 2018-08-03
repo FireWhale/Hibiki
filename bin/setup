@@ -33,9 +33,20 @@ chdir APP_ROOT do
   unless File.exist?('../config/solr_schema.xml')
     cp 'config/solr_schema.xml', 'solr/configsets/sunspot/conf/schema.xml'
   end
-
-  puts "\n== Stopping solr =="
+    puts "\n== Stopping solr =="
   system! 'bundle exec rake sunspot:solr:stop'
+
+  #Run Neo4J server and add in constraints
+  puts "\n== Setting up Neo4J =="
+  system! 'bundle exec rake neo4j:start'
+  puts "\n== Copying solr config file =="
+  if File.exist?('../db/neo4j/schema.yml')
+    system! 'bundle exec rake neo4j:schema:load[true]'
+  else
+    system! 'bundle exec rake neo4j:migrate'
+  end
+  puts "\n== Stopping neo4j instance =="
+  system! 'bundle exec rake neo4j:stop'
 
   #Create image directories
   puts "\n== Creating Image directories =="

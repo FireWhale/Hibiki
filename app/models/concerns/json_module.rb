@@ -1,4 +1,6 @@
 module JsonModule
+  extend ActiveSupport::Concern
+
   def as_json(options={})
     autocomplete_models = [Album, Artist, Organization, Song, Source]
     translated_models =  [Album, Artist, Organization, Song, Source, Event, Tag]

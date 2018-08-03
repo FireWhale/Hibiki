@@ -44,7 +44,11 @@ Hibiki::Application.configure do
   # Expands the lines which load the assets
   config.assets.debug = true
   config.eager_load = false
-  
+
+  #Database Related
+    #Neo4J server type:
+    config.neo4j.session.type = :http
+
   # Bullet Monitoring SQL queries
   if RUBY_PLATFORM.downcase == "i386-mingw32"
     config.after_initialize do
