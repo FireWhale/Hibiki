@@ -37,7 +37,9 @@ chdir APP_ROOT do
   system! 'bundle exec rake sunspot:solr:stop'
 
   #Run Neo4J server and add in constraints
-  puts "\n== Setting up Neo4J =="
+  puts "\n== Installing Neo4J =="
+  system! 'bundle exec rake neo4j:install[community-latest]'
+  puts "\n== Starting Neo4J server =="
   system! 'bundle exec rake neo4j:start'
   puts "\n== Copying solr config file =="
   if File.exist?('../db/neo4j/schema.yml')
