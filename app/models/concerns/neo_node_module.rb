@@ -23,8 +23,9 @@ module NeoNodeModule
 
     def create_neo_attributes
       attributes = {uuid: self.id,
-                    name: self.read_name.first,
-                    references: self.references.map { |ref| ref.url }}
+                    name: self.read_name.first}
+      attributes[:references] = self.references.map { |ref| ref.url } if self.respond_to?(:references)
+      attributes[:image_id] = self.primary_images.first.id if self.respond_to?(:images)
       return attributes
     end
 

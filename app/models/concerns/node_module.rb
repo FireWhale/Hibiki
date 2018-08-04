@@ -9,10 +9,12 @@ module NodeModule
 
     property :name
 
-    unless ["Season","Tag"].include?(self.name)
+    unless ["NeoSeason","NeoTag"].include?(self.name)
       property :references
       serialize :references
     end
+
+    property :image_id unless ["NeoEvent","NeoTag"].include?(self.name)
   end
 
   #Instance Methods

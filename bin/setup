@@ -36,16 +36,9 @@ chdir APP_ROOT do
     puts "\n== Stopping solr =="
   system! 'bundle exec rake sunspot:solr:stop'
 
-  #Run Neo4J server and add in constraints
-  puts "\n== Installing Neo4J =="
-  system! 'bundle exec rake neo4j:install[community-latest]'
-  puts "\n== Starting Neo4J server =="
-  system! 'bundle exec rake neo4j:start'
-  sleep(60) #waits for the server to boot up
-  puts "\n== Updating constraints =="
+  #Update Neo4j
+  puts "\n== Updating neo4j constraints =="
   system! 'bundle exec rake neo4j:schema:load[true]'
-  puts "\n== Stopping neo4j instance =="
-  system! 'bundle exec rake neo4j:stop'
 
   #Create image directories
   puts "\n== Creating Image directories =="
