@@ -41,7 +41,7 @@ chdir APP_ROOT do
   system! 'bundle exec rake neo4j:install[community-latest]'
   puts "\n== Starting Neo4J server =="
   system! 'bundle exec rake neo4j:start'
-  sleep(20) #waits for the server to boot up
+  sleep(60) #waits for the server to boot up
   puts "\n== Updating constraints =="
   system! 'bundle exec rake neo4j:schema:load[true]'
   puts "\n== Stopping neo4j instance =="
