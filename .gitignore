@@ -24,8 +24,10 @@ solr/*
 /app/workers/watch_worker.rb
 /config/secrets.yml
 /config/database.yml
+/config/neo4j.yml
 /doc/maintenance_module.rb
 /doc/fix_module.rb
+
 
 
 
