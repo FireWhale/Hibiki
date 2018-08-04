@@ -11,14 +11,22 @@ module NeoNodeModule
   end
 
   def node_record
-    node_model.where(uuid: self.id)
+    record = node_model.find_by(uuid: self.id)
+    record = node_model.new(create_neo_attributes) if record.nil?
+    return record
   end
 
   private
     def neo_save
-      node_model.create(uuid: self.id, name: self.read_name.first)
+      node_record.update_attributes(create_neo_attributes)
     end
 
+    def create_neo_attributes
+      attributes = {uuid: self.id,
+                    name: self.read_name.first,
+                    references: self.references.map { |ref| ref.url }}
+      return attributes
+    end
 
 end
 

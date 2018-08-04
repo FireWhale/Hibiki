@@ -2,6 +2,7 @@ class Season < ApplicationRecord
   #Concerns
     include AssociationModule
     include JsonModule
+    include NeoNodeModule
     #Association Modules
       include ImageModule
   

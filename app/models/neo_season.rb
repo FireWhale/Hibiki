@@ -1,4 +1,5 @@
-class NeoAlbum
+class NeoSeason
   include NodeModule
+
 
 end

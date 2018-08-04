@@ -1,4 +1,4 @@
-class NeoAlbum
+class NeoSong
   include NodeModule
 
 end

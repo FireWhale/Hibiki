@@ -4,6 +4,7 @@ class Event < ApplicationRecord
     include LanguageModule
     include JsonModule
     include ReferenceModule
+    include NeoNodeModule
     #Associaton Modules
       include LogModule
 

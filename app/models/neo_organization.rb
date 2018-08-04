@@ -1,4 +1,5 @@
-class NeoAlbum
+class NeoOrganization
   include NodeModule
+
 
 end

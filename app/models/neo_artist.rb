@@ -1,4 +1,5 @@
-class NeoAlbum
+class NeoArtist
   include NodeModule
+
 
 end

@@ -1,4 +1,4 @@
-class NeoAlbum
+class NeoTag
   include NodeModule
 
 end

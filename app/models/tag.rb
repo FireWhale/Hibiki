@@ -3,6 +3,7 @@ class Tag < ApplicationRecord
   #Concerns
     include LanguageModule
     include JsonModule
+    include NeoNodeModule
 
     default_scope { includes(:translations) }
 

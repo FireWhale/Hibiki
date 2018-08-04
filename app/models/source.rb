@@ -6,6 +6,7 @@ class Source < ApplicationRecord
     include LanguageModule
     include JsonModule
     include DateModule
+    include NeoNodeModule
     #Association Modules
       include SelfRelationModule
       include ImageModule

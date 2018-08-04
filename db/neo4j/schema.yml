@@ -22,6 +22,7 @@
 - CONSTRAINT ON ( neoseason:NeoSeason ) ASSERT neoseason.uuid IS UNIQUE
 - CONSTRAINT ON ( neosong:NeoSong ) ASSERT neosong.uuid IS UNIQUE
 - CONSTRAINT ON ( neosource:NeoSource ) ASSERT neosource.uuid IS UNIQUE
+- CONSTRAINT ON ( neotag:NeoTag ) ASSERT neotag.uuid IS UNIQUE
 :indexes: []
 :versions:
 - '20180803084903'
