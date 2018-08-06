@@ -9,17 +9,17 @@ module NodeModule
 
     property :name
 
-    unless ["NeoSeason","NeoTag"].include?(self.name)
+    unless ["Neo::Season","Neo::Tag"].include?(self.name)
       property :references
       serialize :references
     end
 
-    property :image_id unless ["NeoEvent","NeoTag"].include?(self.name)
+    property :image_id unless ["Neo::Event","Neo::Tag"].include?(self.name)
   end
 
   #Instance Methods
   def sql_model
-    self.class.name.remove("Neo").constantize
+    self.class.name.remove("Neo::").constantize
   end
 
   def sql_record

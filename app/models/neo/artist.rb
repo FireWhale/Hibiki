@@ -1,4 +1,5 @@
-class NeoTag
+class Neo::Artist
   include NodeModule
+
 
 end

@@ -1,5 +1,4 @@
-class NeoOrganization
+class Neo::Song
   include NodeModule
-
 
 end

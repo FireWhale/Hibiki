@@ -1,5 +1,4 @@
-class NeoArtist
+class Neo::Organization
   include NodeModule
-
 
 end
