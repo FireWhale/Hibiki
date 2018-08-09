@@ -7,4 +7,6 @@ class Neo::Tag
   has_many :out, :sources, rel_class: 'Neo::Taglist', model_class: 'Neo::Source'
   has_many :out, :songs, rel_class: 'Neo::Taglist', model_class: 'Neo::Song'
 
+  property 'info'
+
 end

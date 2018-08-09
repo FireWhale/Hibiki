@@ -9,4 +9,9 @@ class Neo::Organization
   has_many :out, :organization_relations, rel_class: 'Neo::RelatedRecord', model_class: 'Neo::Organization'
   has_many :in, :related_organizations, rel_class: 'Neo::RelatedRecord', model_class: 'Neo::Organization'
 
+  property 'synopsis'
+  property 'activity'
+  property 'info'
+  property 'established'
+  property 'type of org'
 end

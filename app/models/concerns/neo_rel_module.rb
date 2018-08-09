@@ -87,7 +87,7 @@ module NeoRelModule #Attaches to mySQL join models
     end
 
     def neo_destroy
-      neo_relation.destroy #will destroy new and saved_to_db records, which is fine. 
+      neo_relation.destroy #will destroy new and saved_to_db records, which is fine.
     end
 end
 

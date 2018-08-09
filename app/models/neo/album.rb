@@ -11,4 +11,7 @@ class Neo::Album
   has_many :out, :album_relations, rel_class: 'Neo::RelatedRecord', model_class: 'Neo::Album'
   has_many :in, :related_albums, rel_class: 'Neo::RelatedRecord', model_class: 'Neo::Album'
 
+  property 'catalog number'
+  property 'release date'
+  property 'info'
 end

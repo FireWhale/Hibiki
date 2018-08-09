@@ -10,4 +10,11 @@ class Neo::Source
   has_many :out, :source_relations, rel_class: 'Neo::RelatedRecord', model_class: 'Neo::Source'
   has_many :in, :related_sources, rel_class: 'Neo::RelatedRecord', model_class: 'Neo::Source'
 
+  property 'synopsis'
+  property 'activity'
+  property 'release date'
+  property 'end date'
+  property 'plot summary'
+  property 'info'
+
 end

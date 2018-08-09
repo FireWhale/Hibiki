@@ -11,6 +11,14 @@ class Neo::Song
   has_many :out, :song_relations, rel_class: 'Neo::RelatedRecord', model_class: 'Neo::Song'
   has_many :in, :related_songs, rel_class: 'Neo::RelatedRecord', model_class: 'Neo::Song'
 
+
+  property 'track number'
+  property 'disc number'
+  property 'length'
+  property 'release date'
+  property 'info'
+  property 'lyrics'
+
   def album #doesn't work for unsaved songs
     albums.first
   end
