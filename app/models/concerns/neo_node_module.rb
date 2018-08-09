@@ -25,17 +25,14 @@ module NeoNodeModule #Attaches to mySQL models.
 
   private
     def neo_update
-      puts self.destroyed?
       unless self.destroyed?
         record = neo_record
         unless record.new?
-          puts "why"
           properties = neo_properties
           db_properties = record.attributes.except('created_at','updated_at')
           db_properties.each {|k,v| properties[k] = nil if properties[k].blank?}
           record.attributes = properties
         end
-        puts "no stop"
         record.save
       end
     end
