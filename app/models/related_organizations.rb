@@ -1,4 +1,7 @@
 class RelatedOrganizations < ApplicationRecord
+
+  include NeoRelModule
+
   Relationships = Organization::SelfRelationships.map { |relation| relation[3]}.reject(&:nil?)
   
   validates :organization1_id, :presence => true, uniqueness: {scope: :organization2_id}
@@ -11,4 +14,8 @@ class RelatedOrganizations < ApplicationRecord
   
   belongs_to :organization1, class_name: "Organization", :foreign_key => :organization1_id
   belongs_to :organization2, class_name: "Organization", :foreign_key => :organization2_id
+
+  def neo_relation
+    neo_rel(organization1,organization2)
+  end
 end

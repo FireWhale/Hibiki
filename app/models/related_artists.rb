@@ -1,4 +1,7 @@
 class RelatedArtists < ApplicationRecord
+
+  include NeoRelModule
+
   Relationships = Artist::SelfRelationships.reject {|r| r.count < 3}.map(&:last)
 
   validates :artist1_id, :presence => true, uniqueness: {scope: :artist2_id}
@@ -11,4 +14,8 @@ class RelatedArtists < ApplicationRecord
     
   belongs_to :artist1, class_name: "Artist", :foreign_key => :artist1_id
   belongs_to :artist2, class_name: "Artist", :foreign_key => :artist2_id
+
+  def neo_relation
+    neo_rel(artist1,artist2)
+  end
 end

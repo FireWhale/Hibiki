@@ -1,4 +1,7 @@
 class RelatedSongs < ApplicationRecord
+
+  include NeoRelModule
+
   Relationships = Song::SelfRelationships.map { |relation| relation[3]}.reject(&:nil?)
 
   validates :song1_id, :presence => true, uniqueness: {scope: :song2_id}
@@ -11,8 +14,10 @@ class RelatedSongs < ApplicationRecord
   
   belongs_to :song1, class_name: "Song", :foreign_key => :song1_id
   belongs_to :song2, class_name: "Song", :foreign_key => :song2_id
-  
-  
+
+  def neo_relation
+    neo_rel(song1,song2)
+  end
   
   def song_ids
     [song1_id] + [song2_id]

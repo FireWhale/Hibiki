@@ -7,4 +7,7 @@ class Neo::Source
   has_many :out, :seasons, rel_class: 'Neo::SourceSeason', model_class: 'Neo::Season'
   has_many :in, :tags, rel_class: 'Neo::Taglist', model_class: 'Neo::Tag'
 
+  has_many :out, :source_relations, rel_class: 'Neo::RelatedRecord', model_class: 'Neo::Source'
+  has_many :in, :related_sources, rel_class: 'Neo::RelatedRecord', model_class: 'Neo::Source'
+
 end

@@ -8,6 +8,9 @@ class Neo::Song
   has_many :out, :sources, rel_class: 'Neo::SongSource', model_class: 'Neo::Source'
   has_many :in, :tags, rel_class: 'Neo::Taglist', model_class: 'Neo::Tag'
 
+  has_many :out, :song_relations, rel_class: 'Neo::RelatedRecord', model_class: 'Neo::Song'
+  has_many :in, :related_songs, rel_class: 'Neo::RelatedRecord', model_class: 'Neo::Song'
+
   def album #doesn't work for unsaved songs
     albums.first
   end

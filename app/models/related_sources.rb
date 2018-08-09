@@ -1,4 +1,7 @@
 class RelatedSources < ApplicationRecord
+
+  include NeoRelModule
+
   Relationships = Source::SelfRelationships.map { |relation| relation[3]}.reject(&:nil?)
   
   validates :source1_id, :presence => true, uniqueness: {scope: :source2_id}
@@ -11,5 +14,8 @@ class RelatedSources < ApplicationRecord
   
   belongs_to :source1, class_name: "Source", :foreign_key => :source1_id
   belongs_to :source2, class_name: "Source", :foreign_key => :source2_id
-  
+
+  def neo_relation
+    neo_rel(source1,source2)
+  end
 end

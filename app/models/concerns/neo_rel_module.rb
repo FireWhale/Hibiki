@@ -3,13 +3,15 @@ module NeoRelModule #Attaches to mySQL join models
 
   included do
     after_commit :neo_update
-
-
   end
 
   #Instance Methods
   def neo_model
-    "Neo::#{self.class.name}".constantize
+    if self.class.name.starts_with?('Related')
+      Neo::RelatedRecord
+    else
+      "Neo::#{self.class.name}".constantize
+    end
   end
 
   private
@@ -18,7 +20,7 @@ module NeoRelModule #Attaches to mySQL join models
         rel = neo_relation
         unless rel.new? #compare neo rel attributes with properties and remove the missing. aka update.
           properties = neo_properties
-          db_properties = rel.attributes.except("created_at","updated_at")
+          db_properties = rel.attributes.except('created_at','updated_at')
           db_properties.each {|k,v| properties[k] = nil if properties[k].blank?}
           rel.attributes = properties
         end
@@ -31,7 +33,11 @@ module NeoRelModule #Attaches to mySQL join models
     end
 
     def neo_rel(from,to)
-      rel = neo_db_rel(from.class.name.downcase,to.class.name.downcase.pluralize)
+      if from.class == to.class #Related record
+        rel = neo_db_rel("#{from.class.name.downcase}1","#{from.class.name.downcase}_relations")
+      else
+        rel = neo_db_rel(from.class.name.downcase,to.class.name.downcase.pluralize)
+      end
       if rel.nil? #create a rel
         rel = self.neo_model.new(from_node: from.neo_record, to_node: to.neo_record)
         rel.attributes = neo_properties
@@ -71,6 +77,7 @@ module NeoRelModule #Attaches to mySQL join models
 
       properties['Appeared As A'] = self.category if self.class == SourceSeason
       properties['Company Role'] = self.category if self.class == AlbumOrganization || self.class == SourceOrganization
+      properties['Relationship'] = self.category if self.class.name.starts_with?('Related')
 
       properties.reject! {|k,v| v.blank?} #remove any blanks
       return properties

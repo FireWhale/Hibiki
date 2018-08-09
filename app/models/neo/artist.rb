@@ -6,4 +6,6 @@ class Neo::Artist
   has_many :out, :organizations, rel_class: 'Neo::ArtistOrganization', model_class: 'Neo::Organization'
   has_many :in, :tags, rel_class: 'Neo::Taglist', model_class: 'Neo::Tag'
 
+  has_many :out, :artist_relations, rel_class: 'Neo::RelatedRecord', model_class: 'Neo::Artist'
+  has_many :in, :related_artists, rel_class: 'Neo::RelatedRecord', model_class: 'Neo::Artist'
 end

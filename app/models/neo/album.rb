@@ -8,4 +8,7 @@ class Neo::Album
   has_many :in, :artists, rel_class: 'Neo::ArtistAlbum', model_class: 'Neo::Artist'
   has_many :in, :tags, rel_class: 'Neo::Taglist', model_class: 'Neo::Tag'
 
+  has_many :out, :album_relations, rel_class: 'Neo::RelatedRecord', model_class: 'Neo::Album'
+  has_many :in, :related_albums, rel_class: 'Neo::RelatedRecord', model_class: 'Neo::Album'
+
 end
