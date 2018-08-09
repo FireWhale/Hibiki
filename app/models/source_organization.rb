@@ -12,4 +12,8 @@ class SourceOrganization < ApplicationRecord
     validates :category, presence: true, inclusion: SourceOrganization::Categories
     
     validates :source_id, uniqueness: {scope: [:organization_id]}
+
+    def neo_relation
+        neo_rel(source,organization)
+    end
 end

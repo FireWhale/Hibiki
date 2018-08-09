@@ -1,7 +1,6 @@
 class AlbumEvent < ApplicationRecord
 
   include NeoRelModule
-  after_save :neo_update
 
   #Associations
     belongs_to :album
@@ -12,7 +11,7 @@ class AlbumEvent < ApplicationRecord
     validates :event, presence: true
     validates :album_id, uniqueness: {scope: :event_id}
 
-  def neo_update
+  def neo_relation
     neo_rel(album,event)
   end
 

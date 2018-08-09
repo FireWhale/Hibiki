@@ -1,6 +1,7 @@
 class ArtistSong < ApplicationRecord
 
   #Modules
+    include NeoRelModule
     include LanguageModule
 
   #Callbacks
@@ -34,4 +35,9 @@ class ArtistSong < ApplicationRecord
       end
     end
   end
+
+  def neo_relation
+    neo_rel(artist,song)
+  end
+
 end

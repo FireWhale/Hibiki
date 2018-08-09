@@ -1,4 +1,7 @@
 class ArtistOrganization < ApplicationRecord
+
+  include NeoRelModule
+
   #Constants
     Categories = ['Member','Founder','Former Member','Label']
     
@@ -13,4 +16,7 @@ class ArtistOrganization < ApplicationRecord
 
     validates :artist_id, uniqueness: {scope: [:organization_id]}
 
+  def neo_relation
+    neo_rel(artist,organization)
+  end
 end

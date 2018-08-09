@@ -1,4 +1,6 @@
 class SourceSeason < ApplicationRecord
+
+  include NeoRelModule
   
   Categories = ["Airing","Previous Season Leftover","Movie","OVA/ONA/Special","Short"]
   
@@ -11,4 +13,9 @@ class SourceSeason < ApplicationRecord
     validates :season, presence: true
     validates :category, inclusion: SourceSeason::Categories
     validates :source_id, uniqueness: {scope: :season_id}
+
+  def neo_relation
+    neo_rel(source,season)
+  end
+
 end

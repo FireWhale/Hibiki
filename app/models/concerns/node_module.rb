@@ -1,4 +1,4 @@
-module NodeModule
+module NodeModule #Attaches to Neo4j Node models.
   extend ActiveSupport::Concern
 
   included do

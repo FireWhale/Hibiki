@@ -1,4 +1,8 @@
 class SongSource < ApplicationRecord
+
+  #Modules
+  include NeoRelModule
+
   #Callbacks
     after_save :update_album
 
@@ -22,5 +26,9 @@ class SongSource < ApplicationRecord
       album_source = self.song.album.album_sources.where(:source_id => self.source.id)
       self.song.album.album_sources.create(:source_id => source.id) if album_source.empty?
     end
+  end
+
+  def neo_relation
+    neo_rel(song,source)
   end
 end
