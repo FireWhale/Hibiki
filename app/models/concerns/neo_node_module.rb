@@ -24,19 +24,36 @@ module NeoNodeModule #Attaches to mySQL models.
 
   private
     def neo_update
-      neo_record.update_attributes(neo_properties)
+      record = neo_record
+      unless record.new?
+        properties = neo_properties
+        db_properties = record.attributes.except("created_at","updated_at")
+        db_properties.each {|k,v| properties[k] = nil if properties[k].blank?}
+        record.attributes = properties
+      end
+      record.save
     end
 
     def neo_properties
-      attributes = {uuid: self.id}
+      properties = {'uuid' => self.id}
       if self.respond_to?(:read_name)
-        attributes[:name] = self.read_name.first
+        properties['name'] = self.read_name.first
       else
-        attributes[:name] = self.name
+        properties['name'] = self.name
       end
-      attributes[:references] = self.references.map { |ref| ref.url } if self.respond_to?(:references) && self.references.blank? == false
-      attributes[:image_id] = self.primary_images.first.id if self.respond_to?(:images) && self.primary_images.blank? == false
-      return attributes
+
+      if self.class == Event
+        properties['start_date'] = self.start_date
+        properties['end_date'] = self.end_date
+      end
+
+
+      properties['references'] = self.references.map { |ref| ref.url } if self.respond_to?(:references)
+      properties['image_id'] = self.primary_images.first.id if self.respond_to?(:images)
+
+
+      properties.reject! {|k,v| v.blank?} #remove any blanks
+      return properties
     end
 
 

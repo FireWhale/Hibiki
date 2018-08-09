@@ -12,9 +12,18 @@ module NeoRelModule #Attaches to mySQL join models
     "Neo::#{self.class.name}".constantize
   end
 
-  #private
+  private
     def neo_update
-      neo_relation.save unless self.class == Taglist && self.subject.class == Post
+      unless self.class == Taglist && self.subject.class == Post
+        rel = neo_relation
+        unless rel.new? #compare neo rel attributes with properties and remove the missing. aka update.
+          properties = neo_properties
+          db_properties = rel.attributes.except("created_at","updated_at")
+          db_properties.each {|k,v| properties[k] = nil if properties[k].blank?}
+          rel.attributes = properties
+        end
+        rel.save
+      end
     end
 
     def neo_db_rel(from_model,to_models)
@@ -23,14 +32,10 @@ module NeoRelModule #Attaches to mySQL join models
 
     def neo_rel(from,to)
       rel = neo_db_rel(from.class.name.downcase,to.class.name.downcase.pluralize)
-      properties = neo_properties
       if rel.nil? #create a rel
         rel = self.neo_model.new(from_node: from.neo_record, to_node: to.neo_record)
-      else #compare neo rel attributes with properties and remove the missing. aka update.
-        db_properties = rel.attributes.except("created_at","updated_at")
-        db_properties.each {|k,v| properties[k] = nil if properties[k].blank?}
+        rel.attributes = neo_properties
       end
-      rel.attributes = properties
       return rel
     end
 
