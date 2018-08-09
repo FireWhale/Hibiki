@@ -3,6 +3,7 @@ module NeoNodeModule #Attaches to mySQL models.
 
   included do
     after_commit :neo_update
+    after_destroy_commit :neo_destroy
   end
 
   #Instance Methods
@@ -24,14 +25,19 @@ module NeoNodeModule #Attaches to mySQL models.
 
   private
     def neo_update
-      record = neo_record
-      unless record.new?
-        properties = neo_properties
-        db_properties = record.attributes.except('created_at','updated_at')
-        db_properties.each {|k,v| properties[k] = nil if properties[k].blank?}
-        record.attributes = properties
+      puts self.destroyed?
+      unless self.destroyed?
+        record = neo_record
+        unless record.new?
+          puts "why"
+          properties = neo_properties
+          db_properties = record.attributes.except('created_at','updated_at')
+          db_properties.each {|k,v| properties[k] = nil if properties[k].blank?}
+          record.attributes = properties
+        end
+        puts "no stop"
+        record.save
       end
-      record.save
     end
 
     def neo_properties
@@ -54,6 +60,8 @@ module NeoNodeModule #Attaches to mySQL models.
       return properties
     end
 
-
+    def neo_destroy
+      neo_db_record.destroy unless neo_db_record.nil?
+    end
 end
 

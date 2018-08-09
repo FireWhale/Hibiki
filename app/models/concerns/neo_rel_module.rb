@@ -3,6 +3,7 @@ module NeoRelModule #Attaches to mySQL join models
 
   included do
     after_commit :neo_update
+    after_destroy_commit :neo_destroy
   end
 
   #Instance Methods
@@ -18,13 +19,15 @@ module NeoRelModule #Attaches to mySQL join models
     def neo_update
       unless self.class == Taglist && self.subject.class == Post
         rel = neo_relation
-        unless rel.new? #compare neo rel attributes with properties and remove the missing. aka update.
-          properties = neo_properties
-          db_properties = rel.attributes.except('created_at','updated_at')
-          db_properties.each {|k,v| properties[k] = nil if properties[k].blank?}
-          rel.attributes = properties
+        unless rel.from_node.sql_record.nil? || rel.to_node.sql_record.nil? #sql record is deleted. don't create.
+          unless rel.new? #compare neo rel attributes with properties and remove the missing. aka update.
+            properties = neo_properties
+            db_properties = rel.attributes.except('created_at','updated_at')
+            db_properties.each {|k,v| properties[k] = nil if properties[k].blank?}
+            rel.attributes = properties
+          end
+          rel.save
         end
-        rel.save
       end
     end
 
@@ -83,5 +86,8 @@ module NeoRelModule #Attaches to mySQL join models
       return properties
     end
 
+    def neo_destroy
+      neo_relation.destroy #will destroy new and saved_to_db records, which is fine. 
+    end
 end
 
