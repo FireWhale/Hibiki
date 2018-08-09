@@ -17,6 +17,10 @@ solr/*
 # Ignore Rubymine Files
 /.idea/*
 
+# Ignore neo4j files except schema
+db/neo4j/*
+!db/neo4j/schema.yml
+
 # Ignore files with sensitive info
 /lib/llcookies
 /app/models/ability.rb
