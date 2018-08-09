@@ -12,7 +12,7 @@ module NeoRelModule #Attaches to mySQL join models
     "Neo::#{self.class.name}".constantize
   end
 
-  private
+  #private
     def neo_update
       neo_relation.save unless self.class == Taglist && self.subject.class == Post
     end
@@ -23,13 +23,19 @@ module NeoRelModule #Attaches to mySQL join models
 
     def neo_rel(from,to)
       rel = neo_db_rel(from.class.name.downcase,to.class.name.downcase.pluralize)
-      rel = self.neo_model.new(from_node: from.neo_record, to_node: to.neo_record) if rel.nil?
-      rel.attributes = neo_properties
+      properties = neo_properties
+      if rel.nil? #create a rel
+        rel = self.neo_model.new(from_node: from.neo_record, to_node: to.neo_record)
+      else #compare neo rel attributes with properties and remove the missing. aka update.
+        db_properties = rel.attributes.except("created_at","updated_at")
+        db_properties.each {|k,v| properties[k] = nil if properties[k].blank?}
+      end
+      rel.attributes = properties
       return rel
     end
 
     def neo_properties
-      properties = {uuid: self.id}
+      properties = {'uuid' => self.id}
 
       if self.class == ArtistAlbum || self.class == ArtistSong #Performers
         Artist.get_credits(self.category).each do |cat|
