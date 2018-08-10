@@ -52,5 +52,4 @@ class Log < ApplicationRecord
         end
         return log
     end
-
 end
