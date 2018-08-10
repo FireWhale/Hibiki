@@ -31,9 +31,3 @@ db/neo4j/*
 /config/neo4j.yml
 /doc/maintenance_module.rb
 /doc/fix_module.rb
-
-
-
-
-
-

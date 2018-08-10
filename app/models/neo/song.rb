@@ -14,7 +14,7 @@ class Neo::Song
 
   property 'track number'
   property 'disc number'
-  property 'length'
+  property 'duration'
   property 'release date'
   property 'info'
   property 'lyrics'
