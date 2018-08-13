@@ -48,10 +48,11 @@ module ImageTests
           record = create(model_symbol)
           image = create(:image, primary_flag: "Primary")
           image2 = create(:image, primary_flag: "Primary")
-          imagelist = create(:imagelist, image: image, model: record)
-          imagelist = create(:imagelist, image: image2, model: record)
-          imagelist = create(:imagelist, model: record)
-          expect(record.primary_images).to match_array([image, image2])
+          image3 = create(:image, primary_flag: nil)
+          record.images << image
+          record.images << image2
+          record.images << image3
+          expect(record.reload.primary_images).to match_array([image, image2])
         end
       end
 

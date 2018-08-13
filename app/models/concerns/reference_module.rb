@@ -12,6 +12,7 @@ module ReferenceModule
 
   def references(*site_name)
     return super if site_name.empty?
+    references.reset
     references.select { |ref| ref.site_name == site_name.first.to_s }.first
   end
 
@@ -30,6 +31,7 @@ module ReferenceModule
           reference = self.references.find_by_id(id.to_s)
           (info[:site_name].blank? || info[:url].blank? ? reference.destroy : reference.update_attributes(info)) unless reference.nil?
         end
+        references.reset
       end
     end
 end

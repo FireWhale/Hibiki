@@ -19,7 +19,7 @@ module NeoNodeModule #Attaches to mySQL models.
   def neo_record
     record = neo_db_record
     record = neo_model.new(neo_properties) if record.nil?
-    record.albums = self.album.neo_record if self.class == Song && record.album == nil
+    record.albums = self.album.neo_record if self.class == Song && self.album.nil? == false && record.album == nil
     return record
   end
 
@@ -91,6 +91,7 @@ module NeoNodeModule #Attaches to mySQL models.
       properties['synopsis'] = self.synopsis if self.respond_to?(:synopsis)
       properties['references'] = self.references.map { |ref| ref.url } if self.respond_to?(:references) && self.references.blank? == false
       properties['image_id'] = self.primary_images.first.id if self.respond_to?(:images) && self.primary_images.blank? == false
+
 
       properties.reject! {|k,v| v.blank?} #remove any blanks
       return properties

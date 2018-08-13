@@ -7,12 +7,15 @@ module ReferenceTests
 
       describe "Associations" do
         it "has many references" do
-          expect(create(model_symbol, :with_reference).references.first).to be_a Reference
+          record = create(model_symbol)
+          record.references << create(:reference, site_name: "VGMdb")
+          expect(record.references.first).to be_a Reference
           expect(described_class.reflect_on_association(:references).macro).to eq(:has_many)
         end
 
         it "destroys references when destroyed" do
-          record = create(model_symbol, :with_reference)
+          record = create(model_symbol)
+          record.references << create(:reference, site_name: "VGMdb")
           expect{record.destroy}.to change(Reference, :count).by(-1)
         end
       end
@@ -20,22 +23,28 @@ module ReferenceTests
       describe "Instance Methods" do
         it "returns a list of references for a #{model_symbol} aka super" do
           record = create(model_symbol)
-          reference1 = create(:reference, model: record, site_name: "VGMdb")
-          reference2 = create(:reference, model: record, site_name: "Wikipedia")
+          reference1 = create(:reference, site_name: "VGMdb")
+          reference2 = create(:reference, site_name: "Wikipedia")
+          record.references << reference1
+          record.references << reference2
           expect(record.references).to match_array([reference1, reference2])
         end
 
         it "returns a specific reference if passed in as a parameter" do
           record = create(model_symbol)
-          reference1 = create(:reference, model: record, site_name: "VGMdb")
-          reference2 = create(:reference, model: record, site_name: "Wikipedia")
+          reference1 = create(:reference, site_name: "VGMdb")
+          reference2 = create(:reference, site_name: "Wikipedia")
+          record.references << reference1
+          record.references << reference2
           expect(record.references("Wikipedia")).to eq(reference2)
         end
 
         it "accepts the one word references as a symbol" do
           record = create(model_symbol)
-          reference1 = create(:reference, model: record, site_name: "VGMdb")
-          reference2 = create(:reference, model: record, site_name: "Wikipedia")
+          reference1 = create(:reference, site_name: "VGMdb")
+          reference2 = create(:reference, site_name: "Wikipedia")
+          record.references << reference1
+          record.references << reference2
           expect(record.references(:Wikipedia)).to eq(reference2)
         end
 

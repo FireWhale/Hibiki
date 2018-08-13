@@ -59,6 +59,11 @@ module PartialDateTests
             expect(record.send("#{date_name}_formatted")).to be_nil
           end
 
+          it "formats a nil date into nil" do
+            record = build(model_symbol, "#{date_name}": nil, "#{date_name}_bitmask": 7)
+            expect(record.send("#{date_name}_formatted")).to be_nil
+          end
+
         end
       end
     end

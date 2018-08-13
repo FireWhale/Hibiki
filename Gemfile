@@ -34,7 +34,6 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 group :development, :test do
   gem 'sunspot_solr' #pre packaged solr distribution (Remove once you install true solr)
-  gem 'bullet', platforms: [:mingw, :mswin, :x64_mingw] #Raises notices unoptimized queries
   gem 'progress_bar'
   gem 'rspec-rails'
   gem 'rails-controller-testing'
@@ -44,9 +43,11 @@ end
 
 group :development do
   gem 'web-console', '>= 3.3.0'
+  gem 'bullet', platforms: [:mingw, :mswin, :x64_mingw] #Raises notices unoptimized queries
 end
 
 group :test do
+  gem 'bullet'
   gem 'faker'
   gem 'capybara'
   gem 'database_cleaner'

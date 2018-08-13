@@ -19,30 +19,36 @@ module NeoRelModule #Attaches to mySQL join models
     def neo_update
       unless self.class == Taglist && self.subject.class == Post
         rel = neo_relation
-        unless rel.from_node.sql_record.nil? || rel.to_node.sql_record.nil? #sql record is deleted. don't create.
-          unless rel.new? #compare neo rel attributes with properties and remove the missing. aka update.
-            properties = neo_properties
-            db_properties = rel.attributes.except('created_at','updated_at')
-            db_properties.each {|k,v| properties[k] = nil if properties[k].blank?}
-            rel.attributes = properties
+        unless rel.from_node.respond_to?(:set?) || rel.to_node.respond_to?(:set?) #if true, they aren't real nodes.
+          unless rel.from_node.sql_record.nil? || rel.to_node.sql_record.nil? #sql record is deleted. don't create.
+            unless rel.new? #compare neo rel attributes with properties and remove the missing. aka update.
+              properties = neo_properties
+              db_properties = rel.attributes.except('created_at','updated_at')
+              db_properties.each {|k,v| properties[k] = nil if properties[k].blank?}
+              rel.attributes = properties
+            end
+            rel.save
           end
-          rel.save
         end
       end
     end
 
     def neo_db_rel(from_model,to_models)
-      self.send(from_model).neo_record.send(to_models).each_rel.select  { |r| r.uuid == self.id }.first
+      from_record = self.send(from_model)
+      return from_record.nil? ? nil :  from_record.neo_record.send(to_models).each_rel.select  { |r| r.uuid == self.id }.first
     end
 
     def neo_rel(from,to)
-      if from.class == to.class #Related record
-        rel = neo_db_rel("#{from.class.name.downcase}1","#{from.class.name.downcase}_relations")
+      if self.class.name.start_with?('Related') #Related record
+        model_name = self.class.name[7..-1].chomp('s').downcase
+        rel = neo_db_rel("#{model_name}1","#{model_name}_relations")
       else
         rel = neo_db_rel(from.class.name.downcase,to.class.name.downcase.pluralize)
       end
       if rel.nil? #create a rel
-        rel = self.neo_model.new(from_node: from.neo_record, to_node: to.neo_record)
+        rel = self.neo_model.new
+        rel.from_node = from.neo_record unless from.nil?
+        rel.to_node = to.neo_record unless to.nil?
         rel.attributes = neo_properties
       end
       return rel
@@ -86,8 +92,8 @@ module NeoRelModule #Attaches to mySQL join models
       return properties
     end
 
-    def neo_destroy
-      neo_relation.destroy #will destroy new and saved_to_db records, which is fine.
+    def neo_destroy #will destroy new and saved_to_db records, which is fine.
+      neo_relation.destroy unless self.class == Taglist && self.subject.class == Post
     end
 end
 

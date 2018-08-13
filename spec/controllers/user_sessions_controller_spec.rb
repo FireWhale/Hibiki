@@ -9,8 +9,6 @@ describe UserSessionsController do
           let(:user) {create(:user)}
           
           it "saves the new user_session" do
-            p "hi"
-            p @user
             post :create, params: {user_session: {:name => user.name, password: 'hehepassword1'}}
             expect(UserSession.find.record).to eq(user)
           end
