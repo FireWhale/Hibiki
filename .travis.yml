@@ -1,5 +1,6 @@
 language: ruby
 rvm:
+<<<<<<< HEAD
  - 2.3.3
 services:
  - mysql
@@ -7,3 +8,7 @@ before_install:
 # mysql: db setup and db config move
  - cp config/database.travis.yml config/database.yml
  - mysql -e 'CREATE DATABASE hibiki_test;'
+=======
+ - 2.2
+ - jruby
+>>>>>>> passing tests
