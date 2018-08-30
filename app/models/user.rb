@@ -22,7 +22,6 @@ class User < ApplicationRecord
     EditProfileFields = [{type: "markup", tag_name: "div id='small-view'"},
                          {type: "profile_settings"},{type: "markup", tag_name: "/div"}]
 
-
   #Validation
     validates :name, presence: true, length: { minimum: 3, maximum: 20}
     validates :email, uniqueness: { :case_sensitive => false },presence: true
@@ -57,6 +56,9 @@ class User < ApplicationRecord
     DefaultPrivacySettings = []
 
   #Associations
+    has_many :user_roles, class_name: 'Users::UserRole', dependent: :destroy
+    has_many :roles, through: :user_roles, class_name: 'Users::Role'
+
     has_many :watchlists, dependent: :destroy
     has_many :artists, through: :watchlists, source: :watched, source_type: 'Artist'
     has_many :organizations, through: :watchlists, source: :watched, source_type: 'Organization'
@@ -90,12 +92,7 @@ class User < ApplicationRecord
     end
 
     def abilities
-      if self.status == "Deactivated"
-        [] #can't do anything
-      else
-        abilities = Ability::Abilities
-        abilities.reject { |r| ((self.security.to_i || 0 ) & 2**abilities.index(r)).zero? } + ['Any']
-      end
+      self.status == "Deactivated" ? [] : roles.pluck(:name) + ['Any']
     end
 
     def privacy_settings
@@ -133,7 +130,7 @@ class User < ApplicationRecord
 
   private
     def set_default_settings
-      self.security = "2" #User
+      self.roles << Users::Role.find_by_name('User')
       self.privacy = User.get_privacy_bitmask(User::DefaultPrivacySettings)
       self.language_settings  = User::DefaultLanguages.join(",")
       self.artist_language_settings  = User::DefaultLanguages.join(",")
