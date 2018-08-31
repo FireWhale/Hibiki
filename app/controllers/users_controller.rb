@@ -212,7 +212,7 @@ class UsersController < ApplicationController
 
   def create
     new_params = user_params
-    @user = User.new(new_params)
+    @user = UserDefaulter.new(new_params)
 
     respond_to do |format|
       if current_user.nil?

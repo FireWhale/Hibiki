@@ -14,7 +14,6 @@ class User < ApplicationRecord
     attr_accessor :artist_language_form_settings
 
   #Callbacks/Hooks
-    before_validation :set_default_settings, on: :create
     before_save :manage_security_settings
     before_save :manage_profile_settings
 
@@ -129,14 +128,6 @@ class User < ApplicationRecord
     end
 
   private
-    def set_default_settings
-      self.roles << Users::Role.find_by_name('User')
-      self.privacy = User.get_privacy_bitmask(User::DefaultPrivacySettings)
-      self.language_settings  = User::DefaultLanguages.join(",")
-      self.artist_language_settings  = User::DefaultLanguages.join(",")
-      self.display_bitmask = User.get_display_bitmask(User::DefaultDisplaySettings)
-    end
-
     def manage_security_settings
       self.security = User.get_security_bitmask(self.security_array) unless self.security_array.nil?
     end
