@@ -30,7 +30,7 @@ describe SeasonsController do
   
   context 'user access to seasons' do
     before :each do
-      @user = create(:user)
+      @user = create(:user, :user_role)
       UserSession.create(@user)
     end
     
@@ -57,7 +57,7 @@ describe SeasonsController do
 
   context 'admin access to seasons' do
     before :each do
-      @user = create(:admin)
+      @user = create(:user, :admin_role)
       UserSession.create(@user)
     end
     

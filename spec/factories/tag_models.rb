@@ -6,7 +6,7 @@ FactoryBot.define do
     #Required Attributes
     internal_name {Faker::Lorem.sentence}
     classification {Faker::Lorem.sentence}
-    visibility {Ability::Abilities.sample}
+    visibility {Rails.application.secrets.roles.sample}
     model_bitmask {Faker::Number.between(1,63)}
     
     trait :full_attributes do

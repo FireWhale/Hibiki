@@ -400,8 +400,8 @@ DROP TABLE IF EXISTS `lyrics`;
  SET character_set_client = utf8mb4 ;
 CREATE TABLE `lyrics` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `language` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `song_id` int(11) DEFAULT NULL,
+  `language` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `lyrics` text CHARACTER SET utf8 COLLATE utf8_unicode_ci,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
@@ -595,11 +595,11 @@ DROP TABLE IF EXISTS `roles`;
 CREATE TABLE `roles` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
-  `description` varchar(255) DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
+  `description` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `schema_migrations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -664,9 +664,9 @@ DROP TABLE IF EXISTS `songs`;
  SET character_set_client = utf8mb4 ;
 CREATE TABLE `songs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `album_id` int(11) DEFAULT NULL,
   `internal_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `namehash` text CHARACTER SET utf8 COLLATE utf8_unicode_ci,
-  `album_id` int(11) DEFAULT NULL,
   `track_number` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `length` int(11) DEFAULT NULL,
   `created_at` datetime NOT NULL,
@@ -810,10 +810,10 @@ CREATE TABLE `tags` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `internal_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `classification` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `model_bitmask` int(11) DEFAULT NULL,
-  `visibility` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
+  `model_bitmask` int(11) DEFAULT NULL,
+  `visibility` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `index_tags_on_visibility` (`visibility`),
   KEY `index_tags_on_internal_name` (`internal_name`),
@@ -824,13 +824,15 @@ DROP TABLE IF EXISTS `user_roles`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
  SET character_set_client = utf8mb4 ;
 CREATE TABLE `user_roles` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `user_id` bigint(20) NOT NULL,
   `role_id` bigint(20) NOT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
   KEY `index_user_roles_on_user_id` (`user_id`),
   KEY `index_user_roles_on_role_id` (`role_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `user_sessions`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -889,10 +891,10 @@ CREATE TABLE `watchlists` (
   `user_id` int(11) DEFAULT NULL,
   `watched_id` int(11) DEFAULT NULL,
   `watched_type` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `position` int(11) DEFAULT NULL,
-  `grouping_category` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
+  `position` int(11) DEFAULT NULL,
+  `grouping_category` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `index_watchlists_on_user_id` (`user_id`),
   KEY `index_watchlists_on_watched_id` (`watched_id`),
@@ -1025,6 +1027,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20160530204406'),
 ('20160601004630'),
 ('20180830202033'),
-('20180830210453');
+('20180830210453'),
+('20180906174108');
 
 

@@ -848,11 +848,7 @@ describe UsersController do
           end
 
           context 'with valid params' do
-            it "updates the users security" do
-              post :update_security, params: {user: {security_array: ["User", "Confident"]}, id: user}
-              expect(user.reload.security).to eq("6")
-              expect(user.reload.abilities).to match_array(["User", "Confident", "Any"])
-            end
+            it "updates the users role"
 
             it "has a notice" do
               post :update_security, params: {user: {security_array: ["User", "Confident"]}, id: user}
@@ -1145,7 +1141,7 @@ describe UsersController do
 
   context 'user access to users' do
     before :each do
-      @user = create(:user)
+      @user = create(:user, :user_role)
       UserSession.create(@user)
     end
 
@@ -1185,7 +1181,7 @@ describe UsersController do
 
   context 'admin access to users' do
     before :each do
-      @user = create(:admin)
+      @user = create(:user, :admin_role)
       UserSession.create(@user)
     end
 

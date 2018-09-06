@@ -67,7 +67,7 @@ describe Post do
 
     include_examples "is invalid without an attribute in a category", :category, Post::Categories - ["Private Message", "Blog Post"], "Post::Categories"
     include_examples "is invalid without an attribute in a category", :status, Post::Status, "Post::Status"
-    include_examples "is invalid without an attribute in a category", :visibility, Ability::Abilities, "Ability::Abilities"
+    include_examples "is invalid without an attribute in a category", :visibility, Rails.application.secrets.roles, "Rails.application.secrets.roles"
 
     include_examples "is valid with or without an attribute", :title, "hi"
     include_examples "is valid with or without an attribute", :content, "haha this is content!"
@@ -80,7 +80,7 @@ describe Post do
   describe "Scoping" do
     it_behaves_like "filters by category", Post::Categories
     it_behaves_like "filters by status", Post::Status
-    it_behaves_like "filters by security"
+    it_behaves_like "filters by role"
   end
 
   describe "Instance Methods" do

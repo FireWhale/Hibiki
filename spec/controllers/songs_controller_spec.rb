@@ -37,7 +37,7 @@ describe SongsController do
   
   context 'user access to songs' do
     before :each do
-      @user = create(:user)
+      @user = create(:user, :user_role)
       UserSession.create(@user)
     end
           
@@ -70,7 +70,7 @@ describe SongsController do
 
   context 'admin access to songs' do
     before :each do
-      @user = create(:admin)
+      @user = create(:user, :admin_role)
       UserSession.create(@user)
     end
       

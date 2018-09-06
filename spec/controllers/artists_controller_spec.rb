@@ -36,7 +36,7 @@ describe ArtistsController do
   
   context 'user access to artists' do
     before :each do
-      @user = create(:user)
+      @user = create(:user, :user_role)
       UserSession.create(@user)
     end
           
@@ -69,7 +69,7 @@ describe ArtistsController do
 
   context 'admin access to artists' do
     before :each do
-      @user = create(:admin)
+      @user = create(:user, :admin_role)
       UserSession.create(@user)
     end
           

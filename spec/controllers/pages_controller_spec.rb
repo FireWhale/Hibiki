@@ -21,8 +21,8 @@ describe PagesController do
       end
       
       it "populates the posts variable" do
-        ability = @user.nil? ? "Any" : (@user.abilities).sample
-        posts = create_list(:post, 3, category: "Blog Post", visibility: ability)
+        role = @user.nil? ? "Any" : (@user.abilities).sample
+        posts = create_list(:post, 3, category: "Blog Post", visibility: role)
         get :front_page
         expect(assigns(:posts)).to match_array(posts)
       end
@@ -370,7 +370,7 @@ describe PagesController do
   
   context 'user access to pages' do
     before :each do
-      @user = create(:user)
+      @user = create(:user, :user_role)
       UserSession.create(@user)
     end
         
@@ -387,7 +387,7 @@ describe PagesController do
 
   context 'admin access to pages' do
     before :each do
-      @user = create(:admin)
+      @user = create(:user, :admin_role)
       UserSession.create(@user)
     end
     

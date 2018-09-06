@@ -80,7 +80,7 @@ json.set! json_hash.keys[0] do
   
   if [Album, Artist, Organization, Source, Song, Post].include?(record.class)
     if @fields.blank? || @fields.include?('tags')
-      json.partial! 'layouts/json/list_with_urls', locals: {records: record.tags.meets_security(current_user)} unless record.tags.meets_security(current_user).empty?
+      json.partial! 'layouts/json/list_with_urls', locals: {records: record.tags.meets_role(current_user)} unless record.tags.meets_role(current_user).empty?
     end
   end
   
@@ -89,7 +89,7 @@ json.set! json_hash.keys[0] do
       json.images record.images.as_json(user: current_user, root: false) unless record.images.empty?
     end
     if @fields.blank? || @fields.include?('posts')
-      json.partial! 'layouts/json/list_with_urls', locals: {records: record.posts.meets_security(current_user)} unless record.posts.meets_security(current_user).empty?
+      json.partial! 'layouts/json/list_with_urls', locals: {records: record.posts.meets_role(current_user)} unless record.posts.meets_role(current_user).empty?
     end
   end
   

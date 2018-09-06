@@ -184,7 +184,7 @@ describe AlbumsController do
 
   context 'user access to albums' do
     before :each do
-      @user = create(:user)
+      @user = create(:user, :user_role)
       UserSession.create(@user)
     end
 
@@ -214,7 +214,7 @@ describe AlbumsController do
 
   context 'admin access to albums' do
     before :each do
-      @user = create(:admin)
+      @user = create(:user, :admin_role)
       UserSession.create(@user)
     end
 

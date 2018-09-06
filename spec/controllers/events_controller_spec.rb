@@ -29,7 +29,7 @@ describe EventsController do
   
   describe 'user access to events' do
     before :each do
-      @user = create(:user)
+      @user = create(:user, :user_role)
       UserSession.create(@user)
     end
     
@@ -55,7 +55,7 @@ describe EventsController do
 
   describe 'admin access to events' do
     before :each do
-      @user = create(:admin)
+      @user = create(:user, :admin_role)
       UserSession.create(@user)
     end
     

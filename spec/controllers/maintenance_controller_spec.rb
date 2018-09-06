@@ -239,7 +239,7 @@ describe MaintenanceController do
 
   context 'user access to maintenance' do
     before :each do
-      @user = create(:user)
+      @user = create(:user, :user_role)
       UserSession.create(@user)
     end
 
@@ -255,7 +255,7 @@ describe MaintenanceController do
 
   context 'admin access to maintenance' do
     before :each do
-      @user = create(:admin)
+      @user = create(:user, :admin_role)
       UserSession.create(@user)
     end
 

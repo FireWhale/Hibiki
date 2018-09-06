@@ -28,7 +28,7 @@ describe TagsController do
   
   context 'user access to tags' do
     before :each do
-      @user = create(:user)
+      @user = create(:user, :user_role)
       UserSession.create(@user)
     end
           
@@ -53,7 +53,7 @@ describe TagsController do
 
   context 'admin access to tags' do
     before :each do
-      @user = create(:admin)
+      @user = create(:user, :admin_role)
       UserSession.create(@user)
     end
           

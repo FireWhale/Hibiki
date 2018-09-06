@@ -12,7 +12,7 @@ class Issue < ApplicationRecord
     FormFields = [{type: "text", attribute: :name, label: "Name:", field_class: "input-xlarge"},
                   {type: "select", attribute: :status, label: "Status:", categories: Issue::Status},
                   {type: "select", attribute: :category, label: "Category:", categories: Issue::Categories},
-                  {type: "select", attribute: :visibility, label: "Visibility:", categories: Ability::Abilities},
+                  {type: "select", attribute: :visibility, label: "Visibility:", categories: Rails.application.secrets.roles},
                   {type: "select", attribute: :resolution, label: "Resolution:", categories: Issue::Resolutions},
                   {type: "select", attribute: :difficulty, label: "Difficulty:", categories: Issue::Difficulties},
                   {type: "select", attribute: :priority, label: "Priority:", categories: Issue::Priorities},
@@ -22,7 +22,7 @@ class Issue < ApplicationRecord
   #Validations
     validates :name, presence: true
     validates :category, presence: true, inclusion: Issue::Categories
-    validates :visibility, presence: true, inclusion: Ability::Abilities
+    validates :visibility, presence: true, inclusion: Rails.application.secrets.roles
     validates :status, presence: true, inclusion: Issue::Status
         
   #Scope
@@ -30,7 +30,7 @@ class Issue < ApplicationRecord
     scope :with_status, ->(statuses) {where('status IN (?)', statuses)}
     scope :with_priority, ->(priorities) {where('priority IN (?)', priorities)}
     scope :with_difficulty, ->(difficulties) {where('difficulty IN (?)', difficulties)}
-    scope :meets_security, ->(user) { where('issues.visibility IN (?)', user.nil? ? ["Any"] : user.abilities  )}
+    scope :meets_role, ->(user) { where('issues.visibility IN (?)', user.nil? ? ["Any"] : user.abilities  )}
 
   #Gem Stuff
     #Pagination

@@ -394,7 +394,7 @@ describe ScriptsController do
   
   context 'user access to scripts' do
     before :each do
-      @user = create(:user)
+      @user = create(:user, :user_role)
       UserSession.create(@user)
     end
     
@@ -413,7 +413,7 @@ describe ScriptsController do
 
   context 'admin access to scripts' do
     before :each do
-      @user = create(:admin)
+      @user = create(:user, :admin_role)
       UserSession.create(@user)
     end
     

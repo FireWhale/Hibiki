@@ -19,7 +19,7 @@ describe Issue do
 
     include_examples "is invalid without an attribute in a category", :category, Issue::Categories, "Issue::Categories"
     include_examples "is invalid without an attribute in a category", :status, Issue::Status, "Issue::Statuses"
-    include_examples "is invalid without an attribute in a category", :visibility, Ability::Abilities, "Ability::Abilities"
+    include_examples "is invalid without an attribute in a category", :visibility, Rails.application.secrets.roles, "Rails.application.secrets.roles"
 
     include_examples "is valid with or without an attribute", :resolution, Issue::Resolutions.sample
     include_examples "is valid with or without an attribute", :priority, Issue::Priorities.sample
@@ -31,7 +31,7 @@ describe Issue do
   context "Scope Tests" do
     it_behaves_like "filters by category", Issue::Categories
     it_behaves_like "filters by status", Issue::Status
-    it_behaves_like "filters by security"
+    it_behaves_like "filters by role"
 
     describe "behaves like filters by priority" do
       include_examples "filters by a column", "priority", Issue::Priorities
