@@ -760,9 +760,9 @@ describe UsersController do
                 expect{post :create, params: {user: attributes_for(:user)}}.to change(User, :count).by(1)
               end
 
-              it 'calls the user defaulter servier' do
-                expect(UserDefaulter).to receive(:perform)
-                post :create
+              it 'calls the user defaulter service' do
+                expect(UserDefaulter).to receive(:perform).and_return(User.new)
+                post :create, params: {user: attributes_for(:user)}
               end
 
               it "assigns a user" do
@@ -848,28 +848,28 @@ describe UsersController do
 
         if accessible == true
           it "assigns the user" do
-            post :update_security, params: {id: user, user: {security_array: ["User", "Confident"]}}
+            post :update_security, params: {id: user, user: {role_ids: ["User", "Confident"]}}
             expect(assigns(:user)).to eq(user)
           end
 
           context 'with valid params' do
             it "calls the user security setter service" do
-              expect(UserSecuritySetter).to receieve(:perform)
-              post :update_security, params: {id: user, user: {security_array: ["User", "Confident"]}}
+              expect(UserSecuritySetter).to receive(:perform).and_return(User.new)
+              post :update_security, params: {id: user, user: {role_ids: ["User", "Confident"]}}
             end
 
             it "has a notice" do
-              post :update_security, params: {user: {security_array: ["User", "Confident"]}, id: user}
+              post :update_security, params: {user: {role_ids: ["User", "Confident"]}, id: user}
               expect(flash[:notice]).to eq "Security was successfully updated."
             end
 
             it "renders overview" do
-              post :update_security, params: {id: user, user: {security_array: ["User", "Confident"]}}
+              post :update_security, params: {id: user, user: {role_ids: ["User", "Confident"]}}
               expect(response).to redirect_to action: :overview, id: User.last.id
             end
 
             it "responds with success with json" do
-              post :update_security, params: {id: user, user: {security_array: ["User", "Confident"]}}, format: :json
+              post :update_security, params: {id: user, user: {role_ids: ["User", "Confident"]}}, format: :json
               expect(response.status).to eq(204) #204 No Content no content -> ajax success event
             end
 
@@ -890,12 +890,12 @@ describe UsersController do
 
         else
           it "renders access denied" do
-            post :update_security, params: {id: user, user: {security_array: ["User", "Confident"]}}
+            post :update_security, params: {id: user, user: {role_ids: ["User", "Confident"]}}
             expect(response).to render_template("pages/access_denied")
           end
 
           it "renders 403 with json" do
-            post :update_security, params: {id: user, user: {security_array: ["User", "Confident"]}}, format: :json
+            post :update_security, params: {id: user, user: {role_ids: ["User", "Confident"]}}, format: :json
             expect(response.status).to eq(403) #forbidden
           end
 
@@ -1218,7 +1218,7 @@ describe UsersController do
 
     #Strong Parameters
     include_examples "uses strong parameters", invalid_params: ["password", "name", "password_confirmation", "email"]
-    include_examples "uses strong parameters", valid_params: ["status", ["security_array"]], filter_method: "security_filter"
+    include_examples "uses strong parameters", valid_params: ["status", ["role_ids"]], filter_method: "security_filter"
     include_examples "uses strong parameters", valid_params: [["language_form_settings"], ["artist_language_form_settings"],
                                                               ["display_form_settings"],["privacy_form_settings"]],filter_method: "profile_filter"
 

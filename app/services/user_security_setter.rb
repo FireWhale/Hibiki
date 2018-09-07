@@ -4,7 +4,7 @@ class UserSecuritySetter
   def initialize(user_id,params)
     @user = User.find(user_id)
     @current_roles = @user.user_roles.pluck(:role_id)
-    @new_roles = params.fetch(:roles, []).map(&:to_i)
+    @new_roles = params.fetch(:role_ids, []).map(&:to_i)
     @new_status = params[:status]
   end
 

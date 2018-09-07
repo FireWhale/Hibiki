@@ -341,7 +341,7 @@ class UsersController < ApplicationController
 
     def self.security_filter(params,current_user) #For editing security
       if current_user && current_user.abilities.include?("Admin")
-        params.require(:user).permit(:status, :roles => [])
+        params.require(:user).permit(:status, :role_ids => [])
       else
         params.require(:user).permit()
       end
