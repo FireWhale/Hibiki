@@ -1,0 +1,5 @@
+#yml for neo4j configuration
+
+test:
+  type: http
+  url: http://neo4j:neo4j@localhost:7474
