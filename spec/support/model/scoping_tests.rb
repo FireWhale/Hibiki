@@ -92,7 +92,7 @@ module ScopingTests
   
   shared_examples "filters by role" do
     #Admin class only applies to controller methods. 
-    #I think it still filters out security, so this test should always work.
+    #I think it still filters out role, so this test should always work.
     model_symbol = described_class.model_name.param_key.to_sym
     let(:role1) {(Rails.application.secrets.roles - ["Any"]).sample}
     let(:role2) {(Rails.application.secrets.roles - [role1, "Any"]).sample}

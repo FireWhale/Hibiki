@@ -27,7 +27,7 @@ describe PagesController do
         expect(assigns(:posts)).to match_array(posts)
       end
       
-      it "filters posts by user security" do
+      it "filters posts by user role" do
         abilities = @user.nil? ? ["Any"] : @user.abilities
         posts = create_list(:post, 5, category: "Blog Post" )
         filtered_posts = posts.select {|item| abilities.include?(item.visibility)}

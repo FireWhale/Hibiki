@@ -11,15 +11,14 @@ class UserSecuritySetter
   def perform
     add_roles
     remove_roles
-    verify_roles
-    add_security
+    edit_status
     return @user
   end
 
   private
     def add_roles
       @new_roles.each do |role_id|
-        @user.user_roles.build(role_id: role_id) unless @current_roles.include?(role_id)
+        @user.user_roles.build(role_id: role_id) unless @current_roles.include?(role_id) || Users::Role.find_by_id(role_id).nil?
       end
     end
 
@@ -29,11 +28,7 @@ class UserSecuritySetter
       end
     end
 
-    def verify_roles
-      @user.errors.add(:roles, :failed, message: 'Roles do not match input') if @user.user_roles.map(&:role_id).sort == @new_roles.sort
-    end
-
-    def add_security
+    def edit_status
       @user.status = @new_status
     end
 end

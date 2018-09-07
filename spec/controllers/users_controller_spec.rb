@@ -760,6 +760,11 @@ describe UsersController do
                 expect{post :create, params: {user: attributes_for(:user)}}.to change(User, :count).by(1)
               end
 
+              it 'calls the user defaulter servier' do
+                expect(UserDefaulter).to receive(:perform)
+                post :create
+              end
+
               it "assigns a user" do
                 post :create, params: {user: attributes_for(:user)}
                 expect(assigns(:user)).to be_a User
@@ -848,7 +853,10 @@ describe UsersController do
           end
 
           context 'with valid params' do
-            it "updates the users role"
+            it "calls the user security setter service" do
+              expect(UserSecuritySetter).to receieve(:perform)
+              post :update_security, params: {id: user, user: {security_array: ["User", "Confident"]}}
+            end
 
             it "has a notice" do
               post :update_security, params: {user: {security_array: ["User", "Confident"]}, id: user}
@@ -865,10 +873,6 @@ describe UsersController do
               expect(response.status).to eq(204) #204 No Content no content -> ajax success event
             end
 
-            it "can update status" do
-              post :update_security, params: {id: user, user: {security_array: ["User"], status: "Deactivated"}}, format: :json
-              expect(user.reload.status).to eq("Deactivated")
-            end
 
           end
 

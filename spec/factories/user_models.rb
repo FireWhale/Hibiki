@@ -8,7 +8,6 @@ FactoryBot.define do
       email {Faker::Internet.email}
       password "hehepassword1"
       password_confirmation "hehepassword1"
-      #security "2" <- this is set on creation
 
       #We need to destroy user sessions from created users
       #for controller testing etc.

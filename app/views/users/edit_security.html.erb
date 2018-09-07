@@ -21,7 +21,7 @@
     <div><%= check_box_tag "user[roles][]", role.id, @user.abilities.include?(role.name) %> <%= role.name %></div>
   <% end %>
   <%= f.label :status %>
-  <%= f.select :status, ['Deactivated','haweifh'], :include_blank => true %>
+  <%= f.select :status, ['Deactivated'], :include_blank => true %>
   <div class="actions">
     <%= f.submit %>
   </div>

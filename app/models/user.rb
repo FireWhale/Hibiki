@@ -7,7 +7,6 @@ class User < ApplicationRecord
       include DateModule
 
   #Attributes
-    attr_accessor :security_array
     attr_accessor :display_form_settings
     attr_accessor :privacy_form_settings
     attr_accessor :language_form_settings
