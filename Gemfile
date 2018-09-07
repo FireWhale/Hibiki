@@ -20,7 +20,7 @@ gem 'rails-jquery-autocomplete'
 gem 'lazyload-rails'
 gem 'mini_magick' #Image manipulation
 gem 'sunspot_rails'
-gem 'globalize', git: 'git://github.com/globalize/globalize'
+gem 'globalize', git: 'https://github.com/globalize/globalize'
 gem 'activemodel-serializers-xml' #For globalize
 gem 'mojinizer'
 gem 'sidekiq'
