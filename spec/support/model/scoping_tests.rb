@@ -90,45 +90,49 @@ module ScopingTests
     end
   end
   
-  shared_examples "filters by security" do
+  shared_examples "filters by role" do
     #Admin class only applies to controller methods. 
-    #I think it still filters out security, so this test should always work.
+    #I think it still filters out role, so this test should always work.
     model_symbol = described_class.model_name.param_key.to_sym
-    let(:security1) {(Ability::Abilities - ["Any"]).sample}
-    let(:security2) {(Ability::Abilities - [security1, "Any"]).sample}
-    let(:security3) {(Ability::Abilities - [security1, security2, "Any"]).sample}
-    let(:record1) {create(model_symbol, :visibility => security1)}
-    let(:record2) {create(model_symbol, :visibility => security2)}
-    let(:record3) {create(model_symbol, :visibility => security2)}
+    let(:role1) {(Rails.application.secrets.roles - ["Any"]).sample}
+    let(:role2) {(Rails.application.secrets.roles - [role1, "Any"]).sample}
+    let(:role3) {(Rails.application.secrets.roles - [role1, role2, "Any"]).sample}
+    let(:r1) {create(:role,name: role1)}
+    let(:r2) {create(:role,name: role2)}
+    let(:r3) {create(:role,name: role3)}
+    let(:record1) {create(model_symbol, :visibility => role1)}
+    let(:record2) {create(model_symbol, :visibility => role2)}
+    let(:record3) {create(model_symbol, :visibility => role2)}
     let(:record4) {create(model_symbol, :visibility => "Any")}
     let(:user1) {create(:user)}
     let(:user2) {create(:user)}
     let(:user3) {create(:user)}
     
     before(:each) do
-      user1.update_attribute(:security, User.get_security_bitmask([security1]))
-      user2.update_attribute(:security, User.get_security_bitmask([security2]))
-      user3.update_attribute(:security, User.get_security_bitmask([security1, security2]))
+      user1.roles << r1
+      user2.roles << r2
+      user3.roles << r1
+      user3.roles << r2
     end
     
-    it "should return if it matches the security" do
-      expect(described_class.meets_security(user1)).to match_array([record1, record4])
+    it "should return if it matches the role" do
+      expect(described_class.meets_role(user1)).to match_array([record1, record4])
     end
     
-    it "should return if it matches the security 2" do
-      expect(described_class.meets_security(user2)).to match_array([record2, record3, record4])
+    it "should return if it matches the role 2" do
+      expect(described_class.meets_role(user2)).to match_array([record2, record3, record4])
     end
     
-    it "should take handle multiple securities" do
-      expect(described_class.meets_security(user3)).to match_array([record1, record2, record3, record4])
+    it "should take handle multiple role" do
+      expect(described_class.meets_role(user3)).to match_array([record1, record2, record3, record4])
     end
     
-    it "should take a nil user, but only returns records with 'Any' Security" do
-      expect(described_class.meets_security(nil)).to match_array([record4])
+    it "should take a nil user, but only returns records with 'Any' Role" do
+      expect(described_class.meets_role(nil)).to match_array([record4])
     end
     
     it "should be an active record relation" do
-      expect(described_class.meets_security(user1).class).to_not be_a(Array)
+      expect(described_class.meets_role(user1).class).to_not be_a(Array)
     end
     
   end

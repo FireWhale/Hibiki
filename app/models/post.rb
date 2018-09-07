@@ -17,14 +17,14 @@ class Post < ApplicationRecord
 
     FormFields = [{type: "text", attribute: :title, label: "Title:"},
                   {type: "select", attribute: :category, label: "Category:", categories: Post::Categories},
-                  {type: "select", attribute: :visibility, label: "Visibility:", categories: Ability::Abilities},
+                  {type: "select", attribute: :visibility, label: "Visibility:", categories: Rails.application.secrets.roles},
                   {type: "select", attribute: :status, label: "Status:", categories: Post::Status},
                   {type: "tags", div_class: "well", title: "Tags"},
                   {type: "images"}, {type: "text_area", attribute: :content, rows: 20, label: "Content:"}]
 
   #Validation
     validates :category, inclusion: Post::Categories
-    validates :visibility, presence: true, inclusion: Ability::Abilities
+    validates :visibility, presence: true, inclusion: Rails.application.secrets.roles
     validates :status, inclusion: Post::Status
 
   #Associations
@@ -46,7 +46,7 @@ class Post < ApplicationRecord
   #Scopes
     scope :with_category, ->(categories) { where('category IN (?)', categories)}
     scope :with_status, ->(statuses) {where('status IN (?)', statuses)}
-    scope :meets_security, ->(user) { where('posts.visibility IN (?)', user.nil? ? ["Any"] : user.abilities  )}
+    scope :meets_role, ->(user) { where('posts.visibility IN (?)', user.nil? ? ["Any"] : user.abilities  )}
 
   #Gem Stuff
     #Pagination

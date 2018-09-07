@@ -19,7 +19,7 @@ class Tag < ApplicationRecord
     FormFields = [{type: "text", attribute: :internal_name, label: "Internal Name:", field_class: "input-xlarge"},
                   {type: "language_fields", attribute: :name},
                   {type: "text", attribute: :classification, label: "Classification:", field_class: "input-xlarge"},
-                  {type: "select", attribute: :visibility, label: "Visibility:", categories: Ability::Abilities},
+                  {type: "select", attribute: :visibility, label: "Visibility:", categories: Rails.application.secrets.roles},
                   {type: "language_fields", attribute: :info},
                   {type: "tag_models"},]
 
@@ -27,7 +27,7 @@ class Tag < ApplicationRecord
     validates :internal_name, presence: true , uniqueness: {scope: :model_bitmask}
     validates :classification, presence: true
     validates :model_bitmask, presence: true
-    validates :visibility, presence: true, inclusion: Ability::Abilities
+    validates :visibility, presence: true, inclusion: Rails.application.secrets.roles
     validate :bitmask_check
 
   #Associations
@@ -41,7 +41,7 @@ class Tag < ApplicationRecord
 
   #Scopes
     scope :with_model, ->(models) { where("model_bitmask & ? > 0", Tag.get_bitmask(models)) unless models.nil? }
-    scope :meets_security, ->(user) { where('tags.visibility IN (?)', user.nil? ? ["Any"] : user.abilities )}
+    scope :meets_role, ->(user) { where('tags.visibility IN (?)', user.nil? ? ["Any"] : user.abilities )}
 
   def subjects
     taglists.map(&:subject)

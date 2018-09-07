@@ -189,7 +189,7 @@ class UsersController < ApplicationController
     @user = User.find(params[:id])
 
     respond_to do |format|
-      format.html # edit_security.html.erb
+      format.html # edit_profile.html.erb
       format.json { render json: @user }
     end
   end
@@ -211,8 +211,7 @@ class UsersController < ApplicationController
   end
 
   def create
-    new_params = user_params
-    @user = User.new(new_params)
+    @user = UserDefaulter.perform(user_params)
 
     respond_to do |format|
       if current_user.nil?
@@ -231,11 +230,11 @@ class UsersController < ApplicationController
   end
 
   def update_security
-    @user = User.find(params[:id])
+    @user = UserSecuritySetter.perform(params[:id],security_params)
 
     respond_to do |format|
       if current_user.abilities.include?("Admin")
-        if @user.update_attributes(security_params)
+        if @user.save
           format.html { redirect_to({action: 'overview', id: @user.id}, notice: 'Security was successfully updated.')}
           format.json { head :no_content }
         else
@@ -342,7 +341,7 @@ class UsersController < ApplicationController
 
     def self.security_filter(params,current_user) #For editing security
       if current_user && current_user.abilities.include?("Admin")
-        params.require(:user).permit(:status, :security_array => [])
+        params.require(:user).permit(:status, :role_ids => [])
       else
         params.require(:user).permit()
       end

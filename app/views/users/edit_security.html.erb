@@ -2,7 +2,7 @@
 
 <% content_for :header do %>
   <div class="text-center">
-    <h2>Edit Security: <%= @user.name %></h1>
+    <h2>Edit Security: <%= @user.name %></h2>
   </div>
 <% end %>
 
@@ -16,12 +16,12 @@
       <% end %></ul>
     </div>
   <% end %>
-  <%= f.label :security %>
-  <% (Ability::Abilities - ["Any"]).each do |ability| %>
-    <%= check_box_tag "user[security_array][]", ability, @user.abilities.include?(ability) %> <%= ability %><br>
+  <div><%= f.label :security %></div>
+  <% (Users::Role.all).each do |role| %>
+    <div><%= check_box_tag 'user[role_ids][]', role.id, @user.abilities.include?(role.name) %> <%= role.name %></div>
   <% end %>
   <%= f.label :status %>
-  <%= f.select :status, ["Deactivated"], :include_blank => true %>
+  <%= f.select :status, ['Deactivated'], :include_blank => true %>
   <div class="actions">
     <%= f.submit %>
   </div>

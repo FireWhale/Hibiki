@@ -28,7 +28,7 @@ describe ImagesController do
 
   context 'user access to images' do
     before :each do
-      @user = create(:user)
+      @user = create(:user, :user_role)
       UserSession.create(@user)
     end
 
@@ -52,7 +52,7 @@ describe ImagesController do
 
   context 'admin access to images' do
     before :each do
-      @user = create(:admin)
+      @user = create(:user, :admin_role)
       UserSession.create(@user)
     end
 

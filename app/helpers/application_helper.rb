@@ -142,7 +142,7 @@ module ApplicationHelper
       unless record.references.empty?
         (content_tag(:b) do
            "References: "
-        end).concat(record.references.meets_security(current_user).map {|ref| link_to ref.site_name, ref.url}.join(' | ').html_safe).concat(tag(:br)).html_safe
+        end).concat(record.references.meets_role(current_user).map {|ref| link_to ref.site_name, ref.url}.join(' | ').html_safe).concat(tag(:br)).html_safe
       end
     end
 

@@ -28,5 +28,5 @@ class Reference < ApplicationRecord
 
   belongs_to :model, polymorphic: true
 
-  scope :meets_security, ->(user) { where('references.site_name IN (?)', user.nil? == false && user.abilities.include?("Confident") ? SiteNames : SiteNames - HiddenSiteNames )}
+  scope :meets_role, ->(user) { where('references.site_name IN (?)', user.nil? == false && user.abilities.include?("Confident") ? SiteNames : SiteNames - HiddenSiteNames )}
 end

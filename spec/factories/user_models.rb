@@ -8,7 +8,6 @@ FactoryBot.define do
       email {Faker::Internet.email}
       password "hehepassword1"
       password_confirmation "hehepassword1"
-      #security "2" <- this is set on creation
 
       #We need to destroy user sessions from created users
       #for controller testing etc.
@@ -35,10 +34,17 @@ FactoryBot.define do
         location {Faker::Lorem.word}
       end
 
-      factory :admin do
+      trait :admin_role do
         after(:create) do |user|
-          user.security = "1"
-          user.save
+          role = create(:role, name: 'Admin')
+          create(:user_role, role: role, user: user)
+        end
+      end
+
+      trait :user_role do
+        after(:create) do |user|
+          role = create(:role, name: 'User')
+          create(:user_role, role: role, user: user)
         end
       end
 
@@ -121,4 +127,13 @@ FactoryBot.define do
 
     end
 
+    factory :role, class: Users::Role do
+      name 'test'
+      description 'ahahha'
+    end
+
+    factory :user_role, class: Users::UserRole do
+      association :user
+      association :role
+    end
 end

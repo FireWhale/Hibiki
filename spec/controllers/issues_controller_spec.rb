@@ -29,7 +29,7 @@ describe IssuesController do
   
    context 'user access to issues' do
     before :each do
-      @user = create(:user)
+      @user = create(:user, :user_role)
       UserSession.create(@user)
     end
           
@@ -54,7 +54,7 @@ describe IssuesController do
 
   context 'admin access to issues' do
     before :each do
-      @user = create(:admin)
+      @user = create(:user, :admin_role)
       UserSession.create(@user)
     end
           

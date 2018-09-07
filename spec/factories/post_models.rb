@@ -4,7 +4,7 @@ require 'faker'
 FactoryBot.define do
   factory :post do
     category "Rescrape Result"
-    visibility {Ability::Abilities.sample}
+    visibility {Rails.application.secrets.roles.sample}
     status {Post::Status.sample}
 
     trait :full_attributes do

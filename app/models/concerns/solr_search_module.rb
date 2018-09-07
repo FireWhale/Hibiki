@@ -28,7 +28,7 @@ module SolrSearchModule
         name_translations.values
       end      
       text :references, boost: search_boost do
-        references.meets_security(nil).map(&:url)
+        references.meets_role(nil).map(&:url)
       end      
       
       text :hidden_references, boost: search_boost do

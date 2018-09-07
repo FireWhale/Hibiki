@@ -3,7 +3,7 @@ class TagsController < ApplicationController
   
 
   def index
-    @tags = Tag.order(:classification).meets_security(current_user)
+    @tags = Tag.order(:classification).meets_role(current_user)
     
     respond_to do |format|
       format.html # index.html.erb

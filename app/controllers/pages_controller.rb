@@ -4,7 +4,7 @@ class PagesController < ApplicationController
   def front_page
     authorize! :read, Album
 
-    @posts = Post.with_category("Blog Post").meets_security(current_user).order(:id => :desc).includes(:tags).first(5)
+    @posts = Post.with_category("Blog Post").meets_role(current_user).order(:id => :desc).includes(:tags).first(5)
     @albums = Album.filter_by_user_settings(current_user).order("RAND()").includes(:primary_images, :translations).first(8).shuffle
 
     respond_to do |format|

@@ -38,20 +38,6 @@ describe User do
       expect(build(:user, :password_salt => "")).to_not be_valid
     end
 
-    it "is invalid without a security" do
-      user = create(:user)
-      user.send(:security=, nil)
-      expect(user).to_not be_valid
-    end
-
-    it "is invalid with an empty security" do
-      user = create(:user)
-      user.send(:security=, "")
-      expect(user).to_not be_valid
-    end
-
-    include_examples "is invalid without an attribute in a category", :security, Array(1..(2**Ability::Abilities.count - 1)).map(&:to_s), "Security bitmask"
-
     include_examples "is valid with or without an attribute", :profile, "hi"
     include_examples "is valid with or without an attribute", :sex, "73"
     include_examples "is valid with or without an attribute", :privacy, "hi"
@@ -83,8 +69,11 @@ describe User do
 
       it "can get abilities" do
         user = create(:user)
-        user.update_attribute(:security, 45)
-        expect(user.abilities).to eq(["Admin","Confident","Database Manager", "Scraper", "Any"])
+        role1 = create(:role, name: 'Admin')
+        role3 = create(:role, name: 'User')
+        user.roles << role1
+        user.roles << role3
+        expect(user.abilities).to eq(["Admin","User", "Any"])
       end
 
       it "can get privacy_settings" do
@@ -102,9 +91,6 @@ describe User do
   end
 
   describe "Class Method Tests" do
-    it "can get a security_bitmask" do
-      expect(User.get_security_bitmask(["User", "Database Manager", "hi", "Scraper"])).to eq(42)
-    end
 
     it "can get a display_bitmask" do
       expect(User.get_display_bitmask(["Display NWS", "hoho", "Display Ignored", "Outline Album Art"])).to eq(14)
@@ -124,90 +110,6 @@ describe User do
   end
 
   describe "Callback Tests" do
-    describe "Before Validation on create: set_default_settings" do
-      it "sets language settings for newly created users" do
-        user = build(:user)
-        user.save
-        expect(user.reload.language_settings).to eq([].join(","))
-      end
-
-      it "sets artist language settings for newly created users" do
-        user = build(:user)
-        user.save
-        expect(user.reload.artist_language_settings).to eq([].join(","))
-      end
-
-      it "sets privacy settings for newly created users" do
-        user = build(:user)
-        user.save
-        expect(user.reload.privacy).to eq("0")
-        expect(user.privacy_settings).to eq([])
-      end
-
-      it "sets security settings for newly created users" do
-        user = build(:user)
-        user.save
-        expect(user.reload.security).to eq("2")
-        expect(user.abilities).to match_array(["User", "Any"])
-      end
-
-      #Gut check so that new users have a security of 0
-      it "has a security of 0 for non-saved users" do
-        user = build(:user)
-        expect(user.security).to eq(nil)
-      end
-
-      it "sets default display settings for newly created users" do
-        user = build(:user)
-        user.save
-        expect(user.display_bitmask).to eq(69)
-        expect(user.display_settings).to match_array(["Display Limited Editions", "Display Reprints", "Display Ignored"])
-      end
-
-      it "initializes with english as a language" do #Maybe set this regionally?
-        expect(create(:user).language_settings).to eq("")
-        expect(create(:user).artist_language_settings).to eq("")
-      end
-
-      it "initializes with NWS unchecked" do
-        expect(create(:user).display_settings).to_not include("Display NWS")
-      end
-
-      it "initializes with LEs checked" do
-        expect(create(:user).display_settings).to include("Display Limited Editions")
-      end
-
-      it "initializes with reprints checked" do
-        expect(create(:user).display_settings).to include("Display Reprints")
-      end
-
-      it "initializes with ignored checked" do
-        expect(create(:user).display_settings).to include("Display Ignored")
-      end
-
-      it "initializes with album art border unchecked" do
-        expect(create(:user).display_settings).to_not include("Outline Album Art")
-      end
-
-      it "initializes with bolded AOS unchecked" do
-        expect(create(:user).display_settings).to_not include("Bold AOS")
-      end
-
-      it "initializes with profile, collection, and watchlist unchecked" do
-        expect(create(:user).privacy_settings).to match_array([])
-      end
-
-      it "has User, Any as it's security" do
-        expect(create(:user).abilities).to match_array(["User", "Any"])
-      end
-
-      it "only sets security on create" do
-        user = create(:user)
-        user.security = "5"
-        user.save
-        expect(user.reload.security).to eq("5")
-      end
-    end
 
     describe "Before Save: manage_profile_settings" do
       let(:user) {create(:user, name: "ronny")}
@@ -270,28 +172,6 @@ describe User do
         user.artist_language_form_settings = ["hiya!"]
         user.save
         expect(user.reload.artist_language_settings).to_not eq("hiya!")
-      end
-    end
-
-    describe "Before Save: manage_security_settings" do
-      it "can update_security" do
-        user = create(:user)
-        user.security_array = ["User", "Blogger", "Scraper"]
-        user.save
-        expect(user.reload.security).to eq("50")
-      end
-
-      it "does not update security to 0 if values[:abilities] is nil" do
-        user = create(:user, name: "haha")
-        user.save
-        expect(user.reload.security).to_not eq("0")
-      end
-
-      it "accepts only valid securities in update_security" do
-        user = create(:user, name: "haha")
-        user.security_array = ["User", "Blogger", "Scraper", "haha", "hoho"]
-        user.save
-        expect(user.reload.security).to eq("50")
       end
     end
 

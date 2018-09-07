@@ -7,21 +7,17 @@ class User < ApplicationRecord
       include DateModule
 
   #Attributes
-    attr_accessor :security_array
     attr_accessor :display_form_settings
     attr_accessor :privacy_form_settings
     attr_accessor :language_form_settings
     attr_accessor :artist_language_form_settings
 
   #Callbacks/Hooks
-    before_validation :set_default_settings, on: :create
-    before_save :manage_security_settings
     before_save :manage_profile_settings
 
   #Constants
     EditProfileFields = [{type: "markup", tag_name: "div id='small-view'"},
                          {type: "profile_settings"},{type: "markup", tag_name: "/div"}]
-
 
   #Validation
     validates :name, presence: true, length: { minimum: 3, maximum: 20}
@@ -30,7 +26,6 @@ class User < ApplicationRecord
     validates :password_salt, presence: true
     validates_format_of :password, without: ->(user) {/#{user.name}/}, message: "must not contain username", unless: -> {self.password.nil?}
     validates_format_of :password, with: /(?=.*[A-Za-z])(?=.*[0-9])[A-Za-z0-9]+/, message: "must contain at least one letter and one number", unless: -> {self.password.nil?}
-    validates :security, presence: true, inclusion: Array(0..(2**Ability::Abilities.count - 1)).map(&:to_s)
     validates :status, inclusion: ["Deactivated", ""], unless: -> {self.status.nil?}
 
   #Authetication and Security
@@ -57,6 +52,9 @@ class User < ApplicationRecord
     DefaultPrivacySettings = []
 
   #Associations
+    has_many :user_roles, class_name: 'Users::UserRole', dependent: :destroy, autosave: true
+    has_many :roles, through: :user_roles, class_name: 'Users::Role'
+
     has_many :watchlists, dependent: :destroy
     has_many :artists, through: :watchlists, source: :watched, source_type: 'Artist'
     has_many :organizations, through: :watchlists, source: :watched, source_type: 'Organization'
@@ -90,22 +88,12 @@ class User < ApplicationRecord
     end
 
     def abilities
-      if self.status == "Deactivated"
-        [] #can't do anything
-      else
-        abilities = Ability::Abilities
-        abilities.reject { |r| ((self.security.to_i || 0 ) & 2**abilities.index(r)).zero? } + ['Any']
-      end
+      self.status == "Deactivated" ? [] : roles.pluck(:name) + ['Any']
     end
 
     def privacy_settings
       privacy_array = User::PrivacySettings
       privacy_array.reject { |r| ((self.privacy.to_i || 0 ) & 2**privacy_array.index(r)).zero? }
-    end
-
-    def self.get_security_bitmask(abilities)
-      abilities = [abilities] if abilities.class != Array
-      (abilities & Ability::Abilities).map { |r| 2**(Ability::Abilities).index(r) }.sum
     end
 
     def self.get_display_bitmask(display_settings)
@@ -132,18 +120,6 @@ class User < ApplicationRecord
     end
 
   private
-    def set_default_settings
-      self.security = "2" #User
-      self.privacy = User.get_privacy_bitmask(User::DefaultPrivacySettings)
-      self.language_settings  = User::DefaultLanguages.join(",")
-      self.artist_language_settings  = User::DefaultLanguages.join(",")
-      self.display_bitmask = User.get_display_bitmask(User::DefaultDisplaySettings)
-    end
-
-    def manage_security_settings
-      self.security = User.get_security_bitmask(self.security_array) unless self.security_array.nil?
-    end
-
     def manage_profile_settings
       self.display_bitmask = User.get_display_bitmask(self.display_form_settings) unless self.display_form_settings.nil?
       self.privacy = User.get_privacy_bitmask(self.privacy_form_settings) unless self.privacy_form_settings.nil?

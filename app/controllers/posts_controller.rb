@@ -3,7 +3,7 @@ class PostsController < ApplicationController
   layout "grid", only: [:show_images]
   
   def index
-    @posts = Post.includes(:tags).with_category('Blog Post').meets_security(current_user)
+    @posts = Post.includes(:tags).with_category('Blog Post').meets_role(current_user)
     @all_posts = @posts
     unless params[:tags].nil?
       @posts = @posts.with_tag(params[:tags])     

@@ -5,7 +5,7 @@ FactoryBot.define do
   factory :issue do
     name {Faker::Lorem.sentence}
     category {Issue::Categories.sample}
-    visibility {Ability::Abilities.sample}
+    visibility {Rails.application.secrets.roles.sample}
     status {Issue::Status.sample}
              
     trait :full_attributes do

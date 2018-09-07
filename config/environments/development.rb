@@ -28,7 +28,7 @@ Hibiki::Application.configure do
 
   #Quiet Assets
   config.assets.quiet = true
-  
+
   # Print deprecation notices to the Rails logger
   config.active_support.deprecation = :log
 
@@ -45,7 +45,7 @@ Hibiki::Application.configure do
   config.assets.debug = true
   config.eager_load = false
 
-  # Bullet Monitoring SQL queries
+  #Bullet Monitoring SQL queries
   if RUBY_PLATFORM.downcase == "i386-mingw32"
     config.after_initialize do
       Bullet.enable = false
@@ -57,5 +57,8 @@ Hibiki::Application.configure do
       Bullet.add_whitelist :type => :unused_eager_loading, :class_name => "Album", :association => :tags
     end
   end
+
+  #Allow Vagrant
+  config.web_console.whitelisted_ips = '10.0.2.2'
   
 end

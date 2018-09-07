@@ -9,11 +9,11 @@ module CrudTests
       describe 'GET #index' do
         if accessible == true
           it "populates a list of #{model_symbol}s" do
-            ability = @user.nil? ? "Any" : (@user.abilities).sample
+            role = @user.nil? ? "Any" : (@user.abilities).sample
             if model_class == Tag || model_class == Issue
-              list = create_list(model_symbol, 10, visibility: ability)
+              list = create_list(model_symbol, 10, visibility: role)
             elsif model_class == Post
-              list = create_list(model_symbol, 10, visibility: ability, category: "Blog Post")
+              list = create_list(model_symbol, 10, visibility: role, category: "Blog Post")
             else
               list = create_list(model_symbol, 10)
             end
@@ -102,7 +102,7 @@ module CrudTests
        end
 
         if model_class == Tag || model_class == Post || model_class == Issue
-          it "filters by security" do
+          it "filters by role" do
             if model_class == Post
               list = create_list(model_symbol, 10, category: "Blog Post")
             else
@@ -227,16 +227,16 @@ module CrudTests
         if model_class == Tag || model_class == Post || model_class == Issue
           #These three classes are accessible on a record-to-record basis.
           #It needs custom tests to test for these, obviously.
-          it "renders the :show template if it matches security" do
+          it "renders the :show template if it matches role" do
             ability = @user.nil? ? "Any" : (@user.abilities).sample
             record = create(model_symbol, visibility: ability)
             get :show, params: {id: record}
             valid_permissions(:show, accessible)
           end
 
-          it "does not render the show template if it does not match security" do
+          it "does not render the show template if it does not match role" do
             abilities = @user.nil? ? ["Any"] : @user.abilities
-            ability = (Ability::Abilities - abilities).sample
+            ability = (Rails.application.secrets.roles - abilities).sample
             record = create(model_symbol, visibility: ability)
             get :show, params: {id: record}
             if abilities.include?("Admin")

@@ -36,7 +36,7 @@ describe Tag do
     include_examples "is invalid without an attribute", :model_bitmask
     include_examples "is invalid without an attribute", :visibility
 
-    include_examples "is invalid without an attribute in a category", :visibility, Ability::Abilities, "Ability::Abilities"
+    include_examples "is invalid without an attribute in a category", :visibility, Rails.application.secrets.roles, "Rails.application.secrets.roles"
 
     include_examples "is valid with or without an attribute", :info, "This is info!"
 
@@ -99,7 +99,7 @@ describe Tag do
   end
 
   describe "Scoping" do
-    include_examples "filters by security"
+    include_examples "filters by role"
     describe "filters by model" do
       let(:tag1) {create(:tag, model_bitmask: 1)} #album
       let(:tag2) {create(:tag, model_bitmask: 3)} #album, artist
