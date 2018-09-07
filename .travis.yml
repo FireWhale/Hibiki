@@ -4,6 +4,8 @@ rvm:
 services:
  - mysql
  - neo4j
+script:
+ - bundle exec rake db:test:prepare
 before_install:
  # mysql: db setup and db config move
  - cp config/database.travis.yml config/database.yml
