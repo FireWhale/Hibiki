@@ -63,6 +63,7 @@ GEM
       activesupport (>= 4.2, < 5.3)
       request_store (~> 1.0)
       scrypt (>= 1.2, < 4.0)
+    bcrypt (3.1.12)
     bindex (0.5.0)
     bootstrap-sass (3.2.0.2)
       sass (~> 3.2)
@@ -100,11 +101,6 @@ GEM
       i18n (>= 0.7)
     faraday (0.15.1)
       multipart-post (>= 1.2, < 3)
-    faraday_middleware (0.12.2)
-      faraday (>= 0.7.4, < 1.0)
-    faraday_middleware-multi_json (0.0.6)
-      faraday_middleware
-      multi_json
     ffi (1.9.23-x64-mingw32)
     ffi (1.9.23-x86-mingw32)
     ffi-compiler (1.0.1)
@@ -196,6 +192,7 @@ GEM
       moji (~> 1.6)
     multi_json (1.13.1)
     multipart-post (2.0.0)
+    mysql2 (0.5.1)
     mysql2 (0.5.1-x64-mingw32)
     mysql2 (0.5.1-x86-mingw32)
     nenv (0.3.0)
@@ -221,6 +218,8 @@ GEM
     net-http-digest_auth (1.4.1)
     net-http-persistent (2.9.4)
     nio4r (2.3.1)
+    nokogiri (1.8.4)
+      mini_portile2 (~> 2.3.0)
     nokogiri (1.8.4-x64-mingw32)
       mini_portile2 (~> 2.3.0)
     nokogiri (1.8.4-x86-mingw32)
@@ -230,8 +229,6 @@ GEM
       shellany (~> 0.0)
     ntlm-http (0.1.1)
     options (2.3.2)
-    orm_adapter (0.5.0)
-    os (1.0.0)
     pr_geohash (1.0.0)
     progress_bar (1.2.0)
       highline (~> 1.6)
@@ -360,6 +357,7 @@ GEM
       execjs (>= 0.3.0, < 3)
     unf (0.1.4)
       unf_ext
+    unf_ext (0.0.7.5)
     unf_ext (0.0.7.5-x64-mingw32)
     unf_ext (0.0.7.5-x86-mingw32)
     uniform_notifier (1.11.0)
@@ -379,8 +377,10 @@ GEM
     yaml_db (0.2.3)
 
 PLATFORMS
+  ruby
   x64-mingw32
   x86-mingw32
+  x86_64-linux
 
 DEPENDENCIES
   activemodel-serializers-xml

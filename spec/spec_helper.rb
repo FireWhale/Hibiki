@@ -22,8 +22,6 @@ require 'sunspot_test/rspec'
 require 'sunspot/rails/spec_helper'
 require 'authlogic'
 require 'authlogic/test_case'
-require 'bullet'
-
 RSpec.configure do |config|
   #Authlogic
   config.include Authlogic::TestCase
@@ -67,17 +65,6 @@ RSpec.configure do |config|
   #     --seed 1234
   config.order = :random
 
-  #Bullet testing for SQL queries
-  if Bullet.enable?
-    config.before(:each) do
-      Bullet.start_request
-    end
-
-    config.after(:each) do
-      Bullet.perform_out_of_channel_notifications if Bullet.notification?
-      Bullet.end_request
-    end
-  end
   config.after(:all) do
     if Rails.env.test?
       FileUtils.rm_rf(Dir.glob(Rails.root.join("spec/test_env/images/albums/*")))
