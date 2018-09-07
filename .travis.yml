@@ -9,4 +9,4 @@ before_install:
  - cp config/database.travis.yml config/database.yml
  - mysql -e 'CREATE DATABASE hibiki_test;'
  # neo4j: copy
- - cp config/neo4j.travis.yml configt/neo4j.yml
+ - cp config/neo4j.travis.yml config/neo4j.yml
