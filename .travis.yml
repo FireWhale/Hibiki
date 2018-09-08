@@ -7,7 +7,6 @@ services:
 before_script:
 - bundle exec rake db:create db:structure:load
 before_install:
-- openssl aes-256-cbc -K $encrypted_1ce6a5799c45_key -iv $encrypted_1ce6a5799c45_iv
-  -in config/travis/secrets_test.yml.enc -out config/secrets.yml -d
 - cp config/travis/database.travis.yml config/database.yml
 - cp config/travis/neo4j.travis.yml config/neo4j.yml
+- cp config/travis/secrets_test.travis.yml config/secrets.yml
