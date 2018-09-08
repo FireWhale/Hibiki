@@ -44,6 +44,7 @@ chdir APP_ROOT do
   puts "\n== Creating Image directories =="
   ['albums','artists','organizations','posts','seasons','songs','sources','users'].each do |model|
     mkdir_p "public/images/#{model}"
+    mkdir_p "spec/test_env/images/#{model}"
   end
 
 end
