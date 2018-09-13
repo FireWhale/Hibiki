@@ -17,4 +17,5 @@
 //= require jquery-ui/widgets/slider
 //= require autocomplete-rails
 //= require bootstrap
+//= require turbolinks
 //= require_tree .

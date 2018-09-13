@@ -18,6 +18,7 @@ gem 'jquery-rails'
 gem 'jquery-ui-rails'
 gem 'rails-jquery-autocomplete'
 gem 'lazyload-rails'
+gem 'turbolinks'
 gem 'mini_magick' #Image manipulation
 gem 'sunspot_rails'
 gem 'globalize', git: 'https://github.com/globalize/globalize'
