@@ -9,7 +9,7 @@ describe UserSecuritySetter do
     role2 = create(:role, name: 'Admin')
     expect(input_user.roles).to be_empty
     user = UserSecuritySetter.perform(input_user.id, {role_ids: [role.id, role2.id]})
-    expect(user.roles).to match_array([role,role2])
+    expect(user.user_roles.map(&:role_id)).to match_array([role.id,role2.id])
   end
 
   it 'removes roles from the user' do
