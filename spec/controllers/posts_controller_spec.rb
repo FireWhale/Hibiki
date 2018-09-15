@@ -1,6 +1,7 @@
 require 'rails_helper'
 
 describe PostsController do
+  include_examples "global controller tests" #Global Tests
 
   #Authenticate
   before :each do
@@ -12,7 +13,7 @@ describe PostsController do
     #Shows
       include_examples 'has an index page', true, :id #id is basically created_at
       include_examples "has a show page", true
-      include_examples "has an images page", false, :show_images
+      include_examples 'has an images page', false, :show_images
       
     #Edits
       include_examples "has a new page", false
@@ -39,7 +40,7 @@ describe PostsController do
     #Shows
       include_examples 'has an index page', true, :id #id is basically created_at
       include_examples "has a show page", true
-      include_examples "has an images page", false, :show_images
+      include_examples 'has an images page', false, :show_images
       
     #Edits
       include_examples "has a new page", false
@@ -65,7 +66,7 @@ describe PostsController do
     #Shows
       include_examples 'has an index page', true, :id #id is basically created_at
       include_examples "has a show page", true
-      include_examples "has an images page",true, :show_images
+      include_examples 'has an images page',true, :show_images
       
     #Edits
       include_examples "has a new page", true

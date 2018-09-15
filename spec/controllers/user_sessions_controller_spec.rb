@@ -1,6 +1,8 @@
 require 'rails_helper'
 
-describe UserSessionsController do  
+describe UserSessionsController do
+  include_examples "global controller tests" #Global Tests
+
   shared_examples "can post create user session" do |accessible|
     describe 'POST #create' do
       if accessible == true

@@ -3,6 +3,8 @@ require 'sidekiq/testing'
 Sidekiq::Testing.fake!
 
 describe AlbumsController do
+  include_examples "global controller tests" #Global Tests
+
   shared_examples "has an edit_tracklist page" do |accessible|
     describe 'GET #edit_tracklist' do
 
@@ -161,7 +163,7 @@ describe AlbumsController do
     #Shows
       include_examples 'has an index page', true, :release_date
       include_examples "has a show page", true
-      include_examples "has an images page", true, :album_art
+      include_examples 'has an images page', true, :album_art
 
     #Edits
       include_examples "has a new page", false
@@ -191,7 +193,7 @@ describe AlbumsController do
     #Shows
       include_examples 'has an index page', true, :release_date
       include_examples "has a show page", true
-      include_examples "has an images page", true, :album_art
+      include_examples 'has an images page', true, :album_art
 
     #Edits
       include_examples "has a new page", false
@@ -221,7 +223,7 @@ describe AlbumsController do
     #Shows
       include_examples 'has an index page', true, :release_date
       include_examples "has a show page", true
-      include_examples "has an images page",true, :album_art
+      include_examples 'has an images page',true, :album_art
 
     #Edits
       include_examples "has a new page", true

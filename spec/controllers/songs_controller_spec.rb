@@ -1,6 +1,7 @@
 require 'rails_helper'
 
 describe SongsController do
+  include_examples "global controller tests" #Global Tests
 
   #Authenticate
   before :each do
@@ -11,7 +12,7 @@ describe SongsController do
     #Shows
       include_examples 'has an index page', true, :id
       include_examples "has a show page", true
-      include_examples "has an images page", true, :show_images
+      include_examples 'has an images page', true, :show_images
       
     #Edits
       include_examples "has a new page", false
@@ -44,7 +45,7 @@ describe SongsController do
     #Shows
       include_examples 'has an index page', true, :id
       include_examples "has a show page", true
-      include_examples "has an images page", true, :show_images
+      include_examples 'has an images page', true, :show_images
       
     #Edits
       include_examples "has a new page", false
@@ -77,7 +78,7 @@ describe SongsController do
     #Shows
       include_examples 'has an index page', true, :id
       include_examples "has a show page", true
-      include_examples "has an images page",true, :show_images
+      include_examples 'has an images page',true, :show_images
       
     #Edits
       include_examples "has a new page", true

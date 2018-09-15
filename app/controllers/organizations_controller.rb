@@ -4,17 +4,17 @@ class OrganizationsController < ApplicationController
 
   def create
     new_params = organization_params
-    handle_partial_date_assignment(new_params,Organization)    
-    
-    @organization = Organization.new(new_params)
+    handle_partial_date_assignment(new_params,Organization)
+
+    @record = Organization.new(new_params)
     
     respond_to do |format|
-      if @organization.save
-        format.html { redirect_to @organization, notice: 'Organization was successfully created.' }
-        format.json { render json: @organization, status: :created, location: @organization }
+      if @record.save
+        format.html { redirect_to @record, notice: 'Organization was successfully created.' }
+        format.json { render json: @record, status: :created, location: @record }
       else
-        format.html { render action: "new" }
-        format.json { render json: @organization.errors, status: :unprocessable_entity }
+        format.html { render action: 'new', file: 'shared/new', layout: 'full' }
+        format.json { render json: @record.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -23,15 +23,15 @@ class OrganizationsController < ApplicationController
     new_params = organization_params
     handle_partial_date_assignment(new_params,Organization)
         
-    @organization = Organization.find(params[:id])
+    @record = Organization.find(params[:id])
     
     respond_to do |format|
-      if @organization.update_attributes(new_params)
-        format.html { redirect_to @organization, notice: 'Organization was successfully updated.' }
+      if @record.update_attributes(new_params)
+        format.html { redirect_to @record, notice: 'Organization was successfully updated.' }
         format.json { head :no_content }
       else
-        format.html { render action: "edit" }
-        format.json { render json: @organization.errors, status: :unprocessable_entity }
+        format.html { render action: 'edit', file: 'shared/edit', layout: 'full' }
+        format.json { render json: @record.errors, status: :unprocessable_entity }
       end
     end
   end

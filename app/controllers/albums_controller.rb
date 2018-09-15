@@ -84,15 +84,15 @@ class AlbumsController < ApplicationController
     handle_partial_date_assignment(new_params,Album)
     handle_length_assignment(new_params)
 
-    @album = Album.new(new_params)
+    @record = Album.new(new_params)
 
     respond_to do |format|
-      if @album.save
-        format.html { redirect_to @album, notice: 'Album was successfully created.' }
-        format.json { render json: @album, status: :created, location: @album }
+      if @record.save
+        format.html { redirect_to @record, notice: 'Album was successfully created.' }
+        format.json { render json: @record, status: :created, location: @record }
       else
-        format.html { render action: "new" }
-        format.json { render json: @album.errors, status: :unprocessable_entity }
+        format.html { render action: 'new', file: 'shared/new', layout: 'full' }
+        format.json { render json: @record.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -102,15 +102,15 @@ class AlbumsController < ApplicationController
     handle_partial_date_assignment(new_params,Album)
     handle_length_assignment(new_params)
 
-    @album = Album.includes({artist_albums: :artist}, :sources, {album_organizations: :organization}, :songs).find(params[:id])
+    @record = Album.includes({artist_albums: :artist}, :sources, {album_organizations: :organization}, :songs).find(params[:id])
 
     respond_to do |format|
-      if @album.update_attributes(new_params)
-        format.html { redirect_to @album, notice: 'Album was successfully updated.' }
+      if @record.update_attributes(new_params)
+        format.html { redirect_to @record, notice: 'Album was successfully updated.' }
         format.json { head :no_content }
       else
-        format.html { render action: "edit" }
-        format.json { render json: @album.errors, status: :unprocessable_entity }
+        format.html { render action: 'edit', file: 'shared/edit', layout: 'full' }
+        format.json { render json: @record.errors, status: :unprocessable_entity }
       end
     end
   end

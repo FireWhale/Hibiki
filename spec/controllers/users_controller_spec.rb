@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 describe UsersController do
+  include_examples "global controller tests" #Global Tests
+
   #DON'T DELETE UNTIL TEST IS ADDED
   #test the post update_profile to make sure no one, not even admins
   #can post to a different user. The GETS are already filtered out for admins

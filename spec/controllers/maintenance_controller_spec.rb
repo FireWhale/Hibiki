@@ -3,6 +3,7 @@ require 'sidekiq/testing'
 Sidekiq::Testing.fake!
 
 describe MaintenanceController do
+  include_examples "global controller tests" #Global Tests
 
   shared_examples 'can get index' do |accessible|
     describe "#GET index" do

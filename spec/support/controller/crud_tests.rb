@@ -20,6 +20,8 @@ module CrudTests
             get :index
             if model_class == User && @user.nil? == false
               expect(assigns("#{model_symbol}s".to_sym)).to match_array(list + [@user])
+            elsif [Album, Artist, Source, Organization, Song].include?(model_class)
+              expect(assigns('records')).to match_array list
             else
               expect(assigns("#{model_symbol}s".to_sym)).to match_array list
             end
@@ -30,7 +32,11 @@ module CrudTests
             list = create_list(model_symbol, 10)
             get :index, format: :json
             expect(response.headers['Content-Type']).to match 'application/json'
-            expect(response).to render_template("#{model_symbol}s/index")
+            if [Album, Artist, Source, Organization, Song].include?(model_class)
+              expect(response).to render_template('shared/index')
+            else
+              expect(response).to render_template("#{model_symbol}s/index")
+            end
           end
 
           unless model_class == Tag || model_class == Event || model_class == Season
@@ -58,8 +64,14 @@ module CrudTests
             end
             get :index
             unless model_class == Post || model_class == Issue #Posts have newest first
-              assigns("#{model_symbol}s".to_sym).to_a.each_cons(2) do |records|
-                expect([0,-1]).to include(records[0].send(sort_method) <=> records[1].send(sort_method))
+              if [Album, Artist, Source, Organization, Song].include?(model_class)
+                assigns('records').to_a.each_cons(2) do |records|
+                  expect([0,-1]).to include(records[0].send(sort_method) <=> records[1].send(sort_method))
+                end
+              else
+                assigns("#{model_symbol}s".to_sym).to_a.each_cons(2) do |records|
+                  expect([0,-1]).to include(records[0].send(sort_method) <=> records[1].send(sort_method))
+                end
               end
             else
               assigns("#{model_symbol}s".to_sym).to_a.each_cons(2) do |records|
@@ -196,7 +208,11 @@ module CrudTests
             end
             get :show, params: {id: record}, format: :json
             expect(response.headers['Content-Type']).to match 'application/json'
-            expect(response).to render_template("#{model_symbol}s/show")
+            if [Album, Artist, Source, Organization, Song, Event].include?(model_class)
+              expect(response).to render_template('shared/show')
+            else
+              expect(response).to render_template("#{model_symbol}s/show")
+            end
           end
 
         else
@@ -264,7 +280,7 @@ module CrudTests
             it "renders the :show template" do
               record = create(model_symbol)
               get :show, params: {id: record}
-              expect(response).to render_template("songs/show")
+              expect(response).to render_template("shared/show")
             end
           end
         else
@@ -434,7 +450,11 @@ module CrudTests
 
             it "redirects to show" do
               post :create, params:{model_symbol => attributes_for(model_symbol, :form_input)}
-              expect(response).to redirect_to send("#{model_symbol}_path",(assigns[model_symbol]))
+              if [Artist, Organization, Source, Song, Album, Event].include?(model_class)
+                expect(response).to redirect_to("/#{model_symbol}s/#{assigns('record').id}")
+              else
+                expect(response).to redirect_to send("#{model_symbol}_path",(assigns[model_symbol]))
+              end
             end
 
             it "responds to json" do
