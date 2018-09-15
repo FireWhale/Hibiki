@@ -1,0 +1,7 @@
+$('#albums-list').html('<%= escape_javascript(render :partial => 'layouts/primary_models/album_list', locals: {albums: @albums}) %>')
+<%= render :partial => "scripts/layouts/lazyload"  %>
+
+$(".pagination").delegate("a", "click", function() {
+    var state = {statePath: $(this).attr('href')};
+    history.pushState( state, '', $(this).attr('href'));
+});

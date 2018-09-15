@@ -1,66 +1,6 @@
 class SourcesController < ApplicationController
   load_and_authorize_resource
-  layout "full", only: [:edit, :new]
-      
-  def index
-    @sources = Source.order(:internal_name).includes([:translations, :watchlists, :tags]).page(params[:page])
-
-    respond_to do |format|
-      format.html # index.html.erb
-      format.json
-    end
-  end
-
-  def show
-    @source = Source.includes([:watchlists, :translations, :albums => [:primary_images, :translations, :tags]]).find(params[:id])
-    self_relation_helper(@source,@related = {}) #Prepare @related (self_relations)
-    
-    @albums = @source.albums.filter_by_user_settings(current_user).order('release_date DESC').page(params[:album_page])
-    
-    respond_to do |format|
-      format.js
-      format.html # show.html.erb
-      format.json {@fields = (params[:fields] || '').split(',')}
-    end
-  end
-
-  def show_images
-    @source = Source.includes(:images).find_by_id(params[:id])
-    if params[:image] == "cover"
-      @image = @source.primary_images.first
-    elsif @source.images.map(&:id).map(&:to_s).include?(params[:image])
-      @image = Image.find_by_id(params[:image])
-    else
-      @image = @source.images.first
-    end
-    @show_nws = params[:show_nws]
-    
-    respond_to do |format|
-      format.html {render layout: "grid" }
-      format.js { render template: "images/update_image"}
-      format.json { render json: @source.images }
-    end
-  end
-
-  def new
-    @source = Source.new
-    @source.namehash = @source.namehash || {}
-    
-    respond_to do |format|
-      format.html # new.html.erb
-      format.json { render json: @source }
-    end
-  end
-
-  def edit
-    @source = Source.find(params[:id])
-    @source.namehash = @source.namehash || {}
-    
-    respond_to do |format|
-      format.html # edit.html.erb
-      format.json { render json: @source }
-    end
-  end
+  include GenViewsModule
 
   def create
     new_params = source_params
