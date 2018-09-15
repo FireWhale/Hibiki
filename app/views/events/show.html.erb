@@ -1,10 +1,10 @@
-<% content_for :title do %><%= language_helper(@event, :name)  %><% end %>
+<% content_for :title do %><%= language_helper(@record, :name)  %><% end %>
 
 <% content_for :header do %>
   <div class="text-center">
-    <h2><%= language_helper(@event, :name)  %></h2>
-    <h4><%= language_helper(@event, :abbreviation) %><% unless language_helper(@event,:name, priority: 1) == language_helper(@event,:name) || language_helper(@event,:name, priority: 1) == language_helper(@event, :abbreviation) %>
-        <%= language_helper(@event,:name, priority: 1) %>
+    <h2><%= language_helper(@record, :name)  %></h2>
+    <h4><%= language_helper(@record, :abbreviation) %><% unless language_helper(@record,:name, priority: 1) == language_helper(@record,:name) || language_helper(@record,:name, priority: 1) == language_helper(@record, :abbreviation) %>
+        <%= language_helper(@record,:name, priority: 1) %>
       <% end %>
     </h4>
   </div>
@@ -18,19 +18,19 @@
       <div class="panel">
         <div class="panel-heading">Information</div>
         <div class="panel-body info-list">
-          <%= attribute_display(@event, 'shorthand', 'Shorthand')%>
-          <%= reference_helper(@event) %>
-          <%= "#{content_tag(:b, 'Dates: ')}#{date_helper(@event, 'start_date')}".html_safe unless @event.start_date.nil?%><%= " to #{date_helper(@event, 'end_date')}" unless @event.end_date.nil? || @event.end_date == @event.start_date%>
+          <%= attribute_display(@record, 'shorthand', 'Shorthand')%>
+          <%= reference_helper(@record) %>
+          <%= "#{content_tag(:b, 'Dates: ')}#{date_helper(@record, 'start_date')}".html_safe unless @record.start_date.nil?%><%= " to #{date_helper(@record, 'end_date')}" unless @record.end_date.nil? || @record.end_date == @record.start_date%>
         </div>
       </div>
       
-      <% if can? :edit, @event %>
+      <% if can? :edit, @record %>
         <div id="admin-actions">
           <div class="panel">
             <div class="panel-heading">Admin Actions</div>
             <div class="nav nav-pills nav-stacked">
-              <li><%= link_to 'Edit', eval("edit_" + @event.class.to_s.downcase + "_path(@event)") %></li>
-              <li><%= link_to 'Destroy', @event, method: :delete, data: { confirm: 'Are you sure?' } %></li>
+              <li><%= link_to 'Edit', eval("edit_" + @record.class.to_s.downcase + "_path(@record)") %></li>
+              <li><%= link_to 'Destroy', @record, method: :delete, data: { confirm: 'Are you sure?' } %></li>
             </div>
           </div>
         </div>
@@ -38,16 +38,16 @@
     </div>
   </div>
   <div id="information">
-    <% unless language_helper(@event,:info, highlight: false).blank? %>
+    <% unless language_helper(@record,:info, highlight: false).blank? %>
       <div id="info" class="info">
         <h3>Information</h3>
-        <%= simple_format(language_helper(@event,:info, highlight: false)) %>
+        <%= simple_format(language_helper(@record,:info, highlight: false)) %>
       </div>
     <% end %>
     
     <div id="albums" class="info">
-      <h3>Albums (<%= @event.albums.filter_by_user_settings(current_user).count %>) <%= "(#{@event.albums.count - @event.albums.filter_by_user_settings(current_user).count} Hidden)" unless @event.albums.filter_by_user_settings(current_user).count == @event.albums.count %> </h3>
-      <% unless @event.albums.empty? %>
+      <h3>Albums (<%= @record.albums.filter_by_user_settings(current_user).count %>) <%= "(#{@record.albums.count - @record.albums.filter_by_user_settings(current_user).count} Hidden)" unless @record.albums.filter_by_user_settings(current_user).count == @record.albums.count %> </h3>
+      <% unless @record.albums.empty? %>
         <div id="albums-list">
           <%= render :partial =>  'layouts/primary_models/album_list', :locals => {:albums => @albums } %>
         </div>

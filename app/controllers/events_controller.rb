@@ -11,22 +11,25 @@ class EventsController < ApplicationController
   end
   
   def show
-    @event = Event.find(params[:id])
+    @record = Event.find(params[:id])
 
-    @albums = @event.albums.includes(:primary_images, :tags, :translations).filter_by_user_settings(current_user).order('release_date DESC').page(params[:album_page])
+    @albums = @record.albums.includes(:primary_images, :tags, :translations).filter_by_user_settings(current_user).order('release_date DESC').page(params[:album_page])
     
     respond_to do |format|
-      format.js
+      format.js {render file: 'shared/show' }
       format.html # show.html.erb
-      format.json {@fields = (params[:fields] || '').split(',')}
+      format.json do
+        @fields = (params[:fields] || '').split(',')
+        render file: 'shared/show'
+      end
     end
   end
   
   def new
-    @event = Event.new
+    @record = Event.new
     
     respond_to do |format|
-      format.html # new.html.erb
+      format.html  { render file: 'shared/new', layout: 'full'}
       format.json { render json: @event }
     end
   end
@@ -35,7 +38,7 @@ class EventsController < ApplicationController
     @event = Event.find(params[:id])    
     
     respond_to do |format|
-      format.html # edit.html.erb
+      format.html { render file: 'shared/edit', layout: 'full'}
       format.json { render json: @event }
     end
   end

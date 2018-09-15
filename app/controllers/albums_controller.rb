@@ -1,71 +1,71 @@
 class AlbumsController < ApplicationController
   load_and_authorize_resource
-  layout "full", only: [:edit, :new]
 
   def index
-    @albums = Album.includes(:primary_images, :tags, :translations).order(:release_date).filter_by_user_settings(current_user).page(params[:page])
+    @records = Album.includes(:primary_images, :tags, :translations).order(:release_date).filter_by_user_settings(current_user).page(params[:page])
 
     respond_to do |format|
-      format.html # index.html.erb
-      format.json
+      format.html {render file: 'shared/index' }
+      format.json {render file: 'shared/index'}
     end
   end
 
   def show
-    @album = Album.includes({artist_albums: [artist: [:watchlists, :translations]]}, :primary_images, [sources: [:watchlists, :translations]], [album_organizations: [organization: [:watchlists, :translations]]], [songs: :translations], :tags).find(params[:id])
-    self_relation_helper(@album,@related = {}) #Prepare @related (self_relations)
-    credits_helper(@album,@credits = {}) #prepares the credits
+    @record = Album.includes({artist_albums: [artist: [:watchlists, :translations]]}, :primary_images, [sources: [:watchlists, :translations]], [album_organizations: [organization: [:watchlists, :translations]]], [songs: :translations], :tags).find(params[:id])
+    self_relation_helper(@record,@related = {}) #Prepare @related (self_relations)
+    credits_helper(@record,@credits = {}) #prepares the credits
 
     #Organizations
     @organizations = {}
-    @album.album_organizations.each do |each|
+    @record.album_organizations.each do |each|
       (@organizations[each.category.pluralize] ||= []) << each.organization
     end
 
     respond_to do |format|
-      format.html # show.html.erb
+      format.html {render file: 'shared/show' }
       format.json do
         @fields = (params[:fields] || '').split(',')
         @fields << 'full_song_info' unless params[:full_song_info].blank?
+        render file: 'shared/show'
       end
     end
   end
 
   def album_art
-    @album = Album.includes(:images).find_by_id(params[:id])
+    @record = Album.includes(:images).find_by_id(params[:id])
     if params[:image] == "cover"
-      @image = @album.primary_images.first
-    elsif @album.images.pluck(:id).map(&:to_s).include?(params[:image])
+      @image = @record.primary_images.first
+    elsif @record.images.pluck(:id).map(&:to_s).include?(params[:image])
       @image = Image.find_by_id(params[:image])
     else
-      @image = @album.images.first
+      @image = @record.images.first
     end
     @show_nws = params[:show_nws]
 
     respond_to do |format|
-      format.html { render layout: "grid" }
+      format.html {render file: 'shared/show_images', layout: 'grid'}
       format.js { render template: "images/update_image"}
-      format.json { render json: @album.images }
+      format.json { render json: @record.images }
     end
   end
 
   def new
-    @album = Album.new
-    @album.namehash = @album.namehash || {}
+    @record = Album.new
+    @record.namehash ||= {}
 
     respond_to do |format|
-      format.html # new.html.erb
-      format.json { render json: @album }
+      format.html  { render file: 'shared/new', layout: 'full'}
+      format.json { render json: @record }
     end
   end
 
   def edit
-    @album = Album.includes({artist_albums: :artist}, {album_sources: :source}, {album_organizations: :organization}, :songs).find(params[:id])
-    @album.namehash = @album.namehash || {}
+    @record = Album.includes({artist_albums: :artist}, {album_sources: :source}, {album_organizations: :organization}, :songs).find(params[:id])
+    @record.namehash ||= {}
 
     respond_to do |format|
-      format.html # edit.html.erb
-      format.json { render json: @album }
+      format.html { render file: 'shared/edit', layout: 'full'}
+      format.json { render json: @record }
     end
   end
 

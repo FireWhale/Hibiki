@@ -1,0 +1,9 @@
+<% content_for :title do %><%= @records.first.class.to_s.pluralize %><% end %>
+
+<% content_for :header do %>
+  <h2 class="text-center"><%= @records.first.class.to_s.pluralize %></h2>
+<% end %>
+
+<div id="index">
+  <%= render :partial => 'layouts/primary_models/record_list', locals: {records: @records} %>
+</div>
