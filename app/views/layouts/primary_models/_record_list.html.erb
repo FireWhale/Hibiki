@@ -5,7 +5,7 @@
     <% else %>
       No albums/songs are in this collection. <%= "Find some albums or songs to add!" if @type == "collected" && @user == current_user%>
     <% end%>
-  </div> 
+  </div>
 <% else %>
   <% if @model.nil? == false %>
     <%= paginate records, remote: true, param_name: "#{@model}_page", :params => {model: @model} %>
@@ -56,11 +56,11 @@
               <div class="image"><%= primary_image_helper(record.album, record.album, "thumb", :square => true, :outline => true) %></div>
               <div class="name song-name">
                 <h4><%= link_to "#{record.disc_track_number unless record.track_number.nil?} #{language_helper(record, :name)}", record.album %></h4>
-                <h5>Album: <%= link_to language_helper(record.album, :name), record.album %></h5>        
+                <h5>Album: <%= link_to language_helper(record.album, :name), record.album %></h5>
                 <h5><%= "Duration: #{record.length_as_time}" unless record.length.nil? || record.length == 0 %></h5>
                 <div class="tags"><%= linked_attribute_display(record.tags.meets_role(current_user), '') %></div>
               </div>
-              <div class="date"><%= date_helper(record.album, 'release_date', :calendar_link => false)%></div>    
+              <div class="date"><%= date_helper(record.album, 'release_date', :calendar_link => false)%></div>
             <% end %>
           </div>
         </div>
@@ -77,19 +77,19 @@
                   <% record.albums.order(:release_date).last(5).reverse.each do |album| %>
                     <div><%= primary_image_helper(album, album, "thumb", :outline_flag => true, :square => true) %>
                     </div>
-                  <% end %>  
+                  <% end %>
                   <div class="album-extra-count">
-                    <%= link_to "+#{record.albums.count - 5}", record %>   
-                  </div>     
+                    <%= link_to "+#{record.albums.count - 5}", record %>
+                  </div>
                 <% else %>
                   <% record.albums.order(:release_date).each do |album| %>
                     <div><%= primary_image_helper(album, album, "thumb", :outline_flag => true, :square => true) %></div>
-                  <% end %>    
+                  <% end %>
                 <% end %>
               </div>
             </div>
           </div>
-        </div>      
+        </div>
       <% end %>
     <% end %>
   <% if @model.nil? == false %>

@@ -6,7 +6,6 @@ module GenViewsModule
 
     define_method 'show' do
       @record = model.includes(:watchlists, :translations, :primary_images).find(params[:id])
-      #TODO Remove @record and everything and put in hash
       self_relation_helper(@record,@related = {}) #Prepare @related (self_relations)
 
       @albums = @record.albums.includes(:primary_images, :tags, :translations).filter_by_user_settings(current_user).order('release_date DESC').page(params[:album_page])

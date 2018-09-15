@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 describe ScriptsController do
+  include_examples "global controller tests" #Global Tests
+
   shared_examples "it quietly fails" do |method|
     it "quietly fails without the right inputs" do
       #quietly failing = error finding the div, etc.

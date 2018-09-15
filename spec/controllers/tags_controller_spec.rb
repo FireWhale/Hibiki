@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 describe TagsController do
+  include_examples "global controller tests" #Global Tests
+
   #Authenticate
   before :each do
     activate_authlogic

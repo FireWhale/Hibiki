@@ -75,16 +75,16 @@ class SongsController < ApplicationController
     new_params = song_params
     handle_length_assignment(new_params)
     handle_partial_date_assignment(new_params,Song)
-    
-    @song = Song.new(new_params)
+
+    @record = Song.new(new_params)
     
     respond_to do |format|
-      if @song.save
-        format.html { redirect_to @song, notice: 'Song was successfully created.' }
-        format.json { render json: @song, status: :created, location: @song }
+      if @record.save
+        format.html { redirect_to @record, notice: 'Song was successfully created.' }
+        format.json { render json: @record, status: :created, location: @record }
       else
-        format.html { render action: "new" }
-        format.json { render json: @song.errors, status: :unprocessable_entity }
+        format.html { render action: 'new', file: 'shared/new', layout: 'full' }
+        format.json { render json: @record.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -94,15 +94,15 @@ class SongsController < ApplicationController
     handle_length_assignment(new_params)
     handle_partial_date_assignment(new_params,Song)
 
-    @song = Song.find(params[:id])
+    @record = Song.find(params[:id])
     
     respond_to do |format|
-      if @song.update_attributes(new_params)
-        format.html { redirect_to @song, notice: 'Song was successfully updated.' }
+      if @record.update_attributes(new_params)
+        format.html { redirect_to @record, notice: 'Song was successfully updated.' }
         format.json { head :no_content }
       else
-        format.html { render action: "edit" }
-        format.json { render json: @song.errors, status: :unprocessable_entity }
+        format.html { render action: 'edit', file: 'shared/edit', layout: 'full' }
+        format.json { render json: @record.errors, status: :unprocessable_entity }
       end
     end
   end

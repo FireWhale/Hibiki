@@ -5,16 +5,16 @@ class SourcesController < ApplicationController
   def create
     new_params = source_params
     handle_partial_date_assignment(new_params,Source)
-    
-    @source = Source.new(new_params)
+
+    @record = Source.new(new_params)
     
     respond_to do |format|
-      if @source.save
-        format.html { redirect_to @source, notice: 'Source was successfully created.' }
-        format.json { render json: @source, status: :created, location: @source }
+      if @record.save
+        format.html { redirect_to @record, notice: 'Source was successfully created.' }
+        format.json { render json: @record, status: :created, location: @record }
       else
-        format.html { render action: "new" }
-        format.json { render json: @source.errors, status: :unprocessable_entity }
+        format.html { render action: 'new', file: 'shared/new', layout: 'full' }
+        format.json { render json: @record.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -22,16 +22,16 @@ class SourcesController < ApplicationController
   def update
     new_params = source_params
     handle_partial_date_assignment(new_params,Source)
-    
-    @source = Source.find(params[:id])
+
+    @record = Source.find(params[:id])
     
     respond_to do |format|
-      if @source.update_attributes(new_params)
-        format.html { redirect_to @source, notice: 'Source was successfully updated.' }
+      if @record.update_attributes(new_params)
+        format.html { redirect_to @record, notice: 'Source was successfully updated.' }
         format.json { head :no_content }
       else
-        format.html { render action: "edit" }
-        format.json { render json: @source.errors, status: :unprocessable_entity }
+        format.html { render action: 'edit', file: 'shared/edit', layout: 'full' }
+        format.json { render json: @record.errors, status: :unprocessable_entity }
       end
     end
   end

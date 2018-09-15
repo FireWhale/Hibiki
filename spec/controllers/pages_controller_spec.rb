@@ -1,7 +1,8 @@
 require 'rails_helper'
 
 describe PagesController do
-  
+  include_examples "global controller tests" #Global Tests
+
   shared_examples "accesses the front page" do |accessible|
     describe 'GET #root' do
       it "populates the albums variable" do

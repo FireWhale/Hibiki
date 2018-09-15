@@ -5,16 +5,16 @@ class ArtistsController < ApplicationController
   def create
     new_params = artist_params
     handle_partial_date_assignment(new_params,Artist)
-    
-    @artist = Artist.new(new_params)
+
+    @record = Artist.new(new_params)
     
     respond_to do |format|
-      if @artist.save
-        format.html { redirect_to @artist, notice: 'Artist was successfully created.' }
-        format.json { render json: @artist, status: :created, location: @artist }
+      if @record.save
+        format.html { redirect_to @record, notice: 'Artist was successfully created.' }
+        format.json { render json: @record, status: :created, location: @record }
       else
-        format.html { render action: "new" }
-        format.json { render json: @artist.errors, status: :unprocessable_entity }
+        format.html { render action: 'new', file: 'shared/new', layout: 'full' }
+        format.json { render json: @record.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -22,16 +22,16 @@ class ArtistsController < ApplicationController
   def update
     new_params = artist_params
     handle_partial_date_assignment(new_params,Artist)
-    
-    @artist = Artist.find(params[:id])
+
+    @record = Artist.find(params[:id])
        
     respond_to do |format|
-      if @artist.update_attributes(new_params)
-        format.html { redirect_to @artist, notice: 'Artist was successfully updated.' }
+      if @record.update_attributes(new_params)
+        format.html { redirect_to @record, notice: 'Artist was successfully updated.' }
         format.json { head :no_content }
       else
-        format.html { render action: "edit" }
-        format.json { render json: @artist.errors, status: :unprocessable_entity }
+        format.html { render action: 'edit', file: 'shared/edit', layout: 'full' }
+        format.json { render json: @record.errors, status: :unprocessable_entity }
       end
     end
   end
