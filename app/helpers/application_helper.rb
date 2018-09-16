@@ -10,9 +10,20 @@ module ApplicationHelper
   #Image Methods
     #There are independent methods that stack together to form the complete image display:
 
+    def primary_image_helper(record,path,size,options = {})
+      image = record.primary_images.empty? ? nil : record.primary_images.first
+      options[:model] = record.class.name
+      image_decorater(image,path,size,options)
+    end
+
+    def image_decorater(image,path,size,options = {}) #Adds an extra box to the image
+
+    end
+
+
     # image, size, title, path, collect/ignore outlines, and nws settings.
     #First we deal with formatting the link_to:
-    def primary_image_helper(record, path, size, options = {})
+    def aprimary_image_helper(record, path, size, options = {})
       #Takes in a record and creates a link_to for the primary image 
       #Options:
       #    :class = Gives the link_to a class
@@ -22,8 +33,7 @@ module ApplicationHelper
       #       :margin = Gives the  image a margin on the bottom
       #       :square = Makes the image a square (via javascript lazyload)
       #    :album_list = Used for a slightly different Cover is not Available picture
-      #    :nil_image = If there's no primary image, don't link anything. 
-      #    :lazyload = If false, don't lazy load. lazyload passes through to image_helper
+      #    :nil_image = If there's no primary image, don't link anything.
       if options[:class].nil? 
         options[:class] = 'thumbnail'
       end
@@ -41,9 +51,9 @@ module ApplicationHelper
       unless options[:square].nil?
         options[:class] = options[:class] + ' thumbnail-square'                
       end
-      if options[:outline_flag].nil? == false && record.class == Album && 
-      display_settings.include?("AlbumArtOutline") && 
-      record.collected_category(current_user).empty? == false 
+      if options[:outline_flag].nil? == false && record.class == Album &&
+          display_settings.include?("AlbumArtOutline") &&
+          record.collected_category(current_user).empty? == false
         #Default is no flag. Otherwise, we'll outline the image if conditions are met
         options[:class] = options[:class] + ' ' + record.collected_category(current_user).downcase
       end
