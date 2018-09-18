@@ -15,7 +15,7 @@ Hibiki::Application.routes.draw do
   end
   resources :albums do
     member do
-      get 'albumart', :action => 'album_art'
+      get 'albumart', :action => 'show_images'
       get 'edit_tracklist'
       post 'update_tracklist'
       patch 'update_tracklist'

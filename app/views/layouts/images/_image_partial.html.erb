@@ -1,7 +1,7 @@
 <div id="Image">
   <div class="text-center thumbnail thumbnail-margined">
     <% unless @image.nil? %>
-      <%= image_helper(@image, "full", show_nws: @show_nws, :title => @image.name)%>    
+      <%= image_linker(@image, , show_nws: @show_nws, :title => @image.name)%>
       <% if @image.rating == "NWS" %>
         <% if record.class == Album %>
           <%= link_to "Show NWS", albumart_album_path(:image => @image.id, show_nws: true), remote: true%>
