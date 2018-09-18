@@ -10,16 +10,61 @@ module ApplicationHelper
   #Image Methods
     #There are independent methods that stack together to form the complete image display:
 
+
+    def image_tag_builder(image,size, options = {}) #Shows an image
+      image_path = Rails.application.secrets.image_path
+      display_settings = current_user.nil? ? [] : current_user.display_settings
+
+    end
+
+
+
+  # Version 2 <- scrapped
+
     def primary_image_helper(record,path,size,options = {})
       image = record.primary_images.empty? ? nil : record.primary_images.first
-      options[:model] = record.class.name
-      image_decorater(image,path,size,options)
+      options[:model] ||= record.class.name
+      options[:title] ||= language_helper(record, :name, highlight: false)
+      if [Album, Song].include?(record.class)
+        options[:collection] = record.collected_category(current_user).downcase
+      end
+      image_decorator(image,path,size,options)
     end
 
-    def image_decorater(image,path,size,options = {}) #Adds an extra box to the image
-
+    def image_decorator(image,path,size,options = {}) #Adds an extra box to the image
+      options[:class] ||= 'thumbnail'
+      options[:class] += ' thumbnail-bordered' if options[:border] == true
+      options[:class] += ' thumbnail-margined' if options[:margin] == true
+      options[:class] += ' thumbnail-square' if options[:square] == true
+      options[:class] += " #{options[:collection]}" if options[:outline] == true && options[:collection].empty? == false
+      image_path = image_path_helper(image,size,options)
+      link_to_unless(image_path.empty? && options[:nil_image], image_tag(image_path, title: options[:title]), path,options) do
+        "<div class='text-center'>No Image available</div>".html_safe
+      end
     end
 
+    def image_path_helper(image, size, options = {}) #
+      image_path = Rails.application.secrets.image_path
+      display_settings = current_user.nil? ? [] : current_user.display_settings
+      if image.nil?
+        if ['Album','Song'].include?(options[:model])
+          image_path += options[:album_list] ? 'assets/cover not available.png' : 'assets/no cover.jpg'
+        else
+          image_path = ''
+        end
+      elsif image.rating == 'NWS' && display_settings.include?("DisplayNWS") == false && options[:show_nws].nil?
+        image_path += 'assets/not safe for yayois.png'
+      else
+        if size == 'medium' && image.medium_path.nil? == false && image.medium_path.empty? == false
+          image_path += "/images/" + image.medium_path
+        elsif size == 'thumb' && image.thumb_path.nil? == false && image.thumb_path.empty? == false
+          image_path += "/images/" + image.thumb_path
+        else
+          image_path += "/images/" + image.path
+        end
+      end
+      return image_path
+    end
 
     # image, size, title, path, collect/ignore outlines, and nws settings.
     #First we deal with formatting the link_to:
@@ -60,7 +105,10 @@ module ApplicationHelper
       if record.primary_images[0].nil? 
         if record.class == Album
           #Use a slightly different no cover available picture
-          link_to_if(options[:album_list].nil?, image_tag('no cover.jpg', :title => language_helper(record, :name, highlight: false), lazy: true, class: 'lazyload'), path, :class => options[:class]) do
+          link_to_if(options[:album_list].nil?, image_tag('no cover.jpg',
+                                                          :title => language_helper(record, :name, highlight: false),
+                                                          lazy: true, class: 'lazyload'), path,
+                     :class => options[:class]) do
             link_to(image_tag('cover not available.png', :title => language_helper(record,:name, highlight: false), lazy: true, class: 'lazyload'), path, :class => options[:class])            
           end
         else
@@ -73,7 +121,7 @@ module ApplicationHelper
       end      
     end
         
-    def image_helper(image, size, options = {}) 
+    def aimage_helper(image, size, options = {})
       #passes in an Image Object, checks the image object for nws content.
       #returns an image_tag with the appropriate path.
       #Options:

@@ -31,7 +31,7 @@ class AlbumsController < ApplicationController
     end
   end
 
-  def album_art
+  def show_images
     @record = Album.includes(:images).find_by_id(params[:id])
     if params[:image] == "cover"
       @image = @record.primary_images.first
