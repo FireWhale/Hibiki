@@ -5,13 +5,8 @@
         <div class="image-row">
       <% end %>
       <div class="image-column">
-        <% if record.class == Album %>
-          <%= link_to image_helper(image, "thumb"), albumart_album_path(:image => image.id), remote: true, lazyload: true, class: "thumbnail thumbnail-bordered" %>
-          <div class="image-text-link"><%= link_to image.name, albumart_album_path(:image => image.id), remote: true, lazyload: true %></div>
-        <% else %>
-          <%= link_to image_helper(image, "thumb"), eval("images_#{record.class.to_s.downcase}_path(:image => #{image.id})"), remote: true, lazyload: true, class: "thumbnail thumbnail-bordered" %>
-          <div class="image-text-link"><%= link_to image.name, eval("images_#{record.class.to_s.downcase}_path(:image => #{image.id})"), remote: true, lazyload: true %></div>
-        <% end %>        
+        <%= image_linker(image, images_path_helper(record,image),'thumb', border: true, remote: true )%>
+        <div class="image-text-link"><%= link_to image.name, images_path_helper(record,image), remote: true %></div>
       </div>
       <% if n.odd? %>
         </div>
@@ -21,14 +16,9 @@
       <% end %>      
     <% end %>
   <% else %>
-    <% record.images.each do |image| %>    
-        <% if record.class == Album %>
-          <%= link_to image_helper(image, "thumb"), albumart_album_path(:image => image.id), remote: true, class: "thumbnail thumbnail-bordered" %>
-          <div class="image-text-link"><%= link_to image.name, albumart_album_path(:image => image.id), remote: true %></div>
-        <% else %>
-          <%= link_to image_helper(image, "thumb"), eval("images_#{record.class.to_s.downcase}_path(:image => #{image.id})"), remote: true, lazyload: true, class: "thumbnail thumbnail-bordered" %>
-          <div class="image-text-link"><%= link_to image.name, eval("images_#{record.class.to_s.downcase}_path(:image => #{image.id})"), remote: true, lazyload: true %></div>
-        <% end %>
+    <% record.images.each do |image| %>
+      <%= image_linker(image, images_path_helper(record,image),'thumb', border: true, remote: true )%>
+      <div class="image-text-link"><%= link_to image.name, images_path_helper(record,image), remote: true %></div>
     <% end %>      
   <% end %>
 </div>

@@ -9,5 +9,3 @@ $(".pagination").delegate("a", "click", function() {
     var state = {statePath: $(this).attr('href')};
     history.pushState( state, '', $(this).attr('href'));
 });
-
-<%= render :partial => "scripts/layouts/lazyload" %>

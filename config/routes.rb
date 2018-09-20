@@ -23,27 +23,7 @@ Hibiki::Application.routes.draw do
       match 'rescrape', action: 'rescrape', via: [:get, :post]
     end
   end
-  resources :sources do
-    member {get 'images', :action => 'show_images'}
-  end
-
-  resources :songs do
-    member {get 'images', :action => 'show_images'}
-  end
-
-  resources :organizations do
-    member {get 'images', :action => 'show_images'}
-  end
-
-  resources :artists do
-    member {get 'images', :action => 'show_images'}
-  end
-
-  resources :posts do
-    member {get 'images', :action => 'show_images'}
-  end
-
-  resources :seasons do
+  resources :sources, :songs, :organizations, :artists, :posts, :seasons do
     member {get 'images', :action => 'show_images'}
   end
 

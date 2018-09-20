@@ -75,13 +75,9 @@ fadeCheck.done(function() {
     }).promise().done( function () {
       $("img:in-viewport").trigger("scroll"); 
       $('#grid-content').nanoScroller();
-      <%= render :partial => "scripts/layouts/lazyload"  %>
       
     });
-  
-  <% #Call Lazyload %>
-  <%= render :partial => "scripts/layouts/lazyload"  %>
-  
+
   <% #update counts %>
 });
 

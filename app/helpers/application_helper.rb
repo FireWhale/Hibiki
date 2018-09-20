@@ -10,17 +10,6 @@ module ApplicationHelper
   #Image Methods
     #There are independent methods that stack together to form the complete image display:
 
-
-    def image_tag_builder(image,size, options = {}) #Shows an image
-      image_path = Rails.application.secrets.image_path
-      display_settings = current_user.nil? ? [] : current_user.display_settings
-
-    end
-
-
-
-  # Version 2 <- scrapped
-
     def primary_image_helper(record,path,size,options = {})
       image = record.primary_images.empty? ? nil : record.primary_images.first
       options[:model] ||= record.class.name
@@ -28,22 +17,30 @@ module ApplicationHelper
       if [Album, Song].include?(record.class)
         options[:collection] = record.collected_category(current_user).downcase
       end
-      image_decorator(image,path,size,options)
+      image_linker(image,path,size,options)
     end
 
-    def image_decorator(image,path,size,options = {}) #Adds an extra box to the image
+    def image_linker(image,path,size,options = {}) #Adds an extra box to the image
       options[:class] ||= 'thumbnail'
-      options[:class] += ' thumbnail-bordered' if options[:border] == true
-      options[:class] += ' thumbnail-margined' if options[:margin] == true
-      options[:class] += ' thumbnail-square' if options[:square] == true
-      options[:class] += " #{options[:collection]}" if options[:outline] == true && options[:collection].empty? == false
-      image_path = image_path_helper(image,size,options)
-      link_to_unless(image_path.empty? && options[:nil_image], image_tag(image_path, title: options[:title]), path,options) do
+      options[:class] += ' thumbnail-bordered' if options[:border]
+      options[:class] += ' thumbnail-margined' if options[:margin]
+      options[:class] += ' thumbnail-square' if options[:square]
+      options[:class] += " #{options[:collection]}" if options[:highlight] && options[:collection].empty? == false
+      image_tag = image_tag_builder(image,size,options)
+      link_to_unless(image_tag.nil?,image_tag,path,options) do
         "<div class='text-center'>No Image available</div>".html_safe
       end
     end
 
-    def image_path_helper(image, size, options = {}) #
+    def image_tag_builder(image,size, options = {}) #Shows an image
+      image_path = image_path_generator(image,size,options)
+      data = {ratio: (image.width / image.height.to_f)} unless image.nil?
+      unless image_path.empty?
+        image_tag(image_path, title: options[:title], data: data)
+      end
+    end
+
+    def image_path_generator(image, size, options = {}) #
       image_path = Rails.application.secrets.image_path
       display_settings = current_user.nil? ? [] : current_user.display_settings
       if image.nil?
@@ -66,93 +63,16 @@ module ApplicationHelper
       return image_path
     end
 
-    # image, size, title, path, collect/ignore outlines, and nws settings.
-    #First we deal with formatting the link_to:
-    def aprimary_image_helper(record, path, size, options = {})
-      #Takes in a record and creates a link_to for the primary image 
-      #Options:
-      #    :class = Gives the link_to a class
-      #       Class modifications:
-      #       :border =   Gives a bootstrap border if set
-      #       :outline_flag = Gives the link_to a class that will outline the album
-      #       :margin = Gives the  image a margin on the bottom
-      #       :square = Makes the image a square (via javascript lazyload)
-      #    :album_list = Used for a slightly different Cover is not Available picture
-      #    :nil_image = If there's no primary image, don't link anything.
-      if options[:class].nil? 
-        options[:class] = 'thumbnail'
-      end
-      if current_user.nil? #Default is displayLEs and DisplayIgnored
-        display_settings = ["DisplayLEs", "DisplayIgnored"]
+    def images_path_helper(record,image = nil, nws = false) #for linking to the albumart or images url
+      params = "image: #{image.id}" unless image.nil?
+      params += ", show_nws: true" if nws
+      if record.class == Album
+        eval("albumart_album_path(#{params})")
       else
-        display_settings = current_user.display_settings
-      end
-      unless options[:border].nil?
-        options[:class] = options[:class] + ' thumbnail-bordered'
-      end
-      unless options[:margin].nil? 
-        options[:class] = options[:class] + ' thumbnail-margined'        
-      end
-      unless options[:square].nil?
-        options[:class] = options[:class] + ' thumbnail-square'                
-      end
-      if options[:outline_flag].nil? == false && record.class == Album &&
-          display_settings.include?("AlbumArtOutline") &&
-          record.collected_category(current_user).empty? == false
-        #Default is no flag. Otherwise, we'll outline the image if conditions are met
-        options[:class] = options[:class] + ' ' + record.collected_category(current_user).downcase
-      end
-      if record.primary_images[0].nil? 
-        if record.class == Album
-          #Use a slightly different no cover available picture
-          link_to_if(options[:album_list].nil?, image_tag('no cover.jpg',
-                                                          :title => language_helper(record, :name, highlight: false),
-                                                          lazy: true, class: 'lazyload'), path,
-                     :class => options[:class]) do
-            link_to(image_tag('cover not available.png', :title => language_helper(record,:name, highlight: false), lazy: true, class: 'lazyload'), path, :class => options[:class])            
-          end
-        else
-          link_to_if(options[:nil_image].nil?, language_helper(record,:name, highlight: false), path, :class => options[:class] + " text-center") do
-            "<div class='text-center'>No Image available</div>".html_safe         
-          end
-        end
-      else
-        link_to image_helper(record.primary_images[0], size, :title => language_helper(record,:name, highlight: false), :lazyload => (options[:lazyload] == false ? nil:true)), path, :class => options[:class]  
-      end      
-    end
-        
-    def aimage_helper(image, size, options = {})
-      #passes in an Image Object, checks the image object for nws content.
-      #returns an image_tag with the appropriate path.
-      #Options:
-      #    :title => sets the title of the image
-      #    :lazyload => if false, uses old image_tag (aka x_image_tag)
-      #    :show_nws => if present, ignore nws settings
-      if current_user.nil?
-        display_settings = ["DisplayLEs", "DisplayIgnored"]
-      else
-        display_settings = current_user.display_settings
-      end      
-      if image.rating == "NWS" && display_settings.include?("DisplayNWS") == false && options[:show_nws].nil?
-        image_tag('not safe for yayois.png', :title => options[:title], lazy: true, :class => "lazyload")
-      else  
-        #Call for medium => looks for medium path. If no medium path, default to full, which should be smaller than medium.
-        if size == 'medium' && image.medium_path.nil? == false && image.medium_path.empty? == false
-          path = "/images/" + image.medium_path
-        elsif size == 'thumb' && image.thumb_path.nil? == false && image.thumb_path.empty? == false
-          path = "/images/" + image.thumb_path
-        else
-          path = "/images/" + image.path
-        end
-        #Lazy load the image
-        if options[:lazyload].nil?
-          image_tag(path, :title => options[:title], data: {ratio: (image.width / image.height.to_f)})
-        else
-          image_tag(path, :title => options[:title], data: {ratio: (image.width / image.height.to_f)}, lazy: true, class: 'lazyload')
-        end
+        eval("images_#{record.class.name.downcase}_path(#{params})")
       end
     end
-    
+
   #These help format and display information on records
     def attribute_display(record, attribute, text)
       #this can display a record's attribute nicely and cleanly, along with description
@@ -250,12 +170,7 @@ module ApplicationHelper
           link_to(label, record)
         else
           size = info[2].nil? || ["thumb", "full", "medium"].include?(info[2]) == false ? "thumb" : info[2]
-          if record.model.class == Album
-            link = albumart_album_path(record.model.id, :image => record.id)
-          else
-            link = eval("images_#{record.model.class.to_s.downcase}_path(#{record.model.id}, :image => #{record.id})")
-          end
-          content_tag(:div, link_to(image_helper(record, size, :title => language_helper(record.model,:name)), link), class: "post-img")
+          content_tag(:div, image_linker(record, images_path_helper(record.model,record),size, title: language_helper(record.model,:name), class: 'post-img'))
         end
       }
       truncated_content = truncate_html( simple_format(subbed_content, nil), length: characters, separator: ' ', omission: '<span>...</span>')    

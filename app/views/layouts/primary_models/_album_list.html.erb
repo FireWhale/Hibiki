@@ -1,7 +1,7 @@
 <%= paginate albums, param_name: :album_page, remote: true %>
 <% albums.each do |album| %>
   <div class="album">
-    <div class="album_art"><%= primary_image_helper(album, album, 'thumb', nil_image: true, square: true)%></div>
+    <div class="album_art"><%= primary_image_helper(album, album, 'thumb', square: true, highlight: true)%></div>
     <div class="album_name">
       <%= link_to language_helper(album, :name), album %>
       <div class="tags"><%= linked_attribute_display(album.tags, "") %></div>

@@ -10,7 +10,7 @@
     <span id="link-<%= id%>" class="post-link"><%= raw content[3]%></span>
   <% end %>
   <div class="post-footer">
-    <%= link_to "Read More", post_path(id), remote: true, class: "expand-post", data: {id: id} %>
+    <%= link_to "Read More", post_path(id), remote: true, class: "expand-post", data: {id: id}, id: "footer-#{id}" %>
   </div>
 <% else %>
   <div class="post-footer"></div>

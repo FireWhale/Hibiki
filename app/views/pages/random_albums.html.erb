@@ -10,7 +10,7 @@
   <% @albums.each_slice(@slice) do |slice| %>
     <div class="col-md-2">
       <% slice.each do |album| %>
-        <%= primary_image_helper(album, album, "medium", :outline_flag => true) %>
+        <%= primary_image_helper(album, album, 'medium', highlight: true) %>
       <% end %>
     </div>
   <% end %>
