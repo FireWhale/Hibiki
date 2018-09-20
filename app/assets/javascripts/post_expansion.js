@@ -1,9 +1,6 @@
-
 document.addEventListener('click', function() {
     //Post Expanding -used to expand posts with the read more button
-    console.log(event)
     if (!event.target.matches('.expand-post')) return;
-
 
     //Used to open vgmdb links for scrape review
     if ($("#GenerateScrapes").length > 0) {
