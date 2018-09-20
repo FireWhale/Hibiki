@@ -21,11 +21,7 @@
 <div id="content">
   <div id="sidebar">
     <div id="PrimaryImage">
-      <% if @record.class == Album %>
-        <%= primary_image_helper(@record, albumart_album_path(:image => "cover"), "medium", margin: true, square: true , border: true, nil_image: true) %>
-      <% else %>
-        <%= primary_image_helper(@record, eval("images_#{@record.class.to_s.downcase}_path(:image => 'cover')"), 'medium', margin: true, square: true , border: true, nil_image: true) %>  
-      <% end %>
+      <%= primary_image_helper(@record, images_path_helper(@record),'medium', margin: true, square: true, border: true)%>
     </div>    
     <div id="user-actions">
       <div class="panel">
