@@ -4,42 +4,42 @@
   <h2 class="text-center">About</h2>
 <% end %>
 
-This is my music database website!</br>
-</br>
+This is my music database website!<br>
+<br>
 My music of choice is Jpop, anime, and doujin (indie) music. Like other genres, the artists that 
 create this music overlap between the genres. Unlike most other genres, all of these songs are also used
 in television shows and movies. I will collectively refer to these shows and movies as "sources".
-</br>
-</br>
+<br>
+<br>
 To give you an idea, take the Pixar movies Ratatouille and The Incredibles. Both of these have soundtracks done 
-by Michael Giacchino. So if I wanted to record that in a database, it would look something like this:</br></br>
-Name: Ratatouille OST</br>
-Artist: Michael Giacchino</br>
-Source: Ratatouille</br></br>
+by Michael Giacchino. So if I wanted to record that in a database, it would look something like this:<br><br>
+Name: Ratatouille OST<br>
+Artist: Michael Giacchino<br>
+Source: Ratatouille<br><br>
 
-Name: Incredibles OST</br>
-Artist: Michael Giacchino</br>
-Source: The Incredibles</br></br>
+Name: Incredibles OST<br>
+Artist: Michael Giacchino<br>
+Source: The Incredibles<br><br>
 
-This should be easy to keep track of in a spreadsheet, right?</br>
-</br>
+This should be easy to keep track of in a spreadsheet, right?<br>
+<br>
 However! It's not so simple with anime and jpop, since each source has opening themes and ending themes, as well as the original sound track.
 Thus, when we try to draw connections between all the artists, albums, and sources, we get a mess.
-Here's a diagram based on a situation that occurs quite often:</br>
-</br>
+Here's a diagram based on a situation that occurs quite often:<br>
+<br>
 
 <%= image_tag("diagram.png") %>
-</br>
+<br>
 Okay, so this creates a kind of web linking all these artists together through the shows and movies they write music for. 
 If we include Source 3's singles, we'll add another layer to the complexity. 
 If we include all albums we want to keep track of, we'll add thousands of albums, sources and artists! Some sources even have 100+ albums to them (I'm looking at you, touhou).
-This creates a giant web of connections and can't simply be displayed in a spreadsheet (you should see the spreadsheet I had before I decided to create this website!)</br></br>
+This creates a giant web of connections and can't simply be displayed in a spreadsheet (you should see the spreadsheet I had before I decided to create this website!)<br><br>
 
 So now enters this website. I wanted a way to keep track of all of albums that came out, along with the artist and source it belongs to. 
 I also wanted to faciliate adding data and improving my visualizations of the connections.
 Please explore the artists, albums, and sources pages and indices to get a better idea of how this plays out.
-</br></br>
-This is my first experience with programming, aside from a semester course in visual basic embedded in excel's developer tab.</br>
+<br><br>
+This is my first experience with programming, aside from a semester course in visual basic embedded in excel's developer tab.<br>
 I coded this for personal use, but I <strike>may expand it to include a function that lets users keep track of their music collections.</strike> Implemented :D
 </p>
 <%= link_to "Changelog", changelog_path %>

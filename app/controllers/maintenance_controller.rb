@@ -104,8 +104,7 @@ class MaintenanceController < ApplicationController
       redis.set("vgmdb_album_number", params[:vgmdb_number].try(:[],:id))
 
       respond_to do |format|
-        format.html { head :no_content }
-        format.json { head :no_content }
+        format.js
       end
     end
 
