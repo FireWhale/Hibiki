@@ -3,7 +3,7 @@ class SongsController < ApplicationController
   layout "full", only: [:edit, :new]
 
   def index
-    @records = Song.includes(:tags, :translations, album: [:primary_images, :translations]).page(params[:page])
+    @records = PrimaryRecordGetter.perform('index',{model: 'song', page: params[:page]})
 
     respond_to do |format|
       format.html {render file: 'shared/index' }

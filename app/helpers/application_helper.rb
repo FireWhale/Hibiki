@@ -45,19 +45,19 @@ module ApplicationHelper
       display_settings = current_user.nil? ? [] : current_user.display_settings
       if image.nil?
         if ['Album','Song'].include?(options[:model])
-          image_path += options[:album_list] ? '/assets/cover not available.png' : '/assets/no cover.jpg'
+          image_path += options[:album_list] ? 'assets/cover not available.png' : 'assets/no cover.jpg'
         else
           image_path = ''
         end
       elsif image.rating == 'NWS' && display_settings.include?("DisplayNWS") == false && options[:show_nws].nil?
-        image_path += '/assets/not safe for yayois.png'
+        image_path += 'assets/not safe for yayois.png'
       else
         if size == 'medium' && image.medium_path.nil? == false && image.medium_path.empty? == false
-          image_path += "/images/" + image.medium_path
+          image_path += "images/#{image.medium_path}"
         elsif size == 'thumb' && image.thumb_path.nil? == false && image.thumb_path.empty? == false
-          image_path += "/images/" + image.thumb_path
+          image_path += "images/#{image.thumb_path}"
         else
-          image_path += "/images/" + image.path
+          image_path += "images/#{image.path}"
         end
       end
       return image_path

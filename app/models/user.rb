@@ -113,9 +113,9 @@ class User < ApplicationRecord
     def album_filter #Used in an album scope 'filter_by_user_settings' to filter things out of view
       #["Limited Edition", "Reprint", "Ignored"] will be passed in to filter it out
       array = []
-      array << "Limited Edition" unless self.display_settings.include?("Display Limited Editions") #1
-      array << "Reprint" unless self.display_settings.include?("Display Reprints") #64
-      array << "Ignored" unless self.display_settings.include?("Display Ignored") #4
+      array.push('Limited Edition') unless self.display_settings.include?("Display Limited Editions") #1
+      array.push('Reprint') unless self.display_settings.include?("Display Reprints") #64
+      array.push('Ignored') unless self.display_settings.include?("Display Ignored") #4
       array
     end
 
