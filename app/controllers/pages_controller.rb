@@ -46,39 +46,38 @@ class PagesController < ApplicationController
 
     @query = truncate(params[:search], length: 50, escape: false) #used in html
 
+    if %w(album artist source organization song).include?(params[:model])
+      @records = PrimaryRecordGetter.perform('search', query: params[:search], model: params[:model], current_user: current_user, page: params[:page]).results
+      @model = params[:model]
+    end
+
     respond_to do |format|
       format.html do
         @counts = {}
         %w(album artist source organization song).each do |model|
           @counts[model.to_sym] = PrimaryRecordCounter.perform('search', query: params[:search], model: model, current_user: current_user)
         end
-        if %w(album artist source organization song).include?(params[:model])
-          @records = PrimaryRecordGetter.perform('search', query: params[:search], model: params[:model], current_user: current_user, page: params[:page]).results
-          @model = params[:model]
-        elsif @counts[:album] > 0
-          @records = PrimaryRecordGetter.perform('search', query: params[:search], model: 'album', current_user: current_user, page: params[:page]).results
-          @model = 'album'
-        elsif @counts[:artist] > 0
-          @records = PrimaryRecordGetter.perform('search', query: params[:search], model: 'artist', current_user: current_user, page: params[:page]).results
-          @model = 'artist'
-        elsif @counts[:source] > 0
-          @records = PrimaryRecordGetter.perform('search', query: params[:search], model: 'source', current_user: current_user, page: params[:page]).results
-          @model = 'source'
-        elsif @counts[:organization] > 0
-          @records = PrimaryRecordGetter.perform('search', query: params[:search], model: 'organization', current_user: current_user, page: params[:page]).results
-          @model = 'organization'
-        elsif @counts[:song] > 0
-          @records = PrimaryRecordGetter.perform('search', query: params[:search], model: 'song', current_user: current_user, page: params[:page]).results
-          @model = 'song'
+        if @model.blank?
+          if @counts[:album] > 0
+            @records = PrimaryRecordGetter.perform('search', query: params[:search], model: 'album', current_user: current_user, page: params[:page]).results
+            @model = 'album'
+          elsif @counts[:artist] > 0
+            @records = PrimaryRecordGetter.perform('search', query: params[:search], model: 'artist', current_user: current_user, page: params[:page]).results
+            @model = 'artist'
+          elsif @counts[:source] > 0
+            @records = PrimaryRecordGetter.perform('search', query: params[:search], model: 'source', current_user: current_user, page: params[:page]).results
+            @model = 'source'
+          elsif @counts[:organization] > 0
+            @records = PrimaryRecordGetter.perform('search', query: params[:search], model: 'organization', current_user: current_user, page: params[:page]).results
+            @model = 'organization'
+          elsif @counts[:song] > 0
+            @records = PrimaryRecordGetter.perform('search', query: params[:search], model: 'song', current_user: current_user, page: params[:page]).results
+            @model = 'song'
+          end
         end
       end
-      format.js do
-        if %w(album artist source organization song).include?(params[:model])
-          @records = PrimaryRecordGetter.perform('search', query: params[:search], model: params[:model], current_user: current_user, page: params[:page]).results
-          @model = params[:model]
-        end
-      end
-      format.json { @models = (@model.nil? ? %w(album artist source organization song) : [@model]) }
+      format.js
+      format.json
     end
 
   end

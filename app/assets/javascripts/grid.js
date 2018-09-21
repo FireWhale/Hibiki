@@ -1,5 +1,4 @@
-$(document).ready(function(){
-
+document.addEventListener("turbolinks:load", function(){
 
     if ($('#date-slider').length > 0 ) {
         if($('#left-sidebar').length > 0 ) {
@@ -35,8 +34,7 @@ $(document).ready(function(){
     };
 });
 
-
-$(window).load(function(){
+document.addEventListener("turbolinks:load", function(){
     if ($('#grid').length > 0 ) {
 
         //Sidebar lengths
