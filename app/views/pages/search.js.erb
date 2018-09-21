@@ -5,7 +5,4 @@ if($('#search-tabs li.<%= @model %>').hasClass('active') == false) {
   $('#search-tabs li.<%= @model %>').addClass('active');
 };
 
-$(".pagination").delegate("a", "click", function() {
-    var state = {statePath: $(this).attr('href')};
-    history.pushState( state, '', $(this).attr('href'));
-});
+history.pushState({turbolinks: true, url: '<%= request.original_url %>'},'','<%= request.original_url %>')
