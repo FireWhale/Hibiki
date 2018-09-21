@@ -41,11 +41,12 @@ module ApplicationHelper
     end
 
     def image_path_generator(image, size, options = {}) #
-      image_path = Rails.application.secrets.image_path
+      image_path = Rails.application.secrets.image_path || '' #empty for prod hibiki
       display_settings = current_user.nil? ? [] : current_user.display_settings
       if image.nil?
         if ['Album','Song'].include?(options[:model])
-          image_path += options[:album_list] ? 'assets/cover not available.png' : 'assets/no cover.jpg'
+          image_path += '/assets/' unless image_path.empty? #monkey patch for dev/prod image routing
+          image_path += options[:album_list] ? 'cover not available.png' : 'no cover.jpg'
         else
           image_path = ''
         end
@@ -53,11 +54,11 @@ module ApplicationHelper
         image_path += 'assets/not safe for yayois.png'
       else
         if size == 'medium' && image.medium_path.nil? == false && image.medium_path.empty? == false
-          image_path += "images/#{image.medium_path}"
+          image_path += "/images/#{image.medium_path}"
         elsif size == 'thumb' && image.thumb_path.nil? == false && image.thumb_path.empty? == false
-          image_path += "images/#{image.thumb_path}"
+          image_path += "/images/#{image.thumb_path}"
         else
-          image_path += "images/#{image.path}"
+          image_path += "/images/#{image.path}"
         end
       end
       return image_path

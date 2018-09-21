@@ -1,4 +1,4 @@
-$(document).ready(function(){
+document.addEventListener("turbolinks:load", function(){
 
     //Fills in empty information with a sorry message.
     if ($('#attributes').length > 0 ) {
@@ -8,63 +8,19 @@ $(document).ready(function(){
     };
     
     //sortable list for editing watchlists
-    $('.sortable-records').sortable({
-        connectWith: $(".sortable-records"),
-        update: function(event, ui) {
-            var hidden = ui.item.children().children("input");
-            var grouping = ui.item.parent().parent().parent().parent('.grouping').attr('id');
-            hidden.attr('name', "[watchlists][" + grouping + "][records][]");
-        }
-    });
-    
-    $('.secondary-languages').sortable();
-
-
-    //For Released Review's drill down
-    if ($("#ReleasedTable").length > 0) {
-        $('.drill').on('click', function() {
-            $('.activeDrill').removeClass("activeDrill").addClass("drilled");
-            parent = $(this).parent().parent();
-            if ((parent).hasClass('drilled')) {
-                //Need to unmark it and remove div
-                parent.removeClass('drilled');
-                parent.next().remove();
-            } 
-            else {
-                parent.addClass("activeDrill");    
-                params = {id: parent.attr("class")};
-                $.get('/maintenance/released_review_drill', params);
-            }  
+    if ($('.sortable-records').length > 0 ) {
+        $('.sortable-records').sortable({
+            connectWith: $(".sortable-records"),
+            update: function (event, ui) {
+                var hidden = ui.item.children().children("input");
+                var grouping = ui.item.parent().parent().parent().parent('.grouping').attr('id');
+                hidden.attr('name', "[watchlists][" + grouping + "][records][]");
+            }
         });
     };
-    
-});
 
-$(window).load(function(){
-    if ($('#information > #albums').length > 0 ) {
-        var initialPath = location.pathname + location.search;
-            
-        $(".pagination").delegate("a", "click", function() {
-            var state = {statePath: $(this).attr('href')};
-            history.pushState( state, '', $(this).attr('href'));
-        });
-        
-        $(window).on('popstate', function(event) {
-            var state = event.originalEvent.state;
-            var stateURL = initialPath;
-            if (state) {
-                stateURL = state.statePath;
-            }
-            
-            $.ajax({
-                type: "GET",
-                url: stateURL,   
-                headers: {
-                    Accept: "text/javascript, application/javascript"
-                }
-            });
-
-        });
+    if ($('.sortable-records').length > 0 ) {
+        $('.secondary-languages').sortable();
     };
 
 });

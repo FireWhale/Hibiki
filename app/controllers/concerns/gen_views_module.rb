@@ -21,7 +21,7 @@ module GenViewsModule
     end
 
     define_method 'index' do
-      @records = PrimaryRecordGetter.perform('index',{model: model.class_name.downcase, page: params[:page]})
+      @records = PrimaryRecordGetter.perform('index',model: model.class_name.downcase, page: params[:page])
 
       respond_to do |format|
         format.html {render file: 'shared/index' }

@@ -74,3 +74,8 @@ input[type="file"] {
   }
   
 }
+
+//Hides autocomplete selection div.
+.ui-helper-hidden-accessible {
+  display: none
+}

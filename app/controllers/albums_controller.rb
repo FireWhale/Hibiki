@@ -2,7 +2,7 @@ class AlbumsController < ApplicationController
   load_and_authorize_resource
 
   def index
-    @records = PrimaryRecordGetter.perform('index',{model: 'album', page: params[:page]}).filter_by_user_settings(current_user)
+    @records = PrimaryRecordGetter.perform('index',model: 'album', page: params[:page]).filter_by_user_settings(current_user)
 
     respond_to do |format|
       format.html {render file: 'shared/index' }
