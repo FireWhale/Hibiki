@@ -1,14 +1,14 @@
 <% if records.nil? || records.empty? %>
   <div class="no-records">
     <% if @type.nil? %>
-      Sorry, there were no results <%= "under #{@model}s" unless @model.nil? %>
+      Sorry, there were no results <%= "under #{@model.nil? ? 'any categorie' : @model}s" unless @model.nil? %>
     <% else %>
       No albums/songs are in this collection. <%= "Find some albums or songs to add!" if @type == "collected" && @user == current_user%>
     <% end%>
   </div>
 <% else %>
   <% if @model.nil? == false %>
-    <%= paginate records, remote: true, param_name: "#{@model}_page", :params => {model: @model} %>
+    <%= paginate records, remote: true, :params => {model: @model} %>
   <% elsif @type.nil? == false %>
     <%= paginate records, remote: true, :params => {type: @type} %>
   <% else %>
@@ -84,7 +84,7 @@
       </div>
     <% end %>
   <% if @model.nil? == false %>
-    <%= paginate records, remote: true, param_name: "#{@model}_page", :params => {model: @model} %>
+    <%= paginate records, remote: true, :params => {model: @model} %>
   <% elsif @type.nil? == false %>
     <%= paginate records, remote: true, :params => {type: @type} %>
   <% else %>

@@ -1,8 +1,8 @@
+history.pushState({turbolinks: true, url: '<%= request.original_url %>'},'','<%= request.original_url %>')
+
 $('#index').html('<%= escape_javascript(render :partial => 'layouts/primary_models/record_list', locals: {records: @records}) %>');
 
 if($('#search-tabs li.<%= @model %>').hasClass('active') == false) {
   $('#search-tabs li').removeClass('active');
   $('#search-tabs li.<%= @model %>').addClass('active');
 };
-
-history.pushState({turbolinks: true, url: '<%= request.original_url %>'},'','<%= request.original_url %>')

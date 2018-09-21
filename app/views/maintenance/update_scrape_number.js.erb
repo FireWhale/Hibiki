@@ -1,0 +1,9 @@
+var y = parseInt(document.getElementById('number').value),
+    url = "http://vgmdb.net/album/",
+    full = "";
+for (var i = 0 ; i < 50; i++) {
+    y++;
+    full = full + url + y + "\n";
+};
+document.getElementById('number').value = y;
+document.getElementById('list').value = full;

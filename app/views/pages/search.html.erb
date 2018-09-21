@@ -6,8 +6,8 @@
 
 <div id="search">
   <ul id="search-tabs" class="nav nav-tabs">
-    <% ["album", "artist", "source", "organization", "song"].each do |model| %>
-      <li class="<%= "#{model} #{'active' if model == @model}" %>"><%= link_to "#{model.capitalize}s (#{instance_variable_get("@#{model}_count")})", search_path(@search.merge({:model => model})), :remote => true %></li>
+    <% %w(album artist source organization song).each do |model| %>
+      <li class="<%= "#{model} #{'active' if model == @model}" %>"><%= link_to "#{model.capitalize}s (#{@counts[model.to_sym]})", search_path({:utf8 => params[:utf8], :search => @query}.merge({:model => model})), :remote => true %></li>
     <% end %>
   </ul>
   <div id="index">

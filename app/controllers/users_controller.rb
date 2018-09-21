@@ -120,40 +120,35 @@ class UsersController < ApplicationController
   def collection
     @user = User.find(params[:id])
 
-    #Get albums
-      collected_albums = Album.in_collection(@user.id, "Collected").includes(:primary_images, :tags, :translations)
-      ignored_albums = Album.in_collection(@user.id, "Ignored").includes(:primary_images, :tags, :translations)
-      wishlisted_albums = Album.in_collection(@user.id, "Wishlisted").includes(:primary_images, :tags, :translations)
-
-    #get songs
-      collected_songs = Song.in_collection(@user.id, "Collected").includes(:primary_images, :tags, :translations)
-      ignored_songs = Song.in_collection(@user.id, "Ignored").includes(:primary_images, :tags, :translations)
-      wishlisted_songs = Song.in_collection(@user.id, "Wishlisted").includes(:primary_images, :tags, :translations)
-
-    #combine the two and sort by release date
-      @collected = (collected_albums + collected_songs).sort_by {|a| a.release_date ? a.release_date : Date.new }.reverse!
-      @ignored = (ignored_albums + ignored_songs).sort_by {|a| a.release_date ? a.release_date : Date.new }.reverse!
-      @wishlisted = (wishlisted_albums + wishlisted_songs).sort_by {|a| a.release_date ? a.release_date : Date.new }.reverse!
-
-    #get counts
-      @collected_count = @collected.count
-      @ignored_count = @ignored.count
-      @wishlisted_count = @wishlisted.count
-
-    @type = params[:type]
-
-    if @type.nil? || ["collected", "ignored", "wishlisted"].include?(@type) == false
-      @records = Kaminari.paginate_array(@collected).page(params[:page]).per(30)
-      @type = "collected"
-    else
-      @records = Kaminari.paginate_array(instance_variable_get("@#{@type}")).page(params[:page]).per(30)
-    end
-
     respond_to do |format|
-      if @user.privacy_settings.include?("Show Collection") || @user == current_user
-        format.html
+      if @user.privacy_settings.include?('Show Collection') || @user == current_user
+        format.html do
+          @counts = {
+              collected: PrimaryRecordCounter.perform('collection', collection_category: 'Collected', user: @user),
+              ignored: PrimaryRecordCounter.perform('collection', collection_category: 'Ignored', user: @user),
+              wishlisted: PrimaryRecordCounter.perform('collection', collection_category: 'Wishlisted', user: @user)
+          }
+          if %w(wishlisted ignored collected).include?(params[:type])
+            @records = PrimaryRecordGetter.perform('collection', collection_category: params[:type].capitalize, user: @user, page: params[:page])
+            @type = params[:type]
+          elsif @counts[:collected] > 0
+            @records = PrimaryRecordGetter.perform('collection', collection_category: 'Collected', user: @user, page: params[:page])
+            @type = 'collected'
+          elsif @counts[:ignored] > 0
+            @records = PrimaryRecordGetter.perform('collection', collection_category: 'Ignored', user: @user, page: params[:page])
+            @type = 'ignored'
+          elsif @counts[:wishlisted] > 0
+            @records = PrimaryRecordGetter.perform('collection', collection_category: 'Wishlisted', user: @user, page: params[:page])
+            @type = 'wishlisted'
+          end
+        end
+        format.js do
+          if %w(wishlisted ignored collected).include?(params[:type])
+            @records = PrimaryRecordGetter.perform('collection', collection_category: params[:type].capitalize, user: @user, page: params[:page])
+            @type = params[:type]
+          end
+        end
         format.json {render json: @user.collections.map(&:collected).to_json(:user => current_user)}
-        format.js
       else
         format.html { render 'private_page'}
         format.json { head :forbidden }
