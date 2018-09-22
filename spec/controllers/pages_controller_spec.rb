@@ -130,30 +130,43 @@ describe PagesController do
     end
   end
   
-  shared_examples "can search" do |accessible|
+  shared_examples 'can search' do |accessible|
     describe 'GET #search' do
-      it "renders the search template" do
-        get :search, params: {search: "haha"}
+      it 'renders the search template' do
+        get :search, params: {search: 'haha'}
         valid_permissions(:search, accessible)
       end
-      
-      ["album", "artist", "source", "song", "organization"].each do |model|          
-        it "populates #{model} total_count" do
-          get :search, params: {search: "haha"}
-          expect(assigns("#{model}_count".to_sym)).to_not be_nil            
-        end
-      end
-        
-      it "responds to js" do
-        get :search, xhr: true, params: {search: "haha"}, format: :js
+
+      it 'responds to js' do
+        get :search, xhr: true, params: {search: 'haha'}, format: :js
         expect(response).to render_template :search
       end
-      
-      it "responds to json"
-      
-      it "accepts a model as a param"
-      
-      it "accepts multiple models as a param"
+
+      it 'responds to json' do
+        get :search, format: :json
+        expect(response.headers['Content-Type']).to match 'application/json'
+      end
+
+      it 'accepts a model as a param' do
+        get :search, params: {search: 'haha', model: 'album'}
+        expect(assigns(:model)).to_not be_nil
+      end
+
+      it 'populates a count variable' do
+        get :search, params: {search: 'haha'}
+        expect(assigns(:counts)).to_not be_nil
+      end
+
+      it 'does not populate a count variable with js' do
+        get :search, xhr: true, params: {search: 'haha'}
+        expect(assigns(:counts)).to be_nil
+      end
+
+      it 'does not accept an invalid model as a param' do
+        get :search, params: {search: 'haha', model: 'alabum'}
+        expect(assigns(:model)).to be_nil
+      end
+
     end
   end   
   
