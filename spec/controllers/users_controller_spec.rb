@@ -520,7 +520,7 @@ describe UsersController do
 
               it "populates a type variable" do
                 get :collection, id: @user
-                expect(assigns(:type)).to eq("collected")
+                expect(assigns(:type)).to_not be_nil
               end
 
               it "matches the type variable if passed in" do
