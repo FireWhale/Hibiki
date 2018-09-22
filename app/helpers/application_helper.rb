@@ -34,9 +34,10 @@ module ApplicationHelper
 
     def image_tag_builder(image,size, options = {}) #Shows an image
       image_path = image_path_generator(image,size,options)
-      data = {ratio: (image.width / image.height.to_f)} unless image.nil?
       unless image_path.empty?
-        image_tag(image_path, title: options[:title], data: data)
+        data = {src: image_path}
+        data[:ratio] = (image.width / image.height.to_f) unless image.nil?
+        image_tag('data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs=', title: options[:title], class: 'lazy', is: 'lazy-img', data: data)
       end
     end
 
