@@ -27,6 +27,7 @@ module ApplicationHelper
       options[:class] += ' thumbnail-square' if options[:square]
       options[:class] += " #{options[:collection]}" if options[:highlight] && options[:collection].empty? == false
       image_tag = image_tag_builder(image,size,options)
+      options[:is] = 'image-link'
       link_to_unless(image_tag.nil?,image_tag,path,options) do
         "<div class='text-center'>No Image available</div>".html_safe
       end
