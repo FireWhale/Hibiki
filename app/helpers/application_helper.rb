@@ -37,7 +37,11 @@ module ApplicationHelper
       unless image_path.empty?
         data = {src: image_path}
         data[:ratio] = (image.width / image.height.to_f) unless image.nil?
-        image_tag('data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs=', title: options[:title], class: 'lazy', is: 'lazy-img', data: data)
+        if image_path.start_with?('/images')
+          image_tag('data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs=', title: options[:title], class: 'lazy', is: 'lazy-img', data: data)
+        else
+          image_tag(image_path, title: options[:title], data: data)
+        end
       end
     end
 
@@ -52,7 +56,7 @@ module ApplicationHelper
           image_path = ''
         end
       elsif image.rating == 'NWS' && display_settings.include?("DisplayNWS") == false && options[:show_nws].nil?
-        image_path += 'assets/not safe for yayois.png'
+        image_path += '/assets/not safe for yayois.png'
       else
         if size == 'medium' && image.medium_path.nil? == false && image.medium_path.empty? == false
           image_path += "/images/#{image.medium_path}"
