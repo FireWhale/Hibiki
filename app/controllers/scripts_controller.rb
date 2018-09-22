@@ -21,7 +21,7 @@ class ScriptsController < ApplicationController
       @albums = Album.none
     else
       albums = Album.with_artist_organization_source(artist_ids, organization_ids, source_ids)
-      @albums = albums.nil? ? Album.none : albums.uniq
+      @albums = albums.nil? ? Album.none : albums.distinct
     end
 
     #Get the release values
