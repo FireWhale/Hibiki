@@ -106,6 +106,7 @@
                         if ("img" === entry.target.tagName.toLowerCase()) {
                             if (src) {
                                 entry.target.src = src;
+                                entry.target.classList.add('loaded');
                             }
                             if (srcset) {
                                 entry.target.srcset = srcset;
