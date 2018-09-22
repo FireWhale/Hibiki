@@ -39,16 +39,6 @@ module CrudTests
             end
           end
 
-          unless model_class == Tag || model_class == Event || model_class == Season
-            it "should call pagination" do
-              #This does not test if it's actually paginating.
-              #Just the method call. Create another test if you want to eq(list)
-              list = create_list(model_symbol, 5)
-              expect(model_class).to receive(:page)
-              get :index
-            end
-          end
-
           it "sorts by #{sort_method}" do
             ability = @user.nil? ? "Any" : (@user.abilities).sample
             if model_class == Tag || model_class == Issue

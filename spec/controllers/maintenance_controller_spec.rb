@@ -118,11 +118,12 @@ describe MaintenanceController do
 
     describe "#POST update_scrape_number" do
       if accessible == true
-        it "responds with json" do
+
+        it "responds to js" do
           posta = create(:post, content: "hi: 424")
           allow(Post).to receive(:find).and_return(posta)
-          post :update_scrape_number, params: {vgmdb_number: {id: 500}}
-          expect(response.status).to eq(204) #204 No Content -> ajax success event
+          post :update_scrape_number, xhr: true, params: {vgmdb_number: {id: 500}}
+          expect(response).to render_template(:update_scrape_number)
         end
 
       else
