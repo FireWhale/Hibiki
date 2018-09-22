@@ -37,7 +37,7 @@ module ApplicationHelper
       unless image_path.empty?
         data = {src: image_path}
         data[:ratio] = (image.width / image.height.to_f) unless image.nil?
-        if image_path.start_with?('/images')
+        if image_path.start_with?('/images') || image_path.start_with?('http://www.hibiki.moe')
           image_tag('data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs=', title: options[:title], class: 'lazy', is: 'lazy-img', data: data)
         else
           image_tag(image_path, title: options[:title], data: data)
