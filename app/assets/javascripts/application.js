@@ -6,4 +6,5 @@
 //= require autocomplete-rails
 //= require bootstrap
 //= require turbolinks
+//= require d3
 //= require_tree .
