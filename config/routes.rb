@@ -53,6 +53,8 @@ Hibiki::Application.routes.draw do
     get 'released_review_drill'
   end
 
+  get '/interactive', to: 'graph#graph'
+
   root :to => 'pages#front_page'
 
   #Unique Pages
@@ -65,6 +67,7 @@ Hibiki::Application.routes.draw do
   get '/calendar', :to => 'pages#calendar'
   get '/help', to: 'pages#help'
   get '/database', to: 'pages#database_landing'
+
 
   #Scripts
   get '/toggle_albums', :to => 'scripts#toggle_albums'
