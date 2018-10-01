@@ -67,6 +67,7 @@ class SeasonsController < ApplicationController
     
     respond_to do |format|
       if @season.save
+        NeoWriter.perform(@season,1)
         format.html { redirect_to @season, notice: 'Season was successfully created.' }
         format.json { render json: @season, status: :created, location: @season }
       else
@@ -81,6 +82,7 @@ class SeasonsController < ApplicationController
     
     respond_to do |format|
       if @season.update_attributes(season_params)
+        NeoWriter.perform(@season,1)
         format.html { redirect_to @season, notice: 'Season was successfully updated.' }
         format.json { head :no_content }
       else

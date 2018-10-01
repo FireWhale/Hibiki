@@ -46,7 +46,7 @@
      *
      * For more information on Neo4J REST API the documentation is available here: http://neo4j.com/docs/stable/rest-api-cypher.html
      */
-    popoto.rest.CYPHER_URL = "http://neo4j:<%= Rails.application.secrets.neo4j_password %>@localhost:7474/db/data/transaction/commit";
+    popoto.rest.CYPHER_URL = "http://localhost:2224/db/data/transaction/commit";
     /**
      * Add this authorization property if your Neo4j server uses basic HTTP authentication.
      * The value of this property must be "Basic <payload>", where "payload" is a base64 encoded string of "username:password".
@@ -56,7 +56,7 @@
      *  For example Base64 encoded value of "neo4j:password" is "bmVvNGo6cGFzc3dvcmQ="
      *  Note that it is not a safe way to keep credentials as anyone can have access to this code in your web page.
      */
-    //popoto.rest.AUTHORIZATION = "Basic " + btoa("neo4j:password");
+    popoto.rest.AUTHORIZATION = "Basic " + btoa("neo4j:<%= Rails.application.secrets.neo4j_password %>");
     /**
      * Define the Label provider you need for your application.
      * This configuration is mandatory and should contain at least all the labels you could find in your graph model.
@@ -68,15 +68,47 @@
      * See www.popotojs.com or example for more details on available configuration options.
      */
     popoto.provider.node.Provider = {
-        "Person": {
-            "returnAttributes": ["name", "born"],
-            "constraintAttribute": "name",
+        "Album": {
+            "returnAttributes": ["name", "`catalog number`", "image_id", "`release date`", "references", "uuid"],
+            "constraintAttribute": "uuid",
             "autoExpandRelations": true // if set to true Person nodes will be automatically expanded in graph
         },
-        "Movie": {
-            "returnAttributes": ["title", "released", "tagline"],
-            "constraintAttribute": "title"
-        }
+        "Artist": {
+            "returnAttributes": ["name","references","uuid"],
+            "constraintAttribute": "uuid",
+            "autoExpandRelations": true // if set to true Person nodes will be automatically expanded in graph
+        },
+        "Organization": {
+            "returnAttributes": ["name","references","uuid"],
+            "constraintAttribute": "uuid",
+            "autoExpandRelations": true // if set to true Person nodes will be automatically expanded in graph
+        },
+        "Source": {
+            "returnAttributes": ["name","references","uuid"],
+            "constraintAttribute": "uuid",
+            "autoExpandRelations": true // if set to true Person nodes will be automatically expanded in graph
+        },
+        "Song": {
+            "returnAttributes": ["name","`disc number`","`release date`","duration","`track number`","references","uuid"],
+            "constraintAttribute": "uuid",
+            "autoExpandRelations": true // if set to true Person nodes will be automatically expanded in graph
+        },
+        "Season": {
+            "returnAttributes": ["name","`start date`","image_id","`end date`","uuid"],
+            "constraintAttribute": "uuid",
+            "autoExpandRelations": true // if set to true Person nodes will be automatically expanded in graph
+        },
+        "Event": {
+            "returnAttributes": ["abbreviation","references","uuid"],
+            "constraintAttribute": "uuid",
+            "autoExpandRelations": true // if set to true Person nodes will be automatically expanded in graph
+        },
+        "Tag": {
+            "returnAttributes": ["name","uuid"],
+            "constraintAttribute": "uuid",
+            "autoExpandRelations": true // if set to true Person nodes will be automatically expanded in graph
+        },
+
     };
     /**
      * Here a listener is used to retrieve the total results count and update the page accordingly.
@@ -99,10 +131,19 @@
      * With INFO level all the executed cypher query can be seen in the navigator console.
      * Default is NONE
      */
-     popoto.logger.LEVEL = popoto.logger.LogLevels.INFO;
+     popoto.logger.LEVEL = popoto.logger.LogLevels.DEBUG;
     /**
      * Start popoto.js generation.
      * The function requires the label to use as root element in the graph.
      */
-    popoto.start("Person");
+
+    var schema = {
+        label: "Album",
+        value: {
+            name: "Minna de Utaou!",
+            uuid: 37328
+        }
+    }
+
+    popoto.start(schema);
 </script>

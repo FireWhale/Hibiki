@@ -48,6 +48,7 @@ class EventsController < ApplicationController
     
     respond_to do |format|
       if @record.save
+        NeoWriter.perform(@record,1)
         format.html { redirect_to @record, notice: 'Event was successfully created.' }
         format.json { render json: @record, status: :created, location: @record }
       else
@@ -63,6 +64,7 @@ class EventsController < ApplicationController
     
     respond_to do |format|
       if @record.update_attributes(event_params)
+        NeoWriter.perform(@record,1)
         format.html { redirect_to @record, notice: 'Event was successfully updated.' }
         format.json { head :no_content }
       else
