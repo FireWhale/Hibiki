@@ -5,6 +5,8 @@ module NodeModule #Attaches to Neo4j Node models.
     include Neo4j::ActiveNode
     include Neo4j::Timestamps
 
+    self.mapped_label_name = name.remove('Neo::')
+
     id_property :uuid
 
     property :name

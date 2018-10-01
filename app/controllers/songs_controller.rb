@@ -80,6 +80,7 @@ class SongsController < ApplicationController
     
     respond_to do |format|
       if @record.save
+        NeoWriter.perform(@record,1)
         format.html { redirect_to @record, notice: 'Song was successfully created.' }
         format.json { render json: @record, status: :created, location: @record }
       else
@@ -98,6 +99,7 @@ class SongsController < ApplicationController
     
     respond_to do |format|
       if @record.update_attributes(new_params)
+        NeoWriter.perform(@record,1)
         format.html { redirect_to @record, notice: 'Song was successfully updated.' }
         format.json { head :no_content }
       else

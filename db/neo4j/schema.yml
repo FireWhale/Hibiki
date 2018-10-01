@@ -14,15 +14,14 @@
 :constraints:
 - CONSTRAINT ON ( `neo4j::migrations::schemamigration`:`Neo4j::Migrations::SchemaMigration`
   ) ASSERT `neo4j::migrations::schemamigration`.migration_id IS UNIQUE
-- CONSTRAINT ON ( `neo::album`:`Neo::Album` ) ASSERT `neo::album`.uuid IS UNIQUE
-- CONSTRAINT ON ( `neo::artist`:`Neo::Artist` ) ASSERT `neo::artist`.uuid IS UNIQUE
-- CONSTRAINT ON ( `neo::event`:`Neo::Event` ) ASSERT `neo::event`.uuid IS UNIQUE
-- CONSTRAINT ON ( `neo::organization`:`Neo::Organization` ) ASSERT `neo::organization`.uuid
-  IS UNIQUE
-- CONSTRAINT ON ( `neo::season`:`Neo::Season` ) ASSERT `neo::season`.uuid IS UNIQUE
-- CONSTRAINT ON ( `neo::song`:`Neo::Song` ) ASSERT `neo::song`.uuid IS UNIQUE
-- CONSTRAINT ON ( `neo::source`:`Neo::Source` ) ASSERT `neo::source`.uuid IS UNIQUE
-- CONSTRAINT ON ( `neo::tag`:`Neo::Tag` ) ASSERT `neo::tag`.uuid IS UNIQUE
+- CONSTRAINT ON ( album:Album ) ASSERT album.uuid IS UNIQUE
+- CONSTRAINT ON ( artist:Artist ) ASSERT artist.uuid IS UNIQUE
+- CONSTRAINT ON ( event:Event ) ASSERT event.uuid IS UNIQUE
+- CONSTRAINT ON ( organization:Organization ) ASSERT organization.uuid IS UNIQUE
+- CONSTRAINT ON ( season:Season ) ASSERT season.uuid IS UNIQUE
+- CONSTRAINT ON ( song:Song ) ASSERT song.uuid IS UNIQUE
+- CONSTRAINT ON ( source:Source ) ASSERT source.uuid IS UNIQUE
+- CONSTRAINT ON ( tag:Tag ) ASSERT tag.uuid IS UNIQUE
 :indexes: []
 :versions:
 - '20180806090757'
