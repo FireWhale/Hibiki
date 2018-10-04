@@ -146,6 +146,26 @@ query.generateTaxonomyCountQuery = function (label) {
 };
 
 /**
+ * Hibiki: Generate
+ *
+ * @param selectedNode graph target node
+ * @returns {{matchElements: Array, whereElements: Array}}  list of match and where elements.
+ * @param depth how many chains it will generate (default: 4)
+ */
+query.generateHibikiElements = function (selectedNode, depth) {
+    var matchElements = []; //holder for elmeents
+
+
+    var rootPredefinedConstraints = provider.node.getPredefinedConstraints(rootNode.label);
+
+    rootPredefinedConstraints.forEach(function (predefinedConstraint) {
+        whereElements.push(predefinedConstraint.replace(new RegExp("\\$identifier", 'g'), rootNode.internalLabel));
+    });
+
+    matchElements.push("(" + rootNode.internalLabel + ":`" + rootNode.label + "`)");
+};
+
+/**
  * Generate Cypher query match and where elements from root node, selected node and a set of the graph links.
  *
  * @param rootNode root node in the graph.
@@ -679,6 +699,7 @@ rest.post = function (data, url) {
     var strData = JSON.stringify(data);
     logger.info("REST POST:" + strData);
 
+
     var settings = {
         type: "POST",
         beforeSend: function (request) {
@@ -696,6 +717,15 @@ rest.post = function (data, url) {
     if (rest.WITH_CREDENTIALS === true) {
         settings.xhrFields = {
             withCredentials: true
+        };
+    }
+
+    if (url == "/interactive") {
+        settings = {
+            type: "GET",
+            data: data,
+            dataType: 'json',
+            contentType: "application/json"
         };
     }
 
@@ -3008,8 +3038,10 @@ node.nodeClick = function () {
     if (!d3.event.defaultPrevented) { // To avoid click on drag end
         var clickedNode = d3.select(this).data()[0]; // Clicked node data
         logger.debug("nodeClick (" + clickedNode.label + ")");
+        logger.debug("Hibiki node type value: " + clickedNode.type);
 
         if (clickedNode.type === node.NodeTypes.VALUE) {
+            logger.info('Hibiki! ATTRI CHECK: ' + clickedNode.attributes.name);
             node.valueNodeClick(clickedNode);
         } else if (clickedNode.type === node.NodeTypes.CHOOSE || clickedNode.type === node.NodeTypes.ROOT) {
             if (d3.event.ctrlKey) {
@@ -3040,7 +3072,8 @@ node.nodeClick = function () {
                 if (clickedNode.valueExpanded) {
                     node.collapseNode(clickedNode);
                 } else {
-                    node.chooseNodeClick(clickedNode);
+                    //node.chooseNodeClick(clickedNode);
+                    node.chooseNodeClickHibiki(clickedNode);
                 }
             }
         }
@@ -3128,6 +3161,97 @@ node.valueNodeClick = function (clickedNode) {
 
     node.collapseNode(clickedNode.parent);
 };
+
+/**
+ * Function called on choose node click.
+ * In this case a query is executed to get all the possible value
+ * @param clickedNode
+ */
+node.chooseNodeClickHibiki = function (clickedNode) {
+    logger.debug("chooseNodeClick (" + clickedNode.label + ") with waiting state set to " + node.chooseWaiting);
+    if (!node.chooseWaiting && !clickedNode.immutable && !(clickedNode.count === 0)) {
+
+        // Collapse all expanded nodes first
+        node.collapseAllNode();
+
+        // Set waiting state to true to avoid multiple call on slow query execution
+        node.chooseWaiting = true;
+
+        // Don't run query to get value if node isAutoLoadValue is set to true
+        if (clickedNode.data !== undefined && clickedNode.isAutoLoadValue) {
+            clickedNode.page = 1;
+            node.expandNode(clickedNode);
+            node.chooseWaiting = false;
+        } else {
+            logger.info("Hibiki: chooseNodeClickHibiki ");
+            logger.info("Values (" + clickedNode.label + ") ==>");
+            if (clickedNode.value !== undefined && clickedNode.value[0] !== undefined) {
+                logger.info(clickedNode.label);
+                logger.info(clickedNode.value);
+                logger.info("Hibiki LENGTH " + clickedNode.value.length);
+                logger.info("Hibiki ID: " + clickedNode.value[0].attributes.uuid);
+                logger.info(window.location.hostname);
+
+                rest.post("model="+clickedNode.label+"&id="+clickedNode.value[0].attributes.uuid, "/interactive")
+                    .done(function (response) {
+                        logger.info("<== Values (" + clickedNode.label + ")");
+                        logger.info(response);
+
+                        clickedNode.data = response;
+                        clickedNode.page = 1;
+                        node.expandNodeHibiki(clickedNode);
+                        node.chooseWaiting = false;
+                    })
+                    .fail(function (xhr, textStatus, errorThrown) {
+                        node.chooseWaiting = false;
+                        logger.error(textStatus + ": error while accessing Hibiki server on URL:\"" + rest.CYPHER_URL + "\" defined in \"rest.CYPHER_URL\" property: " + errorThrown);
+                    });
+
+            } else {
+                var nodeValueQuery = query.generateNodeValueQuery(clickedNode);
+
+                rest.post(
+                    {
+                        "statements": [
+                            {
+                                "statement": nodeValueQuery.statement,
+                                "parameters": nodeValueQuery.parameters
+                            }]
+                    })
+                    .done(function (response) {
+                        logger.info("<== Values (" + clickedNode.label + ")");
+                        var parsedData = rest.response.parse(response);
+                        var constraintAttr = provider.node.getConstraintAttribute(clickedNode.label);
+
+                        clickedNode.data = parsedData[0].filter(function (dataToFilter) {
+                            var keepData = true;
+                            if (clickedNode.hasOwnProperty("value") && clickedNode.value.length > 0) {
+                                clickedNode.value.forEach(function (value) {
+                                    if (value.attributes[constraintAttr] === dataToFilter[constraintAttr]) {
+                                        keepData = false;
+                                    }
+                                });
+                            }
+                            return keepData;
+                        });
+                        logger.info("Hibiki: What's the data? ");
+                        logger.info(clickedNode.data);
+
+                        clickedNode.page = 1;
+                        node.expandNode(clickedNode);
+                        node.chooseWaiting = false;
+                    })
+                    .fail(function (xhr, textStatus, errorThrown) {
+                        node.chooseWaiting = false;
+                        logger.error(textStatus + ": error while accessing Neo4j server on URL:\"" + rest.CYPHER_URL + "\" defined in \"rest.CYPHER_URL\" property: " + errorThrown);
+                    });
+
+            }
+        }
+    }
+};
+
+
 
 /**
  * Function called on choose node click.
@@ -3271,7 +3395,6 @@ node.getContainingValue = function (label) {
 
     return nodesWithValue;
 };
-
 
 /**
  * Add value in all CHOOSE nodes with specified label.
@@ -3626,6 +3749,79 @@ node.filterExistingValues = function (n, values) {
     return notFoundValues;
 };
 
+
+/**
+ * Hibiki Replacement Function called to expand a node containing values (so all nodes)
+ * Similar to expandNode
+ */
+
+node.expandNodeHibiki = function(clickedNode) {
+
+    graph.notifyListeners(graph.Events.GRAPH_NODE_VALUE_EXPAND, [clickedNode]);
+
+    // Get subset of node corresponding to the current node page and page size
+    var lIndex = clickedNode.page * node.PAGE_SIZE;
+    var sIndex = lIndex - node.PAGE_SIZE;
+
+    var dataToAdd = clickedNode.data.slice(sIndex, lIndex);
+    var parentAngle = graph.computeParentAngle(clickedNode);
+
+    // Then each node are created and dispatched around the clicked node using computed coordinates.
+    var i = 1;
+    dataToAdd.forEach(function (d) {
+        var angleDeg;
+        if (clickedNode.parent) {
+            angleDeg = (((360 / (dataToAdd.length + 1)) * i));
+        } else {
+            angleDeg = (((360 / (dataToAdd.length)) * i));
+        }
+
+        var nx = clickedNode.x + (100 * Math.cos((angleDeg * (Math.PI / 180)) - parentAngle)),
+            ny = clickedNode.y + (100 * Math.sin((angleDeg * (Math.PI / 180)) - parentAngle));
+
+        logger.info(d);
+        logger.info("Hibiki Link type value" + graph.link.LinkTypes.VALUE);
+
+        var n = {
+            "id": dataModel.generateId(),
+            "parent": clickedNode,
+            "attributes": d,
+            "type": node.NodeTypes.VALUE,
+            "label": d.label,
+            "count": d.count,
+            "x": nx,
+            "y": ny,
+            "internalID": d[query.NEO4J_INTERNAL_ID.queryInternalName]
+        };
+
+        dataModel.nodes.push(n);
+        dataModel.links.push(
+            {
+                id: "l" + dataModel.generateId(),
+                source: clickedNode,
+                target: n,
+                type: graph.link.LinkTypes.RELATION,
+                label: d.type
+            }
+        );
+
+        i++;
+    });
+
+    // Pin clicked node and its parent to avoid the graph to move for selection, only new value nodes will blossom around the clicked node.
+    clickedNode.fixed = true;
+    clickedNode.fx = clickedNode.x;
+    clickedNode.fy = clickedNode.y;
+    if (clickedNode.parent && clickedNode.parent.type !== node.NodeTypes.ROOT) {
+        clickedNode.parent.fixed = true;
+        clickedNode.parent.fx = clickedNode.parent.x;
+        clickedNode.parent.fy = clickedNode.parent.y;
+    }
+    // Change node state
+    clickedNode.valueExpanded = true;
+    update();
+};
+
 /**
  * Function called to expand a node containing values.
  * This function will create the value nodes with the clicked node internal data.
@@ -3656,6 +3852,8 @@ node.expandNode = function (clickedNode) {
 
         var nx = clickedNode.x + (100 * Math.cos((angleDeg * (Math.PI / 180)) - parentAngle)),
             ny = clickedNode.y + (100 * Math.sin((angleDeg * (Math.PI / 180)) - parentAngle));
+
+        logger.info(d);
 
         var n = {
             "id": dataModel.generateId(),
