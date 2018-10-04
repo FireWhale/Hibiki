@@ -99,7 +99,7 @@
             "autoExpandRelations": true // if set to true Person nodes will be automatically expanded in graph
         },
         "Event": {
-            "returnAttributes": ["abbreviation","references","uuid"],
+            "returnAttributes": ["name", "abbreviation","`start date`","`end date`", "references","uuid"],
             "constraintAttribute": "uuid",
             "autoExpandRelations": true // if set to true Person nodes will be automatically expanded in graph
         },
@@ -145,5 +145,6 @@
         }
     }
 
-    popoto.start(schema);
+    popoto.start("Source");
+
 </script>

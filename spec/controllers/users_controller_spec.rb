@@ -457,6 +457,7 @@ describe UsersController do
             end
 
             it "populates a type variable" do
+              create(:collection, :with_album, user: user, relationship: 'Collected')
               get :collection, params: {id: user}
               expect(assigns(:type)).to eq('collected')
             end

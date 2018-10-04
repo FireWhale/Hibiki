@@ -45,7 +45,7 @@ class TagsController < ApplicationController
     
     respond_to do |format|
       if @tag.save
-        NeoWriter.perform(@record,1)
+        NeoWriter.perform(@tag,1)
         format.html { redirect_to @tag, notice: 'Tag was successfully created.' }
         format.json { render json: @tag, status: :created, location: @tag }
       else
@@ -60,7 +60,7 @@ class TagsController < ApplicationController
     
     respond_to do |format|
       if @tag.update_attributes(tag_params)
-        NeoWriter.perform(@record,1)
+        NeoWriter.perform(@tag,1)
         format.html { redirect_to @tag, notice: 'Tag was successfully updated.' }
         format.json { head :no_content }
       else
