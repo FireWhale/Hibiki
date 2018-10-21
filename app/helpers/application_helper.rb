@@ -130,6 +130,13 @@ module ApplicationHelper
       end
     end
 
+    def count_helper(record, linked_model,text)
+      count = record.try(linked_model.pluralize).try(:count)
+      unless count.nil? || count <= 0
+        (text.empty? ? '' : content_tag(:b, "#{text}: ")).concat(count.to_s).concat(tag(:br)).html_safe
+      end
+    end
+
   #Form helpers
     def render_form(records, opts = {})
       records = records.target if records.respond_to?("target") && records.target.class == Array

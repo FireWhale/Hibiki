@@ -42,8 +42,8 @@
           <%= attribute_display(@record, 'status', "Status") if (can? :manage, @record.class) %>
           <%= attribute_display(@record, 'db_status', "Database Status") if (can? :manage, @record.class) && (@record.respond_to?('db_status')) %>
           <%= attribute_display(@record, "catalog_number", "Catalog Number") if @record.class == Album %>
-          <%= attribute_display(@source, "release_date", "Release Date") if @record.class == Source%>   
-          <%= attribute_display(@source, "end_date", "End Date") if @record.class == Source%> 
+          <%= attribute_display(@record, "release_date", "Release Date") if @record.class == Source%>
+          <%= attribute_display(@record, "end_date", "End Date") if @record.class == Source%>
           <%= attribute_display(@record, "activity", "Status") if @record.class == Organization && @record.activity != "Active"%>
           <%= attribute_display(@record, "category", "Type of Organization") if @record.class == Organization%>
           <%= attribute_display(@record, "release_date", "Release Date") if @record.class == Album %>

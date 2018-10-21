@@ -75,8 +75,18 @@ module NeoNodeModule #Attaches to mySQL models.
     properties['release date'] = self.release_date_formatted if self.respond_to?(:release_date_formatted)
     properties['synopsis'] = self.synopsis if self.respond_to?(:synopsis)
     properties['references'] = self.references.map { |ref| ref.url } if self.respond_to?(:references) && self.references.blank? == false
-    properties['image_id'] = self.primary_images.first.id if self.respond_to?(:images) && self.primary_images.blank? == false
-
+    if self.respond_to?(:images) && self.primary_images.blank? == false
+      properties['image_id'] = self.primary_images.first.id
+      if self.primary_images.first.thumb_path.nil?
+        properties['image_path'] = self.primary_images.first.path #smaller than thumbnail
+        properties['image_height'] = self.primary_images.first.height
+        properties['image_width'] = self.primary_images.first.width
+      else
+        properties['image_path'] = self.primary_images.first.thumb_path
+        properties['image_height'] = self.primary_images.first.thumb_height
+        properties['image_width'] = self.primary_images.first.thumb_width
+      end
+    end
 
     properties.reject! {|k,v| v.blank?} #remove any blanks
     return properties

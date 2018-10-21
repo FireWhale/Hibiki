@@ -16,7 +16,12 @@ module NodeModule #Attaches to Neo4j Node models.
       serialize :references
     end
 
-    property :image_id unless ["Neo::Event","Neo::Tag"].include?(self.name)
+    unless ["Neo::Event","Neo::Tag"].include?(self.name)
+      property :image_id
+      property :image_path
+      property :image_height
+      property :image_width
+    end
   end
 
   #Instance Methods
