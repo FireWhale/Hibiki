@@ -54,6 +54,7 @@ Hibiki::Application.routes.draw do
   end
 
   get '/interactive', to: 'graph#graph'
+  get '/interactive_info', to: 'graph#info'
 
   root :to => 'pages#front_page'
 

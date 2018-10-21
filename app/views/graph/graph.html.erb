@@ -2,42 +2,23 @@
 
 <section class="ppt-section-main">
   <div class="ppt-section-header">
-    <span class="ppt-header-span">Graph</span> search
+    <span class="ppt-header-span">Graph</span> Hibiki Database
   </div>
 
   <div class="ppt-container-graph">
-    <nav id="popoto-taxonomy" class="ppt-taxo-nav">
-      <!-- Label/taxonomy filter will be generated here -->
-    </nav>
+    <div class="ppt-container-wrapper">
+      <nav id="popoto-taxonomy" class="ppt-taxo-nav">
+        <!-- Label/taxonomy filter will be generated here -->
+      </nav>
+      <nav id="popoto-info" class="ppt-info-nav" data-id="0">
+      </nav>
+    </div>
     <div id="popoto-graph" class="ppt-div-graph">
       <!-- Graph will be generated here-->
     </div>
   </div>
 
-  <div id="popoto-query" class="ppt-container-query">
-    <!-- Query viewer will be generated here -->
-  </div>
-
-  <div id="popoto-cypher" class="ppt-container-cypher">
-    <!-- Cypher query viewer will be generated here -->
-  </div>
-
-  <div class="ppt-section-header">
-    <!-- The total results count is updated with a listener defined below -->
-    RESULTS <span id="result-total-count" class="ppt-count"></span>
-  </div>
-
-  <div id="popoto-results" class="ppt-container-results">
-    <!-- Results will be generated here -->
-  </div>
-
-</section>
-
-<!---------------------->
-<!-- Required scripts -->
-
-<!-- Jquery is only used in popoto.js to send ajax POST request on Neo4j REST API -->
-<!-- This dependency will definitely be removed in future releases -->
+  </section>
 
 <script>
     /**
@@ -46,7 +27,7 @@
      *
      * For more information on Neo4J REST API the documentation is available here: http://neo4j.com/docs/stable/rest-api-cypher.html
      */
-    popoto.rest.CYPHER_URL = "http://localhost:2224/db/data/transaction/commit";
+    popoto.rest.CYPHER_URL = "http://24.118.149.105:39584/db/data/transaction/commit";
     /**
      * Add this authorization property if your Neo4j server uses basic HTTP authentication.
      * The value of this property must be "Basic <payload>", where "payload" is a base64 encoded string of "username:password".
@@ -69,61 +50,53 @@
      */
     popoto.provider.node.Provider = {
         "Album": {
-            "returnAttributes": ["name", "`catalog number`", "image_id", "`release date`", "references", "uuid"],
+            "returnAttributes": ["name", "`catalog number`", "image_path", "`release date`", "references", "uuid"],
             "constraintAttribute": "uuid",
-            "autoExpandRelations": true // if set to true Person nodes will be automatically expanded in graph
+            "getDisplayType": function () {return popoto.provider.node.DisplayTypes.IMAGE;},
+            "autoExpandRelations": false // if set to true Person nodes will be automatically expanded in graph
         },
         "Artist": {
             "returnAttributes": ["name","references","uuid"],
             "constraintAttribute": "uuid",
-            "autoExpandRelations": true // if set to true Person nodes will be automatically expanded in graph
+            "getDisplayType": function () {return popoto.provider.node.DisplayTypes.IMAGE;},
+            "autoExpandRelations": false // if set to true Person nodes will be automatically expanded in graph
         },
         "Organization": {
             "returnAttributes": ["name","references","uuid"],
             "constraintAttribute": "uuid",
-            "autoExpandRelations": true // if set to true Person nodes will be automatically expanded in graph
+            "getDisplayType": function () {return popoto.provider.node.DisplayTypes.IMAGE;},
+            "autoExpandRelations": false // if set to true Person nodes will be automatically expanded in graph
         },
         "Source": {
             "returnAttributes": ["name","references","uuid"],
             "constraintAttribute": "uuid",
-            "autoExpandRelations": true // if set to true Person nodes will be automatically expanded in graph
+            "getDisplayType": function () {return popoto.provider.node.DisplayTypes.IMAGE;},
+            "autoExpandRelations": false // if set to true Person nodes will be automatically expanded in graph
         },
         "Song": {
             "returnAttributes": ["name","`disc number`","`release date`","duration","`track number`","references","uuid"],
             "constraintAttribute": "uuid",
-            "autoExpandRelations": true // if set to true Person nodes will be automatically expanded in graph
+            "getDisplayType": function () {return popoto.provider.node.DisplayTypes.IMAGE;},
+            "autoExpandRelations": false // if set to true Person nodes will be automatically expanded in graph
         },
         "Season": {
-            "returnAttributes": ["name","`start date`","image_id","`end date`","uuid"],
+            "returnAttributes": ["name","`start date`","image_path","`end date`","uuid"],
             "constraintAttribute": "uuid",
-            "autoExpandRelations": true // if set to true Person nodes will be automatically expanded in graph
+            "getDisplayType": function () {return popoto.provider.node.DisplayTypes.IMAGE;},
+            "autoExpandRelations": false // if set to true Person nodes will be automatically expanded in graph
         },
         "Event": {
             "returnAttributes": ["name", "abbreviation","`start date`","`end date`", "references","uuid"],
             "constraintAttribute": "uuid",
-            "autoExpandRelations": true // if set to true Person nodes will be automatically expanded in graph
+            "autoExpandRelations": false // if set to true Person nodes will be automatically expanded in graph
         },
         "Tag": {
             "returnAttributes": ["name","uuid"],
             "constraintAttribute": "uuid",
-            "autoExpandRelations": true // if set to true Person nodes will be automatically expanded in graph
+            "autoExpandRelations": false // if set to true Person nodes will be automatically expanded in graph
         },
 
     };
-    /**
-     * Here a listener is used to retrieve the total results count and update the page accordingly.
-     * This listener will be called on every graph modification.
-     */
-    popoto.result.onTotalResultCount(function (count) {
-        document.getElementById("result-total-count").innerHTML = "(" + count + ")";
-    });
-    /**
-     * The number of results returned can be changed with the following parameter.
-     * Default value is 100.
-     *
-     * Note that in this current version no pagination mechanism is available in displayed results
-     */
-    //popoto.query.RESULTS_PAGE_SIZE = 100;
     /**
      * For this version, popoto.js has been generated with debug traces you can activate with the following properties:
      * The value can be one in DEBUG, INFO, WARN, ERROR, NONE.
@@ -131,20 +104,25 @@
      * With INFO level all the executed cypher query can be seen in the navigator console.
      * Default is NONE
      */
-     popoto.logger.LEVEL = popoto.logger.LogLevels.DEBUG;
+     //popoto.logger.LEVEL = popoto.logger.LogLevels.DEBUG;
     /**
      * Start popoto.js generation.
      * The function requires the label to use as root element in the graph.
      */
 
-    var schema = {
-        label: "Album",
+    <% if @query[:paged].blank? %>
+      var schema = 'Album'
+    <% else %>
+      var schema = {
+        label: "<%= @query[:paged].first[:label] %>",
+        rel_count: <%= @query[:paged].first[:count] %>,
         value: {
-            name: "Minna de Utaou!",
-            uuid: 37328
+            name: "<%= @query[:paged].first[:name] %>",
+            uuid: <%= @query[:paged].first[:uuid] %>
         }
-    }
+      }
+    <% end %>
 
-    popoto.start("Source");
+    popoto.start(schema);
 
 </script>

@@ -8,9 +8,11 @@ class NeoWriter
   end
 
   def perform
-    if neo_update(@record) && @depth > 0
-      neo_related_models_crawl(@record,@depth)
-      neo_relations_crawl(@record)
+    unless @record.class == Tag && @record.visibility != 'Any'
+      if neo_update(@record) && @depth > 0
+        neo_related_models_crawl(@record,@depth)
+        neo_relations_crawl(@record)
+      end
     end
   end
 
