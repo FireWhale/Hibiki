@@ -4,7 +4,9 @@
   </div>
 <% else %>
   <div class="ppt-info-text"><%= "#{record.class} ##{record.id}" %></div>
-  <%= primary_image_helper(record, record,'thumb', margin: true, square: true, target: :_blank, border: true)%>
+  <% if %w(Album Artist Organization Source Song Season).include?(record.class.to_s) %>
+    <%= primary_image_helper(record, record,'thumb', margin: true, square: true, target: :_blank, border: true)%>
+  <% end %>
   <div class="ppt-info-text">
     <%= link_to language_helper(record, :name), record, target: :_blank %><hr>
     <%= attribute_display(record, "catalog_number", "Catalog Number") if record.class == Album %>
