@@ -7,11 +7,8 @@ module ImageModule
     has_many :primary_images, -> {where "images.primary_flag <> ''" }, through: :imagelists, source: :image
 
     attr_accessor :new_images
-    attr_accessor :image_names
-    attr_accessor :image_paths
 
     after_save :add_images
-    after_save :add_image_paths
   end
 
   private
@@ -39,18 +36,6 @@ module ImageModule
             self.images << Image.create(name: image_name, path: image_path, primary_flag: priflag)
           end
           self.new_images = nil
-        end
-      end
-    end
-
-    def add_image_paths #Adds an image record for existing images.
-      #For scraping, so one doesn't have to send the image itself, just names/paths
-      unless image_names.blank? || image_paths.blank?
-        image_names.zip(image_paths).each do |each|
-          unless each[0].empty? || each[1].empty?
-            priflag = (self.images.empty? ? 'Cover' : '')
-            self.images << Image.create(name: each[0], path: each[1], primary_flag: priflag)
-          end
         end
       end
     end
