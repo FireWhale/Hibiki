@@ -104,15 +104,6 @@ module ImageTests
           end
 
         end
-
-        describe "After Save: add_image_paths" do
-          it "creates an image record" do
-            record = create(model_symbol)
-            record.image_names = ["Booklet Front"]
-            record.image_paths = ["albums/1/Booklet Front.jpg"]
-            expect{record.save}.to change(Image, :count).by(1)
-          end
-        end
       end
     end
   end
