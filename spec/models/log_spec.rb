@@ -68,17 +68,17 @@ describe Log do
     describe "add_to_content" do
       it "adds to the attribute" do
         log = create(:log, content: "hi")
-        log.add_to_content("added")
-        expect(log.reload.content).to eq("hiadded")
+        log.add_to_content('warn',"added")
+        expect(log.reload.content).to eq("hi[WARN]added\n")
       end
 
       it "reloads the content before appending" do
         log = create(:log, content: "hi")
         logdup = Log.last
-        logdup.add_to_content(" Add!")
+        logdup.add_to_content('info'," Add!")
         expect(log.content).to eq("hi")
-        log.add_to_content(" new add!")
-        expect(log.reload.content).to eq("hi Add! new add!")
+        log.add_to_content('error'," new add!")
+        expect(log.reload.content).to eq("hi[INFO] Add!\n[ERROR] new add!\n")
       end
     end
 
