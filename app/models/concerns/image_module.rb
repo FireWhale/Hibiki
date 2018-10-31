@@ -11,7 +11,6 @@ module ImageModule
     after_save :add_images
   end
 
-
   private
     def add_images
       unless self.new_images.blank?
