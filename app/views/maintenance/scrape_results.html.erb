@@ -6,7 +6,7 @@
 <% end %>
 <h5>Created at: <%= @log.created_at %></h5>
 <h5>Type: <%= @log.category %></h5>
-<% if @log.content.include?("[End Log]") %>
+<% if (@log.content || '').include?("[End Log]") %>
   <h5><%= "End of Log found: #{@log.content.partition('[End Log]').last}"  %></h5>
 <% else %>
   <h5>No End of Log found! Last 58 characters: <%= @log.content[-58..-1] %></h5>
