@@ -21,12 +21,12 @@ class MaintenanceController < ApplicationController
       authorize! :scrape, Album
 
       scrapehash = {:scrape => {}}
-      raw_vgmdb_albums = params[:vgmdb_albums][:text] unless params[:vgmdb_albums].nil?
-
-
-      unless raw_vgmdb_albums.blank?
-        raw_vgmdb_albums.split("\n").reject { |a| a.empty?}.map { |a| a.gsub("https://","http://")}.select { |a| a.starts_with?("http://") }.each do |each|
-          (scrapehash[:scrape][:vgmdb_albums] ||= []) << each.chomp("\r")
+      unless params[:vgmdb_albums].nil?
+        raw_vgmdb_albums = params[:vgmdb_albums][:text]
+        unless raw_vgmdb_albums.blank?
+          raw_vgmdb_albums.split("\n").reject { |a| a.empty?}.map { |a| a.gsub("https://","http://")}.select { |a| a.starts_with?("http://") }.each do |each|
+            (scrapehash[:scrape][:vgmdb_albums] ||= []) << each.chomp("\r")
+          end
         end
       end
 
