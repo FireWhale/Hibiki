@@ -7,7 +7,9 @@ class LogParser
 
 
   def perform
+    info_hash = {}
 
+    return info_hash
   end
 
   private
