@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 describe UsersController do
+  include_examples "global controller tests" #Global Tests
+
   #DON'T DELETE UNTIL TEST IS ADDED
   #test the post update_profile to make sure no one, not even admins
   #can post to a different user. The GETS are already filtered out for admins
@@ -455,6 +457,7 @@ describe UsersController do
             end
 
             it "populates a type variable" do
+              create(:collection, :with_album, user: user, relationship: 'Collected')
               get :collection, params: {id: user}
               expect(assigns(:type)).to eq('collected')
             end
@@ -518,7 +521,7 @@ describe UsersController do
 
               it "populates a type variable" do
                 get :collection, id: @user
-                expect(assigns(:type)).to eq("collected")
+                expect(assigns(:type)).to_not be_nil
               end
 
               it "matches the type variable if passed in" do

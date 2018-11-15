@@ -1,0 +1,3 @@
+history.pushState({turbolinks: true, url: '<%= request.original_url %>'}, '', '<%= request.original_url %>')
+
+$('#albums-list').html('<%= escape_javascript(render :partial => 'layouts/primary_models/album_list', locals: {albums: @albums}) %>')

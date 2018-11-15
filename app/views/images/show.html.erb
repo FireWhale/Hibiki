@@ -5,8 +5,8 @@
   <%= @image.name %>
 </p>
 
-<%= image_helper(@image, "full", :class => 'thumbnail') %>
-  
+<%= image_tag_builder(@image, 'full', title: @image.name) %>
+
 <p>
   <b>Path:</b>
   <%= @image.path %>

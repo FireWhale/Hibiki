@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 describe SeasonsController do
+  include_examples "global controller tests" #Global Tests
+
   #Authenticate
   before :each do
     activate_authlogic
@@ -10,7 +12,7 @@ describe SeasonsController do
     #Shows
       include_examples 'has an index page', true, :start_date
       include_examples "has a show page", true
-      include_examples "has an images page", false, :show_images
+      include_examples 'has an images page', false, :show_images
       
     #Edits
       include_examples "has a new page", false
@@ -37,7 +39,7 @@ describe SeasonsController do
     #Shows
       include_examples 'has an index page', true, :start_date
       include_examples "has a show page", true
-      include_examples "has an images page", false, :show_images
+      include_examples 'has an images page', false, :show_images
       
     #Edits
       include_examples "has a new page", false
@@ -64,7 +66,7 @@ describe SeasonsController do
     #Shows
       include_examples 'has an index page', true, :start_date
       include_examples "has a show page", true
-      include_examples "has an images page",true, :show_images
+      include_examples 'has an images page',true, :show_images
       
     #Edits
       include_examples "has a new page", true

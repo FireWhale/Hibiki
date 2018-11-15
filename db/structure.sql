@@ -400,8 +400,8 @@ DROP TABLE IF EXISTS `lyrics`;
  SET character_set_client = utf8mb4 ;
 CREATE TABLE `lyrics` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `song_id` int(11) DEFAULT NULL,
   `language` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `song_id` int(11) DEFAULT NULL,
   `lyrics` text CHARACTER SET utf8 COLLATE utf8_unicode_ci,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
@@ -664,9 +664,9 @@ DROP TABLE IF EXISTS `songs`;
  SET character_set_client = utf8mb4 ;
 CREATE TABLE `songs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `album_id` int(11) DEFAULT NULL,
   `internal_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `namehash` text CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `album_id` int(11) DEFAULT NULL,
   `track_number` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `length` int(11) DEFAULT NULL,
   `created_at` datetime NOT NULL,
@@ -824,11 +824,11 @@ DROP TABLE IF EXISTS `user_roles`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
  SET character_set_client = utf8mb4 ;
 CREATE TABLE `user_roles` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `user_id` bigint(20) NOT NULL,
   `role_id` bigint(20) NOT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
   KEY `index_user_roles_on_user_id` (`user_id`),
   KEY `index_user_roles_on_role_id` (`role_id`)
@@ -863,7 +863,6 @@ CREATE TABLE `users` (
   `last_request_at` datetime DEFAULT NULL,
   `last_login_at` datetime DEFAULT NULL,
   `privacy` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `security` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `stylesheet` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `usernames` text CHARACTER SET utf8 COLLATE utf8_unicode_ci,
   `created_at` datetime NOT NULL,
@@ -1028,6 +1027,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20160601004630'),
 ('20180830202033'),
 ('20180830210453'),
-('20180906174108');
+('20180906174108'),
+('20180913092631');
 
 

@@ -1,0 +1,31 @@
+<% if record.nil? %>
+  <div class="no-records">
+      Sorry, record not found!
+  </div>
+<% else %>
+  <div class="ppt-info-text"><%= "#{record.class} ##{record.id}" %></div>
+  <% if %w(Album Artist Organization Source Song Season).include?(record.class.to_s) %>
+    <%= primary_image_helper(record, record,'thumb', margin: true, square: true, target: :_blank, border: true)%>
+  <% end %>
+  <div class="ppt-info-text">
+    <%= link_to language_helper(record, :name), record, target: :_blank %><hr>
+    <%= attribute_display(record, "catalog_number", "Catalog Number") if record.class == Album %>
+    <%= attribute_display(record, "release_date", "Release Date") if record.class == Source %>
+    <%= attribute_display(record, "end_date", "End Date") if record.class == Source %>
+    <%= attribute_display(record, "activity", "Status") if record.class == Organization && record.activity != "Active" %>
+    <%= attribute_display(record, "category", "Type of Organization") if record.class == Organization %>
+    <%= attribute_display(record, "release_date", "Release Date") if record.class == Album %>
+    <%= attribute_display(record, "established", "Established") if record.class == Organization %>
+    <%= linked_attribute_display(record.events, "Events") if record.class == Album %>
+    <%= linked_attribute_display(record.seasons, "Season") if record.class == Source%>
+    <%= linked_attribute_display(record.tags.meets_role(current_user), 'Tags') if record.respond_to?('tags') %>
+  </div><hr>
+  <div class="ppt-info-text">
+    <%= count_helper(record, "related_#{record.class.to_s.downcase}", "# of related #{record.class.to_s.downcase}s") %>
+    <%= count_helper(record, 'albums', '# of albums') %>
+    <%= count_helper(record, 'songs', '# of songs') %>
+    <%= count_helper(record, 'artists', '# of artists') %>
+    <%= count_helper(record, 'sources', '# of sources') %>
+    <%= count_helper(record, 'organizations', '# of organizations') %>
+  </div>
+<% end %>

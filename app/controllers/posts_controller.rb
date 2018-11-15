@@ -23,6 +23,7 @@ class PostsController < ApplicationController
 
     respond_to do |format|
       format.html # show.html.erb
+      format.js {@id = @post.id}
       format.json {@fields = (params[:fields] || '').split(',')}
     end
   end

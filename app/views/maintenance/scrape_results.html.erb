@@ -6,7 +6,7 @@
 <% end %>
 <h5>Created at: <%= @log.created_at %></h5>
 <h5>Type: <%= @log.category %></h5>
-<% if @log.content.include?("[End Log]") %>
+<% if (@log.content || '').include?("[End Log]") %>
   <h5><%= "End of Log found: #{@log.content.partition('[End Log]').last}"  %></h5>
 <% else %>
   <h5>No End of Log found! Last 58 characters: <%= @log.content[-58..-1] %></h5>
@@ -54,7 +54,7 @@
         <% @log.albums.each do |album| %>
           <div class="row">
             <div class="col-md-3">
-              <%= primary_image_helper(album, album, "thumb", :outline_flag => true, :square => true) %>
+              <%= primary_image_helper(album, album, 'thumb', square: true, highlight: true) %>
             </div>
             <div class="col-md-9">
               <%= link_to album.internal_name, album %> (ID: <%= album.id %>)  <%= link_to "Edit", edit_album_path(album)  %><br>

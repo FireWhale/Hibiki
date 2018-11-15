@@ -1,16 +1,12 @@
 <div id="Image">
   <div class="text-center thumbnail thumbnail-margined">
     <% unless @image.nil? %>
-      <%= image_helper(@image, "full", show_nws: @show_nws, :title => @image.name)%>    
-      <% if @image.rating == "NWS" %>
-        <% if record.class == Album %>
-          <%= link_to "Show NWS", albumart_album_path(:image => @image.id, show_nws: true), remote: true%>
-        <% else %>
-          <%= link_to "Show NWS", eval("images_#{record.class.to_s.downcase}_path(:image => #{@image.id}, show_nws: true)"), remote: true%>        
-        <% end %>
+      <%= image_tag_builder(@image, 'full', show_nws: @show_nws, title: @image.name)%>
+      <% if @image.rating == 'NWS' %>
+        <%= link_to 'Show NWS',  images_path_helper(record,@image, !@show_nws), remote: true%>
       <% end %>
       <% if can? :edit, @image %>
-        <br><%= link_to "Edit", edit_image_path(@image) %>
+        <br><%= link_to 'Edit', edit_image_path(@image) %>
       <% end %>
     <% else %>
       Image not available

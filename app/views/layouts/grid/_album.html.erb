@@ -1,5 +1,5 @@
 <div class="enhance">
-  <%= primary_image_helper(album, album, "medium", :album_list => true) %>
+  <%= primary_image_helper(album, album, 'medium', album_list: true) %>
   <% if current_user.nil? == false && current_user.display_settings.include?("AlbumArtOutline") %>
     <% unless album.collected_category(current_user).empty? %>
       <div class="collection-badge text-center">

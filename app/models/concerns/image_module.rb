@@ -7,51 +7,46 @@ module ImageModule
     has_many :primary_images, -> {where "images.primary_flag <> ''" }, through: :imagelists, source: :image
 
     attr_accessor :new_images
-    attr_accessor :image_names
-    attr_accessor :image_paths
 
     after_save :add_images
-    after_save :add_image_paths
   end
 
   private
     def add_images
       unless self.new_images.blank?
-        self.new_images.each do |image|
+        self.new_images.each do |image_info|
+          image_info = {image: image_info} unless image_info.is_a?(Hash) #Converts simple images into a hash
           full_dir_path = "#{Rails.application.secrets.image_directory}/#{self.class.model_name.plural}/#{self.id}"
           Dir.mkdir(full_dir_path) unless File.exists?(full_dir_path)
-          image_name = image.original_filename.strip
-          mini_image = MiniMagick::Image.read(image.read)
-          image_name = image_name[0..-(mini_image.type.length + 2)] if image_name.downcase.ends_with?(mini_image.type.downcase)
-          original_name = image_name
-          record_image_names = self.images.map(&:name)
+          mini_image = MiniMagick::Image.read(image_info[:image].read)
+          extension = mini_image.type.downcase
+          extension = 'jpg' if extension == 'jpeg' #replace jpeg with jpg
+          file_name = image_info[:image].original_filename.strip #with file extension
+          file_name = file_name[0..-(mini_image.type.length + 2)] if file_name.downcase.ends_with?(mini_image.type.downcase)
+          record_image_paths = self.images.map(&:path)
+          original_name = file_name
           i = 1
-          while record_image_names.include?(image_name)
-            image_name = original_name + " #{i}"
+          while record_image_paths.include?("#{self.class.model_name.plural}/#{self.id}/#{file_name}.#{extension}")
+            file_name = original_name + " #{i}"
             i += 1
           end
-          full_path = Rails.root.join(full_dir_path,image_name)
-          mini_image.write(full_path)
-          image_path = "#{self.class.model_name.plural}/#{self.id}/#{image_name}"
-          priflag = (self.images.empty? ? (self.class == Album ? "Cover" : "Primary") : '')
+          attributes = generate_attributes(image_info,file_name,extension)
           #Finally, create an image record and add the image to the instance.
-          unless image_name.blank? || image_path.blank?
-            self.images << Image.create(name: image_name, path: image_path, primary_flag: priflag)
+          unless attributes[:name].blank? || attributes[:path].blank?
+            mini_image.write(Rails.root.join(Rails.application.secrets.image_directory,attributes[:path]))
+            self.images << Image.create(attributes)
           end
           self.new_images = nil
         end
       end
     end
 
-    def add_image_paths #Adds an image record for existing images.
-      #For scraping, so one doesn't have to send the image itself, just names/paths
-      unless image_names.blank? || image_paths.blank?
-        image_names.zip(image_paths).each do |each|
-          unless each[0].empty? || each[1].empty?
-            priflag = (self.images.empty? ? 'Cover' : '')
-            self.images << Image.create(name: each[0], path: each[1], primary_flag: priflag)
-          end
-        end
-      end
+    def generate_attributes(image_info,file_name,extension)
+      attributes_hash = {name: image_info[:image_name] || file_name } #defaults to file_name if not provided
+      attributes_hash[:path] = "#{self.class.model_name.plural}/#{self.id}/#{file_name}.#{extension}"
+      attributes_hash[:primary_flag] = image_info[:primary_flag] || (self.images.empty? ? 'Primary' : '')
+      attributes_hash[:rating]  = 'NWS' unless image_info[:nws_flag].blank?
+      return attributes_hash
     end
+
 end

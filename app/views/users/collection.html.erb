@@ -9,13 +9,10 @@
 <div id="collection">
   <ul id="collection-tabs" class="nav nav-tabs">
     <% ["collected", "ignored", "wishlisted"].each do |type| %>
-      <li class='<%= "#{type} #{'active' if @type == "#{type}"}" %>'><%= link_to "#{type} (#{instance_variable_get("@#{type}_count")})".titleize, collection_user_path(type: type), remote: true %></li>
+      <li class='<%= "#{type} #{'active' if @type == "#{type}"}" %>'><%= link_to "#{type} (#{@counts[type.to_sym]})".titleize, collection_user_path(type: type), remote: true %></li>
     <% end %>
   </ul>
   <div id="index">
-    <%unless @records.nil? %>
-      <%= render :partial => 'layouts/primary_models/record_list', locals: {records: @records}%>
-    <% end %>
+    <%= render :partial => 'layouts/primary_models/record_list', locals: {records: @records}%>
   </div>
 </div>
-

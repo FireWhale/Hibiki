@@ -21,7 +21,7 @@ class ScriptsController < ApplicationController
       @albums = Album.none
     else
       albums = Album.with_artist_organization_source(artist_ids, organization_ids, source_ids)
-      @albums = albums.nil? ? Album.none : albums.uniq
+      @albums = albums.nil? ? Album.none : albums.distinct
     end
 
     #Get the release values
@@ -81,8 +81,7 @@ class ScriptsController < ApplicationController
     @json_results = []
 
     unless params[:term].blank?
-      if params[:model].blank?
-        #Use general search - all models
+      if params[:model].blank? #Use general search - all models
         search = Sunspot.search([Album, Artist, Organization, Source, Song]) do
           [Album, Artist, Organization, Source, Song].each do |model|
             data_accessor_for(model).include = :translations
@@ -92,7 +91,7 @@ class ScriptsController < ApplicationController
               #When we include autocomplete_edit, we inherently boost our translated fields
               fields(:autocomplete_search, :autocomplete_edit)
             end
-            if params[:term].include?("*") || params[:term].include?("?")
+            if params[:term].include?('*') || params[:term].include?('?')
               fulltext "\"#{params[:term]}\"" do
                 fields(:autocomplete_search, :autocomplete_edit)
               end
@@ -100,7 +99,7 @@ class ScriptsController < ApplicationController
           end
           paginate page: 1, per_page: 10
         end
-        @json_results = search.results.to_json({autocomplete: "search", autocomplete_user: current_user})
+        @json_results = search.results.to_json({autocomplete: 'search', autocomplete_user: current_user})
       else
         #if a model is passed in, it's likely going to be for editing.
         search = params[:model].capitalize.constantize.search(:include => :translations) do
@@ -109,7 +108,7 @@ class ScriptsController < ApplicationController
           end
           paginate page: 1, per_page: 10
         end
-        @json_results = search.results.to_json({autocomplete: "edit", autocomplete_user: current_user})
+        @json_results = search.results.to_json({autocomplete: 'edit', autocomplete_user: current_user})
       end
     end
     #I only need the term and the model ->

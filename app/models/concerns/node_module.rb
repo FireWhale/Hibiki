@@ -5,6 +5,8 @@ module NodeModule #Attaches to Neo4j Node models.
     include Neo4j::ActiveNode
     include Neo4j::Timestamps
 
+    self.mapped_label_name = name.remove('Neo::')
+
     id_property :uuid
 
     property :name
@@ -14,7 +16,12 @@ module NodeModule #Attaches to Neo4j Node models.
       serialize :references
     end
 
-    property :image_id unless ["Neo::Event","Neo::Tag"].include?(self.name)
+    unless ["Neo::Event","Neo::Tag"].include?(self.name)
+      property :image_id
+      property :image_path
+      property :image_height
+      property :image_width
+    end
   end
 
   #Instance Methods

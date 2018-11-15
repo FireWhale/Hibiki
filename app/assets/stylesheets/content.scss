@@ -299,10 +299,10 @@
         margin-bottom: -1px;
         a {background: darken($background-color, 10%);}
         &:hover {
-          a {background: $background-color; }
+          a {background: $hover-color-2; }
         }
         &.active {
-          a {background: $background-color; }
+          a {background: $well-background-color; }
         }
       }
     }

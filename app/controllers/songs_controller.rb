@@ -3,61 +3,71 @@ class SongsController < ApplicationController
   layout "full", only: [:edit, :new]
 
   def index
-    @songs = Song.includes(:tags, :translations, album: [:primary_images, :translations]).page(params[:page])
+    @records = PrimaryRecordGetter.perform('index',model: 'song', page: params[:page])
 
     respond_to do |format|
-      format.html # index.html.erb
-      format.json 
+      format.html {render file: 'shared/index' }
+      format.json {render file: 'shared/index'}
     end
   end
 
   def show
-    @song = Song.includes(:translations).find(params[:id])
+    @record = Song.includes(:translations).find(params[:id])
     
-    self_relation_helper(@song,@related = {}) #Prepare @related (self_relations) 
-    credits_helper(@song,@credits = {}) #prepares the credits
+    self_relation_helper(@record,@related = {}) #Prepare @related (self_relations)
+    credits_helper(@record,@credits = {}) #prepares the credits
         
     respond_to do |format|
-      format.html { redirect_to album_path(id: @song.album.id, :anchor => "song-#{@song.id}") unless @song.album.nil? }
-      format.json  {@fields = (params[:fields] || '').split(',')}
+      format.html do
+        if @record.album.nil?
+          render file: 'shared/show'
+        else
+          redirect_to album_path(id: @record.album.id, :anchor => "song-#{@record.id}")
+        end
+      end
+      format.json do
+        @fields = (params[:fields] || '').split(',')
+        @fields << 'full_song_info' unless params[:full_song_info].blank?
+        render file: 'shared/show'
+      end
     end
   end
 
   def show_images
-    @song = Song.includes(:images).find_by_id(params[:id])
+    @record = Song.includes(:images).find_by_id(params[:id])
     if params[:image] == "cover"
-      @image = @song.primary_images.first
-    elsif @song.images.map(&:id).map(&:to_s).include?(params[:image])
+      @image = @record.primary_images.first
+    elsif @record.images.map(&:id).map(&:to_s).include?(params[:image])
       @image = Image.find_by_id(params[:image])
     else
-      @image = @song.images.first
+      @image = @record.images.first
     end
     @show_nws = params[:show_nws]
 
     respond_to do |format|
-      format.html { render layout: "grid"}
+      format.html {render file: 'shared/show_images', layout: 'grid'}
       format.js { render template: "images/update_image"}
-      format.json { render json: @song.images }
+      format.json { render json: @record.images }
     end
   end
 
   def new
-    @song = Song.new
-    @song.namehash = @song.namehash || {}
+    @record = Song.new
+    @record.namehash ||= {}
 
     respond_to do |format|
-      format.html # new.html.erb
-      format.json { render json: @song }
+      format.html  { render file: 'shared/new', layout: 'full'}
+      format.json { render json: @record }
     end
   end
 
   def edit
-    @song = Song.find(params[:id])
-    @song.namehash = @song.namehash || {}
+    @record = Song.find(params[:id])
+    @record.namehash ||= {}
     
     respond_to do |format|
-      format.html # edit.html.erb
-      format.json { render json: @song }
+      format.html { render file: 'shared/edit', layout: 'full'}
+      format.json { render json: @record }
     end
   end
 
@@ -65,16 +75,17 @@ class SongsController < ApplicationController
     new_params = song_params
     handle_length_assignment(new_params)
     handle_partial_date_assignment(new_params,Song)
-    
-    @song = Song.new(new_params)
+
+    @record = Song.new(new_params)
     
     respond_to do |format|
-      if @song.save
-        format.html { redirect_to @song, notice: 'Song was successfully created.' }
-        format.json { render json: @song, status: :created, location: @song }
+      if @record.save
+        NeoWriter.perform(@record,1)
+        format.html { redirect_to @record, notice: 'Song was successfully created.' }
+        format.json { render json: @record, status: :created, location: @record }
       else
-        format.html { render action: "new" }
-        format.json { render json: @song.errors, status: :unprocessable_entity }
+        format.html { render action: 'new', file: 'shared/new', layout: 'full' }
+        format.json { render json: @record.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -84,15 +95,16 @@ class SongsController < ApplicationController
     handle_length_assignment(new_params)
     handle_partial_date_assignment(new_params,Song)
 
-    @song = Song.find(params[:id])
+    @record = Song.find(params[:id])
     
     respond_to do |format|
-      if @song.update_attributes(new_params)
-        format.html { redirect_to @song, notice: 'Song was successfully updated.' }
+      if @record.update_attributes(new_params)
+        NeoWriter.perform(@record,1)
+        format.html { redirect_to @record, notice: 'Song was successfully updated.' }
         format.json { head :no_content }
       else
-        format.html { render action: "edit" }
-        format.json { render json: @song.errors, status: :unprocessable_entity }
+        format.html { render action: 'edit', file: 'shared/edit', layout: 'full' }
+        format.json { render json: @record.errors, status: :unprocessable_entity }
       end
     end
   end

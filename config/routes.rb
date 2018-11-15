@@ -15,7 +15,7 @@ Hibiki::Application.routes.draw do
   end
   resources :albums do
     member do
-      get 'albumart', :action => 'album_art'
+      get 'albumart', :action => 'show_images'
       get 'edit_tracklist'
       post 'update_tracklist'
       patch 'update_tracklist'
@@ -23,27 +23,7 @@ Hibiki::Application.routes.draw do
       match 'rescrape', action: 'rescrape', via: [:get, :post]
     end
   end
-  resources :sources do
-    member {get 'images', :action => 'show_images'}
-  end
-
-  resources :songs do
-    member {get 'images', :action => 'show_images'}
-  end
-
-  resources :organizations do
-    member {get 'images', :action => 'show_images'}
-  end
-
-  resources :artists do
-    member {get 'images', :action => 'show_images'}
-  end
-
-  resources :posts do
-    member {get 'images', :action => 'show_images'}
-  end
-
-  resources :seasons do
+  resources :sources, :songs, :organizations, :artists, :posts, :seasons do
     member {get 'images', :action => 'show_images'}
   end
 
@@ -73,6 +53,9 @@ Hibiki::Application.routes.draw do
     get 'released_review_drill'
   end
 
+  get '/interactive', to: 'graph#graph'
+  get '/interactive_info', to: 'graph#info'
+
   root :to => 'pages#front_page'
 
   #Unique Pages
@@ -85,6 +68,7 @@ Hibiki::Application.routes.draw do
   get '/calendar', :to => 'pages#calendar'
   get '/help', to: 'pages#help'
   get '/database', to: 'pages#database_landing'
+
 
   #Scripts
   get '/toggle_albums', :to => 'scripts#toggle_albums'

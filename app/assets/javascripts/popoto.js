@@ -1,0 +1,6525 @@
+// Copyright (c) 2018 NHOGS Interactive.
+(function (global, factory) {
+typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('d3'), require('jquery')) :
+typeof define === 'function' && define.amd ? define(['exports', 'd3', 'jquery'], factory) :
+(factory((global.popoto = global.popoto || {}),global.d3,global.jQuery));
+}(this, (function (exports,d3$1,jQuery) { 'use strict';
+
+jQuery = jQuery && jQuery.hasOwnProperty('default') ? jQuery['default'] : jQuery;
+
+var version = "2.0.8";
+
+var dataModel = {};
+
+dataModel.idGen = 0;
+
+dataModel.generateId = function () {
+    return dataModel.idGen++;
+};
+
+dataModel.nodes = [];
+dataModel.links = [];
+dataModel.ids = [];
+
+dataModel.getRootNode = function () {
+    return dataModel.nodes[0];
+};
+
+dataModel.inDataNodes = function (label, uuid) {
+    return dataModel.nodes
+        .filter(function (d) {
+            if (d.attributes !== undefined) {
+                return parseInt(d.attributes.uuid) == uuid && d.label == label;
+            } else if (d.value !== undefined) {
+                return parseInt(d.value[0].attributes.uuid) == uuid && d.label == label;
+            } else {
+                return false
+            }        });
+};
+
+dataModel.inDataLinks = function (id_1, id_2) {
+    return dataModel.links
+        .filter(function (d) {
+            return (d.target.id == id_1 && d.source.id == id_2) || (d.target.id == id_2 && d.source.id == id_1);
+        })
+};
+
+// d3.tip
+// Copyright (c) 2013 Justin Palmer
+// ES6 / D3 v4 Adaption Copyright (c) 2016 Constantin Gavrilete
+// Removal of ES6 for D3 v4 Adaption Copyright (c) 2016 David Gotz
+//
+// Tooltips for d3.js SVG visualizations
+
+d3.functor = function functor(v) {
+  return typeof v === "function" ? v : function() {
+    return v;
+  };
+};
+
+function d3tip() {
+
+  var direction = d3_tip_direction,
+      offset    = d3_tip_offset,
+      html      = d3_tip_html,
+      node      = initNode(),
+      svg       = null,
+      point     = null,
+      target    = null;
+
+  function tip(vis) {
+    svg = getSVGNode(vis);
+    point = svg.createSVGPoint();
+    document.body.appendChild(node);
+  }
+
+  // Public - show the tooltip on the screen
+  //
+  // Returns a tip
+  tip.show = function() {
+    var args = Array.prototype.slice.call(arguments);
+    if(args[args.length - 1] instanceof SVGElement) target = args.pop();
+
+    var content = html.apply(this, args),
+        poffset = offset.apply(this, args),
+        dir     = direction.apply(this, args),
+        nodel   = getNodeEl(),
+        i       = directions.length,
+        coords,
+        scrollTop  = document.documentElement.scrollTop || document.body.scrollTop,
+        scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft;
+
+    nodel.html(content)
+      .style('position', 'absolute')
+      .style('opacity', 1)
+      .style('pointer-events', 'all');
+
+    target = this.childNodes[1]; //Hibiki: Explicit Target
+
+    while(i--) nodel.classed(directions[i], false);
+    coords = direction_callbacks[dir].apply(this);
+    nodel.classed(dir, true)
+      .style('top', (coords.top +  poffset[0]) + scrollTop + 'px')
+      .style('left', (coords.left + poffset[1]) + scrollLeft + 'px');
+
+    return tip
+  };
+
+  // Public - hide the tooltip
+  //
+  // Returns a tip
+  tip.hide = function() {
+    var nodel = getNodeEl();
+    nodel
+      .style('opacity', 0)
+      .style('pointer-events', 'none');
+    return tip
+  };
+
+  // Public: Proxy attr calls to the d3 tip container.  Sets or gets attribute value.
+  //
+  // n - name of the attribute
+  // v - value of the attribute
+  //
+  // Returns tip or attribute value
+  tip.attr = function(n, v) {
+    if (arguments.length < 2 && typeof n === 'string') {
+      return getNodeEl().attr(n)
+    } else {
+      var args =  Array.prototype.slice.call(arguments);
+      d3.selection.prototype.attr.apply(getNodeEl(), args);
+    }
+
+    return tip
+  };
+
+  // Public: Proxy style calls to the d3 tip container.  Sets or gets a style value.
+  //
+  // n - name of the property
+  // v - value of the property
+  //
+  // Returns tip or style property value
+  tip.style = function(n, v) {
+    // debugger;
+    if (arguments.length < 2 && typeof n === 'string') {
+      return getNodeEl().style(n)
+    } else {
+      var args = Array.prototype.slice.call(arguments);
+      if (args.length === 1) {
+        var styles = args[0];
+        Object.keys(styles).forEach(function(key) {
+          return d3.selection.prototype.style.apply(getNodeEl(), [key, styles[key]]);
+        });
+      }
+    }
+
+    return tip
+  };
+
+  // Public: Set or get the direction of the tooltip
+  //
+  // v - One of n(north), s(south), e(east), or w(west), nw(northwest),
+  //     sw(southwest), ne(northeast) or se(southeast)
+  //
+  // Returns tip or direction
+  tip.direction = function(v) {
+    if (!arguments.length) return direction
+    direction = v == null ? v : d3.functor(v);
+
+    return tip
+  };
+
+  // Public: Sets or gets the offset of the tip
+  //
+  // v - Array of [x, y] offset
+  //
+  // Returns offset or
+  tip.offset = function(v) {
+    if (!arguments.length) return offset
+    offset = v == null ? v : d3.functor(v);
+
+    return tip
+  };
+
+  // Public: sets or gets the html value of the tooltip
+  //
+  // v - String value of the tip
+  //
+  // Returns html value or tip
+  tip.html = function(v) {
+    if (!arguments.length) return html
+    html = v == null ? v : d3.functor(v);
+
+    return tip
+  };
+
+  // Public: destroys the tooltip and removes it from the DOM
+  //
+  // Returns a tip
+  tip.destroy = function() {
+    if(node) {
+      getNodeEl().remove();
+      node = null;
+    }
+    return tip;
+  };
+
+  function d3_tip_direction() { return 'n' }
+  function d3_tip_offset() { return [0, 0] }
+  function d3_tip_html() { return ' ' }
+
+  var direction_callbacks = {
+    n:  direction_n,
+    s:  direction_s,
+    e:  direction_e,
+    w:  direction_w,
+    nw: direction_nw,
+    ne: direction_ne,
+    sw: direction_sw,
+    se: direction_se
+  };
+
+  var directions = Object.keys(direction_callbacks);
+
+  function direction_n() {
+    var bbox = getScreenBBox();
+    return {
+      top:  bbox.n.y - node.offsetHeight,
+      left: bbox.n.x - node.offsetWidth / 2
+    }
+  }
+
+  function direction_s() {
+    var bbox = getScreenBBox();
+    return {
+      top:  bbox.s.y,
+      left: bbox.s.x - node.offsetWidth / 2
+    }
+  }
+
+  function direction_e() {
+    var bbox = getScreenBBox();
+    return {
+      top:  bbox.e.y - node.offsetHeight / 2,
+      left: bbox.e.x
+    }
+  }
+
+  function direction_w() {
+    var bbox = getScreenBBox();
+    return {
+      top:  bbox.w.y - node.offsetHeight / 2,
+      left: bbox.w.x - node.offsetWidth
+    }
+  }
+
+  function direction_nw() {
+    var bbox = getScreenBBox();
+    return {
+      top:  bbox.nw.y - node.offsetHeight,
+      left: bbox.nw.x - node.offsetWidth
+    }
+  }
+
+  function direction_ne() {
+    var bbox = getScreenBBox();
+    return {
+      top:  bbox.ne.y - node.offsetHeight,
+      left: bbox.ne.x
+    }
+  }
+
+  function direction_sw() {
+    var bbox = getScreenBBox();
+    return {
+      top:  bbox.sw.y,
+      left: bbox.sw.x - node.offsetWidth
+    }
+  }
+
+  function direction_se() {
+    var bbox = getScreenBBox();
+    return {
+      top:  bbox.se.y,
+      left: bbox.e.x
+    }
+  }
+
+  function initNode() {
+    var node = d3.select(document.createElement('div'));
+    node
+      .style('position', 'absolute')
+      .style('top', '0')
+      .style('opacity', '0')
+      .style('pointer-events', 'none')
+      .style('box-sizing', 'border-box');
+
+    return node.node()
+  }
+
+  function getSVGNode(el) {
+    el = el.node();
+    if(el.tagName.toLowerCase() === 'svg')
+      return el
+
+    return el.ownerSVGElement
+  }
+
+  function getNodeEl() {
+    if(node === null) {
+      node = initNode();
+      // re-add node to DOM
+      document.body.appendChild(node);
+    }    return d3.select(node);
+  }
+
+  // Private - gets the screen coordinates of a shape
+  //
+  // Given a shape on the screen, will return an SVGPoint for the directions
+  // n(north), s(south), e(east), w(west), ne(northeast), se(southeast), nw(northwest),
+  // sw(southwest).
+  //
+  //    +-+-+
+  //    |   |
+  //    +   +
+  //    |   |
+  //    +-+-+
+  //
+  // Returns an Object {n, s, e, w, nw, sw, ne, se}
+  function getScreenBBox() {
+    var targetel   = target || d3.event.target;
+
+    while ('undefined' === typeof targetel.getScreenCTM && 'undefined' === targetel.parentNode) {
+        targetel = targetel.parentNode;
+    }
+
+    var bbox       = {},
+        matrix     = targetel.getScreenCTM(),
+        tbbox      = targetel.getBBox(),
+        width      = tbbox.width,
+        height     = tbbox.height,
+        x          = tbbox.x,
+        y          = tbbox.y;
+
+    point.x = x;
+    point.y = y;
+    bbox.nw = point.matrixTransform(matrix);
+    point.x += width;
+    bbox.ne = point.matrixTransform(matrix);
+    point.y += height;
+    bbox.se = point.matrixTransform(matrix);
+    point.x -= width;
+    bbox.sw = point.matrixTransform(matrix);
+    point.y -= height / 2;
+    bbox.w  = point.matrixTransform(matrix);
+    point.x += width;
+    bbox.e = point.matrixTransform(matrix);
+    point.x -= width / 2;
+    point.y -= height / 2;
+    bbox.n = point.matrixTransform(matrix);
+    point.y += height;
+    bbox.s = point.matrixTransform(matrix);
+
+    return bbox
+  }
+
+  return tip
+}
+
+/**
+ * logger module.
+ * @module logger
+ */
+
+// LOGGER -----------------------------------------------------------------------------------------------------------
+var logger = {};
+logger.LogLevels = Object.freeze({DEBUG: 0, INFO: 1, WARN: 2, ERROR: 3, NONE: 4});
+logger.LEVEL = logger.LogLevels.NONE;
+logger.TRACE = false;
+
+/**
+ * Log a message on console depending on configured log levels.
+ * Level is define in popoto.logger.LEVEL property.
+ * If popoto.logger.TRACE is set to true, the stack trace is also added in log.
+ * @param logLevel Level of the message from popoto.logger.LogLevels.
+ * @param message Message to log.
+ */
+logger.log = function (logLevel, message) {
+    if (console && logLevel >= logger.LEVEL) {
+        if (logger.TRACE) {
+            message = message + "\n" + new Error().stack;
+        }
+        switch (logLevel) {
+            case logger.LogLevels.DEBUG:
+                console.log(message);
+                break;
+            case logger.LogLevels.INFO:
+                console.log(message);
+                break;
+            case logger.LogLevels.WARN:
+                console.warn(message);
+                break;
+            case logger.LogLevels.ERROR:
+                console.error(message);
+                break;
+        }
+    }
+};
+
+/**
+ * Log a message in DEBUG level.
+ * @param message to log.
+ */
+logger.debug = function (message) {
+    logger.log(logger.LogLevels.DEBUG, message);
+};
+
+/**
+ * Log a message in INFO level.
+ * @param message to log.
+ */
+logger.info = function (message) {
+    logger.log(logger.LogLevels.INFO, message);
+};
+
+/**
+ * Log a message in WARN level.
+ * @param message to log.
+ */
+logger.warn = function (message) {
+    logger.log(logger.LogLevels.WARN, message);
+};
+
+/**
+ * Log a message in ERROR level.
+ * @param message to log.
+ */
+logger.error = function (message) {
+    logger.log(logger.LogLevels.ERROR, message);
+};
+
+var query = {};
+/**
+ * Define the number of results displayed in result list.
+ */
+query.MAX_RESULTS_COUNT = 10;
+// query.RESULTS_PAGE_NUMBER = 1;
+query.VALUE_QUERY_LIMIT = 10;
+query.USE_PARENT_RELATION = false;
+query.USE_RELATION_DIRECTION = false;
+query.COLLECT_RELATIONS_WITH_VALUES = false;
+query.prefilter = "";
+
+/**
+ * Immutable constant object to identify Neo4j internal ID
+ */
+query.NEO4J_INTERNAL_ID = Object.freeze({queryInternalName: "NEO4JID"});
+
+/**
+ * Function used to filter returned relations
+ * return false if the result should be filtered out.
+ *
+ * @param d relation returned object
+ * @returns {boolean}
+ */
+query.filterRelation = function (d) {
+    return true;
+};
+
+/**
+ * Generate the query to count nodes of a label.
+ * If the label is defined as distinct in configuration the query will count only distinct values on constraint attribute.
+ */
+query.generateTaxonomyCountQuery = function (label) {
+    var constraintAttr = provider.node.getConstraintAttribute(label);
+
+    var whereElements = [];
+
+    var predefinedConstraints = provider.node.getPredefinedConstraints(label);
+    predefinedConstraints.forEach(function (predefinedConstraint) {
+        whereElements.push(predefinedConstraint.replace(new RegExp("\\$identifier", 'g'), "n"));
+    });
+
+    if (constraintAttr === query.NEO4J_INTERNAL_ID) {
+        return "MATCH (n:`" + label + "`)" + ((whereElements.length > 0) ? " WHERE " + whereElements.join(" AND ") : "") + " RETURN count(DISTINCT ID(n)) as count"
+    } else {
+        return "MATCH (n:`" + label + "`)" + ((whereElements.length > 0) ? " WHERE " + whereElements.join(" AND ") : "") + " RETURN count(DISTINCT n." + constraintAttr + ") as count"
+    }
+};
+
+/**
+ * Hibiki: Generate
+ *
+ * @param selectedNode graph target node
+ * @returns {{matchElements: Array, whereElements: Array}}  list of match and where elements.
+ * @param depth how many chains it will generate (default: 4)
+ */
+query.generateHibikiElements = function (selectedNode, depth) {
+    var matchElements = []; //holder for elmeents
+
+
+    var rootPredefinedConstraints = provider.node.getPredefinedConstraints(rootNode.label);
+
+    rootPredefinedConstraints.forEach(function (predefinedConstraint) {
+        whereElements.push(predefinedConstraint.replace(new RegExp("\\$identifier", 'g'), rootNode.internalLabel));
+    });
+
+    matchElements.push("(" + rootNode.internalLabel + ":`" + rootNode.label + "`)");
+};
+
+/**
+ * Generate Cypher query match and where elements from root node, selected node and a set of the graph links.
+ *
+ * @param rootNode root node in the graph.
+ * @param selectedNode graph target node.
+ * @param links list of links subset of the graph.
+ * @returns {{matchElements: Array, whereElements: Array}}  list of match and where elements.
+ * @param isConstraintNeeded (used only for relation query)
+ * @param useCustomConstraints define whether to use the custom constraints (actually it is used only for results)
+ */
+query.generateQueryElements = function (rootNode, selectedNode, links, isConstraintNeeded, useCustomConstraints) {
+    var matchElements = [];
+    var whereElements = [];
+    var relationElements = [];
+    var returnElements = [];
+    var parameters = {};
+
+    var rootPredefinedConstraints = provider.node.getPredefinedConstraints(rootNode.label);
+
+    rootPredefinedConstraints.forEach(function (predefinedConstraint) {
+        whereElements.push(predefinedConstraint.replace(new RegExp("\\$identifier", 'g'), rootNode.internalLabel));
+    });
+
+    matchElements.push("(" + rootNode.internalLabel + ":`" + rootNode.label + "`)");
+
+    // Generate root node match element
+    if (isConstraintNeeded || rootNode.immutable) {
+        var rootValueConstraints = query.generateNodeValueConstraints(rootNode, useCustomConstraints);
+        whereElements = whereElements.concat(rootValueConstraints.whereElements);
+        for (var param in rootValueConstraints.parameters) {
+            if (rootValueConstraints.parameters.hasOwnProperty(param)) {
+                parameters[param] = rootValueConstraints.parameters[param];
+            }
+        }
+    }
+
+    var relId = 0;
+
+    // Generate match elements for each links
+    links.forEach(function (l) {
+        var sourceNode = l.source;
+        var targetNode = l.target;
+
+        var rel = "->";
+
+        if (!query.USE_RELATION_DIRECTION || targetNode.isParentRelReverse === true) {
+            rel = "-";
+        }
+
+        var relIdentifier = "r" + relId++;
+        relationElements.push(relIdentifier);
+        var predefinedConstraints = provider.node.getPredefinedConstraints(targetNode.label);
+
+        predefinedConstraints.forEach(function (predefinedConstraint) {
+            whereElements.push(predefinedConstraint.replace(new RegExp("\\$identifier", 'g'), targetNode.internalLabel));
+        });
+
+        if (targetNode !== selectedNode && targetNode.isNegative === true) {
+            if (targetNode.value !== undefined && targetNode.value.length > 0) {
+                var count = 0;
+
+                targetNode.value.forEach(function (v) {
+                    var constraintAttr = provider.node.getConstraintAttribute(v.label);
+                    var param;
+                    if (count === 0) {
+                        param = targetNode.internalLabel + "_" + constraintAttr;
+                        count++;
+                    } else {
+                        param = targetNode.internalLabel + "_" + constraintAttr + count++;
+                    }
+
+                    whereElements.push("(NOT (" + sourceNode.internalLabel + ":`" + sourceNode.label + "`)-[:`" + l.label + "`]" + rel + "(:`" + targetNode.label + "`{" + constraintAttr + ":$" + param + "}) )");
+                });
+            } else {
+                whereElements.push("(NOT (" + sourceNode.internalLabel + ":`" + sourceNode.label + "`)-[:`" + l.label + "`]" + rel + "(:`" + targetNode.label + "`) )");
+            }
+        } else {
+            if (query.COLLECT_RELATIONS_WITH_VALUES && targetNode === selectedNode) {
+                returnElements.push("COLLECT(" + relIdentifier + ") AS incomingRels");
+            }
+
+            var sourceLabelStatement = "";
+
+            if (!useCustomConstraints || provider.node.getGenerateNodeValueConstraints(sourceNode) === undefined) {
+                sourceLabelStatement = ":`" + sourceNode.label + "`";
+            }
+
+            var targetLabelStatement = "";
+
+            if (!useCustomConstraints || provider.node.getGenerateNodeValueConstraints(targetNode) === undefined) {
+                targetLabelStatement = ":`" + targetNode.label + "`";
+            }
+
+            matchElements.push("(" + sourceNode.internalLabel + sourceLabelStatement + ")-[" + relIdentifier + ":`" + l.label + "`]" + rel + "(" + targetNode.internalLabel + targetLabelStatement + ")");
+        }
+
+
+        if (targetNode !== selectedNode && (isConstraintNeeded || targetNode.immutable)) {
+            var nodeValueConstraints = query.generateNodeValueConstraints(targetNode, useCustomConstraints);
+            whereElements = whereElements.concat(nodeValueConstraints.whereElements);
+            for (var param in nodeValueConstraints.parameters) {
+                if (nodeValueConstraints.parameters.hasOwnProperty(param)) {
+                    parameters[param] = nodeValueConstraints.parameters[param];
+                }
+            }
+        }
+    });
+
+    return {
+        "matchElements": matchElements,
+        "whereElements": whereElements,
+        "relationElements": relationElements,
+        "returnElements": returnElements,
+        "parameters": parameters
+    };
+};
+
+/**
+ * Generate the where and parameter statements for the nodes with value
+ *
+ * @param node the node to generate value constraints
+ * @param useCustomConstraints define whether to use custom generation in popoto config
+ */
+query.generateNodeValueConstraints = function (node, useCustomConstraints) {
+    if (useCustomConstraints && provider.node.getGenerateNodeValueConstraints(node) !== undefined) {
+        return provider.node.getGenerateNodeValueConstraints(node)(node);
+    } else {
+        var parameters = {}, whereElements = [];
+        if (node.value !== undefined && node.value.length > 0) {
+            var constraintAttr = provider.node.getConstraintAttribute(node.label);
+            var paramName = node.internalLabel + "_" + constraintAttr;
+
+            if (node.value.length > 1) { // Generate IN constraint
+                if (node.isNegative === undefined || !node.isNegative) {
+                    parameters[paramName] = [];
+
+                    node.value.forEach(function (value) {
+                        var constraintValue;
+                        if (constraintAttr === query.NEO4J_INTERNAL_ID) {
+                            constraintValue = value.internalID;
+                        } else {
+                            constraintValue = value.attributes[constraintAttr];
+                        }
+
+                        parameters[paramName].push(constraintValue);
+                    });
+
+                    if (constraintAttr === query.NEO4J_INTERNAL_ID) {
+                        whereElements.push("ID(" + node.internalLabel + ") IN " + "{`" + paramName + "`}");
+                    } else {
+                        whereElements.push(node.internalLabel + "." + constraintAttr + " IN " + "{`" + paramName + "`}");
+                    }
+                } else {
+                    var count = 0;
+
+                    node.value.forEach(function (value) {
+                        var constraintValue;
+                        if (constraintAttr === query.NEO4J_INTERNAL_ID) {
+                            constraintValue = value.internalID;
+                        } else {
+                            constraintValue = value.attributes[constraintAttr];
+                        }
+                        if (count === 0) {
+                            parameters[paramName] = constraintValue;
+                            count++;
+                        } else {
+                            parameters[paramName + count++] = constraintValue;
+                        }
+                    });
+                }
+
+            } else { // Generate = constraint
+                if (constraintAttr === query.NEO4J_INTERNAL_ID) {
+                    parameters[paramName] = node.value[0].internalID;
+                } else {
+                    parameters[paramName] = node.value[0].attributes[constraintAttr];
+                }
+
+                if (node.isNegative === undefined || !node.isNegative) {
+                    var operator = "=";
+
+                    if (constraintAttr === query.NEO4J_INTERNAL_ID) {
+                        whereElements.push("ID(" + node.internalLabel + ") " + operator + " " + "{`" + paramName + "`}");
+                    } else {
+                        whereElements.push(node.internalLabel + "." + constraintAttr + " " + operator + " " + "{`" + paramName + "`}");
+                    }
+                }
+            }
+        }
+
+        return {
+            parameters: parameters,
+            whereElements: whereElements
+        }
+    }
+};
+
+/**
+ * Filter links to get only paths from root to leaf containing a value or being the selectedNode.
+ * All other paths in the graph containing no value are ignored.
+ *
+ * @param rootNode root node of the graph.
+ * @param targetNode node in the graph target of the query.
+ * @param initialLinks list of links repreasenting the graph to filter.
+ * @returns {Array} list of relevant links.
+ */
+query.getRelevantLinks = function (rootNode, targetNode, initialLinks) {
+
+    var links = initialLinks.slice();
+    var filteredLinks = [];
+    var finalLinks = [];
+
+    // Filter all links to keep only those containing a value or being the selected node.
+    links.forEach(function (l) {
+        if ((l.target.value !== undefined && l.target.value.length > 0) || l.target === targetNode || l.target.isNegative) {
+            filteredLinks.push(l);
+        }
+    });
+
+    // All the filtered links are removed from initial links list.
+    filteredLinks.forEach(function (l) {
+        links.splice(links.indexOf(l), 1);
+    });
+
+    // Then all the intermediate links up to the root node are added to get only the relevant links.
+    filteredLinks.forEach(function (fl) {
+        var sourceNode = fl.source;
+        var search = true;
+
+        while (search) {
+            var intermediateLink = null;
+            links.forEach(function (l) {
+                if (l.target === sourceNode) {
+                    intermediateLink = l;
+                }
+            });
+
+            if (intermediateLink === null) { // no intermediate links needed
+                search = false;
+            } else {
+                if (intermediateLink.source === rootNode) {
+                    finalLinks.push(intermediateLink);
+                    links.splice(links.indexOf(intermediateLink), 1);
+                    search = false;
+                } else {
+                    finalLinks.push(intermediateLink);
+                    links.splice(links.indexOf(intermediateLink), 1);
+                    sourceNode = intermediateLink.source;
+                }
+            }
+        }
+    });
+
+    return filteredLinks.concat(finalLinks);
+};
+
+/**
+ * Get the list of link defining the complete path from node to root.
+ * All other links are ignored.
+ *
+ * @param node The node where to start in the graph.
+ * @param links
+ */
+query.getLinksToRoot = function (node, links) {
+    var pathLinks = [];
+    var targetNode = node;
+
+    while (targetNode !== dataModel.getRootNode()) {
+        var nodeLink;
+
+        for (var i = 0; i < links.length; i++) {
+            var link = links[i];
+            if (link.target === targetNode) {
+                nodeLink = link;
+                break;
+            }
+        }
+
+        if (nodeLink) {
+            pathLinks.push(nodeLink);
+            targetNode = nodeLink.source;
+        }
+    }
+
+    return pathLinks;
+};
+
+/**
+ * Generate a Cypher query to retrieve the results matching the current graph.
+ *
+ * @param isGraph
+ * @returns {{statement: string, parameters: (*|{})}}
+ */
+query.generateResultQuery = function (isGraph) {
+    var rootNode = dataModel.getRootNode();
+    var queryElements = query.generateQueryElements(rootNode, rootNode, query.getRelevantLinks(rootNode, rootNode, dataModel.links), true, true);
+    var queryMatchElements = queryElements.matchElements,
+        queryWhereElements = queryElements.whereElements,
+        queryRelationElements = queryElements.relationElements,
+        queryReturnElements = [],
+        queryEndElements = [],
+        queryParameters = queryElements.parameters;
+
+    // Sort results by specified attribute
+    var resultOrderByAttribute = provider.node.getResultOrderByAttribute(rootNode.label);
+    if (resultOrderByAttribute) {
+        var order = provider.node.isResultOrderAscending(rootNode.label) ? "ASC" : "DESC";
+        queryEndElements.push("ORDER BY " + resultOrderByAttribute + " " + order);
+    }
+
+    queryEndElements.push("LIMIT " + query.MAX_RESULTS_COUNT);
+
+    var resultAttributes = provider.node.getReturnAttributes(rootNode.label);
+
+    if (!isGraph) {
+        for (var i = 0; i < resultAttributes.length; i++) {
+            var attribute = resultAttributes[i];
+            if (attribute === query.NEO4J_INTERNAL_ID) {
+                queryReturnElements.push("ID(" + rootNode.internalLabel + ") AS " + query.NEO4J_INTERNAL_ID.queryInternalName);
+            } else {
+                queryReturnElements.push(rootNode.internalLabel + "." + attribute + " AS " + attribute);
+            }
+        }
+    } else {
+        // Only return relations
+        queryReturnElements.push(rootNode.internalLabel);
+        queryRelationElements.forEach(
+            function (el) {
+                queryReturnElements.push(el);
+            }
+        );
+    }
+
+    var queryStatement = "MATCH " + queryMatchElements.join(", ") + ((queryWhereElements.length > 0) ? " WHERE " + queryWhereElements.join(" AND ") : "") + " RETURN DISTINCT " + queryReturnElements.join(", ") + " " + queryEndElements.join(" ");
+
+    // Filter the query if defined in config
+    var queryStructure = provider.node.filterResultQuery(rootNode.label, {
+        statement: queryStatement,
+        matchElements: queryMatchElements,
+        whereElements: queryWhereElements,
+        withElements: [],
+        returnElements: queryReturnElements,
+        endElements: queryEndElements,
+        parameters: queryParameters
+    });
+
+    queryStructure.statement = query.prefilter + queryStructure.statement;
+
+    return queryStructure;
+};
+
+/**
+ * Generate a cypher query to the get the node count, set as parameter matching the current graph.
+ *
+ * @param countedNode the counted node
+ * @returns {string} the node count cypher query
+ */
+query.generateNodeCountQuery = function (countedNode) {
+    var queryElements = query.generateQueryElements(dataModel.getRootNode(), countedNode, query.getRelevantLinks(dataModel.getRootNode(), countedNode, dataModel.links), true, true);
+    var queryMatchElements = queryElements.matchElements,
+        queryWhereElements = queryElements.whereElements,
+        queryReturnElements = [],
+        queryEndElements = [],
+        queryParameters = queryElements.parameters;
+
+    var countAttr = provider.node.getConstraintAttribute(countedNode.label);
+
+    if (countAttr === query.NEO4J_INTERNAL_ID) {
+        queryReturnElements.push("count(DISTINCT ID(" + countedNode.internalLabel + ")) as count");
+    } else {
+        queryReturnElements.push("count(DISTINCT " + countedNode.internalLabel + "." + countAttr + ") as count");
+    }
+
+    var queryStatement = "MATCH " + queryMatchElements.join(", ") + ((queryWhereElements.length > 0) ? " WHERE " + queryWhereElements.join(" AND ") : "") + " RETURN " + queryReturnElements.join(", ");
+
+    // Filter the query if defined in config
+    var queryStructure = provider.node.filterNodeCountQuery(countedNode, {
+        statement: queryStatement,
+        matchElements: queryMatchElements,
+        whereElements: queryWhereElements,
+        returnElements: queryReturnElements,
+        endElements: queryEndElements,
+        parameters: queryParameters
+    });
+
+    return {
+        statement: query.prefilter + queryStructure.statement,
+        parameters: queryStructure.parameters
+    };
+};
+
+/**
+ * Generate a Cypher query from the graph model to get all the possible values for the targetNode element.
+ *
+ * @param targetNode node in the graph to get the values.
+ * @returns {string} the query to execute to get all the values of targetNode corresponding to the graph.
+ */
+query.generateNodeValueQuery = function (targetNode) {
+
+    var rootNode = dataModel.getRootNode();
+    var queryElements = query.generateQueryElements(rootNode, targetNode, query.getRelevantLinks(rootNode, targetNode, dataModel.links), true, false);
+    var queryMatchElements = queryElements.matchElements,
+        queryWhereElements = queryElements.whereElements,
+        queryReturnElements = [],
+        queryEndElements = [],
+        queryParameters = queryElements.parameters;
+
+    // Sort results by specified attribute
+    var valueOrderByAttribute = provider.node.getValueOrderByAttribute(targetNode.label);
+    if (valueOrderByAttribute) {
+        var order = provider.node.isValueOrderAscending(targetNode.label) ? "ASC" : "DESC";
+        queryEndElements.push("ORDER BY " + valueOrderByAttribute + " " + order);
+    }
+
+    queryEndElements.push("LIMIT " + query.VALUE_QUERY_LIMIT);
+
+    var resultAttributes = provider.node.getReturnAttributes(targetNode.label);
+    var constraintAttribute = provider.node.getConstraintAttribute(targetNode.label);
+
+    for (var i = 0; i < resultAttributes.length; i++) {
+        if (resultAttributes[i] === query.NEO4J_INTERNAL_ID) {
+            queryReturnElements.push("ID(" + targetNode.internalLabel + ") AS " + query.NEO4J_INTERNAL_ID.queryInternalName);
+        } else {
+            queryReturnElements.push(targetNode.internalLabel + "." + resultAttributes[i] + " AS " + resultAttributes[i]);
+        }
+    }
+
+    // Add count return attribute on root node
+    var rootConstraintAttr = provider.node.getConstraintAttribute(rootNode.label);
+
+    if (rootConstraintAttr === query.NEO4J_INTERNAL_ID) {
+        queryReturnElements.push("count(DISTINCT ID(" + rootNode.internalLabel + ")) AS count");
+    } else {
+        queryReturnElements.push("count(DISTINCT " + rootNode.internalLabel + "." + rootConstraintAttr + ") AS count");
+    }
+
+    if (query.COLLECT_RELATIONS_WITH_VALUES) {
+        queryElements.returnElements.forEach(function (re) {
+            queryReturnElements.push(re);
+        });
+    }
+
+    var queryStatement = "MATCH " + queryMatchElements.join(", ") + ((queryWhereElements.length > 0) ? " WHERE " + queryWhereElements.join(" AND ") : "") + " RETURN " + queryReturnElements.join(", ") + " " + queryEndElements.join(" ");
+
+    // Filter the query if defined in config
+    var queryStructure = provider.node.filterNodeValueQuery(targetNode, {
+        statement: queryStatement,
+        matchElements: queryMatchElements,
+        whereElements: queryWhereElements,
+        returnElements: queryReturnElements,
+        endElements: queryEndElements,
+        parameters: queryParameters
+    });
+
+    return {
+        statement: query.prefilter + queryStructure.statement,
+        parameters: queryStructure.parameters
+    };
+
+};
+
+/**
+ * Generate a Cypher query to retrieve all the relation available for a given node.
+ *
+ * @param targetNode
+ * @returns {string}
+ */
+query.generateNodeRelationQuery = function (targetNode) {
+
+    var linksToRoot = query.getLinksToRoot(targetNode, dataModel.links);
+
+    var queryElements = query.generateQueryElements(dataModel.getRootNode(), targetNode, linksToRoot, false, false);
+    var queryMatchElements = queryElements.matchElements,
+        queryWhereElements = queryElements.whereElements,
+        queryReturnElements = [],
+        queryEndElements = [],
+        queryParameters = queryElements.parameters;
+
+    var rel = query.USE_RELATION_DIRECTION ? "->" : "-";
+
+    queryMatchElements.push("(" + targetNode.internalLabel + ":`" + targetNode.label + "`)-[r]" + rel + "(x)");
+    queryReturnElements.push("type(r) AS label");
+    if (query.USE_PARENT_RELATION) {
+        queryReturnElements.push("head(labels(x)) AS target");
+    } else {
+        queryReturnElements.push("last(labels(x)) AS target");
+    }
+    queryReturnElements.push("count(r) AS count");
+    queryEndElements.push("ORDER BY count(r) DESC");
+
+    var queryStatement = "MATCH " + queryMatchElements.join(", ") + ((queryWhereElements.length > 0) ? " WHERE " + queryWhereElements.join(" AND ") : "") + " RETURN " + queryReturnElements.join(", ") + " " + queryEndElements.join(" ");
+    // Filter the query if defined in config
+    var queryStructure = provider.node.filterNodeRelationQuery(targetNode, {
+        statement: queryStatement,
+        matchElements: queryMatchElements,
+        whereElements: queryWhereElements,
+        returnElements: queryReturnElements,
+        endElements: queryEndElements,
+        parameters: queryParameters
+    });
+
+    return {
+        statement: query.prefilter + queryStructure.statement,
+        parameters: queryStructure.parameters
+    };
+
+};
+
+var provider = {};
+
+/**
+ * Default color scale generator.
+ * Used in getColor link and node providers.
+ */
+provider.colorScale = d3$1.scaleOrdinal(d3$1.schemeCategory10);
+provider.link = {};
+provider.link.Provider = {};
+provider.taxonomy = {};
+provider.taxonomy.Provider = {};
+provider.node = {};
+provider.node.Provider = {};
+
+//------------------------------------------------
+// LINKS
+
+/**
+ *  Get the text representation of a link.
+ *
+ * @param link the link to get the text representation.
+ * @returns {string} the text representation of the link.
+ */
+provider.link.getTextValue = function (link) {
+    if (provider.link.Provider.hasOwnProperty("getTextValue")) {
+        return provider.link.Provider.getTextValue(link);
+    } else {
+        if (provider.link.DEFAULT_PROVIDER.hasOwnProperty("getTextValue")) {
+            return provider.link.DEFAULT_PROVIDER.getTextValue(link);
+        } else {
+            logger.error("No provider defined for link getTextValue");
+        }
+    }
+};
+
+provider.link.getColor = function (link, element, attribute) {
+    if (provider.link.Provider.hasOwnProperty("getColor")) {
+        return provider.link.Provider.getColor(link, element, attribute);
+    } else {
+        if (provider.link.DEFAULT_PROVIDER.hasOwnProperty("getColor")) {
+            return provider.link.DEFAULT_PROVIDER.getColor(link, element, attribute);
+        } else {
+            logger.error("No provider defined for getColor");
+        }
+    }
+};
+
+provider.link.getCSSClass = function (link, element) {
+    if (provider.link.Provider.hasOwnProperty("getCSSClass")) {
+        return provider.link.Provider.getCSSClass(link, element);
+    } else {
+        if (provider.link.DEFAULT_PROVIDER.hasOwnProperty("getCSSClass")) {
+            return provider.link.DEFAULT_PROVIDER.getCSSClass(link, element);
+        } else {
+            logger.error("No provider defined for getCSSClass");
+        }
+    }
+};
+
+provider.link.getDistance = function (link) {
+    if (provider.link.Provider.hasOwnProperty("getDistance")) {
+        return provider.link.Provider.getDistance(link);
+    } else {
+        if (provider.link.DEFAULT_PROVIDER.hasOwnProperty("getDistance")) {
+            return provider.link.DEFAULT_PROVIDER.getDistance(link);
+        } else {
+            logger.error("No provider defined for getDistance");
+        }
+    }
+};
+
+/**
+ *  Get the semantic text representation of a link.
+ *
+ * @param link the link to get the semantic text representation.
+ * @returns {string} the semantic text representation of the link.
+ */
+provider.link.getSemanticValue = function (link) {
+    if (provider.link.Provider.hasOwnProperty("getSemanticValue")) {
+        return provider.link.Provider.getSemanticValue(link);
+    } else {
+        if (provider.link.DEFAULT_PROVIDER.hasOwnProperty("getSemanticValue")) {
+            return provider.link.DEFAULT_PROVIDER.getSemanticValue(link);
+        } else {
+            logger.error("No provider defined for getSemanticValue");
+        }
+    }
+};
+
+provider.colorLuminance = function (hex, lum) {
+
+    // validate hex string
+    hex = String(hex).replace(/[^0-9a-f]/gi, '');
+    if (hex.length < 6) {
+        hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+    }
+    lum = lum || 0;
+
+    // convert to decimal and change luminosity
+    var rgb = "#", c, i;
+    for (i = 0; i < 3; i++) {
+        c = parseInt(hex.substr(i * 2, 2), 16);
+        c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
+        rgb += ("00" + c).substr(c.length);
+    }
+
+    return rgb;
+};
+
+/**
+ * Label provider used by default if none have been defined for a label.
+ * This provider can be changed if needed to customize default behavior.
+ * If some properties are not found in user customized providers, default values will be extracted from this provider.
+ */
+provider.link.DEFAULT_PROVIDER = {
+    /**
+     * Function used to return the text representation of a link.
+     *
+     * The default behavior is to return the internal relation name as text for relation links.
+     * And return the target node text value for links between a node and its expanded values but only if text is not displayed on value node.
+     *
+     * @param link the link to represent as text.
+     * @returns {string} the text representation of the link.
+     */
+    "getTextValue": function (link) {
+        if (link.type === graph.link.LinkTypes.VALUE) {
+            // Links between node and list of values.
+
+            if (provider.node.isTextDisplayed(link.target)) {
+                // Don't display text on link if text is displayed on target node.
+                return "";
+            } else {
+                // No text is displayed on target node then the text is displayed on link.
+                return provider.node.getTextValue(link.target);
+            }
+
+        } else {
+            var targetName = "";
+            if (link.type === graph.link.LinkTypes.SEGMENT) {
+                targetName = " " + provider.node.getTextValue(link.target);
+            }
+            return link.label + targetName;
+        }
+    },
+
+
+    /**
+     *
+     * @param link
+     */
+    "getDistance": function (link) {
+        if (link.type === graph.link.LinkTypes.VALUE) {
+            return (13 / 8) * (provider.node.getSize(link.source) + provider.node.getSize(link.target));
+        } else {
+            return (20 / 8) * (provider.node.getSize(link.source) + provider.node.getSize(link.target));
+        }
+    },
+
+    /**
+     * Return the color to use on links and relation donut segments.
+     *
+     *
+     * Return null or undefined
+     * @param link
+     * @param element
+     * @param attribute
+     * @return {*}
+     */
+    "getColor": function (link, element, attribute) {
+        if (link.type === graph.link.LinkTypes.VALUE) {
+            return "#525863";
+        } else {
+            //var colorId = link.source.label + link.label + link.target.label;
+            var colorId = link.target.label;
+
+            var color = provider.colorScale(colorId);
+            if (attribute === "stroke") {
+                return provider.colorLuminance(color, -0.2);
+            }
+            return color;
+        }
+    },
+
+    /**
+     *
+     * @param link
+     * @param element
+     * @return {string}
+     */
+    "getCSSClass": function (link, element) {
+        var cssClass = "ppt-link__" + element;
+
+        if (link.type === graph.link.LinkTypes.VALUE) {
+            cssClass = cssClass + "--value";
+        } else {
+            var labelAsCSSName = "ppt-" + link.label.replace(/[^0-9a-z\-_]/gi, '');
+            if (link.type === graph.link.LinkTypes.RELATION) {
+                cssClass = cssClass + "--relation";
+
+                if (link.target.count === 0) ;
+
+                cssClass = cssClass + " " + labelAsCSSName;
+            }
+        }
+
+        return cssClass;
+    },
+
+    /**
+     * Function used to return a descriptive text representation of a link.
+     * This representation should be more complete than getLinkTextValue and can contain semantic data.
+     * This function is used for example to generate the label in the query viewer.
+     *
+     * The default behavior is to return the getLinkTextValue.
+     *
+     * @param link the link to represent as text.
+     * @returns {string} the text semantic representation of the link.
+     */
+    "getSemanticValue": function (link) {
+        return provider.link.getTextValue(link);
+    }
+};
+
+provider.link.Provider = provider.link.DEFAULT_PROVIDER;
+
+//------------------------------------------------
+// TAXONOMY
+
+/**
+ *  Get the text representation of a taxonomy.
+ *
+ * @param label the label used for the taxonomy.
+ * @returns {string} the text representation of the taxonomy.
+ */
+provider.taxonomy.getTextValue = function (label) {
+    if (provider.taxonomy.Provider.hasOwnProperty("getTextValue")) {
+        return provider.taxonomy.Provider.getTextValue(label);
+    } else {
+        if (provider.taxonomy.DEFAULT_PROVIDER.hasOwnProperty("getTextValue")) {
+            return provider.taxonomy.DEFAULT_PROVIDER.getTextValue(label);
+        } else {
+            logger.error("No provider defined for taxonomy getTextValue");
+        }
+    }
+};
+
+/**
+ *
+ * @param label
+ * @param element
+ * @return {*}
+ */
+provider.taxonomy.getCSSClass = function (label, element) {
+    if (provider.taxonomy.Provider.hasOwnProperty("getCSSClass")) {
+        return provider.taxonomy.Provider.getCSSClass(label, element);
+    } else {
+        if (provider.taxonomy.DEFAULT_PROVIDER.hasOwnProperty("getCSSClass")) {
+            return provider.taxonomy.DEFAULT_PROVIDER.getCSSClass(label, element);
+        } else {
+            logger.error("No provider defined for taxonomy getCSSClass");
+        }
+    }
+};
+
+/**
+ * Label provider used by default if none have been defined for a label.
+ * This provider can be changed if needed to customize default behavior.
+ * If some properties are not found in user customized providers, default values will be extracted from this provider.
+ */
+provider.taxonomy.DEFAULT_PROVIDER = {
+    /**
+     * Function used to return the text representation of a taxonomy.
+     *
+     * The default behavior is to return the label without changes.
+     *
+     * @param label the label used to represent the taxonomy.
+     * @returns {string} the text representation of the taxonomy.
+     */
+    "getTextValue": function (label) {
+        return label;
+    },
+
+    /**
+     *
+     * @param label
+     * @return {string}
+     */
+    "getCSSClass": function (label, element) {
+        var labelAsCSSName = label.replace(/[^0-9a-z\-_]/gi, '');
+
+        var cssClass = "ppt-taxo__" + element;
+
+        return cssClass + " " + labelAsCSSName;
+    }
+
+};
+
+provider.taxonomy.Provider = provider.taxonomy.DEFAULT_PROVIDER;
+
+/**
+ * Define the different type of rendering of a node for a given label.
+ * TEXT: default rendering type, the node will be displayed with an ellipse and a text in it.
+ * IMAGE: the node is displayed as an image using the image tag in the svg graph.
+ * In this case an image path is required.
+ * SVG: the node is displayed using a list of svg path, each path can contain its own color.
+ */
+provider.node.DisplayTypes = Object.freeze({TEXT: 0, IMAGE: 1, SVG: 2, SYMBOL: 3});
+
+/**
+ * Get the label provider for the given label.
+ * If no provider is defined for the label:
+ * First search in parent provider.
+ * Then if not found will create one from default provider.
+ *
+ * @param label to retrieve the corresponding label provider.
+ * @returns {object} corresponding label provider.
+ */
+provider.node.getProvider = function (label) {
+    if (label === undefined) {
+        logger.error("Node label is undefined, no label provider can be found.");
+    } else {
+        if (provider.node.Provider.hasOwnProperty(label)) {
+            return provider.node.Provider[label];
+        } else {
+            logger.debug("No direct provider found for label " + label);
+
+            // Search in all children list definitions to find the parent provider.
+            for (var p in provider.node.Provider) {
+                if (provider.node.Provider.hasOwnProperty(p)) {
+                    var nProvider = provider.node.Provider[p];
+                    if (nProvider.hasOwnProperty("children")) {
+                        if (nProvider["children"].indexOf(label) > -1) {
+                            logger.debug("No provider is defined for label (" + label + "), parent (" + p + ") will be used");
+                            // A provider containing the required label in its children definition has been found it will be cloned.
+
+                            var newProvider = {"parent": p};
+                            for (var pr in nProvider) {
+                                if (nProvider.hasOwnProperty(pr) && pr !== "children" && pr !== "parent") {
+                                    newProvider[pr] = nProvider[pr];
+                                }
+                            }
+
+                            provider.node.Provider[label] = newProvider;
+                            return provider.node.Provider[label];
+                        }
+                    }
+                }
+            }
+
+            logger.debug("No label provider defined for label (" + label + ") default one will be created from provider.node.DEFAULT_PROVIDER");
+
+            provider.node.Provider[label] = {};
+            // Clone default provider properties in new provider.
+            for (var prop in provider.node.DEFAULT_PROVIDER) {
+                if (provider.node.DEFAULT_PROVIDER.hasOwnProperty(prop)) {
+                    provider.node.Provider[label][prop] = provider.node.DEFAULT_PROVIDER[prop];
+                }
+            }
+            return provider.node.Provider[label];
+        }
+    }
+};
+
+/**
+ * Get the property or function defined in node label provider.
+ * If the property is not found search is done in parents.
+ * If not found in parent, property defined in provider.node.DEFAULT_PROVIDER is returned.
+ * If not found in default provider, defaultValue is set and returned.
+ *
+ * @param label node label to get the property in its provider.
+ * @param name name of the property to retrieve.
+ * @returns {*} node property defined in its label provider.
+ */
+provider.node.getProperty = function (label, name) {
+    var nProvider = provider.node.getProvider(label);
+
+    if (!nProvider.hasOwnProperty(name)) {
+        var providerIterator = nProvider;
+
+        // Check parents
+        var isPropertyFound = false;
+        while (providerIterator.hasOwnProperty("parent") && !isPropertyFound) {
+            providerIterator = provider.node.getProvider(providerIterator.parent);
+            if (providerIterator.hasOwnProperty(name)) {
+
+                // Set attribute in child to optimize next call.
+                nProvider[name] = providerIterator[name];
+                isPropertyFound = true;
+            }
+        }
+
+        if (!isPropertyFound) {
+            //logger.debug("No \"" + name + "\" property found for node label provider (" + label + "), default value will be used");
+            if (provider.node.DEFAULT_PROVIDER.hasOwnProperty(name)) {
+                nProvider[name] = provider.node.DEFAULT_PROVIDER[name];
+            } else {
+                logger.debug("No default value for \"" + name + "\" property found for label provider (" + label + ")");
+            }
+        }
+    }
+    return nProvider[name];
+};
+
+/**
+ *
+ * @param label
+ */
+provider.node.getIsAutoLoadValue = function (label) {
+    return provider.node.getProperty(label, "isAutoLoadValue");
+};
+
+/**
+ * Return the "isSearchable" property for the node label provider.
+ * Is Searchable defines whether the label can be used as graph query builder root.
+ * If true the label can be displayed in the taxonomy filter.
+ *
+ * @param label
+ * @returns boolean
+ */
+provider.node.getIsSearchable = function (label) {
+    return provider.node.getProperty(label, "isSearchable");
+};
+
+/**
+ * Return the "autoExpandRelations" property for the node label provider.
+ * Auto expand relations defines whether the label will automatically add its relations when displayed on graph.
+ *
+ * @param label
+ * @returns boolean
+ */
+provider.node.getIsAutoExpandRelations = function (label) {
+    return provider.node.getProperty(label, "autoExpandRelations");
+};
+
+provider.node.getSchema = function (label) {
+    return provider.node.getProperty(label, "schema");
+};
+
+/**
+ * Return the list of attributes defined in node label provider.
+ * Parents return attributes are also returned.
+ *
+ * @param label used to retrieve parent attributes.
+ * @returns {Array} list of return attributes for a node.
+ */
+provider.node.getReturnAttributes = function (label) {
+    var nProvider = provider.node.getProvider(label);
+    var attributes = {}; // Object is used as a Set to merge possible duplicate in parents
+
+    if (nProvider.hasOwnProperty("returnAttributes")) {
+        for (var i = 0; i < nProvider.returnAttributes.length; i++) {
+            if (nProvider.returnAttributes[i] === query.NEO4J_INTERNAL_ID) {
+                attributes[query.NEO4J_INTERNAL_ID.queryInternalName] = true;
+            } else {
+                attributes[nProvider.returnAttributes[i]] = true;
+            }
+        }
+    }
+
+    // Add parent attributes
+    while (nProvider.hasOwnProperty("parent")) {
+        nProvider = provider.node.getProvider(nProvider.parent);
+        if (nProvider.hasOwnProperty("returnAttributes")) {
+            for (var j = 0; j < nProvider.returnAttributes.length; j++) {
+                if (nProvider.returnAttributes[j] === query.NEO4J_INTERNAL_ID) {
+                    attributes[query.NEO4J_INTERNAL_ID.queryInternalName] = true;
+                } else {
+                    attributes[nProvider.returnAttributes[j]] = true;
+                }
+            }
+        }
+    }
+
+    // Add default provider attributes if any but not internal id as this id is added only if none has been found.
+    if (provider.node.DEFAULT_PROVIDER.hasOwnProperty("returnAttributes")) {
+        for (var k = 0; k < provider.node.DEFAULT_PROVIDER.returnAttributes.length; k++) {
+            if (provider.node.DEFAULT_PROVIDER.returnAttributes[k] !== query.NEO4J_INTERNAL_ID) {
+                attributes[provider.node.DEFAULT_PROVIDER.returnAttributes[k]] = true;
+            }
+        }
+    }
+
+    // Add constraint attribute in the list
+    var constraintAttribute = provider.node.getConstraintAttribute(label);
+    if (constraintAttribute === query.NEO4J_INTERNAL_ID) {
+        attributes[query.NEO4J_INTERNAL_ID.queryInternalName] = true;
+    } else {
+        attributes[constraintAttribute] = true;
+    }
+
+
+    // Add all in array
+    var attrList = [];
+    for (var attr in attributes) {
+        if (attributes.hasOwnProperty(attr)) {
+            if (attr === query.NEO4J_INTERNAL_ID.queryInternalName) {
+                attrList.push(query.NEO4J_INTERNAL_ID);
+            } else {
+                attrList.push(attr);
+            }
+        }
+    }
+
+    // If no attributes have been found internal ID is used
+    if (attrList.length <= 0) {
+        attrList.push(query.NEO4J_INTERNAL_ID);
+    }
+    return attrList;
+};
+
+/**
+ * Return the attribute to use as constraint attribute for a node defined in its label provider.
+ *
+ * @param label
+ * @returns {*}
+ */
+provider.node.getConstraintAttribute = function (label) {
+    return provider.node.getProperty(label, "constraintAttribute");
+};
+
+provider.node.getDisplayAttribute = function (label) {
+    var displayAttribute = provider.node.getProperty(label, "displayAttribute");
+
+    if (displayAttribute === undefined) {
+        var returnAttributes = provider.node.getReturnAttributes(label);
+        if (returnAttributes.length > 0) {
+            displayAttribute = returnAttributes[0];
+        } else {
+            displayAttribute = provider.node.getConstraintAttribute(label);
+        }
+    }
+
+    return displayAttribute
+};
+
+/**
+ * Return a list of predefined constraint defined in the node label configuration.
+ *
+ * @param label
+ * @returns {*}
+ */
+provider.node.getPredefinedConstraints = function (label) {
+    return provider.node.getProperty(label, "getPredefinedConstraints")();
+};
+
+provider.node.filterResultQuery = function (label, initialQuery) {
+    return provider.node.getProperty(label, "filterResultQuery")(initialQuery);
+};
+
+provider.node.getValueOrderByAttribute = function (label) {
+    return provider.node.getProperty(label, "valueOrderByAttribute");
+};
+
+provider.node.isValueOrderAscending = function (label) {
+    return provider.node.getProperty(label, "isValueOrderAscending");
+};
+
+provider.node.getResultOrderByAttribute = function (label) {
+    return provider.node.getProperty(label, "resultOrderByAttribute");
+};
+
+/**
+ *
+ * @param label
+ */
+provider.node.isResultOrderAscending = function (label) {
+    return provider.node.getProperty(label, "isResultOrderAscending");
+};
+
+/**
+ * Return the value of the getTextValue function defined in the label provider corresponding to the parameter node.
+ * If no "getTextValue" function is defined in the provider, search is done in parents.
+ * If none is found in parent default provider method is used.
+ *
+ * @param node
+ * @param parameter
+ */
+provider.node.getTextValue = function (node, parameter) {
+    return provider.node.getProperty(node.label, "getTextValue")(node, parameter);
+};
+
+
+/**
+ * Return the value of the getSemanticValue function defined in the label provider corresponding to the parameter node.
+ * The semantic value is a more detailed description of the node used for example in the query viewer.
+ * If no "getTextValue" function is defined in the provider, search is done in parents.
+ * If none is found in parent default provider method is used.
+ *
+ * @param node
+ * @returns {*}
+ */
+provider.node.getSemanticValue = function (node) {
+    return provider.node.getProperty(node.label, "getSemanticValue")(node);
+};
+
+/**
+ * Return a list of SVG paths objects, each defined by a "d" property containing the path and "f" property for the color.
+ *
+ * @param node
+ * @returns {*}
+ */
+provider.node.getSVGPaths = function (node) {
+    return provider.node.getProperty(node.label, "getSVGPaths")(node);
+};
+
+/**
+ * Check in label provider if text must be displayed with images nodes.
+ * @param node
+ * @returns {*}
+ */
+provider.node.isTextDisplayed = function (node) {
+    return provider.node.getProperty(node.label, "getIsTextDisplayed")(node);
+};
+
+/**
+ *
+ * @param node
+ */
+provider.node.getSize = function (node) {
+    return provider.node.getProperty(node.label, "getSize")(node);
+};
+
+/**
+ * Return the getColor property.
+ *
+ * @param node
+ * @param style
+ * @returns {*}
+ */
+provider.node.getColor = function (node, style) {
+    return provider.node.getProperty(node.label, "getColor")(node, style);
+};
+
+/**
+ *
+ * @param node
+ * @param element
+ */
+provider.node.getCSSClass = function (node, element) {
+    return provider.node.getProperty(node.label, "getCSSClass")(node, element);
+};
+
+/**
+ * Return the getIsGroup property.
+ *
+ * @param node
+ * @returns {*}
+ */
+provider.node.getIsGroup = function (node) {
+    return provider.node.getProperty(node.label, "getIsGroup")(node);
+};
+
+/**
+ * Return the node display type.
+ * can be TEXT, IMAGE, SVG or GROUP.
+ *
+ * @param node
+ * @returns {*}
+ */
+provider.node.getNodeDisplayType = function (node) {
+    return provider.node.getProperty(node.label, "getDisplayType")(node);
+};
+
+/**
+ * Return the file path of the image defined in the provider.
+ *
+ * @param node the node to get the image path.
+ * @returns {string} the path of the node image.
+ */
+provider.node.getImagePath = function (node) {
+    return provider.node.getProperty(node.label, "getImagePath")(node);
+};
+
+/**
+ * Return the width size of the node image.
+ *
+ * @param node the node to get the image width.
+ * @returns {int} the image width.
+ */
+provider.node.getImageWidth = function (node) {
+    return provider.node.getProperty(node.label, "getImageWidth")(node);
+};
+
+/**
+ * Return the height size of the node image.
+ *
+ * @param node the node to get the image height.
+ * @returns {int} the image height.
+ */
+provider.node.getImageHeight = function (node) {
+    return provider.node.getProperty(node.label, "getImageHeight")(node);
+};
+
+provider.node.filterNodeValueQuery = function (node, initialQuery) {
+    return provider.node.getProperty(node.label, "filterNodeValueQuery")(node, initialQuery);
+};
+
+provider.node.filterNodeCountQuery = function (node, initialQuery) {
+    return provider.node.getProperty(node.label, "filterNodeCountQuery")(node, initialQuery);
+};
+
+provider.node.filterNodeRelationQuery = function (node, initialQuery) {
+    return provider.node.getProperty(node.label, "filterNodeRelationQuery")(node, initialQuery);
+};
+
+provider.node.getGenerateNodeValueConstraints = function (node) {
+    return provider.node.getProperty(node.label, "generateNodeValueConstraints");
+};
+
+/**
+ * Return the displayResults function defined in label parameter's provider.
+ *
+ * @param label
+ * @returns {*}
+ */
+provider.node.getDisplayResults = function (label) {
+    return provider.node.getProperty(label, "displayResults");
+};
+
+/**
+ * Label provider used by default if none have been defined for a label.
+ * This provider can be changed if needed to customize default behavior.
+ * If some properties are not found in user customized providers, default
+ * values will be extracted from this provider.
+ */
+provider.node.DEFAULT_PROVIDER = (
+    {
+        /**********************************************************************
+         * Label specific parameters:
+         *
+         * These attributes are specific to a node label and will be used for
+         * every node having this label.
+         **********************************************************************/
+
+        /**
+         * Defines whether this label can be used as root element of the graph
+         * query builder.
+         * This property is also used to determine whether the label can be
+         * displayed in the taxonomy filter.
+         *
+         * The default value is true.
+         */
+        "isSearchable": true,
+
+        /**
+         * Defines whether this label will automatically expend its relations
+         * when displayed on graph.
+         * If set to true, once displayed additional request will be sent on
+         * the database to retrieve its relations.
+         *
+         * The default value is false.
+         */
+        "autoExpandRelations": false,
+
+        /**
+         * Defines whether this label will automatically load its available
+         * data displayed on graph.
+         * If set to true, once displayed additional request will be sent on
+         * the database to retrieve its possible values.
+         *
+         * The default value is false.
+         */
+        "isAutoLoadValue": false,
+
+        /**
+         * Defines the list of attribute to return for node of this label.
+         * All the attributes listed here will be added in generated cypher
+         * queries and available in result list and in node provider's
+         * functions.
+         *
+         * The default value contains only the Neo4j internal id.
+         * This id is used by default because it is a convenient way to identify
+         * a node when nothing is known about its attributes.
+         * But you should really consider using your application attributes
+         * instead, it is a bad practice to rely on this attribute.
+         */
+        "returnAttributes": [query.NEO4J_INTERNAL_ID],
+
+        /**
+         * Defines the attribute used to order the value displayed on node.
+         *
+         * Default value is "count" attribute.
+         */
+        "valueOrderByAttribute": "count",
+
+        /**
+         * Defines whether the value query order by is ascending, if false order
+         * by will be descending.
+         *
+         * Default value is false (descending)
+         */
+        "isValueOrderAscending": false,
+
+        /**
+         * Defines the attribute used to order the results.
+         *
+         * Default value is "null" to disable order by.
+         */
+        "resultOrderByAttribute": null,
+
+        /**
+         * Defines whether the result query order by is ascending, if false
+         * order by will be descending.
+         *
+         * Default value is true (ascending)
+         */
+        "isResultOrderAscending": true,
+
+        /**
+         * Defines the attribute of the node to use in query constraint for
+         * nodes of this label.
+         * This attribute is used in the generated cypher query to build the
+         * constraints with selected values.
+         *
+         * The default value is the Neo4j internal id.
+         * This id is used by default because it is a convenient way to
+         * identify a node when nothing is known about its attributes.
+         * But you should really consider using your application attributes
+         * instead, it is a bad practice to rely on this attribute.
+         */
+        "constraintAttribute": query.NEO4J_INTERNAL_ID,
+
+        /**
+         * Defines the attribute of the node to use by default to display the node.
+         * This attribute must be present in returnAttributes list.
+         *
+         * The default value is undefined.
+         * If undefined the first attribute of the returnAttributes will be used or
+         * constraintAttribute if the list is empty.
+         */
+        "displayAttribute": undefined,
+
+        /**
+         * Return the list of predefined constraints to add for the given label.
+         * These constraints will be added in every generated Cypher query.
+         *
+         * For example if the returned list contain ["$identifier.born > 1976"]
+         * for "Person" nodes everywhere in popoto.js the generated Cypher
+         * query will add the constraint "WHERE person.born > 1976"
+         *
+         * @returns {Array}
+         */
+        "getPredefinedConstraints": function () {
+            return [];
+        },
+
+        /**
+         * Filters the query generated to retrieve the queries.
+         *
+         * @param initialQuery contains the query as an object structure.
+         * @returns {*}
+         */
+        "filterResultQuery": function (initialQuery) {
+            return initialQuery;
+        },
+
+        /**********************************************************************
+         * Node specific parameters:
+         *
+         * These attributes are specific to nodes (in graph or query viewer)
+         * for a given label.
+         * But they can be customized for nodes of the same label.
+         * The parameters are defined by a function that will be called with
+         * the node as parameter.
+         * In this function the node internal attributes can be used to
+         * customize the value to return.
+         **********************************************************************/
+
+        /**
+         * Function returning the display type of a node.
+         * This type defines how the node will be drawn in the graph.
+         *
+         * The result must be one of the following values:
+         *
+         * provider.node.DisplayTypes.IMAGE
+         *  In this case the node will be drawn as an image and "getImagePath"
+         *  function is required to return the node image path.
+         *
+         * provider.node.DisplayTypes.SVG
+         *  In this case the node will be drawn as SVG paths and "getSVGPaths"
+         *
+         * provider.node.DisplayTypes.TEXT
+         *  In this case the node will be drawn as a simple circle.
+         *
+         * Default value is TEXT.
+         *
+         * @param node the node to extract its type.
+         * @returns {number} one value from provider.node.DisplayTypes
+         */
+        "getDisplayType": function (node) {
+            return provider.node.DisplayTypes.TEXT;
+        },
+
+        /**
+         * Function defining the size of the node in graph.
+         *
+         * The size define the radius of the circle defining the node.
+         * other elements (menu, counts...) will scale on this size.
+         *
+         * Default value is 50.
+         *
+         * @param node
+         */
+        "getSize": function (node) {
+            return 50;
+        },
+
+        /**
+         * Return a color for the node.
+         *
+         * @param node
+         * @returns {*}
+         */
+        "getColor": function (node) {
+            //var colorId = node.label;
+            //return provider.colorScale(colorId);
+
+            if (node.type === graph.node.NodeTypes.VALUE && node.parentRel === undefined) {
+                return provider.node.getColor(node.parent);
+            } else {
+                var parentLabel = "";
+                if (node.hasOwnProperty("parent")) {
+                    parentLabel = node.parent.label;
+                }
+
+                var incomingRelation = node.parentRel || "";
+
+                //var colorId = parentLabel + incomingRelation + node.label;
+                var colorId = node.label;
+                return provider.colorScale(colorId);
+            }
+
+        },
+
+        /**
+         * Generate a CSS class for the node depending on its type.
+         *
+         * @param node
+         * @param element
+         * @return {string}
+         */
+        "getCSSClass": function (node, element) {
+            var labelAsCSSName = node.label.replace(/[^0-9a-z\-_]/gi, '');
+
+            var cssClass = "ppt-node__" + element;
+
+            if (node.type === graph.node.NodeTypes.ROOT) {
+                cssClass = cssClass + "--root";
+            }
+            if (node.type === graph.node.NodeTypes.CHOOSE) {
+                cssClass = cssClass + "--choose";
+            }
+            if (node.type === graph.node.NodeTypes.GROUP) {
+                cssClass = cssClass + "--group";
+            }
+            if (node.type === graph.node.NodeTypes.VALUE || node.type === graph.node.NodeTypes.HIBIKI) {
+                cssClass = cssClass + "--value";
+            }
+            if (node.value !== undefined && node.value.length > 0) {
+                cssClass = cssClass + "--value-selected";
+            }
+            if (node.count === 0) ;
+
+            return cssClass + " " + labelAsCSSName;
+        },
+
+        /**
+         * Function defining whether the node is a group node.
+         * In this case no count are displayed and no value can be selected on
+         * the node.
+         *
+         * Default value is false.
+         */
+        "getIsGroup": function (node) {
+            return false;
+        },
+
+        /**
+         * Function defining whether the node text representation must be
+         * displayed on graph.
+         * If true the value returned for getTextValue on node will be displayed
+         * on graph.
+         *
+         * This text will be added in addition to the getDisplayType
+         * representation.
+         * It can be displayed on all type of node display, images, SVG or text.
+         *
+         * Default value is true
+         *
+         * @param node the node to display on graph.
+         * @returns {boolean} true if text must be displayed on graph for the
+         * node.
+         */
+        "getIsTextDisplayed": function (node) {
+            return true;
+        },
+
+        /**
+         * Function used to return the text representation of a node.
+         *
+         * The default behavior is to return the label of the node
+         * or the value of constraint attribute of the node if it contains
+         * value.
+         *
+         * The returned value is truncated using
+         * graph.node.NODE_MAX_CHARS property.
+         *
+         * @param node the node to represent as text.
+         * @param maxLength used to truncate the text.
+         * @returns {string} the text representation of the node.
+         */
+        "getTextValue": function (node, maxLength) {
+            var text = "";
+            var displayAttr = provider.node.getDisplayAttribute(node.label);
+            if (node.type === graph.node.NodeTypes.VALUE || node.type === graph.node.NodeTypes.HIBIKI) {
+                if (displayAttr === query.NEO4J_INTERNAL_ID) {
+                    text = "" + node.internalID;
+                } else {
+                    text = "" + node.attributes[displayAttr];
+                }
+            } else {
+                if (node.value !== undefined && node.value.length > 0) {
+                    if (displayAttr === query.NEO4J_INTERNAL_ID) {
+                        var separator = "";
+                        node.value.forEach(function (value) {
+                            text += separator + value.internalID;
+                            separator = " or ";
+                        });
+                    } else {
+                        var separator = "";
+                        node.value.forEach(function (value) {
+                            text += separator + value.attributes[displayAttr];
+                            separator = " or ";
+                        });
+                    }
+                } else {
+                    text = node.label;
+                }
+            }
+
+            return text;
+        },
+
+        /**
+         * Function used to return a descriptive text representation of a link.
+         * This representation should be more complete than getTextValue and can
+         * contain semantic data.
+         * This function is used for example to generate the label in the query
+         * viewer.
+         *
+         * The default behavior is to return the getTextValue not truncated.
+         *
+         * @param node the node to represent as text.
+         * @returns {string} the text semantic representation of the node.
+         */
+        "getSemanticValue": function (node) {
+            var text = "";
+            var displayAttr = provider.node.getDisplayAttribute(node.label);
+            if (node.type === graph.node.NodeTypes.VALUE || node.type === graph.node.NodeTypes.HIBIKI) {
+                if (displayAttr === query.NEO4J_INTERNAL_ID) {
+                    text = "" + node.internalID;
+                } else {
+                    text = "" + node.attributes[displayAttr];
+                }
+            } else {
+                if (node.value !== undefined && node.value.length > 0) {
+                    if (displayAttr === query.NEO4J_INTERNAL_ID) {
+                        var separator = "";
+                        node.value.forEach(function (value) {
+                            text += separator + value.internalID;
+                            separator = " or ";
+                        });
+                    } else {
+                        var separator = "";
+                        node.value.forEach(function (value) {
+                            text += separator + value.attributes[displayAttr];
+                            separator = " or ";
+                        });
+                    }
+                } else {
+                    text = node.label;
+                }
+            }
+            return text;
+        },
+
+        /**
+         * Function returning the image file path to use for a node.
+         * This function is only used for provider.node.DisplayTypes.IMAGE
+         * type nodes.
+         *
+         * @param node
+         * @returns {string}
+         */
+        "getImagePath": function (node) {
+            // if (node.type === graph.node.NodeTypes.VALUE) {
+            //     var constraintAttribute = provider.node.getConstraintAttribute(node.label);
+            //     return "image/node/value/" + node.label.toLowerCase() + "/" + node.attributes[constraintAttribute] + ".svg";
+            // } else {
+            return "image/node/" + node.label.toLowerCase() + "/" + node.label.toLowerCase() + ".svg";
+            // }
+        },
+
+        /**
+         * Function returning a array of path objects to display in the node.
+         *
+         * @param node
+         * @returns {*[]}
+         */
+        "getSVGPaths": function (node) {
+            var size = provider.node.getSize(node);
+            return [
+                {
+                    "d": "M 0, 0 m -" + size + ", 0 a " + size + "," + size + " 0 1,0 " + 2 * size + ",0 a " + size + "," + size + " 0 1,0 -" + 2 * size + ",0",
+                    "fill": "transparent",
+                    "stroke": provider.node.getColor(node),
+                    "stroke-width": "2px"
+                }
+            ];
+        },
+
+        /**
+         * Function returning the image width of the node.
+         * This function is only used for provider.node.DisplayTypes.IMAGE
+         * type nodes.
+         *
+         * @param node
+         * @returns {number}
+         */
+        "getImageWidth": function (node) {
+            return provider.node.getSize(node) * 2;
+        },
+
+        /**
+         * Function returning the image height of the node.
+         * This function is only used for provider.node.DisplayTypes.IMAGE
+         * type nodes.
+         *
+         * @param node
+         * @returns {number}
+         */
+        "getImageHeight": function (node) {
+            return provider.node.getSize(node) * 2;
+        },
+
+        /**
+         * Filters the query generated to retrieve the values on a node.
+         *
+         * @param node
+         * @param initialQuery contains the query as an object structure.
+         * @returns {*}
+         */
+        "filterNodeValueQuery": function (node, initialQuery) {
+            return initialQuery;
+        },
+        /**
+         * Filters the query generated to retrieve the values on a node.
+         *
+         * @param node
+         * @param initialQuery contains the query as an object structure.
+         * @returns {*}
+         */
+        "filterNodeCountQuery": function (node, initialQuery) {
+            return initialQuery;
+        },
+        /**
+         * Filters the query used to retrieve the values on a node.
+         *
+         * @param node
+         * @param initialQuery contains the query as an object structure.
+         * @returns {*}
+         */
+        "filterNodeRelationQuery": function (node, initialQuery) {
+            return initialQuery;
+        },
+
+        /**********************************************************************
+         * Results specific parameters:
+         *
+         * These attributes are specific to result display.
+         **********************************************************************/
+
+        /**
+         * Generate the result entry content using d3.js mechanisms.
+         *
+         * The parameter of the function is the &lt;p&gt; selected with d3.js
+         *
+         * The default behavior is to generate a &lt;table&gt; containing all
+         * the return attributes in a &lt;th&gt; and their value in a &lt;td&gt;.
+         *
+         * @param pElmt the &lt;p&gt; element generated in the result list.
+         */
+        "displayResults": function (pElmt) {
+            var result = pElmt.data()[0];
+            var returnAttributes = provider.node.getReturnAttributes(result.label);
+
+            returnAttributes.forEach(function (attribute) {
+                var div = pElmt.append("div").attr("class", "ppt-result-attribute-div");
+                var attributeName = attribute;
+
+                if (query.NEO4J_INTERNAL_ID === attribute) {
+                    attributeName = query.NEO4J_INTERNAL_ID.queryInternalName;
+                }
+
+                var span = div.append("span");
+                span.text(function () {
+                    if (attribute === query.NEO4J_INTERNAL_ID) {
+                        return "internal ID:"
+                    } else {
+                        return attribute + ":";
+                    }
+                });
+                if (result.attributes[attributeName] !== undefined) {
+                    div.append("span").text(function (result) {
+                        return result.attributes[attributeName];
+                    });
+                }
+            });
+        }
+    });
+
+/**
+ * logger module.
+ * @module logger
+ */
+
+var rest = {};
+
+/**
+ * Default REST URL used to call Neo4j server with cypher queries to execute.
+ * This property should be updated to access to your own server.
+ * @type {string}
+ */
+rest.CYPHER_URL = "http://localhost:7474/db/data/transaction/commit";
+rest.WITH_CREDENTIALS = false;
+
+/**
+ * Create JQuery ajax POST request to access Neo4j REST API.
+ *
+ * @param data data object containing Cypher query.
+ * @param url url where to post the data, default to popoto.rest.CYPHER_URL property.
+ * @returns {*} the JQuery ajax request object.
+ */
+rest.post = function (data, url) {
+    var strData = JSON.stringify(data);
+    logger.info("REST POST:" + strData);
+
+
+    var settings = {
+        type: "POST",
+        beforeSend: function (request) {
+            if (rest.AUTHORIZATION) {
+                request.setRequestHeader("Authorization", rest.AUTHORIZATION);
+            }
+        },
+        contentType: "application/json"
+    };
+
+    if (data !== undefined) {
+        settings.data = strData;
+    }
+
+    if (rest.WITH_CREDENTIALS === true) {
+        settings.xhrFields = {
+            withCredentials: true
+        };
+    }
+
+    if (url == "/interactive") {
+        settings = {
+            type: "GET",
+            data: data,
+            dataType: 'json',
+            contentType: "application/json"
+        };
+    }
+
+    if (url == "/interactive_info") {
+        settings = {
+            type: "GET",
+            data: data,
+            dataType: 'html',
+            contentType: "application/json"
+        };
+    }
+
+    var postURL = rest.CYPHER_URL;
+
+    if (url !== undefined) {
+        postURL = url;
+    }
+
+    return jQuery.ajax(postURL, settings);
+};
+
+rest.response = {
+    parse: function (data) {
+        logger.debug(JSON.stringify((data)));
+        var parsedData = [];
+
+        if (data !== undefined && data.hasOwnProperty("results") && data.results.length > 0 && !(data.hasOwnProperty("errors") && data.errors.length > 0)) {
+            parsedData = data.results.map(function (queryResults) {
+                var results = [];
+                for (var x = 0; x < queryResults.data.length; x++) {
+                    var obj = {};
+
+                    for (var i = 0; i < queryResults.columns.length; i++) {
+                        obj[queryResults.columns[i]] = queryResults.data[x].row[i];
+                    }
+
+                    results.push(obj);
+                }
+                return results;
+            });
+        }
+
+        logger.info(JSON.stringify((parsedData)));
+        return parsedData
+    }
+};
+
+var infoviewer = {};
+
+infoviewer.containerId = "popoto-info";
+infoviewer.QUERY_STARTER = "I'm looking for";
+infoviewer.CHOOSE_LABEL = "choose";
+
+/**
+ * Create the info viewer area.
+ */
+infoviewer.createInfoArea = function () {
+
+    //infoviewer.queryConstraintSpanElements = d3.select(id).append("p").attr("class", "ppt-query-constraint-elements").selectAll(".queryConstraintSpan");
+    //infoviewer.querySpanElements = d3.select(id).append("p").attr("class", "ppt-query-elements").selectAll(".querySpan");
+};
+
+infoviewer.showInfo = function(node) {
+    logger.info("Displaying information in viewer");
+
+    if (node.hasOwnProperty("attributes")) {
+        rest.post("model="+node.label+"&id="+node.attributes.uuid, "/interactive_info")
+            .done (function (response) {
+                $("#popoto-info").eq(0).html(response);
+            });
+    } else if (node.value !== undefined && node.value[0] !== undefined ) {
+        rest.post("model="+node.label+"&id="+node.value[0].attributes.uuid, "/interactive_info")
+            .done (function (response) {
+                $("#popoto-info").eq(0).html(response);
+            });
+    }
+};
+
+/**
+ * Main function to call to use Popoto.js.
+ * This function will create all the HTML content based on available IDs in the page.
+ *
+ * @param startParam Root label or graph schema to use in the graph query builder.
+ */
+//TODO add instance creation + config
+function start(startParam) {
+    logger.info("Popoto " + version + " start on " + startParam);
+
+    graph.mainLabel = startParam;
+
+    if (rest.CYPHER_URL === undefined) {
+        logger.error("popoto.rest.CYPHER_URL is not set but is required.");
+    } else {
+        // TODO introduce component generator mechanism instead for future plugin extensions
+        checkHtmlComponents();
+
+        if (taxonomy.isActive) {
+            taxonomy.createTaxonomyPanel();
+        }
+
+        if (graph.isActive) {
+            graph.createGraphArea();
+            graph.createForceLayout();
+
+            if (typeof startParam === 'string' || startParam instanceof String) {
+                var labelSchema = provider.node.getSchema(startParam);
+                if (labelSchema !== undefined) {
+                    graph.addSchema(labelSchema);
+                } else {
+                    graph.addRootNode(startParam);
+                }
+            } else {
+                graph.loadSchema(startParam);
+            }
+        }
+
+
+        if (infoviewer.isActive) {
+            infoviewer.createInfoArea();
+        }
+
+        if (graph.USE_VORONOI_LAYOUT === true) {
+            graph.voronoi.extent([[-popoto.graph.getSVGWidth(), -popoto.graph.getSVGWidth()], [popoto.graph.getSVGWidth() * 2, popoto.graph.getSVGHeight() * 2]]);
+        }
+
+        update();
+    }
+}
+
+/**
+ * Check in the HTML page the components to generate.
+ */
+function checkHtmlComponents() {
+    var graphHTMLContainer = d3$1.select("#" + graph.containerId);
+    var taxonomyHTMLContainer = d3$1.select("#" + taxonomy.containerId);
+    var infoHTMLContainer = d3$1.select("#" + infoviewer.containerId);
+
+    if (graphHTMLContainer.empty()) {
+        logger.debug("The page doesn't contain a container with ID = \"" + graph.containerId + "\" no graph area will be generated. This ID is defined in graph.containerId property.");
+        graph.isActive = false;
+    } else {
+        graph.isActive = true;
+    }
+
+    if (taxonomyHTMLContainer.empty()) {
+        logger.debug("The page doesn't contain a container with ID = \"" + taxonomy.containerId + "\" no taxonomy filter will be generated. This ID is defined in taxonomy.containerId property.");
+        taxonomy.isActive = false;
+    } else {
+        taxonomy.isActive = true;
+    }
+
+    if (infoHTMLContainer.empty()) {
+        logger.debug("The page doesn't contain a container with ID = \"" + infoviewer.containerId + "\" no query viewer will be generated. This ID is defined in infoviewer.containerId property.");
+        infoviewer.isActive = false;
+    } else {
+        infoviewer.isActive = true;
+    }
+
+}
+
+/**
+ * Function to call to update all the generated elements including svg graph, query viewer and generated results.
+ */
+function update() {
+    updateGraph();
+
+    // Do not update if rootNode is not valid.
+    var root = dataModel.getRootNode();
+
+    if (!root || root.label === undefined) {
+        return;
+    }
+}
+
+/**
+ * Function to call to update the graph only.
+ */
+function updateGraph() {
+    if (graph.isActive) {
+        // Starts the D3.js force simulation.
+        // This method must be called when the layout is first created, after assigning the nodes and links.
+        // In addition, it should be called again whenever the nodes or links change.
+        graph.link.updateLinks();
+        graph.node.updateNodes();
+
+        // Force simulation restart
+        graph.force.nodes(dataModel.nodes);
+        graph.force.force("link").links(dataModel.links);
+        graph.force.alpha(1).restart();
+    }
+}
+
+var taxonomy = {};
+taxonomy.containerId = "popoto-taxonomy";
+
+/**
+ * Create the taxonomy panel HTML elements.
+ */
+taxonomy.createTaxonomyPanel = function () {
+    var htmlContainer = d3$1.select("#" + taxonomy.containerId);
+
+    var taxoUL = htmlContainer.append("ul")
+        .attr("class", "ppt-taxo-ul");
+
+    var data = taxonomy.generateTaxonomiesData();
+
+    var taxos = taxoUL.selectAll(".taxo").data(data);
+
+    var taxoli = taxos.enter().append("li")
+        .attr("id", function (d) {
+            return d.id
+        })
+        .attr("class", "ppt-taxo-li")
+        .attr("value", function (d) {
+            return d.label;
+        });
+
+    taxoli.append("span")
+        .attr("class", function (d) {
+            return "ppt-icon " + provider.taxonomy.getCSSClass(d.label, "span-icon");
+        })
+        .html("&nbsp;");
+
+    taxoli.append("span")
+        .attr("class", "ppt-label")
+        .text(function (d) {
+            return provider.taxonomy.getTextValue(d.label);
+        });
+
+    taxoli.append("span")
+        .attr("class", "ppt-count");
+
+    // Add an on click event on the taxonomy to clear the graph and set this label as root
+    taxoli.on("click", taxonomy.onClick);
+
+    taxonomy.addTaxonomyChildren(taxoli);
+
+    // The count is updated for each labels.
+    var flattenData = [];
+    data.forEach(function (d) {
+        flattenData.push(d);
+        if (d.children) {
+            taxonomy.flattenChildren(d, flattenData);
+        }
+    });
+
+    //if (!graph.DISABLE_COUNT) { //Wanted to disable counts on nodes, but not taxonomy counts
+        taxonomy.updateCount(flattenData);
+    //}
+};
+
+/**
+ * Recursive function to flatten data content.
+ *
+ */
+taxonomy.flattenChildren = function (d, vals) {
+    d.children.forEach(function (c) {
+        vals.push(c);
+        if (c.children) {
+            vals.concat(taxonomy.flattenChildren(c, vals));
+        }
+    });
+};
+
+/**
+ * Updates the count number on a taxonomy.
+ *
+ * @param taxonomyData
+ */
+taxonomy.updateCount = function (taxonomyData) {
+    var statements = [];
+
+    taxonomyData.forEach(function (taxo) {
+        statements.push(
+            {
+                "statement": query.generateTaxonomyCountQuery(taxo.label)
+            }
+        );
+    });
+
+    logger.info("Hibiki RestPost TaxoCount ");
+    rest.post("type=count", "/interactive")
+        .done(function (response) {
+            for (var i = 0; i < response.length; i++) {
+                d3$1.selectAll('.ppt-taxo-li').filter(function (n) {
+                    return n.label === response[i][0];
+                })
+                    .select(".ppt-count")
+                    .text(" (" + response[i][1] + ")");
+            }
+        });
+};
+
+/**
+ * Recursively generate the taxonomy children elements.
+ *
+ * @param selection
+ */
+taxonomy.addTaxonomyChildren = function (selection) {
+    selection.each(function (d) {
+        var li = d3$1.select(this);
+
+        var children = d.children;
+        if (d.children) {
+            var childLi = li.append("ul")
+                .attr("class", "ppt-taxo-sub-ul")
+                .selectAll("li")
+                .data(children)
+                .enter()
+                .append("li")
+                .attr("id", function (d) {
+                    return d.id
+                })
+                .attr("class", "ppt-taxo-sub-li")
+                .attr("value", function (d) {
+                    return d.label;
+                });
+
+            childLi.append("span")
+                .attr("class", function (d) {
+                    return "ppt-icon " + provider.taxonomy.getCSSClass(d.label, "span-icon");
+                })
+                .html("&nbsp;");
+
+            childLi.append("span")
+                .attr("class", "ppt-label")
+                .text(function (d) {
+                    return provider.taxonomy.getTextValue(d.label);
+                });
+
+            childLi.append("span")
+                .attr("class", "ppt-count");
+
+            childLi.on("click", taxonomy.onClick);
+
+            taxonomy.addTaxonomyChildren(childLi);
+        }
+
+    });
+};
+
+taxonomy.onClick = function () {
+    d3$1.event.stopPropagation();
+
+    var label = this.attributes.value.value;
+
+    dataModel.nodes.length = 0;
+    dataModel.links.length = 0;
+
+    // Reinitialize internal label generator
+    graph.node.internalLabels = {};
+
+    update();
+    graph.mainLabel = label;
+    if (provider.node.getSchema(label) !== undefined) {
+        graph.addSchema(provider.node.getSchema(label));
+    } else {
+        graph.addRootNode(label);
+    }
+    graph.hasGraphChanged = true;
+    graph.ignoreCount = false;
+    update();
+    tools.center();
+};
+
+/**
+ * Parse the list of label providers and return a list of data object containing only searchable labels.
+ * @returns {Array}
+ */
+taxonomy.generateTaxonomiesData = function () {
+    var id = 0;
+    var data = [];
+    // Retrieve root providers (searchable and without parent)
+    for (var label in provider.node.Provider) {
+        if (provider.node.Provider.hasOwnProperty(label)) {
+            if (provider.node.getProperty(label, "isSearchable") && !provider.node.Provider[label].parent) {
+                data.push({
+                    "label": label,
+                    "id": "popoto-lbl-" + id++
+                });
+            }
+        }
+    }
+
+    // Add children data for each provider with children.
+    data.forEach(function (d) {
+        if (provider.node.getProvider(d.label).hasOwnProperty("children")) {
+            id = taxonomy.addChildrenData(d, id);
+        }
+    });
+
+    return data;
+};
+
+/**
+ * Add children providers data.
+ * @param parentData
+ * @param id
+ */
+taxonomy.addChildrenData = function (parentData, id) {
+    parentData.children = [];
+
+    provider.node.getProvider(parentData.label).children.forEach(function (d) {
+        var childProvider = provider.node.getProvider(d);
+        var childData = {
+            "label": d,
+            "id": "popoto-lbl-" + id++
+        };
+        if (childProvider.hasOwnProperty("children")) {
+            id = taxonomy.addChildrenData(childData, id);
+        }
+        if (provider.node.getProperty(d, "isSearchable")) {
+            parentData.children.push(childData);
+        }
+    });
+
+    return id;
+};
+
+// TOOLS -----------------------------------------------------------------------------------------------------------
+
+var tools = {};
+// TODO introduce plugin mechanism to add tools
+tools.CENTER_GRAPH = true;
+tools.RESET_GRAPH = true;
+tools.SAVE_GRAPH = false;
+tools.TOGGLE_TAXONOMY = false;
+tools.TOGGLE_FULL_SCREEN = true;
+tools.TOGGLE_VIEW_RELATION = true;
+tools.TOGGLE_FIT_TEXT = true;
+
+/**
+ * Reset the graph to display the root node only.
+ */
+tools.reset = function () {
+    dataModel.nodes.length = 0;
+    dataModel.links.length = 0;
+
+    // Reinitialize internal label generator
+    graph.node.internalLabels = {};
+
+    if (typeof graph.mainLabel === 'string' || graph.mainLabel instanceof String) {
+        if (provider.node.getSchema(graph.mainLabel) !== undefined) {
+            graph.addSchema(provider.node.getSchema(graph.mainLabel));
+        } else {
+            graph.addRootNode(graph.mainLabel);
+        }
+    } else {
+        graph.loadSchema(graph.mainLabel);
+    }
+
+    graph.hasGraphChanged = true;
+    result.hasChanged = true;
+    update();
+    tools.center();
+};
+
+/**
+ * Reset zoom and center the view on svg center.
+ */
+tools.center = function () {
+    graph.svgTag.transition().call(graph.zoom.transform, d3$1.zoomIdentity);
+};
+
+/**
+ * Show, hide taxonomy panel.
+ */
+tools.toggleTaxonomy = function () {
+    var taxo = d3$1.select("#" + taxonomy.containerId);
+    if (taxo.filter(".disabled").empty()) {
+        taxo.classed("disabled", true);
+    } else {
+        taxo.classed("disabled", false);
+    }
+
+    graph.centerRootNode();
+};
+
+/**
+ * Enable, disable text fitting on nodes.
+ */
+tools.toggleFitText = function () {
+    graph.USE_FIT_TEXT = !graph.USE_FIT_TEXT;
+    graph.node.updateNodes();
+};
+
+/**
+ * Show, hide relation donuts.
+ */
+tools.toggleViewRelation = function () {
+    graph.DISABLE_RELATION = !graph.DISABLE_RELATION;
+    d3$1.selectAll(".ppt-g-node-background").classed("hide", graph.DISABLE_RELATION);
+    graph.tick();
+};
+
+tools.toggleFullScreen = function () {
+
+    var elem = document.getElementById(graph.containerId);
+
+    if (!document.fullscreenElement &&    // alternative standard method
+        !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {  // current working methods
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen();
+        } else if (elem.msRequestFullscreen) {
+            elem.msRequestFullscreen();
+        } else if (elem.mozRequestFullScreen) {
+            elem.mozRequestFullScreen();
+        } else if (elem.webkitRequestFullscreen) {
+            elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+        }
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        }
+    }
+};
+
+var toolbar = {};
+
+toolbar.TOOL_TAXONOMY = "Show/hide taxonomy panel";
+toolbar.TOOL_RELATION = "Show/hide relation";
+toolbar.TOOL_CENTER = "Center view";
+toolbar.TOOL_FULL_SCREEN = "Full screen";
+toolbar.TOOL_RESET = "Reset graph";
+toolbar.TOOL_SAVE = "Save graph";
+toolbar.TOOL_FIT_TEXT = "Fit text in nodes";
+
+toolbar.render = function (container) {
+    var toolbar = container
+        .append("div")
+        .attr("class", "ppt-toolbar");
+
+    if (tools.TOGGLE_VIEW_RELATION) {
+        toolbar.append("span")
+            .attr("id", "popoto-toggle-relation")
+            .attr("class", "ppt-icon ppt-menu relation")
+            .attr("title", toolbar.TOOL_RELATION)
+            .on("click", function () {
+                tools.toggleViewRelation();
+            });
+    }
+
+    if (tools.RESET_GRAPH) {
+        toolbar.append("span")
+            .attr("id", "popoto-reset-menu")
+            .attr("class", "ppt-icon ppt-menu reset")
+            .attr("title", toolbar.TOOL_RESET)
+            .on("click", function () {
+                graph.notifyListeners(graph.Events.GRAPH_RESET, []);
+                tools.reset();
+            });
+    }
+
+    if (tools.TOGGLE_TAXONOMY) {
+        toolbar.append("span")
+            .attr("id", "popoto-taxonomy-menu")
+            .attr("class", "ppt-icon ppt-menu taxonomy")
+            .attr("title", toolbar.TOOL_TAXONOMY)
+            .on("click", tools.toggleTaxonomy);
+    }
+
+    if (tools.CENTER_GRAPH) {
+        toolbar.append("span")
+            .attr("id", "popoto-center-menu")
+            .attr("class", "ppt-icon ppt-menu center")
+            .attr("title", toolbar.TOOL_CENTER)
+            .on("click", tools.center);
+    }
+
+    if (tools.TOGGLE_FULL_SCREEN) {
+        toolbar.append("span")
+            .attr("id", "popoto-fullscreen-menu")
+            .attr("class", "ppt-icon ppt-menu fullscreen")
+            .attr("title", toolbar.TOOL_FULL_SCREEN)
+            .on("click", tools.toggleFullScreen);
+    }
+
+    if (tools.SAVE_GRAPH) {
+        toolbar.append("span")
+            .attr("id", "popoto-save-menu")
+            .attr("class", "ppt-icon ppt-menu save")
+            .attr("title", toolbar.TOOL_SAVE)
+            .on("click", function () {
+                graph.notifyListeners(graph.Events.GRAPH_SAVE, [graph.getSchema()]);
+            });
+    }
+
+    if (tools.TOGGLE_FIT_TEXT) {
+        toolbar.append("span")
+            .attr("id", "popoto-fit-text-menu")
+            .attr("class", "ppt-icon ppt-menu fit-text")
+            .attr("title", toolbar.TOOL_FIT_TEXT)
+            .on("click", tools.toggleFitText);
+    }
+};
+
+var link = {};
+
+/**
+ * Defines the different type of link.
+ * RELATION is a relation link between two nodes.
+ * VALUE is a link between a generic node and a value.
+ */
+link.LinkTypes = Object.freeze({RELATION: 0, VALUE: 1, SEGMENT: 2});
+
+/**
+ * Offset added to text displayed on links.
+ * @type {number}
+ */
+link.TEXT_DY = -4;
+
+/**
+ * Define whether or not to display path markers.
+ */
+link.SHOW_MARKER = false;
+
+// ID of the g element in SVG graph containing all the link elements.
+link.gID = "popoto-glinks";
+
+/**
+ * Function to call to update the links after modification in the model.
+ * This function will update the graph with all removed, modified or added links using d3.js mechanisms.
+ */
+link.updateLinks = function () {
+    var data = link.updateData();
+    link.removeElements(data.exit());
+    link.addNewElements(data.enter());
+    link.updateElements();
+};
+
+/**
+ * Update the links element with data coming from dataModel.links.
+ */
+link.updateData = function () {
+    return graph.svg.select("#" + link.gID).selectAll(".ppt-glink").data(dataModel.links, function (d) {
+        return d.id;
+    });
+};
+
+/**
+ * Clean links elements removed from the list.
+ */
+link.removeElements = function (exitingData) {
+    exitingData.remove();
+};
+
+/**
+ * Create new elements.
+ */
+link.addNewElements = function (enteringData) {
+
+    var newLinkElements = enteringData.append("g")
+        .attr("class", "ppt-glink")
+        .on("click", link.clickLink)
+        .on("mouseover", link.mouseOverLink)
+        .on("mouseout", link.mouseOutLink);
+
+    newLinkElements.append("path")
+        .attr("class", "ppt-link");
+
+    newLinkElements.append("text")
+        .attr("text-anchor", "middle")
+        .attr("dy", link.TEXT_DY)
+        .append("textPath")
+        .attr("class", "ppt-textPath")
+        .attr("startOffset", "50%");
+};
+
+/**
+ * Update all the elements (new + modified)
+ */
+link.updateElements = function () {
+    var toUpdateElem = graph.svg.select("#" + link.gID).selectAll(".ppt-glink");
+
+    toUpdateElem
+        .attr("id", function (d) {
+            return "ppt-glink_" + d.id;
+        });
+
+    toUpdateElem.selectAll(".ppt-link")
+        .attr("id", function (d) {
+            return "ppt-path_" + d.id
+        })
+        .attr("stroke", function (d) {
+            return provider.link.getColor(d, "path", "stroke");
+        })
+        .attr("class", function (link) {
+            return "ppt-link " + provider.link.getCSSClass(link, "path")
+        });
+
+    // Due to a bug on webkit browsers (as of 30/01/2014) textPath cannot be selected
+    // To workaround this issue the selection is done with its associated css class
+    toUpdateElem.selectAll("text")
+        .attr("id", function (d) {
+            return "ppt-text_" + d.id
+        })
+        .attr("class", function (link) {
+            return provider.link.getCSSClass(link, "text")
+        })
+        .attr("fill", function (d) {
+            return provider.link.getColor(d, "text", "fill");
+        })
+        .selectAll(".ppt-textPath")
+        .attr("id", function (d) {
+            return "ppt-textpath_" + d.id;
+        })
+        .attr("class", function (link) {
+            return "ppt-textpath " + provider.link.getCSSClass(link, "text-path")
+        })
+        .attr("xlink:href", function (d) {
+            return "#ppt-path_" + d.id;
+        })
+        .text(function (d) {
+            return provider.link.getTextValue(d);
+        });
+};
+
+/**
+ * Function called when mouse is over the link.
+ * This function is used to change the CSS class on hover of the link and query viewer element.
+ *
+ * TODO try to introduce event instead of directly access query spans here. This could be used in future extensions.
+ */
+link.mouseOverLink = function () {
+    d3$1.select(this)
+        .select("path")
+        .attr("class", function (link) {
+            return "ppt-link " + provider.link.getCSSClass(link, "path--hover")
+        });
+
+    d3$1.select(this).select("text")
+        .attr("class", function (link) {
+            return provider.link.getCSSClass(link, "text--hover")
+        });
+
+    var hoveredLink = d3$1.select(this).data()[0];
+
+};
+
+/**
+ * Function called when mouse goes out of the link.
+ * This function is used to reinitialize the CSS class of the link and query viewer element.
+ */
+link.mouseOutLink = function () {
+    d3$1.select(this)
+        .select("path")
+        .attr("class", function (link) {
+            return "ppt-link " + provider.link.getCSSClass(link, "path")
+        });
+
+    d3$1.select(this).select("text")
+        .attr("class", function (link) {
+            return provider.link.getCSSClass(link, "text")
+        });
+
+    var hoveredLink = d3$1.select(this).data()[0];
+
+};
+
+// Delete all related nodes from this link
+link.clickLink = function () {
+    var clickedLink = d3$1.select(this).data()[0];
+
+    if (clickedLink.type !== link.LinkTypes.VALUE) {
+        // Collapse all expanded choose nodes first to avoid having invalid displayed value node if collapsed relation contains a value.
+        graph.node.collapseAllNode();
+        graph.hasGraphChanged = true;
+        update();
+    }
+
+};
+
+/**
+ * Convert the parameter to a function returning the parameter if it is not already a function.
+ *
+ * @param param
+ * @return {*}
+ */
+
+function toFunction(param) {
+    if (typeof param === "function") {
+        return param;
+    } else {
+        return function () {
+            return param;
+        };
+    }
+}
+
+var CONTEXT_2D = document.createElement("canvas").getContext("2d");
+var DEFAULT_CANVAS_LINE_HEIGHT = 12;
+
+function measureTextWidth(text) {
+    return CONTEXT_2D.measureText(text).width;
+}
+
+/**
+ * Compute the radius of the circle wrapping all the lines.
+ *
+ * @param lines array of text lines
+ * @return {number}
+ */
+function computeTextRadius(lines) {
+    var textRadius = 0;
+
+    for (var i = 0, n = lines.length; i < n; ++i) {
+        var dx = lines[i].width / 2;
+        var dy = (Math.abs(i - n / 2 + 0.5) + 0.5) * DEFAULT_CANVAS_LINE_HEIGHT;
+        textRadius = Math.max(textRadius, Math.sqrt(dx * dx + dy * dy));
+    }
+
+    return textRadius;
+}
+
+function computeLines(words, targetWidth) {
+    var line;
+    var lineWidth0 = Infinity;
+    var lines = [];
+
+    for (var i = 0, n = words.length; i < n; ++i) {
+        var lineText1 = (line ? line.text + " " : "") + words[i];
+        var lineWidth1 = measureTextWidth(lineText1);
+        if ((lineWidth0 + lineWidth1) / 2 < targetWidth) {
+            line.width = lineWidth0 = lineWidth1;
+            line.text = lineText1;
+        } else {
+            lineWidth0 = measureTextWidth(words[i]);
+            line = {width: lineWidth0, text: words[i]};
+            lines.push(line);
+        }
+    }
+
+    return lines;
+}
+
+function computeTargetWidth(text) {
+    return Math.sqrt(measureTextWidth(text.trim()) * DEFAULT_CANVAS_LINE_HEIGHT);
+}
+
+/**
+ * Split text into words.
+ *
+ * @param text
+ * @return {*|string[]}
+ */
+function computeWords(text) {
+    var words = text.split(/\s+/g); // To hyphenate: /\s+|(?<=-)/
+    if (!words[words.length - 1]) words.pop();
+    if (!words[0]) words.shift();
+    return words;
+}
+
+/**
+ * Inspired by https://beta.observablehq.com/@mbostock/fit-text-to-circle
+ * Extract words from the text and group them by lines to fit a circle.
+ *
+ * @param text
+ * @returns {*}
+ */
+function extractLines(text) {
+    if (text === undefined || text === null) {
+        return [];
+    }
+
+    var textString = String(text);
+
+    var words = computeWords(textString);
+    var targetWidth = computeTargetWidth(textString);
+
+    return computeLines(words, targetWidth);
+}
+
+function createTextElements(selection, getClass) {
+    selection.each(function (d) {
+        var text = d3$1.select(this)
+            .selectAll(".fitted-text")
+            .data([{}]);
+
+        text.enter()
+            .append("text")
+            .merge(text)
+            .attr("class", "fitted-text" + (getClass !== undefined ? " " + getClass(d) : ""))
+            .attr("style", "text-anchor: middle; font: 10px sans-serif");
+    });
+}
+
+function createSpanElements(text, getText) {
+    text.each(function (fitData) {
+        var lines = extractLines(getText(fitData));
+        var span = d3$1.select(this).selectAll("tspan")
+            .data(lines);
+
+        span.exit().remove();
+
+        span.enter()
+            .append("tspan")
+            .merge(span)
+            .attr("x", 0)
+            .attr("y", function (d, i) {
+                var lineCount = lines.length;
+                return (i - lineCount / 2 + 0.8) * DEFAULT_CANVAS_LINE_HEIGHT
+            })
+            .text(function (d) {
+                return d.text
+            });
+    });
+}
+
+/**
+ * Create the text representation of a node by slicing the text into lines to fit the node.
+ *
+ * @param selection
+ * @param textParam
+ * @param radiusParam
+ * @param classParam
+ */
+function appendFittedText(selection, textParam, radiusParam, classParam) {
+    var getRadius = toFunction(radiusParam);
+    var getText = toFunction(textParam);
+    var getClass = classParam ? toFunction(classParam) : classParam;
+
+    createTextElements(selection, getClass);
+
+    var text = selection.select(".fitted-text");
+
+    createSpanElements(text, getText);
+
+    text.attr("transform", function (d) {
+        var lines = extractLines(getText(d));
+        var textRadius = computeTextRadius(lines);
+
+        var scale = 1;
+        if (textRadius !== 0 && textRadius) {
+            scale = getRadius(d) / textRadius;
+        }
+        return "translate(" + 0 + "," + 0 + ")" + " scale(" + scale + ")"
+    });
+}
+
+var fitTextRenderer = {};
+
+fitTextRenderer.getNodeBoundingBox = function(node) {
+    return node.getBBox();
+};
+
+/**
+ * Create the text representation of a node by slicing the text into lines to fit the node.
+ *
+ * TODO: Clean getLines return and corresponding data.
+ * @param nodeSelection
+ */
+fitTextRenderer.render = function (nodeSelection) {
+
+    var backgroundRectSelection = nodeSelection
+        .append("rect")
+        .attr("fill", function (node) {
+            return provider.node.getColor(node, "back-text", "fill");
+        })
+        .attr("class", function (node) {
+            return provider.node.getCSSClass(node, "back-text")
+        });
+
+    appendFittedText(nodeSelection,
+        function (d) { return provider.node.getTextValue(d)},
+        function (d) { return provider.node.getSize(d) },
+        function (d) { return provider.node.getCSSClass(d, "text") });
+
+    backgroundRectSelection
+        .attr("x", function (d) {
+            var bbox = fitTextRenderer.getNodeBoundingBox(d3$1.select(this.parentNode).select("text").node());
+            return bbox.x - 3;
+        })
+        .attr("y", function (d) {
+            var bbox = fitTextRenderer.getNodeBoundingBox(d3$1.select(this.parentNode).select("text").node());
+            return bbox.y;
+        })
+        .attr("rx", "5")
+        .attr("ry", "5")
+        .attr("width", function (d) {
+            var bbox = fitTextRenderer.getNodeBoundingBox(d3$1.select(this.parentNode).select("text").node());
+            return bbox.width + 6;
+        })
+        .attr("height", function (d) {
+            var bbox = fitTextRenderer.getNodeBoundingBox(d3$1.select(this.parentNode).select("text").node());
+            return bbox.height;
+        })
+        .attr("transform", function (d) {
+            return d3$1.select(this.parentNode).select("text").attr("transform")
+        });
+};
+
+var textRenderer = {};
+textRenderer.TEXT_Y = 8; // TODO move this in dedicated config
+
+textRenderer.getNodeBoundingBox = function(node) {
+    return node.getBBox();
+};
+
+/**
+ * Create the text representation of a node with a SVG rect element as background.
+ *
+ * TODO: clean mouseover text because this renderer change parent clip-path attribute
+ * @param nodeSelection
+ */
+textRenderer.render = function (nodeSelection) {
+
+    var backgroundRectSelection = nodeSelection
+        .append("rect")
+        .attr("fill", function (node) {
+            return provider.node.getColor(node, "back-text", "fill");
+        })
+        .attr("class", function (node) {
+            return provider.node.getCSSClass(node, "back-text")
+        });
+
+    nodeSelection.append('text')
+        .attr('x', 0)
+        .attr('y', textRenderer.TEXT_Y)
+        .attr('text-anchor', 'middle')
+        .attr("class", function (node) {
+            return provider.node.getCSSClass(node, "text")
+        })/*
+        .on("mouseover", function (d) {
+            d3.select(this.parentNode).attr("clip-path", null);
+        })
+        .on("mouseout", function (d) {
+            d3.select(this.parentNode)
+                .attr("clip-path", function (node) {
+                    return "url(#node-view" + node.id + ")";
+                });
+        })*/
+        .text(function (d) {
+            return provider.node.getTextValue(d);
+        });
+
+    backgroundRectSelection
+        .attr("x", function (d) {
+            var bbox = textRenderer.getNodeBoundingBox(d3$1.select(this.parentNode).select("text").node());
+            return bbox.x - 3;
+        })
+        .attr("y", function (d) {
+            var bbox = textRenderer.getNodeBoundingBox(d3$1.select(this.parentNode).select("text").node());
+            return bbox.y;
+        })
+        .attr("rx", "5")
+        .attr("ry", "5")
+        .attr("width", function (d) {
+            var bbox = textRenderer.getNodeBoundingBox(d3$1.select(this.parentNode).select("text").node());
+            return bbox.width + 6;
+        })
+        .attr("height", function (d) {
+            var bbox = textRenderer.getNodeBoundingBox(d3$1.select(this.parentNode).select("text").node());
+            return bbox.height;
+        });
+};
+
+var node = {};
+
+// ID of the g element in SVG graph containing all the link elements.
+node.gID = "popoto-gnodes";
+
+// Node ellipse size used by default for text nodes.
+node.DONUTS_MARGIN = 0;
+node.DONUT_WIDTH = 9;
+
+// Define the max number of character displayed in node.
+node.NODE_MAX_CHARS = 11;
+node.NODE_TITLE_MAX_CHARS = 100;
+
+// Number of nodes displayed per page during value selection.
+node.PAGE_SIZE = 10;
+
+// Count box default size
+node.CountBox = {x: 16, y: 33, w: 52, h: 19};
+
+// Store choose node state to avoid multiple node expand at the same time
+node.chooseWaiting = false;
+
+node.getDonutInnerRadius = function (n) {
+    return provider.node.getSize(n) + node.DONUTS_MARGIN;
+};
+
+node.getDonutOuterRadius = function (n) {
+    return provider.node.getSize(n) + node.DONUTS_MARGIN + node.DONUT_WIDTH;
+};
+
+node.pie = d3$1.pie()
+    .sort(null)
+    .value(function (d) {
+        return 1;
+    });
+
+/**
+ * Defines the list of possible nodes.
+ * ROOT: Node used as graph root. It is the target of the query. Only one node of this type should be available in graph.
+ * CHOOSE: Nodes defining a generic node label. From these node is is possible to select a value or explore relations.
+ * VALUE: Unique node containing a value constraint. Usually replace CHOOSE nodes once a value as been selected.
+ * GROUP: Empty node used to group relations. No value can be selected but relations can be explored. These nodes doesn't have count.
+ */
+node.NodeTypes = Object.freeze({ROOT: 0, CHOOSE: 1, VALUE: 2, GROUP: 3, HIBIKI: 4});
+
+// Used to generate unique internal labels used for example as identifier in Cypher query.
+node.internalLabels = {};
+
+/**
+ * Create a normalized identifier from a node label.
+ * Multiple calls with the same node label will generate different unique identifier.
+ *
+ * @param nodeLabel
+ * @returns {string}
+ */
+node.generateInternalLabel = function (nodeLabel) {
+    var label = nodeLabel ? nodeLabel.toLowerCase().replace(/ /g, '') : "n";
+
+    if (label in node.internalLabels) {
+        node.internalLabels[label] = node.internalLabels[label] + 1;
+    } else {
+        node.internalLabels[label] = 0;
+        return label;
+    }
+
+    return label + node.internalLabels[label];
+};
+
+/**
+ * Update Nodes SVG elements using D3.js update mechanisms.
+ */
+node.updateNodes = function () {
+    var data = node.updateData();
+    node.removeElements(data.exit());
+    node.addNewElements(data.enter());
+    node.updateElements();
+};
+
+/**
+ * Update node data with changes done in dataModel.nodes model.
+ */
+node.updateData = function () {
+    var data = graph.svg.select("#" + node.gID).selectAll(".ppt-gnode").data(dataModel.nodes, function (d) {
+        return d.id;
+    });
+
+    if (graph.hasGraphChanged) {
+        node.updateAutoLoadValues();
+
+        if (!graph.DISABLE_COUNT && !graph.ignoreCount) {
+            node.updateCount();
+        }
+    }
+    graph.hasGraphChanged = false;
+
+    return data;
+};
+
+/**
+ * Update nodes and result counts by executing a query for every nodes with the new graph structure.
+ */
+node.updateCount = function () {
+
+    // Abort any old running request before starting a new one
+    if (node.updateCountXhr !== undefined) {
+        node.updateCountXhr.abort();
+    }
+
+    var statements = [];
+
+    var countedNodes = dataModel.nodes
+        .filter(function (d) {
+            return d.type !== node.NodeTypes.VALUE && d.type !== node.NodeTypes.GROUP && (!d.hasOwnProperty("isNegative") || !d.isNegative);
+        });
+
+    countedNodes.forEach(function (n) {
+        var nodeCountQuery = query.generateNodeCountQuery(n);
+        statements.push(
+            {
+                "statement": nodeCountQuery.statement,
+                "parameters": nodeCountQuery.parameters
+            }
+        );
+    });
+
+    logger.info("Count nodes ==>");
+    node.updateCountXhr = rest.post(
+        {
+            "statements": statements
+        })
+        .done(function (response) {
+            logger.info("<== Count nodes");
+            var parsedData = rest.response.parse(response);
+
+            for (var i = 0; i < countedNodes.length; i++) {
+                countedNodes[i].count = parsedData[i][0].count;
+            }
+
+            node.updateElements();
+            graph.link.updateElements();
+        })
+        .fail(function (xhr, textStatus, errorThrown) {
+            if (textStatus !== "abort") {
+                logger.error(textStatus + ": error while accessing Neo4j server on URL:\"" + rest.CYPHER_URL + "\" defined in \"rest.CYPHER_URL\" property: " + errorThrown);
+                countedNodes.forEach(function (n) {
+                    n.count = 0;
+                });
+                node.updateElements();
+                graph.link.updateElements();
+            } else {
+                logger.info("<=X= Count nodes - Aborted!");
+            }
+        });
+};
+
+/**
+ * Update values for nodes having preloadData property
+ */
+node.updateAutoLoadValues = function () {
+    var statements = [];
+
+    var nodesToLoadData = node.getAutoLoadValueNodes();
+
+    for (var i = 0; i < nodesToLoadData.length; i++) {
+        var nodeToQuery = nodesToLoadData[i];
+        var nodeValueQuery = query.generateNodeValueQuery(nodeToQuery);
+        statements.push(
+            {
+                "statement": nodeValueQuery.statement,
+                "parameters": nodeValueQuery.parameters
+            }
+        );
+    }
+
+    if (statements.length > 0) {
+        logger.info("AutoLoadValue ==>");
+        rest.post(
+            {
+                "statements": statements
+            })
+            .done(function (response) {
+                logger.info("<== AutoLoadValue");
+
+                var parsedData = rest.response.parse(response);
+
+                for (var i = 0; i < nodesToLoadData.length; i++) {
+                    var nodeToQuery = nodesToLoadData[i];
+                    var constraintAttr = provider.node.getConstraintAttribute(nodeToQuery.label);
+                    // Here results are parsed and values already selected are filtered out
+                    nodeToQuery.data = parsedData[i].filter(function (dataToFilter) {
+                        var keepData = true;
+                        if (nodeToQuery.hasOwnProperty("value") && nodeToQuery.value.length > 0) {
+                            nodeToQuery.value.forEach(function (value) {
+                                if (value.attributes[constraintAttr] === dataToFilter[constraintAttr]) {
+                                    keepData = false;
+                                }
+                            });
+                        }
+                        return keepData;
+                    });
+
+                    nodeToQuery.page = 1;
+                }
+
+                graph.notifyListeners(graph.Events.GRAPH_NODE_DATA_LOADED, [nodesToLoadData]);
+            })
+            .fail(function (xhr, textStatus, errorThrown) {
+                logger.error(textStatus + ": error while accessing Neo4j server on URL:\"" + rest.CYPHER_URL + "\" defined in \"rest.CYPHER_URL\" property: " + errorThrown);
+            });
+    }
+};
+
+/**
+ * Remove old elements.
+ * Should be called after updateData.
+ */
+node.removeElements = function (exitingData) {
+    // Nodes without parent are simply removed.
+    exitingData.filter(function (d) {
+        return !d.parent;
+    }).remove();
+
+    // Nodes with a parent are removed with an animation (nodes are collapsed to their parents before being removed)
+    exitingData.filter(function (d) {
+        return d.parent;
+    }).transition().duration(300).attr("transform", function (d) {
+        return "translate(" + d.parent.x + "," + d.parent.y + ")";
+    }).remove();
+};
+
+/**
+ * Add all new elements.
+ * Only the skeleton of new nodes are added custom data will be added during the element update phase.
+ * Should be called after updateData and before updateElements.
+ */
+node.addNewElements = function (enteringData) {
+
+    var gNewNodeElements = enteringData
+        .append("g")
+        .attr("class", "ppt-gnode");
+
+    gNewNodeElements.on("click", node.nodeClick)
+        .on("dblclick", node.nodeDblClick);
+        //.on("mouseover", graph.tip.show)
+        //.on("mouseout", graph.tip.hide);
+        //.on("mouseover", node.mouseOverNode)
+        //.on("mouseout", node.mouseOutNode)
+    /*
+    // Add right click on all nodes except value
+    gNewNodeElements.filter(function (d) {
+        return d.type !== node.NodeTypes.VALUE;
+    }).on("contextmenu", node.clearSelection);
+    */
+
+    // Disable right click context menu on value nodes
+    gNewNodeElements.filter(function (d) {
+        return d.type === node.NodeTypes.VALUE;
+    }).on("contextmenu", function () {
+        // Disable context menu on
+        d3$1.event.preventDefault();
+    });
+
+    // Hibiki: Disable right click context menu on all nodes
+    // TODO: make the foreground element a link so you can navigate to link
+    gNewNodeElements.on("contextmenu", function () {
+        // Disable context menu on
+        d3$1.event.preventDefault();
+    });
+
+
+    var nodeDefs = gNewNodeElements.append("defs");
+
+    // Circle clipPath using node radius size
+    nodeDefs.append("clipPath")
+        .attr("id", function (n) {
+            return "node-view" + n.id;
+        })
+        .append("circle")
+        .attr("cx", 0)
+        .attr("cy", 0);
+
+    // Nodes are composed of 3 layouts and skeleton are created here.
+    node.addBackgroundElements(gNewNodeElements);
+    node.addMiddlegroundElements(gNewNodeElements);
+    //node.addForegroundElements(gNewNodeElements);
+};
+
+/**
+ * Create the background for a new node element.
+ * The background of a node is defined by a circle not visible by default (fill-opacity set to 0) but can be used to highlight a node with animation on this attribute.
+ * This circle also define the node zone that can receive events like mouse clicks.
+ *
+ * @param gNewNodeElements
+ */
+node.addBackgroundElements = function (gNewNodeElements) {
+    var background = gNewNodeElements
+        .append("g")
+        .attr("class", "ppt-g-node-background")
+        .classed("hide", graph.DISABLE_RELATION);
+
+    background.append("g")
+        .attr("class", "ppt-donut-labels");
+    background.append("g")
+        .attr("class", "ppt-donut-segments");
+};
+
+/**
+ * Create the node main elements.
+ *
+ * @param gNewNodeElements
+ */
+node.addMiddlegroundElements = function (gNewNodeElements) {
+    var middle = gNewNodeElements
+        .append("g")
+        .attr("class", "ppt-g-node-middleground")
+        .on("mouseover", graph.tip.show)
+        .on("mouseout", graph.tip.hide);
+};
+
+/**
+ * Create the node foreground elements.
+ * It contains node additional elements, count or tools like navigation arrows.
+ *
+ * @param gNewNodeElements
+ */
+node.addForegroundElements = function (gNewNodeElements) {
+    var foreground = gNewNodeElements
+        .append("g")
+        .attr("class", "ppt-g-node-foreground");
+
+    // Arrows icons added only for root and choose nodes
+    var gArrow = foreground.filter(function (d) {
+        return d.type === node.NodeTypes.ROOT || d.type === node.NodeTypes.CHOOSE;
+    })
+        .append("g")
+        .attr("class", "ppt-node-foreground-g-arrows");
+
+    var glArrow = gArrow.append("g");
+    //glArrow.append("polygon")
+    //.attr("points", "-53,-23 -33,-33 -33,-13");
+    glArrow.append("circle")
+        .attr("class", "ppt-larrow")
+        .attr("cx", "-43")
+        .attr("cy", "-23")
+        .attr("r", "17");
+
+    glArrow.append("path")
+        .attr("class", "ppt-arrow")
+        .attr("d", "m -44.905361,-23 6.742,-6.742 c 0.81,-0.809 0.81,-2.135 0,-2.944 l -0.737,-0.737 c -0.81,-0.811 -2.135,-0.811 -2.945,0 l -8.835,8.835 c -0.435,0.434 -0.628,1.017 -0.597,1.589 -0.031,0.571 0.162,1.154 0.597,1.588 l 8.835,8.834 c 0.81,0.811 2.135,0.811 2.945,0 l 0.737,-0.737 c 0.81,-0.808 0.81,-2.134 0,-2.943 l -6.742,-6.743 z");
+
+    glArrow.on("click", function (clickedNode) {
+        d3$1.event.stopPropagation(); // To avoid click event on svg element in background
+
+        // On left arrow click page number is decreased and node expanded to display the new page
+        if (clickedNode.page > 1) {
+            clickedNode.page--;
+            node.collapseNode(clickedNode);
+            node.expandNode(clickedNode);
+        }
+    });
+
+    var grArrow = gArrow.append("g");
+    //grArrow.append("polygon")
+    //.attr("points", "53,-23 33,-33 33,-13");
+
+    grArrow.append("circle")
+        .attr("class", "ppt-rarrow")
+        .attr("cx", "43")
+        .attr("cy", "-23")
+        .attr("r", "17");
+
+    grArrow.append("path")
+        .attr("class", "ppt-arrow")
+        .attr("d", "m 51.027875,-24.5875 -8.835,-8.835 c -0.811,-0.811 -2.137,-0.811 -2.945,0 l -0.738,0.737 c -0.81,0.81 -0.81,2.136 0,2.944 l 6.742,6.742 -6.742,6.742 c -0.81,0.81 -0.81,2.136 0,2.943 l 0.737,0.737 c 0.81,0.811 2.136,0.811 2.945,0 l 8.835,-8.836 c 0.435,-0.434 0.628,-1.017 0.597,-1.588 0.032,-0.569 -0.161,-1.152 -0.596,-1.586 z");
+
+    grArrow.on("click", function (clickedNode) {
+        d3$1.event.stopPropagation(); // To avoid click event on svg element in background
+
+        if (clickedNode.page * node.PAGE_SIZE < clickedNode.count) {
+            clickedNode.page++;
+            node.collapseNode(clickedNode);
+            node.expandNode(clickedNode);
+        }
+    });
+
+    // Count box
+    if (!graph.DISABLE_COUNT) {
+        var countForeground = foreground.filter(function (d) {
+            return d.type !== node.NodeTypes.GROUP;
+        });
+
+        countForeground
+            .append("rect")
+            .attr("x", node.CountBox.x)
+            .attr("y", node.CountBox.y)
+            .attr("width", node.CountBox.w)
+            .attr("height", node.CountBox.h)
+            .attr("class", "ppt-count-box");
+
+        countForeground
+            .append("text")
+            .attr("x", 42)
+            .attr("y", 48)
+            .attr("text-anchor", "middle")
+            .attr("class", "ppt-count-text");
+    }
+
+    var ban = foreground.filter(function (d) {
+        return d.type === node.NodeTypes.CHOOSE;
+    }).append("g")
+        .attr("class", "ppt-g-node-ban")
+        .append("path")
+        .attr("d", "M89.1 19.2C88 17.7 86.6 16.2 85.2 14.8 83.8 13.4 82.3 12 80.8 10.9 72 3.9 61.3 0 50 0 36.7 0 24.2 5.4 14.8 14.8 5.4 24.2 0 36.7 0 50c0 11.4 3.9 22.1 10.9 30.8 1.2 1.5 2.5 3 3.9 4.4 1.4 1.4 2.9 2.7 4.4 3.9C27.9 96.1 38.6 100 50 100 63.3 100 75.8 94.6 85.2 85.2 94.6 75.8 100 63.3 100 50 100 38.7 96.1 28 89.1 19.2ZM11.9 50c0-10.2 4-19.7 11.1-27C30.3 15.9 39.8 11.9 50 11.9c8.2 0 16 2.6 22.4 7.3L19.3 72.4C14.5 66 11.9 58.2 11.9 50Zm65 27c-7.2 7.1-16.8 11.1-27 11.1-8.2 0-16-2.6-22.4-7.4L80.8 27.6C85.5 34 88.1 41.8 88.1 50c0 10.2-4 19.7-11.1 27z");
+};
+
+/**
+ * Updates all elements.
+ */
+node.updateElements = function () {
+    var toUpdateElem = graph.svg.select("#" + node.gID).selectAll(".ppt-gnode");
+
+    toUpdateElem.attr("id", function (d) {
+        return "popoto-gnode_" + d.id;
+    });
+
+    if (graph.USE_VORONOI_LAYOUT) {
+        toUpdateElem.attr("clip-path", function (d) {
+            return "url(#voroclip-" + d.id + ")";
+        });
+    }
+
+    toUpdateElem.select("defs")
+        .select("clipPath")
+        .attr("id", function (n) {
+            return "node-view" + n.id;
+        }).selectAll("circle")
+        .attr("r", function (n) {
+            return provider.node.getSize(n);
+        });
+
+    toUpdateElem.call(d3$1.drag()
+        .on("start", dragstarted)
+        .on("drag", dragged)
+        .on("end", dragended));
+
+    function dragstarted(d) {
+        graph.tip.hide();
+        if (!d3$1.event.active) graph.force.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+    }
+
+    function dragged(d) {
+        d.fx = d3$1.event.x;
+        d.fy = d3$1.event.y;
+    }
+
+    function dragended(d) {
+        if (!d3$1.event.active) graph.force.alphaTarget(0);
+        if (d.fixed === false) {
+            d.fx = null;
+            d.fy = null;
+        }
+
+    }
+
+    node.updateBackgroundElements();
+    node.updateMiddlegroundElements();
+    node.updateForegroundElements();
+};
+
+node.updateBackgroundElements = function () {
+    var nodeBackgroundElements = graph.svg.select("#" + node.gID).selectAll(".ppt-gnode").selectAll(".ppt-g-node-background");
+
+    nodeBackgroundElements.select(".ppt-donut-labels").selectAll("*").remove();
+    nodeBackgroundElements.select(".ppt-donut-segments").selectAll("*").remove();
+
+    var gSegment = nodeBackgroundElements.select(".ppt-donut-segments").selectAll(".ppt-segment-container")
+        .data(function (d) {
+            var relationships = [];
+            if (!d.hasOwnProperty("value") && d.hasOwnProperty("relationships")) {
+                relationships = d.relationships;
+            }
+            return relationships;
+        }, function (d) {
+            return d.id;
+        })
+        .enter()
+        .append("g")
+        .attr("class", ".ppt-segment-container")
+        .on("click", node.segmentClick)
+        .on("mouseover", function (d) {
+            d3$1.select(this).select(".ppt-text-arc").classed("hover", true);
+        })
+        .on("mouseout", function (d) {
+            d3$1.select(this).select(".ppt-text-arc").classed("hover", false);
+        });
+
+    gSegment.append("title").attr("class", "ppt-svg-title")
+        .text(function (d) {
+            return d.label + " " + d.target;
+        });
+
+
+    var gSegment2 = nodeBackgroundElements.select(".ppt-donut-segments").selectAll(".ppt-segment-container")
+        .data(function (d) {
+            var fake_rel = [];
+            if (d.hasOwnProperty("value") || !d.hasOwnProperty("relationships")) {
+                fake_rel = [{id: d.label, directionAngle: Math.PI, endAngle: Math.PI * 2, startAngle: 0}];
+            }
+            return fake_rel;
+        }, function (d) {
+            return d.id;
+        })
+        .enter()
+        .append("g")
+        .attr("class", ".ppt-segment-container");
+
+    var gLabel = nodeBackgroundElements.select(".ppt-donut-labels").selectAll(".ppt-segment-container")
+        .data(function (n) {
+            var relationships = [];
+            if (!n.hasOwnProperty("value") && n.hasOwnProperty("relationships")) {
+                relationships = n.relationships;
+            }
+            return relationships;
+        }, function (relationship) {
+            return relationship.id;
+        })
+        .enter()
+        .append("g")
+        .attr("class", ".ppt-segment-container")
+        .on("click", node.segmentClick)
+        .on("mouseover", function (d) {
+            d3$1.select(this).select(".ppt-text-arc").classed("hover", true);
+        })
+        .on("mouseout", function (d) {
+            d3$1.select(this).select(".ppt-text-arc").classed("hover", false);
+        });
+
+    gLabel.append("path")
+        .attr("class", "ppt-hidden-arc")
+        .attr("id", function (d, i) {
+            var n = d3$1.select(this.parentNode.parentNode).datum();
+            return "arc_" + n.id + "_" + i;
+        })
+        .attr("d", function (relationship) {
+            var n = d3$1.select(this.parentNode.parentNode).datum();
+
+            //A regular expression that captures all in between the start of a string (denoted by ^)
+            //and the first capital letter L
+            var firstArcSection = /(^.+?)L/;
+            var singleArcSection = /(^.+?)M/;
+
+            var intermediateArc = {
+                startAngle: relationship.directionAngle - (Math.PI - 0.1),
+                endAngle: relationship.directionAngle + (Math.PI - 0.1)
+            };
+
+            var arcPath = d3$1.arc()
+                .innerRadius(node.getDonutInnerRadius(n))
+                .outerRadius(node.getDonutOuterRadius(n))(intermediateArc);
+
+            //The [1] gives back the expression between the () (thus not the L as well)
+            //which is exactly the arc statement
+            var res = firstArcSection.exec(arcPath);
+            var newArc = "";
+            if (res && res.length > 1) {
+                newArc = res[1];
+            } else {
+                newArc = singleArcSection.exec(arcPath)[1];
+            }
+
+            //Replace all the comma's so that IE can handle it -_-
+            //The g after the / is a modifier that "find all matches rather than stopping after the first match"
+            newArc = newArc.replace(/,/g, " ");
+
+            return newArc;
+        })
+        .style("fill", "none")
+        .style("stroke", "none");
+
+    gSegment.append("text")
+        .attr("text-anchor", "middle")
+        .attr("class", function (d) {
+            var n = d3$1.select(this.parentNode.parentNode).datum();
+            if (n.hasOwnProperty("count") && n.count === 0) {
+                return "ppt-text-arc disabled";
+            } else {
+                return "ppt-text-arc";
+            }
+        })
+        .attr("fill", function (d) {
+            var n = d3$1.select(this.parentNode.parentNode).datum();
+
+            return provider.link.getColor({
+                label: d.label,
+                type: graph.link.LinkTypes.SEGMENT,
+                source: n,
+                target: {label: d.target}
+            }, "segment", "fill");
+        })
+        .attr("dy", graph.link.TEXT_DY)
+        .append("textPath")
+        .attr("startOffset", "50%")
+        .attr("xlink:href", function (d, i) {
+            var n = d3$1.select(this.parentNode.parentNode.parentNode).datum();
+            return "#arc_" + n.id + "_" + i;
+        })
+        .text(function (d) {
+            var n = d3$1.select(this.parentNode.parentNode.parentNode).datum();
+
+            return provider.link.getTextValue({
+                source: n,
+                target: {label: d.target},
+                label: d.label,
+                type: graph.link.LinkTypes.SEGMENT
+            });
+        });
+
+    gSegment.append("path")
+        .attr("class", function (d) {
+            var n = d3$1.select(this.parentNode.parentNode).datum();
+            if (n.hasOwnProperty("count") && n.count === 0) {
+                return "ppt-segment disabled";
+            } else {
+                return "ppt-segment";
+            }
+        })
+        .attr("d", function (d) {
+            var n = d3$1.select(this.parentNode.parentNode).datum();
+            return d3$1.arc()
+                .innerRadius(node.getDonutInnerRadius(n))
+                .outerRadius(node.getDonutOuterRadius(n))(d)
+        })
+        .attr("fill", function (d) {
+            var n = d3$1.select(this.parentNode.parentNode).datum();
+            return provider.link.getColor({
+                label: d.label,
+                type: graph.link.LinkTypes.RELATION,
+                source: n,
+                target: {label: d.target}
+            }, "path", "fill");
+        })
+        .attr("stroke", function (d) {
+            var n = d3$1.select(this.parentNode.parentNode).datum();
+
+            return provider.link.getColor({
+                label: d.label,
+                type: graph.link.LinkTypes.RELATION,
+                source: n,
+                target: {label: d.target}
+            }, "path", "stroke");
+        });
+
+    gSegment2.append("path")
+        .attr("class", "ppt-segment")
+        .attr("d", function (d) {
+            var n = d3$1.select(this.parentNode.parentNode).datum();
+            return d3$1.arc()
+                .innerRadius(node.getDonutInnerRadius(n))
+                .outerRadius(node.getDonutOuterRadius(n))(d)
+        })
+        .attr("fill", function (d) {
+            var n = d3$1.select(this.parentNode.parentNode).datum();
+            return provider.link.getColor({
+                type: graph.link.LinkTypes.RELATION,
+                target: {label: n.label}
+            }, "path", "fill");
+        })
+        .attr("stroke", function (d) {
+            var n = d3$1.select(this.parentNode.parentNode).datum();
+
+            return provider.link.getColor({
+                label: d.label,
+                type: graph.link.LinkTypes.RELATION,
+                source: n,
+                target: {label: d.target}
+            }, "path", "stroke");
+        });
+
+};
+
+/**
+ * Update the middle layer of nodes.
+ * TODO refactor node generation to allow future extensions (for example add plugin with new node types...)
+ */
+node.updateMiddlegroundElements = function () {
+    var middleG = graph.svg.select("#" + node.gID).selectAll(".ppt-gnode").selectAll(".ppt-g-node-middleground");
+
+    middleG.attr("clip-path", function (n) {
+        return "url(#node-view" + n.id + ")";
+    });
+
+    // Clear all content in case node type has changed
+    middleG.selectAll("*").remove();
+
+
+    node.updateMiddlegroundElementsTooltip(middleG);
+
+    node.updateMiddlegroundElementsText(middleG.filter(function (d) {
+        return provider.node.getNodeDisplayType(d) === provider.node.DisplayTypes.TEXT;
+    }));
+
+    node.updateMiddlegroundElementsImage(middleG.filter(function (d) {
+        return provider.node.getNodeDisplayType(d) === provider.node.DisplayTypes.IMAGE;
+    }));
+
+    node.updateMiddlegroundElementsSymbol(middleG.filter(function (d) {
+        return provider.node.getNodeDisplayType(d) === provider.node.DisplayTypes.SYMBOL;
+    }));
+
+    node.updateMiddlegroundElementsSVG(middleG.filter(function (d) {
+        return provider.node.getNodeDisplayType(d) === provider.node.DisplayTypes.SVG;
+    }));
+
+    node.updateMiddlegroundElementsDisplayedText(middleG.filter(function (d) {
+        return provider.node.isTextDisplayed(d);
+    }));
+
+
+};
+
+node.updateMiddlegroundElementsTooltip = function (middleG) {
+    // Most browser will generate a tooltip if a title is specified for the SVG element
+    // TODO Introduce an SVG tooltip instead?
+
+    middleG.append("title")
+        .attr("class", function (n) {
+            return provider.node.getCSSClass(n, "title")
+        })
+        .text(function (d) {
+            return provider.node.getTextValue(d, node.NODE_TITLE_MAX_CHARS);
+        });
+
+};
+
+node.updateMiddlegroundElementsText = function (gMiddlegroundTextNodes) {
+    var circle = gMiddlegroundTextNodes.append("circle").attr("r", function (n) {
+        return provider.node.getSize(n);
+    });
+
+    // Set class according to node type
+    circle
+        .attr("class", function (n) {
+            return provider.node.getCSSClass(n, "circle")
+        })
+        .attr("fill", function (n) {
+            return provider.node.getColor(n, "circle", "fill");
+        })
+        .attr("stroke", function (n) {
+            return provider.node.getColor(n, "circle", "stroke");
+        });
+};
+
+node.updateMiddlegroundElementsImage = function (gMiddlegroundImageNodes) {
+
+    node.updateMiddlegroundElementsText(gMiddlegroundImageNodes.filter(function (n) { //Add text for nodes without images
+        if (n.hasOwnProperty("attributes")) {
+            return n.attributes.image_path == null;
+        } else if (n.hasOwnProperty("value")) {
+            return n.value[0].attributes.image_path == null;
+        } else {
+            return true
+        }
+    }));
+
+    var imagegMiddlegroundImageNodes = gMiddlegroundImageNodes.filter(function (n) {
+        if (n.hasOwnProperty("attributes")) {
+            return n.attributes.image_path != null;
+        } else if (n.hasOwnProperty("value")) {
+            return n.value[0].attributes.image_path != null;
+        } else {
+            return false
+        }
+    });
+
+    imagegMiddlegroundImageNodes.append("circle").attr("r", function (n) {
+        return provider.node.getSize(n);
+    })
+        .attr("class", function (n) {
+            return provider.node.getCSSClass(n, "image-background-circle")
+        })
+        .attr("fill", function (n) {
+            return provider.node.getColor(n, "circle", "fill");
+        })
+        .attr("stroke", function (n) {
+            return provider.node.getColor(n, "circle", "stroke");
+        });
+
+    imagegMiddlegroundImageNodes.append("image").attr("title", function (n) {
+        if (n.hasOwnProperty("value")) {
+            return n.value[0].attributes.name;
+        } else if (n.hasOwnProperty("attributes")) {
+            return n.attributes.name;
+        } else {
+            return provider.node.getCSSClass(n, "image")
+        }        })
+        .attr("width", function (d) {
+            return provider.node.getImageWidth(d);
+        })
+        .attr("height", function (d) {
+            return provider.node.getImageHeight(d);
+        })
+        // Center the image on node
+        .attr("transform", function (d) {
+            return "translate(" + (-provider.node.getImageWidth(d) / 2) + "," + (-provider.node.getImageHeight(d) / 2) + ")";
+        })
+
+        .attr("xlink:href", function (d) {
+            if (d.hasOwnProperty("attributes")) {
+                return "http://www.hibiki.moe/images/" + d.attributes.image_path;
+            } else if (d.hasOwnProperty("value")) {
+                return "http://www.hibiki.moe/images/" + d.value[0].attributes.image_path;
+            } else {
+                return provider.node.getImagePath(d);
+            }        });
+
+
+};
+
+node.updateMiddlegroundElementsSymbol = function (gMiddlegroundSymbolNodes) {
+    gMiddlegroundSymbolNodes.append("circle").attr("r", function (n) {
+        return provider.node.getSize(n);
+    })
+        .attr("class", function (n) {
+            return provider.node.getCSSClass(n, "symbol-background-circle")
+        })
+        .attr("fill", function (n) {
+            return provider.node.getColor(n, "circle", "fill");
+        })
+        .attr("stroke", function (n) {
+            return provider.node.getColor(n, "circle", "stroke");
+        });
+
+    gMiddlegroundSymbolNodes.append("use")
+        .attr("class", function (n) {
+            return provider.node.getCSSClass(n, "symbol")
+        })
+        .attr("width", function (d) {
+            return provider.node.getImageWidth(d);
+        })
+        .attr("height", function (d) {
+            return provider.node.getImageHeight(d);
+        })
+        // Center the image on node
+        .attr("transform", function (d) {
+            return "translate(" + (-provider.node.getImageWidth(d) / 2) + "," + (-provider.node.getImageHeight(d) / 2) + ")";
+        })
+        .attr("xlink:href", function (d) {
+            return provider.node.getImagePath(d);
+        })
+        .attr("fill", function (n) {
+            return provider.node.getColor(n, "circle", "fill");
+        })
+        .attr("stroke", function (n) {
+            return provider.node.getColor(n, "circle", "stroke");
+        });
+};
+
+node.updateMiddlegroundElementsSVG = function (gMiddlegroundSVGNodes) {
+    var SVGmiddleG = gMiddlegroundSVGNodes.append("g");
+
+    var circle = SVGmiddleG.append("circle").attr("r", function (n) {
+        return provider.node.getSize(n);
+    }).attr("class", "ppt-svg-node-background");
+
+    var svgMiddlePaths = SVGmiddleG.selectAll("path").data(function (d) {
+        return provider.node.getSVGPaths(d);
+    });
+
+    // Update nested data elements
+    svgMiddlePaths.exit().remove();
+    svgMiddlePaths.enter().append("path");
+
+    SVGmiddleG
+        .selectAll("path")
+        .attr("class", function (d) {
+            var n = d3$1.select(this.parentNode).datum();
+            return provider.node.getCSSClass(n, "path")
+        })
+        .each(function (d, i) {
+            for (var prop in d) {
+                if (d.hasOwnProperty(prop)) {
+                    d3$1.select(this).attr(prop, d[prop]);
+                }
+            }
+        });
+};
+
+node.updateMiddlegroundElementsDisplayedText = function (middleG) {
+    var textDisplayed = middleG.filter(function (n) {
+        if (n.hasOwnProperty("attributes")) {
+            return n.attributes.image_path == null;
+        } else if (n.hasOwnProperty("value")) {
+            return n.value[0].attributes.image_path == null;
+        } else {            return true
+        }
+        //return provider.node.isTextDisplayed(d);
+    });
+
+    if (graph.USE_FIT_TEXT) {
+        fitTextRenderer.render(textDisplayed);
+    } else {
+        textRenderer.render(textDisplayed);
+    }
+};
+
+/**
+ * Updates the foreground elements
+ */
+node.updateForegroundElements = function () {
+
+    // Updates browse arrows status
+    // TODO ZZZ extract variable?
+    var gArrows = graph.svg.select("#" + node.gID).selectAll(".ppt-gnode").selectAll(".ppt-g-node-foreground")
+        .selectAll(".ppt-node-foreground-g-arrows");
+    gArrows.classed("active", function (d) {
+        return d.valueExpanded && d.data && d.data.length > node.PAGE_SIZE;
+    });
+
+    gArrows.selectAll(".ppt-larrow").classed("enabled", function (d) {
+        return d.page > 1;
+    });
+
+    gArrows.selectAll(".ppt-rarrow").classed("enabled", function (d) {
+        if (d.data) {
+            var count = d.data.length;
+            return d.page * node.PAGE_SIZE < count;
+        } else {
+            return false;
+        }
+    });
+
+    // Update count box class depending on node type
+    var gForegrounds = graph.svg.select("#" + node.gID).selectAll(".ppt-gnode").selectAll(".ppt-g-node-foreground");
+
+    gForegrounds.selectAll(".ppt-count-box").filter(function (d) {
+        return d.type !== node.NodeTypes.CHOOSE;
+    }).classed("root", true);
+
+    gForegrounds.selectAll(".ppt-count-box").filter(function (d) {
+        return d.type === node.NodeTypes.CHOOSE;
+    }).classed("value", true);
+
+    gForegrounds.selectAll(".ppt-count-box").classed("disabled", function (d) {
+        return d.count === 0;
+    });
+
+    if (!graph.DISABLE_COUNT) {
+        gForegrounds.selectAll(".ppt-count-text")
+            .text(function (d) {
+                if (d.count !== null) {
+                    return d.count;
+                } else {
+                    return "...";
+                }
+            })
+            .classed("disabled", function (d) {
+                return d.count === 0;
+            });
+    }
+
+    graph.svg.select("#" + node.gID).selectAll(".ppt-gnode").selectAll(".ppt-g-node-foreground").filter(function (n) {
+        return n.isNegative === true;
+    }).selectAll(".ppt-g-node-ban")
+        .attr("transform", function (d) {
+            return "translate(" + (-provider.node.getSize(d)) + "," + (-provider.node.getSize(d)) + ") " +
+                "scale(" + ((provider.node.getSize(d) * 2) / 100) + ")"; // 100 is the size of the image drawn with the path
+        })
+        .attr("stroke-width", function (d) {
+            return (2 / ((provider.node.getSize(d) * 2) / 100)) + "px";
+        });
+
+
+    graph.svg.select("#" + node.gID).selectAll(".ppt-gnode").selectAll(".ppt-g-node-foreground").selectAll(".ppt-g-node-ban")
+        .classed("active", function (n) {
+            return n.isNegative === true;
+        });
+};
+
+node.segmentClick = function (d) {
+    d3$1.event.preventDefault();
+
+    var n = d3$1.select(this.parentNode.parentNode).datum();
+
+    graph.ignoreCount = true;
+
+    graph.addRelationshipData(n, d, function (targetNode) {
+        graph.notifyListeners(graph.Events.GRAPH_NODE_RELATION_ADD, [
+            dataModel.links.filter(function (l) {
+                return l.target === targetNode;
+            })
+        ]);
+        graph.ignoreCount = false;
+        graph.hasGraphChanged = true;
+        update();
+    });
+};
+
+/**
+ * Handle the mouse over event on nodes.
+ */
+node.mouseOverNode = function () {
+    d3$1.event.preventDefault();
+
+    // TODO don't work on IE (nodes unstable) find another way to move node in foreground on mouse over?
+    // d3.select(this).moveToFront();
+
+    // tootip.div.style("display", "inline");
+
+    var hoveredNode = d3$1.select(this).data()[0];
+
+    if (infoviewer.isActive) {
+        logger.info("Hovered! infoviewer changed! node:");
+        logger.info(hoveredNode);
+    }
+
+
+};
+
+
+
+/**
+ * Handle mouse out event on nodes.
+ */
+node.mouseOutNode = function () {
+    d3$1.event.preventDefault();
+
+    // tootip.div.style("display, "none");
+
+    var hoveredNode = d3$1.select(this).data()[0];
+
+
+};
+
+node.nodeDblClick = function () {
+    logger.info("Hibiki: Double Click");
+};
+
+/**
+ * Handle the click event on nodes.
+ */
+node.nodeClick = function () {
+    if (!d3$1.event.defaultPrevented) { // To avoid click on drag end
+        var clickedNode = d3$1.select(this).data()[0]; // Clicked node data
+
+        if (clickedNode.type === node.NodeTypes.VALUE) {
+            node.valueNodeClick(clickedNode);
+        } else if (clickedNode.type === node.NodeTypes.HIBIKI) {
+            node.HibikiNodeClick(clickedNode);
+        } else if (clickedNode.type === node.NodeTypes.CHOOSE || clickedNode.type === node.NodeTypes.ROOT) {
+            logger.debug("NonHibikiNodeClick (" + clickedNode.label + ")");
+            if (d3$1.event.ctrlKey) {
+                if (clickedNode.type === node.NodeTypes.CHOOSE) {
+                    clickedNode.isNegative = !clickedNode.hasOwnProperty("isNegative") || !clickedNode.isNegative;
+
+                    node.collapseAllNode();
+
+                    if (clickedNode.hasOwnProperty("value") && clickedNode.value.length > 0) ; else {
+
+                        if (clickedNode.isNegative) {
+                            // Remove all related nodes
+                            for (var i = dataModel.links.length - 1; i >= 0; i--) {
+                                if (dataModel.links[i].source === clickedNode) {
+                                    node.removeNode(dataModel.links[i].target);
+                                }
+                            }
+
+                            clickedNode.count = 0;
+                        }
+                    }
+
+                    graph.hasGraphChanged = true;
+                    update();
+                } // negation not supported on root node
+            } else {
+                if (clickedNode.valueExpanded && !clickedNode.hasOwnProperty("value")) {
+                    node.collapseNode(clickedNode);
+                } else {
+                    node.chooseNodeClick(clickedNode);
+                }
+            }
+        }
+    }
+};
+
+/**
+ * Remove all the value node directly linked to clicked node.
+ *
+ * @param clickedNode
+ */
+node.collapseNode = function (clickedNode) {
+    if (clickedNode.valueExpanded) { // node is collapsed only if it has been expanded first
+        logger.debug("collapseNode (" + clickedNode.label + ")");
+
+        graph.notifyListeners(graph.Events.GRAPH_NODE_VALUE_COLLAPSE, [clickedNode]);
+
+        var linksToRemove = dataModel.links.filter(function (l) {
+            return l.source === clickedNode && l.type === graph.link.LinkTypes.VALUE;
+        });
+
+        // Remove children nodes from model
+        linksToRemove.forEach(function (l) {
+            dataModel.nodes.splice(dataModel.nodes.indexOf(l.target), 1);
+        });
+
+        // Remove links from model
+        for (var i = dataModel.links.length - 1; i >= 0; i--) {
+            if (linksToRemove.indexOf(dataModel.links[i]) >= 0) {
+                dataModel.links.splice(i, 1);
+            }
+        }
+
+        // Node has been fixed when expanded so we unfix it back here.
+        if (clickedNode.type !== node.NodeTypes.ROOT) {
+            clickedNode.fixed = false;
+            clickedNode.fx = null;
+            clickedNode.fy = null;
+        }
+
+        // Parent node too if not root
+        if (clickedNode.parent && clickedNode.parent.type !== node.NodeTypes.ROOT) {
+            clickedNode.parent.fixed = false;
+            clickedNode.parent.fx = null;
+            clickedNode.parent.fy = null;
+        }
+
+        clickedNode.valueExpanded = false;
+        update();
+
+    } else {
+        logger.debug("collapseNode called on an unexpanded node");
+    }
+};
+
+/**
+ * Collapse all nodes with value expanded.
+ *
+ */
+node.collapseAllNode = function () {
+    dataModel.nodes.forEach(function (n) {
+        if ((n.type === node.NodeTypes.CHOOSE || n.type === node.NodeTypes.ROOT) && n.valueExpanded) {
+            node.collapseNode(n);
+        }
+    });
+};
+
+/**
+ * Function called on a value node click.
+ * In this case the value is added in the parent node and all the value nodes are collapsed.
+ *
+ * @param clickedNode
+ */
+node.valueNodeClick = function (clickedNode) {
+    logger.debug("valueNodeClick (" + clickedNode.label + ")");
+
+    graph.notifyListeners(graph.Events.GRAPH_NODE_ADD_VALUE, [clickedNode]);
+
+    if (clickedNode.parent.value === undefined && clickedNode.parent.attributes === undefined) {
+        clickedNode.parent.value = [];
+        clickedNode.parent.value.push(clickedNode);
+    } else {
+        rest.post("model="+clickedNode.label+"&id="+clickedNode.attributes.uuid+"&type=record", "/interactive")
+            .done(function (response) {
+                logger.info(response);
+
+                clickedNode.data = response;
+                clickedNode.page = 1;
+                node.expandNodeHibiki(clickedNode);
+                node.chooseWaiting = false;
+            })
+            .fail(function (xhr, textStatus, errorThrown) {
+                node.chooseWaiting = false;
+                logger.error(textStatus + ": error while accessing Hibiki server on URL:\"" + rest.CYPHER_URL + "\" defined in \"rest.CYPHER_URL\" property: " + errorThrown);
+            });
+    }
+
+    graph.hasGraphChanged = true;
+
+    node.collapseNode(clickedNode.parent);
+};
+
+node.HibikiNodeClick = function (clickedNode) {
+    logger.debug("HibikiNodeClick (" + clickedNode.label + ")");
+
+    infoviewer.showInfo(clickedNode);
+
+    graph.notifyListeners(graph.Events.GRAPH_NODE_ADD_VALUE, [clickedNode]);
+
+    if (clickedNode.parent.value === undefined && clickedNode.parent.attributes === undefined) { //push node back into parent.
+        clickedNode.parent.value = [];
+        clickedNode.parent.value.push(clickedNode);
+        node.collapseNode(clickedNode.parent);
+        clickedNode.parent.data = []; //Reset data.
+        clickedNode.parent.page = 0; //And page
+    } else {
+        logger.info('HibikiNode rest post for label:' + clickedNode.label + ", " + clickedNode.attributes.uuid);
+        rest.post("model="+clickedNode.label+"&id="+clickedNode.attributes.uuid+"&type=record&page="+(clickedNode.page + 1), "/interactive")
+            .done(function (response) {
+                logger.info(response);
+
+                if (!clickedNode.hasOwnProperty("data")) { //Hasn't been expanded yet
+                    clickedNode.data = response;
+                } else {
+                    clickedNode.data = clickedNode.data.concat(response);
+                }
+                if (!clickedNode.hasOwnProperty("page")) {
+                    clickedNode.page = 1;
+                } else {
+                    clickedNode.page += 1;
+                }
+
+                //clickedNode.data = response;
+                //clickedNode.page = 1;
+                node.expandNodeHibiki(clickedNode);
+                node.chooseWaiting = false;
+            })
+            .fail(function (xhr, textStatus, errorThrown) {
+                node.chooseWaiting = false;
+                logger.error(textStatus + ": error while accessing Hibiki server on URL:\"" + rest.CYPHER_URL + "\" defined in \"rest.CYPHER_URL\" property: " + errorThrown);
+            });
+    }
+
+    graph.hasGraphChanged = true;
+
+};
+
+/**
+ * Function called on choose node click.
+ * In this case a query is executed to get all the possible value
+ * @param clickedNode
+ */
+node.chooseNodeClick = function (clickedNode) {
+    logger.debug("chooseNodeClick (" + clickedNode.label + ") with waiting state set to " + node.chooseWaiting);
+    if (!node.chooseWaiting && !clickedNode.immutable && !(clickedNode.count === 0)) {
+
+        // Collapse all expanded nodes first
+        node.collapseAllNode();
+
+        // Set waiting state to true to avoid multiple call on slow query execution
+        node.chooseWaiting = true;
+
+        // Don't run query to get value if node isAutoLoadValue is set to true
+        if (clickedNode.data !== undefined && clickedNode.isAutoLoadValue) {
+            clickedNode.page = 1;
+            node.expandNode(clickedNode);
+            node.chooseWaiting = false;
+        } else {
+            if (clickedNode.value !== undefined && clickedNode.value[0] !== undefined) {
+                infoviewer.showInfo(clickedNode);
+
+                logger.info("chooseNode rest post for (" + clickedNode.label + "):");
+                rest.post("model="+clickedNode.label+"&id="+clickedNode.value[0].attributes.uuid+"&type=record&page="+(clickedNode.page + 1), "/interactive")
+                    .done(function (response) {
+                        logger.info(response);
+
+                        if (!clickedNode.hasOwnProperty("data")) { //Hasn't been expanded yet
+                            clickedNode.data = response;
+                        } else {
+                            clickedNode.data = clickedNode.data.concat(response);
+                        }
+                        if (!clickedNode.hasOwnProperty("page")) {
+                            clickedNode.page = 1;
+                        } else {
+                            clickedNode.page += 1;
+                        }
+                        node.expandNodeHibiki(clickedNode);
+                        node.chooseWaiting = false;
+                    })
+                    .fail(function (xhr, textStatus, errorThrown) {
+                        node.chooseWaiting = false;
+                        logger.error(textStatus + ": error while accessing Hibiki server on URL:\"" + rest.CYPHER_URL + "\" defined in \"rest.CYPHER_URL\" property: " + errorThrown);
+                    });
+
+            } else {
+                logger.info("Model rest post for (" + clickedNode.label + "):");
+                rest.post("model="+clickedNode.label+"&type=model", "/interactive")
+                    .done(function (response) {
+                        logger.info("<== Values (" + clickedNode.label + ")");
+
+                        clickedNode.data = response;
+                        clickedNode.page = 1;
+                        
+                        node.expandNode(clickedNode);
+                        node.chooseWaiting = false;
+                    })
+                    .fail(function (xhr, textStatus, errorThrown) {
+                        node.chooseWaiting = false;
+                        logger.error(textStatus + ": error while accessing Neo4j server on URL:\"" + rest.CYPHER_URL + "\" defined in \"rest.CYPHER_URL\" property: " + errorThrown);
+                    });
+
+            }
+        }
+    }
+};
+
+/**
+ * Add in all expanded choose nodes the value containing the specified value for the given attribute.
+ * And remove it from the nodes data.
+ *
+ * @param attribute
+ * @param value
+ */
+node.addExpandedValue = function (attribute, value) {
+
+    var isAnyChangeDone = false;
+
+    // For each expanded nodes
+    for (var i = dataModel.nodes.length - 1; i >= 0; i--) {
+        if (dataModel.nodes[i].valueExpanded) {
+
+            // Look in node data if value can be found in reverse order to be able to remove value without effect on iteration index
+            for (var j = dataModel.nodes[i].data.length - 1; j >= 0; j--) {
+                if (dataModel.nodes[i].data[j][attribute] === value) {
+                    isAnyChangeDone = true;
+
+                    // Create field value if needed
+                    if (!dataModel.nodes[i].hasOwnProperty("value")) {
+                        dataModel.nodes[i].value = [];
+                    }
+
+                    // Add value
+                    dataModel.nodes[i].value.push({
+                        attributes: dataModel.nodes[i].data[j]
+                    });
+
+                    // Remove data added in value
+                    dataModel.nodes[i].data.splice(j, 1);
+                }
+            }
+
+            // Refresh node
+            node.collapseNode(dataModel.nodes[i]);
+            node.expandNode(dataModel.nodes[i]);
+        }
+    }
+
+    if (isAnyChangeDone) {
+        graph.hasGraphChanged = true;
+        update();
+    }
+};
+
+/**
+ * Get all nodes that contains a value.
+ *
+ * @param label If set return only node of this label.
+ * @return {Array} Array of nodes containing at least one value.
+ */
+node.getContainingValue = function (label) {
+    var nodesWithValue = [];
+    var links = dataModel.links, nodes = dataModel.nodes;
+
+    if (nodes.length > 0) {
+
+        var rootNode = nodes[0];
+
+        // Add root value
+        if (rootNode.value !== undefined && rootNode.value.length > 0) {
+            if (label === undefined || label === rootNode.label) {
+                nodesWithValue.push(rootNode);
+            }
+        }
+
+        links.forEach(function (l) {
+            var targetNode = l.target;
+            if (l.type === graph.link.LinkTypes.RELATION && targetNode.value !== undefined && targetNode.value.length > 0) {
+                if (label === undefined || label === targetNode.label) {
+                    nodesWithValue.push(targetNode);
+                }
+            }
+        });
+    }
+
+    return nodesWithValue;
+};
+
+/**
+ * Add value in all CHOOSE nodes with specified label.
+ *
+ * @param label nodes where to insert
+ * @param value
+ */
+node.addValueForLabel = function (label, value) {
+    var isAnyChangeDone = false;
+
+    // Find choose node with label
+    for (var i = dataModel.nodes.length - 1; i >= 0; i--) {
+        if (dataModel.nodes[i].type === node.NodeTypes.CHOOSE && dataModel.nodes[i].label === label) {
+
+            // Create field value if needed
+            if (!dataModel.nodes[i].hasOwnProperty("value")) {
+                dataModel.nodes[i].value = [];
+            }
+
+            // check if value already exists
+            var isValueFound = false;
+            var constraintAttr = provider.node.getConstraintAttribute(label);
+            dataModel.nodes[i].value.forEach(function (val) {
+                if (val.attributes.hasOwnProperty(constraintAttr) && val.attributes[constraintAttr] === value.attributes[constraintAttr]) {
+                    isValueFound = true;
+                }
+            });
+
+            if (!isValueFound) {
+                // Add value
+                dataModel.nodes[i].value.push(value);
+                isAnyChangeDone = true;
+            }
+        }
+    }
+
+    return isAnyChangeDone;
+};
+
+/**
+ * Add a value in a node with the given id and the value of the first attribute if found in its data.
+ *
+ * @param nodeIds a list of node ids where to add the value.
+ * @param displayAttributeValue the value to find in data and to add if found
+ */
+node.addValue = function (nodeIds, displayAttributeValue) {
+    var isAnyChangeDone = false;
+
+    // Find choose node with label
+    for (var i = 0; i < dataModel.nodes.length; i++) {
+        var n = dataModel.nodes[i];
+        if (nodeIds.indexOf(n.id) >= 0) {
+
+            // Create field value in node if needed
+            if (!n.hasOwnProperty("value")) {
+                n.value = [];
+            }
+
+            var displayAttr = provider.node.getReturnAttributes(n.label)[0];
+
+            // Find data for this node and add value
+            n.data.forEach(function (d) {
+                if (d.hasOwnProperty(displayAttr) && d[displayAttr] === displayAttributeValue) {
+                    isAnyChangeDone = true;
+                    n.value.push({attributes: d});
+                }
+            });
+        }
+    }
+
+    if (isAnyChangeDone) {
+        graph.hasGraphChanged = true;
+        update();
+    }
+};
+
+/**
+ * Remove a value from a node.
+ * If the value is not found nothing is done.
+ *
+ * @param node
+ * @param value
+ */
+node.removeValue = function (n, value) {
+    var isAnyChangeDone = false;
+
+    node.collapseNode(n);
+
+    for (var j = n.value.length - 1; j >= 0; j--) {
+        if (n.value[j] === value) {
+            n.value.splice(j, 1);
+
+            isAnyChangeDone = true;
+        }
+    }
+    return isAnyChangeDone;
+};
+
+node.removeValues = function (n) {
+    var isAnyChangeDone = false;
+
+    node.collapseNode(n);
+
+    if (n.value !== undefined && n.value.length > 0) {
+        n.value.length = 0;
+        isAnyChangeDone = true;
+    }
+
+    return isAnyChangeDone
+};
+
+/**
+ * Get the value in the provided nodeId for a specific value id.
+ *
+ * @param nodeId
+ * @param constraintAttributeValue
+ */
+node.getValue = function (nodeId, constraintAttributeValue) {
+    for (var i = 0; i < dataModel.nodes.length; i++) {
+        var n = dataModel.nodes[i];
+
+        if (n.id === nodeId) {
+            var constraintAttribute = provider.node.getConstraintAttribute(n.label);
+
+            for (var j = n.value.length - 1; j >= 0; j--) {
+                if (n.value[j].attributes[constraintAttribute] === constraintAttributeValue) {
+                    return n.value[j]
+                }
+            }
+        }
+    }
+};
+
+/**
+ * Remove in all expanded nodes the value containing the specified value for the given attribute.
+ * And move it back to nodes data.
+ *
+ * @param attribute
+ * @param value
+ */
+node.removeExpandedValue = function (attribute, value) {
+    var isAnyChangeDone = false;
+
+    // For each expanded nodes in reverse order as some values can be removed
+    for (var i = dataModel.nodes.length - 1; i >= 0; i--) {
+        if (dataModel.nodes[i].valueExpanded) {
+
+            var removedValues = [];
+
+            // Remove values
+            for (var j = dataModel.nodes[i].value.length - 1; j >= 0; j--) {
+                if (dataModel.nodes[i].value[j].attributes[attribute] === value) {
+                    isAnyChangeDone = true;
+
+                    removedValues = removedValues.concat(dataModel.nodes[i].value.splice(j, 1));
+                }
+            }
+
+            //And add them back in data
+            for (var k = 0; k < removedValues.length; k++) {
+                dataModel.nodes[i].data.push(removedValues[k].attributes);
+            }
+
+            // Refresh node
+            node.collapseNode(dataModel.nodes[i]);
+            node.expandNode(dataModel.nodes[i]);
+        }
+    }
+
+    if (isAnyChangeDone) {
+        graph.hasGraphChanged = true;
+        update();
+    }
+};
+
+/**
+ * Return all nodes with isAutoLoadValue property set to true.
+ */
+node.getAutoLoadValueNodes = function () {
+    return dataModel.nodes
+        .filter(function (d) {
+            return d.hasOwnProperty("isAutoLoadValue") && d.isAutoLoadValue === true && !(d.isNegative === true);
+        });
+};
+
+/**
+ * Add a list of related value if not already found in node.
+ * A value is defined with the following structure
+ * {
+ *   id,
+ *   rel,
+ *   label
+ * }
+ *
+ * @param node
+ * @param values
+ * @param isNegative
+ */
+node.addRelatedValues = function (n, values, isNegative) {
+    var valuesToAdd = node.filterExistingValues(n, values);
+
+    if (valuesToAdd.length <= 0) {
+        return;
+    }
+
+    var statements = [];
+
+    valuesToAdd.forEach(function (v) {
+        var constraintAttr = provider.node.getConstraintAttribute(v.label);
+
+        var statement = "MATCH ";
+        if (constraintAttr === query.NEO4J_INTERNAL_ID) {
+            statement += "(v:`" + v.label + "`) WHERE (ID(v) = $p)";
+        } else {
+            statement += "(v:`" + v.label + "`) WHERE (v." + constraintAttr + " = $p)";
+        }
+
+        var resultAttributes = provider.node.getReturnAttributes(v.label);
+        var sep = "";
+
+        statement += " RETURN DISTINCT \"" + v.rel + "\" AS rel, \"" + v.label + "\" AS label, {" + resultAttributes.reduce(function (a, attr) {
+            a += sep + attr + ":v." + attr;
+            sep = ", ";
+            return a
+        }, "") + "} AS value LIMIT 1";
+
+        statements.push(
+            {
+                "statement": statement,
+                "parameters": {p: v.id},
+                "resultDataContents": ["row"]
+            }
+        );
+    });
+
+    logger.info("addRelatedValues ==>");
+    rest.post(
+        {
+            "statements": statements
+        })
+        .done(function (response) {
+            logger.info("<== addRelatedValues");
+
+            var parsedData = rest.response.parse(response);
+            var count = 0;
+            parsedData.forEach(function (data) {
+                if (data.length > 0) {
+                    var dataLabel = data[0].label;
+                    var dataValue = data[0].value;
+                    var dataRel = data[0].rel;
+
+                    var value = {
+                        "id": dataModel.generateId(),
+                        "parent": n,
+                        "attributes": dataValue,
+                        "type": node.NodeTypes.VALUE,
+                        "label": dataLabel
+                    };
+                    graph.ignoreCount = true;
+
+                    var nodeRelationships = n.relationships;
+                    var nodeRels = nodeRelationships.filter(function (r) {
+                        return r.label === dataRel && r.target === dataLabel
+                    });
+
+                    var nodeRel = {label: dataRel, target: dataLabel};
+                    if (nodeRels.length > 0) {
+                        nodeRel = nodeRels[0];
+                    }
+
+                    graph.addRelationshipData(n, nodeRel, function () {
+                        count++;
+
+                        if (count === parsedData.length) {
+                            graph.ignoreCount = false;
+                            graph.hasGraphChanged = true;
+                            update();
+                        }
+                    }, [value], isNegative);
+                }
+            });
+        })
+        .fail(function (xhr, textStatus, errorThrown) {
+            console.error(xhr, textStatus, errorThrown);
+        });
+};
+
+/**
+ * Add a list of related value prefixed by a path of nodes.
+ * A value is defined with the following structure
+ * {
+ *   id,
+ *   rel,
+ *   label
+ * }
+ *
+ * @param node
+ * @param relPath
+ * @param values
+ * @param isNegative
+ */
+node.addRelatedBranch = function (n, relPath, values, isNegative) {
+    if (relPath.length > 0) {
+        var rel = relPath[0];
+        relPath = relPath.slice(1);
+
+        var relationships = n.relationships.filter(function (r) {
+            return r.label === rel.type && r.target === rel.target;
+        });
+
+        if (relationships.length > 0) {
+            graph.addRelationshipData(n, relationships[0], function (createdNode) {
+                node.addRelatedBranch(createdNode, relPath, values, isNegative);
+            });
+        }
+    } else {
+        node.addRelatedValues(n, values, isNegative);
+    }
+};
+
+/**
+ * A value is defined with the following structure
+ * {
+ *   id,
+ *   rel,
+ *   label
+ * }
+ *
+ * @param node
+ * @param values
+ */
+node.filterExistingValues = function (n, values) {
+    var notFoundValues = [];
+    var possibleValueNodes = dataModel.nodes.filter(function (n) {
+        return n.parent === n && n.hasOwnProperty("value") && n.value.length > 0;
+    });
+
+    values.forEach(function (v) {
+        var found = false;
+        var constraintAttr = provider.node.getConstraintAttribute(v.label);
+
+        possibleValueNodes.forEach(function (n) {
+            if (n.label === v.label) {
+                n.value.forEach(function (nv) {
+                    if (nv.attributes[constraintAttr] === v.id) {
+                        found = true;
+                    }
+                });
+            }
+        });
+
+        if (!found) {
+            notFoundValues.push(v);
+        }
+    });
+
+    return notFoundValues;
+};
+
+
+/**
+ * Hibiki Replacement Function called to expand a node containing values (so all nodes)
+ * Similar to expandNode
+ */
+
+node.expandNodeHibiki = function(clickedNode) {
+
+    graph.notifyListeners(graph.Events.GRAPH_NODE_VALUE_EXPAND, [clickedNode]);
+
+    // Get subset of node corresponding to the current node page and page size
+    var lIndex = clickedNode.page * node.PAGE_SIZE;
+    var sIndex = lIndex - node.PAGE_SIZE;
+
+    var dataToAdd = clickedNode.data.slice(sIndex, lIndex);
+    var parentAngle = graph.computeParentAngle(clickedNode);
+
+    // Then each node are created and dispatched around the clicked node using computed coordinates.
+    var i = 1;
+    dataToAdd.forEach(function (d) {
+        var angleDeg;
+        if (clickedNode.parent) {
+            angleDeg = (((360 / (dataToAdd.length + 1)) * i));
+        } else {
+            angleDeg = (((360 / (dataToAdd.length)) * i));
+        }
+
+        var nx = clickedNode.x + (100 * Math.cos((angleDeg * (Math.PI / 180)) - parentAngle)),
+            ny = clickedNode.y + (100 * Math.sin((angleDeg * (Math.PI / 180)) - parentAngle));
+
+        var datanodes = dataModel.inDataNodes(d.label,d.uuid);  //Check for node existing already
+
+        if (datanodes.length > 0) {
+            logger.info("Hibiki(7) Existing Data node!: count: " + datanodes.length);
+            var datalinks = dataModel.inDataLinks(datanodes[0].id,clickedNode.id);
+            if (datalinks.length == 0) {
+                dataModel.links.push(
+                    {
+                        id: "l" + dataModel.generateId(),
+                        source: clickedNode,
+                        target: datanodes[0],
+                        type: graph.link.LinkTypes.RELATION,
+                        label: d.type
+                    }
+                );
+            }
+        } else {
+            var n = {
+                "id": dataModel.generateId(),
+                "parent": clickedNode,
+                "attributes": d,
+                "type": node.NodeTypes.HIBIKI,
+                "label": d.label,
+                "count": d.count,
+                "rel_count": d.count,
+                "parentRel": d.type,
+                "x": nx,
+                "y": ny,
+                "internalID": d[query.NEO4J_INTERNAL_ID.queryInternalName]
+            };
+
+            dataModel.nodes.push(n);
+            dataModel.links.push(
+                {
+                    id: "l" + dataModel.generateId(),
+                    source: clickedNode,
+                    target: n,
+                    type: graph.link.LinkTypes.RELATION,
+                    label: d.type
+                }
+            );
+        }
+
+
+
+        i++;
+    });
+
+    logger.info(dataModel.nodes);
+    logger.info(dataModel.links);
+    // Pin clicked node and its parent to avoid the graph to move for selection, only new value nodes will blossom around the clicked node.
+    clickedNode.fixed = true;
+    clickedNode.fx = clickedNode.x;
+    clickedNode.fy = clickedNode.y;
+    if (clickedNode.parent && clickedNode.parent.type !== node.NodeTypes.ROOT) {
+        clickedNode.parent.fixed = true;
+        clickedNode.parent.fx = clickedNode.parent.x;
+        clickedNode.parent.fy = clickedNode.parent.y;
+    }
+    // Change node state
+    clickedNode.valueExpanded = true;
+    update();
+};
+
+/**
+ * Function called to expand a node containing values.
+ * This function will create the value nodes with the clicked node internal data.
+ * Only nodes corresponding to the current page index will be generated.
+ *
+ * @param clickedNode
+ */
+node.expandNode = function (clickedNode) {
+
+    graph.notifyListeners(graph.Events.GRAPH_NODE_VALUE_EXPAND, [clickedNode]);
+
+    // Get subset of node corresponding to the current node page and page size
+    var lIndex = clickedNode.page * node.PAGE_SIZE;
+    var sIndex = lIndex - node.PAGE_SIZE;
+
+    var dataToAdd = clickedNode.data.slice(sIndex, lIndex);
+    var parentAngle = graph.computeParentAngle(clickedNode);
+
+    // Then each node are created and dispatched around the clicked node using computed coordinates.
+    var i = 1;
+    logger.info("Hibiki: Expand Node");
+    dataToAdd.forEach(function (d) {
+        var angleDeg;
+        if (clickedNode.parent) {
+            angleDeg = (((360 / (dataToAdd.length + 1)) * i));
+        } else {
+            angleDeg = (((360 / (dataToAdd.length)) * i));
+        }
+
+        var nx = clickedNode.x + (100 * Math.cos((angleDeg * (Math.PI / 180)) - parentAngle)),
+            ny = clickedNode.y + (100 * Math.sin((angleDeg * (Math.PI / 180)) - parentAngle));
+
+        var n = {
+            "id": dataModel.generateId(),
+            "parent": clickedNode,
+            "attributes": d,
+            "type": node.NodeTypes.HIBIKI,
+            "label": clickedNode.label,
+            "count": d.count,
+            "rel_count": d.count,
+            "x": nx,
+            "y": ny,
+            "internalID": d[query.NEO4J_INTERNAL_ID.queryInternalName]
+        };
+
+        dataModel.nodes.push(n);
+        dataModel.links.push(
+            {
+                id: "l" + dataModel.generateId(),
+                source: clickedNode,
+                target: n,
+                type: graph.link.LinkTypes.VALUE
+            }
+        );
+
+        i++;
+    });
+
+    // Pin clicked node and its parent to avoid the graph to move for selection, only new value nodes will blossom around the clicked node.
+    clickedNode.fixed = true;
+    clickedNode.fx = clickedNode.x;
+    clickedNode.fy = clickedNode.y;
+    if (clickedNode.parent && clickedNode.parent.type !== node.NodeTypes.ROOT) {
+        clickedNode.parent.fixed = true;
+        clickedNode.parent.fx = clickedNode.parent.x;
+        clickedNode.parent.fy = clickedNode.parent.y;
+    }
+    // Change node state
+    clickedNode.valueExpanded = true;
+    update();
+};
+
+/**
+ * Fetches the list of relationships of a node and store them in the relationships property.
+ *
+ * @param node the node to fetch the relationships.
+ * @param callback
+ * @param directionAngle
+ */
+node.loadRelationshipData = function (n, callback, directionAngle) {
+    var schema = provider.node.getSchema(n.label);
+
+    if (schema !== undefined) {
+        if (schema.hasOwnProperty("rel") && schema.rel.length > 0) {
+            callback(node.pie.startAngle(directionAngle - Math.PI).endAngle(directionAngle + Math.PI)(schema.rel).map(function (d) {
+                var data = {
+                    id: d.data.label + d.data.target.label,
+                    label: d.data.label,
+                    target: d.data.target.label,
+                    count: 0,
+                    startAngle: d.startAngle,
+                    endAngle: d.endAngle,
+                    directionAngle: (d.startAngle + d.endAngle) / 2
+                };
+
+                if (d.data.isReverse === true) {
+                    data.isReverse = true;
+                }
+
+                return data;
+            }));
+        } else {
+            callback([]);
+        }
+    } else {
+        var nodeRelationQuery = query.generateNodeRelationQuery(n);
+
+        logger.info("Relations (" + n.label + ") ==>");
+        rest.post(
+            {
+                "statements": [
+                    {
+                        "statement": nodeRelationQuery.statement,
+                        "parameters": nodeRelationQuery.parameters
+                    }]
+            })
+            .done(function (response) {
+                logger.info("<== Relations (" + n.label + ")");
+                var parsedData = rest.response.parse(response);
+
+                // Filter data to eventually remove relations if a filter has been defined in config.
+                var filteredData = parsedData[0].filter(function (d) {
+                    return query.filterRelation(d);
+                });
+
+                filteredData = node.pie.startAngle(directionAngle - Math.PI).endAngle(directionAngle + Math.PI)(filteredData).map(function (d) {
+                    return {
+                        id: d.data.label + d.data.target,
+                        label: d.data.label,
+                        target: d.data.target,
+                        count: d.data.count,
+                        startAngle: d.startAngle,
+                        endAngle: d.endAngle,
+                        directionAngle: (d.startAngle + d.endAngle) / 2
+                    }
+                });
+
+                callback(filteredData);
+            })
+            .fail(function (xhr, textStatus, errorThrown) {
+                logger.error(textStatus + ": error while accessing Neo4j server on URL:\"" + rest.CYPHER_URL + "\" defined in \"rest.CYPHER_URL\" property: " + errorThrown);
+                callback([]);
+            });
+    }
+};
+
+/**
+ * Expands all the relationships available in node.
+ *
+ * @param node
+ * @param callback
+ */
+node.expandRelationships = function (n, callback) {
+    var callbackCount = 0;
+
+    if (n.hasOwnProperty("relationships") && n.relationships.length > 0) {
+
+        for (var i = 0; i < n.relationships.length; i++) {
+            graph.addRelationshipData(n, n.relationships[i], function () {
+                callbackCount++;
+
+                if (callbackCount === n.relationships.length) {
+                    callback();
+                }
+            });
+        }
+    } else {
+        callback();
+    }
+};
+
+/**
+ * Remove a node and its relationships (recursively) from the graph.
+ *
+ * @param node the node to remove.
+ */
+node.removeNode = function (n) {
+    var willChangeResults = n.hasOwnProperty("value") && n.value.length > 0;
+
+    var linksToRemove = dataModel.links.filter(function (l) {
+        return l.source === n;
+    });
+
+    // Remove children nodes from model
+    linksToRemove.forEach(function (l) {
+        var rc = node.removeNode(l.target);
+        willChangeResults = willChangeResults || rc;
+    });
+
+    // Remove links from model
+    for (var i = dataModel.links.length - 1; i >= 0; i--) {
+        if (dataModel.links[i].target === n) {
+            dataModel.links.splice(i, 1);
+        }
+    }
+
+    dataModel.nodes.splice(dataModel.nodes.indexOf(n), 1);
+
+    return willChangeResults;
+};
+
+/**
+ * Function to add on node event to clear the selection.
+ * Call to this function on a node will remove the selected value and trigger a graph update.
+ */
+node.clearSelection = function () {
+    // Prevent default event like right click  opening menu.
+    d3$1.event.preventDefault();
+
+    // Get clicked node.
+    var clickedNode = d3$1.select(this).data()[0];
+
+    // Collapse all expanded choose nodes first
+    node.collapseAllNode();
+
+    if (clickedNode.value !== undefined && clickedNode.value.length > 0 && !clickedNode.immutable) {
+        // Remove last value of chosen node
+        clickedNode.value.pop();
+
+        if (clickedNode.isNegative === true) {
+            if (clickedNode.value.length === 0) {
+                // Remove all related nodes
+                for (var i = dataModel.links.length - 1; i >= 0; i--) {
+                    if (dataModel.links[i].source === clickedNode) {
+                        node.removeNode(dataModel.links[i].target);
+                    }
+                }
+
+                clickedNode.count = 0;
+            }
+        }
+
+        graph.hasGraphChanged = true;
+        update();
+    }
+};
+
+var graph = {};
+
+graph.link = link;
+graph.node = node;
+
+graph.DISABLE_RELATION = false;
+graph.DISABLE_COUNT = true;
+
+/**
+ * ID of the HTML component where the graph query builder elements will be generated in.
+ * @type {string}
+ */
+graph.containerId = "popoto-graph";
+graph.hasGraphChanged = true;
+// Defines the min and max level of zoom available in graph query builder.
+graph.zoom = d3$1.zoom().scaleExtent([0.1, 10]);
+graph.WHEEL_ZOOM_ENABLED = true;
+graph.USE_DONUT_FORCE = false;
+graph.USE_VORONOI_LAYOUT = false;
+graph.USE_FIT_TEXT = false;
+
+/**
+ * Define the list of listenable events on graph.
+ */
+graph.Events = Object.freeze({
+    NODE_ROOT_ADD: "root.node.add",
+    NODE_EXPAND_RELATIONSHIP: "node.expandRelationship",
+    GRAPH_SAVE: "graph.save",
+    GRAPH_RESET: "graph.reset",
+    GRAPH_NODE_RELATION_ADD: "graph.node.relation_add",
+    GRAPH_NODE_VALUE_EXPAND: "graph.node.value_expand",
+    GRAPH_NODE_VALUE_COLLAPSE: "graph.node.value_collapse",
+    GRAPH_NODE_ADD_VALUE: "graph.node.add_value",
+    GRAPH_NODE_DATA_LOADED: "graph.node.data_loaded"
+});
+
+graph.listeners = {};
+
+/**
+ * Add a listener to the specified event.
+ *
+ * @param event name of the event to add the listener.
+ * @param listener the listener to add.
+ */
+graph.on = function (event, listener) {
+    if (!graph.listeners.hasOwnProperty(event)) {
+        graph.listeners[event] = [];
+    }
+
+    graph.listeners[event].push(listener);
+};
+
+/**
+ * Notify the listeners.
+ *
+ * @param event
+ * @param parametersArray
+ */
+graph.notifyListeners = function (event, parametersArray) {
+    if (graph.listeners.hasOwnProperty(event)) {
+        graph.listeners[event].forEach(function (listener) {
+            listener.apply(event, parametersArray);
+        });
+    }
+};
+
+/**
+ * Add a listener on graph save event.
+ * @param listener
+ */
+graph.onSave = function (listener) {
+    graph.on(graph.Events.GRAPH_SAVE, listener);
+};
+
+/**
+ * Add a listener on graph reset event.
+ * @param listener
+ */
+graph.onReset = function (listener) {
+    graph.on(graph.Events.GRAPH_RESET, listener);
+};
+
+/**
+ * Set default graph to a predefined value.
+ * @param graph
+ */
+graph.setDefaultGraph = function (graph) {
+    graph.mainLabel = graph;
+};
+
+/** Hibiki Tip
+ *  Used to add a hover info box over node
+ */
+graph.tip = d3tip()
+    .attr('class','d3-tip')
+    .offset([-14,0])
+    .html(function(d) {
+         if (d.hasOwnProperty("value") || d.hasOwnProperty("attributes")) {
+             return graph.generateTipInfo(d);
+        } else {
+            return null;
+        }
+    });
+
+graph.generateTipInfo = function(node$$1) {
+    var root = node$$1;
+    if (node$$1.hasOwnProperty("value")) {
+        root = node$$1.value[0];
+    }
+    var current_rels = dataModel.links.filter(function (e) {
+        return node$$1.id == e.source.id || node$$1.id == e.target.id;
+    }).length;
+    return root.attributes.name  + "</br>" + (root.rel_count - current_rels) + " more links (total: " + root.rel_count + ")";
+};
+
+/**
+ * Generates all the HTML and SVG element needed to display the graph query builder.
+ * Everything will be generated in the container with id defined by graph.containerId.
+ */
+graph.createGraphArea = function () {
+
+    var htmlContainer = d3$1.select("#" + graph.containerId);
+
+    toolbar.render(htmlContainer);
+
+    graph.svgTag = htmlContainer.append("svg")
+        .attr("class", "ppt-svg-graph")
+        // .attr("viewBox", "0 0 800 600") TODO to avoid need of windows resize event
+        .call(graph.zoom.on("zoom", graph.rescale));
+
+    graph.svgTag.on("dblclick.zoom", null);
+
+    if (!graph.WHEEL_ZOOM_ENABLED) {
+        // Disable mouse wheel events.
+        graph.svgTag.on("wheel.zoom", null)
+            .on("mousewheel.zoom", null);
+    }
+
+    // Objects created inside a <defs> element are not rendered immediately; instead, think of them as templates or macros created for future use.
+    graph.svgdefs = graph.svgTag.append("defs");
+
+    // Cross marker for path with id #cross -X-
+    graph.svgdefs.append("marker")
+        .attr("id", "cross")
+        .attr("refX", 10)
+        .attr("refY", 10)
+        .attr("markerWidth", 20)
+        .attr("markerHeight", 20)
+        .attr("markerUnits", "strokeWidth")
+        .attr("orient", "auto")
+        .append("path")
+        .attr("class", "ppt-marker-cross")
+        .attr("d", "M5,5 L15,15 M15,5 L5,15");
+
+    // Triangle marker for paths with id #arrow --|>
+    graph.svgdefs.append("marker")
+        .attr("id", "arrow")
+        .attr("refX", 9)
+        .attr("refY", 3)
+        .attr("markerWidth", 10)
+        .attr("markerHeight", 10)
+        .attr("markerUnits", "strokeWidth")
+        .attr("orient", "auto")
+        .append("path")
+        .attr("class", "ppt-marker-arrow")
+        .attr("d", "M0,0 L0,6 L9,3 z");
+
+    // Reversed triangle marker for paths with id #reverse-arrow <|--
+    graph.svgdefs.append("marker")
+        .attr("id", "reverse-arrow")
+        .attr("refX", 0)
+        .attr("refY", 3)
+        .attr("markerWidth", 10)
+        .attr("markerHeight", 10)
+        .attr("markerUnits", "strokeWidth")
+        .attr("orient", "auto")
+        .append("path")
+        .attr("class", "ppt-marker-reverse-arrow")
+        .attr("d", "M0,3 L9,6 L9,0 z");
+
+    // Gray scale filter for images.
+    var grayscaleFilter = graph.svgdefs.append("filter")
+        .attr("id", "grayscale");
+
+    grayscaleFilter.append("feColorMatrix")
+        .attr("type", "saturate")
+        .attr("values", "0");
+
+    // to change brightness
+    // var feCT = grayscaleFilter
+    //     .append("feComponentTransfer");
+    //
+    // feCT.append("feFuncR")
+    //     .attr("type", "linear")
+    //     .attr("slope", "0.2");
+    //
+    // feCT.append("feFuncG")
+    //     .attr("type", "linear")
+    //     .attr("slope", "0.2");
+    //
+    // feCT.append("feFuncB")
+    //     .attr("type", "linear")
+    //     .attr("slope", "0.2");
+
+    // gooey
+    var filter = graph.svgdefs.append("filter").attr("id", "gooey");
+    filter.append("feGaussianBlur")
+        .attr("in", "SourceGraphic")
+        .attr("stdDeviation", "10")
+        //to fix safari: http://stackoverflow.com/questions/24295043/svg-gaussian-blur-in-safari-unexpectedly-lightens-image
+        .attr("color-interpolation-filters", "sRGB")
+        .attr("result", "blur");
+    filter.append("feColorMatrix")
+        .attr("class", "blurValues")
+        .attr("in", "blur")
+        .attr("mode", "matrix")
+        .attr("values", "1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 35 -6")
+        .attr("result", "gooey");
+    filter.append("feBlend")
+        .attr("in", "SourceGraphic")
+        .attr("in2", "gooey")
+        .attr("operator", "atop");
+
+
+    graph.svgdefs.append("g")
+        .attr("id", "voronoi-clip-path");
+
+    graph.svg = graph.svgTag.append("svg:g");
+
+    // Create two separated area for links and nodes
+    // Links and nodes are separated in a dedicated "g" element
+    // and nodes are generated after links to ensure that nodes are always on foreground.
+    graph.svg.append("g").attr("id", graph.link.gID);
+    graph.svg.append("g").attr("id", graph.node.gID);
+
+    /* hibiki: add hover tip */
+    graph.svgTag.call(graph.tip);
+
+    // This listener is used to center the root node in graph during a window resize.
+    // TODO can the listener be limited on the parent container only?
+    window.addEventListener('resize', graph.centerRootNode);
+};
+
+graph.getRootNode = function () {
+    return dataModel.getRootNode();
+};
+
+graph.centerRootNode = function () {
+    dataModel.getRootNode().fx = graph.getSVGWidth() / 2;
+    dataModel.getRootNode().fy = graph.getSVGHeight() / 2;
+    update();
+};
+
+/**
+ * Get the actual width of the SVG element containing the graph query builder.
+ * @returns {number}
+ */
+graph.getSVGWidth = function () {
+    if (typeof graph.svg == 'undefined' || graph.svg.empty()) {
+        logger.debug("graph.svg is undefined or empty.");
+        return 0;
+    } else {
+        return document.getElementById(graph.containerId).clientWidth;
+    }
+};
+
+/**
+ * Get the actual height of the SVG element containing the graph query builder.
+ * @returns {number}
+ */
+graph.getSVGHeight = function () {
+    if (typeof graph.svg == 'undefined' || graph.svg.empty()) {
+        logger.debug("graph.svg is undefined or empty.");
+        return 0;
+    } else {
+        return document.getElementById(graph.containerId).clientHeight;
+    }
+};
+
+/**
+ * Function to call on SVG zoom event to update the svg transform attribute.
+ */
+graph.rescale = function () {
+    graph.svg.attr("transform", d3$1.event.transform);
+};
+
+graph.CHARGE = -500;
+
+/**
+ *  Create the D3.js force simultation for the graph query builder.
+ */
+// TODO ZZZ rename to create createForceSimulation
+graph.createForceLayout = function () {
+
+    graph.force = d3$1.forceSimulation()
+        .force("charge", d3$1.forceManyBody()
+            .strength(function (d) {
+                    if (d.charge) {
+                        return d.charge;
+                    } else {
+                        return graph.CHARGE;
+                    }
+                }
+            )
+        )
+        .force(
+            "link",
+            d3$1.forceLink().id(
+                function (d) {
+                    return d.id;
+                }
+            ).distance(provider.link.getDistance)
+        );
+
+
+    graph.force.nodes(dataModel.nodes);
+    graph.force.force("link").links(dataModel.links);
+
+    graph.force.on("tick", graph.tick);
+};
+
+/**
+ * Adds graph root nodes using the label set as parameter.
+ * All the other nodes should have been removed first to avoid inconsistent data.
+ *
+ * @param label label of the node to add as root.
+ */
+graph.addRootNode = function (label) {
+    if (dataModel.nodes.length > 0) {
+        logger.warn("graph.addRootNode is called but the graph is not empty.");
+    }
+    if (provider.node.getSchema(label) !== undefined) {
+        graph.addSchema(provider.node.getSchema(label));
+    } else {
+
+        var n = {
+            "id": dataModel.generateId(),
+            "type": graph.node.NodeTypes.ROOT,
+            // x and y coordinates are set to the center of the SVG area.
+            // These coordinate will never change at runtime except if the window is resized.
+            "x": graph.getSVGWidth() / 2,
+            "y": graph.getSVGHeight() / 2,
+            "fx": graph.getSVGWidth() / 2,
+            "fy": graph.getSVGHeight() / 2,
+            "tx": graph.getSVGWidth() / 2,
+            "ty": graph.getSVGHeight() / 2,
+            "label": label,
+            // The node is fixed to always remain in the center of the svg area.
+            // This property should not be changed at runtime to avoid issues with the zoom and pan.
+            "fixed": true,
+            // Label used internally to identify the node.
+            // This label is used for example as cypher query identifier.
+            "internalLabel": graph.node.generateInternalLabel(label),
+            // List of relationships
+            "relationships": [],
+            "isAutoLoadValue": provider.node.getIsAutoLoadValue(label) === true
+        };
+
+        dataModel.nodes.push(n);
+        graph.notifyListeners(graph.Events.NODE_ROOT_ADD, [n]);
+
+        graph.node.loadRelationshipData(n, function (relationships) {
+            n.relationships = relationships;
+
+            if (provider.node.getIsAutoExpandRelations(label)) {
+
+                graph.ignoreCount = true;
+                graph.node.expandRelationships(n, function () {
+
+                    graph.ignoreCount = false;
+                    graph.hasGraphChanged = true;
+                    updateGraph();
+                });
+            } else {
+                graph.hasGraphChanged = true;
+                updateGraph();
+            }
+        }, Math.PI / 2);
+    }
+};
+
+graph.loadSchema = function (graphToLoad) {
+    if (dataModel.nodes.length > 0) {
+        logger.warn("graph.loadSchema is called but the graph is not empty.");
+    }
+
+    var rootNodeSchema = graphToLoad;
+    var rootNode = {
+        "id": dataModel.generateId(),
+        "type": graph.node.NodeTypes.ROOT,
+        // x and y coordinates are set to the center of the SVG area.
+        // These coordinate will never change at runtime except if the window is resized.
+        "x": graph.getSVGWidth() / 2,
+        "y": graph.getSVGHeight() / 2,
+        "fx": graph.getSVGWidth() / 2,
+        "fy": graph.getSVGHeight() / 2,
+        "tx": graph.getSVGWidth() / 2,
+        "ty": graph.getSVGHeight() / 2,
+        "label": rootNodeSchema.label,
+        // The node is fixed to always remain in the center of the svg area.
+        // This property should not be changed at runtime to avoid issues with the zoom and pan.
+        "fixed": true,
+        // Label used internally to identify the node.
+        // This label is used for example as cypher query identifier.
+        "internalLabel": graph.node.generateInternalLabel(rootNodeSchema.label),
+        // List of relationships
+        "relationships": [],
+        "isAutoLoadValue": provider.node.getIsAutoLoadValue(rootNodeSchema.label) === true
+    };
+
+    dataModel.nodes.push(rootNode);
+    graph.notifyListeners(graph.Events.NODE_ROOT_ADD, [rootNode]);
+
+    var labelSchema = provider.node.getSchema(graphToLoad.label);
+
+    // Add relationship from schema if defined
+    if (labelSchema !== undefined && labelSchema.hasOwnProperty("rel") && labelSchema.rel.length > 0) {
+        var directionAngle = (Math.PI / 2);
+
+        rootNode.relationships = graph.node.pie.startAngle(directionAngle - Math.PI).endAngle(directionAngle + Math.PI)(labelSchema.rel).map(function (d) {
+
+            var data = {
+                id: d.data.label + d.data.target.label,
+                label: d.data.label,
+                target: d.data.target.label,
+                count: 0,
+                startAngle: d.startAngle,
+                endAngle: d.endAngle,
+                directionAngle: (d.startAngle + d.endAngle) / 2
+            };
+
+            if (d.data.isReverse === true) {
+                data.isReverse = true;
+            }
+
+            return data;
+        });
+    } else {
+        graph.node.loadRelationshipData(rootNode, function (relationships) {
+            rootNode.relationships = relationships;
+            graph.hasGraphChanged = true;
+            updateGraph();
+        }, Math.PI / 2);
+    }
+
+    if (rootNodeSchema.hasOwnProperty("value")) {
+        var nodeSchemaValue = [].concat(rootNodeSchema.value);
+        rootNode.value = [];
+        nodeSchemaValue.forEach(function (value) {
+            rootNode.value.push(
+                {
+                    "id": dataModel.generateId(),
+                    "parent": rootNode,
+                    "attributes": value,
+                    "type": graph.node.NodeTypes.VALUE,
+                    "label": rootNode.label,
+                    "rel_count": rootNodeSchema.rel_count //Hibiki rel_count
+                }
+            );
+        });
+    }
+
+    if (rootNodeSchema.hasOwnProperty("rel")) {
+        for (var linkIndex = 0; linkIndex < rootNodeSchema.rel.length; linkIndex++) {
+            graph.loadSchemaRelation(rootNodeSchema.rel[linkIndex], rootNode, linkIndex + 1, rootNodeSchema.rel.length);
+        }
+    }
+};
+
+graph.loadSchemaRelation = function (relationSchema, parentNode, linkIndex, parentLinkTotalCount) {
+    var targetNodeSchema = relationSchema.target;
+    var target = graph.loadSchemaNode(targetNodeSchema, parentNode, linkIndex, parentLinkTotalCount, relationSchema.label, (relationSchema.hasOwnProperty("isReverse") && relationSchema.isReverse === true));
+
+    var newLink = {
+        id: "l" + dataModel.generateId(),
+        source: parentNode,
+        target: target,
+        type: graph.link.LinkTypes.RELATION,
+        label: relationSchema.label,
+        schema: relationSchema
+    };
+
+    dataModel.links.push(newLink);
+
+    var labelSchema = provider.node.getSchema(targetNodeSchema.label);
+
+    // Add relationship from schema if defined
+    if (labelSchema !== undefined && labelSchema.hasOwnProperty("rel") && labelSchema.rel.length > 0) {
+        var directionAngle = (Math.PI / 2);
+
+        target.relationships = graph.node.pie.startAngle(directionAngle - Math.PI).endAngle(directionAngle + Math.PI)(labelSchema.rel).map(function (d) {
+            var data = {
+                id: d.data.label + d.data.target.label,
+                label: d.data.label,
+                target: d.data.target.label,
+                count: 0,
+                startAngle: d.startAngle,
+                endAngle: d.endAngle,
+                directionAngle: (d.startAngle + d.endAngle) / 2
+            };
+
+            if (d.data.isReverse === true) {
+                data.isReverse = true;
+            }
+
+            return data;
+        });
+    } else {
+        graph.node.loadRelationshipData(target, function (relationships) {
+            target.relationships = relationships;
+            graph.hasGraphChanged = true;
+            updateGraph();
+        }, Math.PI / 2);
+    }
+
+    if (targetNodeSchema.hasOwnProperty("rel")) {
+        for (var linkIndex2 = 0; linkIndex2 < targetNodeSchema.rel.length; linkIndex2++) {
+            graph.loadSchemaRelation(targetNodeSchema.rel[linkIndex2], target, linkIndex2 + 1, targetNodeSchema.rel.length);
+        }
+    }
+};
+
+graph.loadSchemaNode = function (nodeSchema, parentNode, index, parentLinkTotalCount, parentRel, isReverse) {
+    var isGroupNode = provider.node.getIsGroup(nodeSchema);
+    var parentAngle = graph.computeParentAngle(parentNode);
+
+    var angleDeg;
+    if (parentAngle) {
+        angleDeg = (((360 / (parentLinkTotalCount + 1)) * index));
+    } else {
+        angleDeg = (((360 / (parentLinkTotalCount)) * index));
+    }
+
+    var nx = parentNode.x + (200 * Math.cos((angleDeg * (Math.PI / 180)) - parentAngle)),
+        ny = parentNode.y + (200 * Math.sin((angleDeg * (Math.PI / 180)) - parentAngle));
+
+    // TODO add force coordinate X X X
+    // var tx = nx + ((provider.link.getDistance(newLink)) * Math.cos(link.directionAngle - Math.PI / 2));
+    // var ty = ny + ((provider.link.getDistance(newLink)) * Math.sin(link.directionAngle - Math.PI / 2));
+
+    var n = {
+        "id": dataModel.generateId(),
+        "parent": parentNode,
+        "parentRel": parentRel,
+        "type": (isGroupNode) ? graph.node.NodeTypes.GROUP : graph.node.NodeTypes.CHOOSE,
+        "label": nodeSchema.label,
+        "fixed": false,
+        "internalLabel": graph.node.generateInternalLabel(nodeSchema.label),
+        "x": nx,
+        "y": ny,
+        "schema": nodeSchema,
+        "isAutoLoadValue": provider.node.getIsAutoLoadValue(nodeSchema.label) === true,
+        "relationships": []
+    };
+
+    if (isReverse === true) {
+        n.isParentRelReverse = true;
+    }
+
+    if (nodeSchema.hasOwnProperty("isNegative") && nodeSchema.isNegative === true) {
+        n.isNegative = true;
+        n.count = 0;
+    }
+
+    dataModel.nodes.push(n);
+
+    if (nodeSchema.hasOwnProperty("value")) {
+        var nodeSchemaValue = [].concat(nodeSchema.value);
+        n.value = [];
+        nodeSchemaValue.forEach(function (value) {
+            n.value.push(
+                {
+                    "id": dataModel.generateId(),
+                    "parent": n,
+                    "attributes": value,
+                    "type": graph.node.NodeTypes.VALUE,
+                    "label": n.label
+                }
+            );
+        });
+    }
+
+    return n;
+};
+
+/**
+ * Adds a complete graph from schema.
+ * All the other nodes should have been removed first to avoid inconsistent data.
+ *
+ * @param graphSchema schema of the graph to add.
+ */
+graph.addSchema = function (graphSchema) {
+    if (dataModel.nodes.length > 0) {
+        logger.warn("graph.addSchema is called but the graph is not empty.");
+    }
+
+    var rootNodeSchema = graphSchema;
+
+    var rootNode = {
+        "id": dataModel.generateId(),
+        "type": graph.node.NodeTypes.ROOT,
+        // x and y coordinates are set to the center of the SVG area.
+        // These coordinate will never change at runtime except if the window is resized.
+        "x": graph.getSVGWidth() / 2,
+        "y": graph.getSVGHeight() / 2,
+        "fx": graph.getSVGWidth() / 2,
+        "fy": graph.getSVGHeight() / 2,
+        "tx": graph.getSVGWidth() / 2,
+        "ty": graph.getSVGHeight() / 2,
+        "label": rootNodeSchema.label,
+        // The node is fixed to always remain in the center of the svg area.
+        // This property should not be changed at runtime to avoid issues with the zoom and pan.
+        "fixed": true,
+        // Label used internally to identify the node.
+        // This label is used for example as cypher query identifier.
+        "internalLabel": graph.node.generateInternalLabel(rootNodeSchema.label),
+        // List of relationships
+        "relationships": [],
+        "isAutoLoadValue": provider.node.getIsAutoLoadValue(rootNodeSchema.label) === true
+    };
+    dataModel.nodes.push(rootNode);
+    graph.notifyListeners(graph.Events.NODE_ROOT_ADD, [rootNode]);
+
+    if (rootNodeSchema.hasOwnProperty("rel") && rootNodeSchema.rel.length > 0) {
+        var directionAngle = (Math.PI / 2);
+
+        rootNode.relationships = graph.node.pie.startAngle(directionAngle - Math.PI).endAngle(directionAngle + Math.PI)(rootNodeSchema.rel).map(function (d) {
+            var data = {
+                id: d.data.label + d.data.target.label,
+                label: d.data.label,
+                target: d.data.target.label,
+                count: 0,
+                startAngle: d.startAngle,
+                endAngle: d.endAngle,
+                directionAngle: (d.startAngle + d.endAngle) / 2
+            };
+
+            if (d.data.isReverse === true) {
+                data.isReverse = true;
+            }
+
+            return data;
+        });
+    }
+
+    // if (!isCollapsed && rootNodeSchema.hasOwnProperty("rel")) {
+    //     for (var linkIndex = 0; linkIndex < rootNodeSchema.rel.length; linkIndex++) {
+    //         graph.addSchemaRelation(rootNodeSchema.rel[linkIndex], rootNode, linkIndex + 1, rootNodeSchema.rel.length);
+    //     }
+    // }
+};
+
+graph.addSchemaRelation = function (relationSchema, parentNode, linkIndex, parentLinkTotalCount) {
+    var targetNodeSchema = relationSchema.target;
+    var target = graph.addSchemaNode(targetNodeSchema, parentNode, linkIndex, parentLinkTotalCount, relationSchema.label);
+
+    var newLink = {
+        id: "l" + dataModel.generateId(),
+        source: parentNode,
+        target: target,
+        type: graph.link.LinkTypes.RELATION,
+        label: relationSchema.label,
+        schema: relationSchema
+    };
+
+    dataModel.links.push(newLink);
+};
+
+graph.addSchemaNode = function (nodeSchema, parentNode, index, parentLinkTotalCount, parentRel) {
+    var isGroupNode = provider.node.getIsGroup(nodeSchema);
+    var isCollapsed = nodeSchema.hasOwnProperty("collapsed") && nodeSchema.collapsed === true;
+
+    var parentAngle = graph.computeParentAngle(parentNode);
+
+    var angleDeg;
+    if (parentAngle) {
+        angleDeg = (((360 / (parentLinkTotalCount + 1)) * index));
+    } else {
+        angleDeg = (((360 / (parentLinkTotalCount)) * index));
+    }
+
+    var nx = parentNode.x + (200 * Math.cos((angleDeg * (Math.PI / 180)) - parentAngle)),
+        ny = parentNode.y + (200 * Math.sin((angleDeg * (Math.PI / 180)) - parentAngle));
+
+    // TODO add force coordinate X X X
+    // var tx = nx + ((provider.link.getDistance(newLink)) * Math.cos(link.directionAngle - Math.PI / 2));
+    // var ty = ny + ((provider.link.getDistance(newLink)) * Math.sin(link.directionAngle - Math.PI / 2));
+
+    var n = {
+        "id": dataModel.generateId(),
+        "parent": parentNode,
+        "parentRel": parentRel,
+        "type": (isGroupNode) ? graph.node.NodeTypes.GROUP : graph.node.NodeTypes.CHOOSE,
+        "label": nodeSchema.label,
+        "fixed": false,
+        "internalLabel": graph.node.generateInternalLabel(nodeSchema.label),
+        "x": nx,
+        "y": ny,
+        "schema": nodeSchema,
+        "isAutoLoadValue": provider.node.getIsAutoLoadValue(nodeSchema.label) === true,
+        "relationships": []
+    };
+
+    if (nodeSchema.hasOwnProperty("rel") && nodeSchema.rel.length > 0) {
+        var relMap = {};
+        var relSegments = [];
+
+        for (var i = 0; i < nodeSchema.rel.length; i++) {
+            var rel = nodeSchema.rel[i];
+            var id = rel.label + rel.target.label;
+
+            if (!relMap.hasOwnProperty(id)) {
+                relMap[id] = rel;
+                relSegments.push(rel);
+            }
+
+        }
+
+        n.relationships = graph.node.pie(relSegments).map(function (d) {
+            return {
+                id: d.data.label + d.data.target.label,
+                count: d.data.count || 0,
+                label: d.data.label,
+                target: d.data.target.label,
+                startAngle: d.startAngle,
+                endAngle: d.endAngle,
+                directionAngle: (d.startAngle + d.endAngle) / 2
+            }
+        });
+
+    }
+
+    if (nodeSchema.hasOwnProperty("value")) {
+        var nodeSchemaValue = [].concat(nodeSchema.value);
+        n.value = [];
+        nodeSchemaValue.forEach(function (value) {
+            n.value.push(
+                {
+                    "id": dataModel.generateId(),
+                    "parent": n,
+                    "attributes": value,
+                    "type": graph.node.NodeTypes.VALUE,
+                    "label": n.label
+                }
+            );
+        });
+    }
+
+    dataModel.nodes.push(n);
+
+    if (!isCollapsed && nodeSchema.hasOwnProperty("rel")) {
+        for (var linkIndex = 0; linkIndex < nodeSchema.rel.length; linkIndex++) {
+            graph.addSchemaRelation(nodeSchema.rel[linkIndex], n, linkIndex + 1, nodeSchema.rel.length);
+        }
+    }
+
+    return n;
+};
+
+/**
+ * Get the current schema of the graph.
+ * @returns {{}}
+ */
+graph.getSchema = function () {
+    var nodesMap = {};
+
+    var rootNode = dataModel.getRootNode();
+
+    nodesMap[rootNode.id] = {
+        label: rootNode.label
+    };
+
+    if (rootNode.hasOwnProperty("value")) {
+        nodesMap[rootNode.id].value = [];
+        rootNode.value.forEach(function (value) {
+            nodesMap[rootNode.id].value.push(value.attributes);
+        });
+    }
+
+    var links = dataModel.links;
+    if (links.length > 0) {
+        links.forEach(function (l) {
+            if (l.type === graph.link.LinkTypes.RELATION) {
+                var sourceNode = l.source;
+                var targetNode = l.target;
+
+                if (!nodesMap.hasOwnProperty(sourceNode.id)) {
+                    nodesMap[sourceNode.id] = {
+                        label: sourceNode.label
+                    };
+                    if (sourceNode.hasOwnProperty("isNegative") && sourceNode.isNegative === true) {
+                        nodesMap[sourceNode.id].isNegative = true;
+                    }
+                    if (sourceNode.hasOwnProperty("value")) {
+                        nodesMap[sourceNode.id].value = [];
+                        sourceNode.value.forEach(function (value) {
+                            nodesMap[sourceNode.id].value.push(value.attributes);
+                        });
+                    }
+                }
+
+                if (!nodesMap.hasOwnProperty(targetNode.id)) {
+                    nodesMap[targetNode.id] = {
+                        label: targetNode.label
+                    };
+                    if (targetNode.hasOwnProperty("isNegative") && targetNode.isNegative === true) {
+                        nodesMap[targetNode.id].isNegative = true;
+                    }
+                    if (targetNode.hasOwnProperty("value")) {
+                        nodesMap[targetNode.id].value = [];
+                        targetNode.value.forEach(function (value) {
+                            nodesMap[targetNode.id].value.push(value.attributes);
+                        });
+                    }
+                }
+
+                if (!nodesMap[sourceNode.id].hasOwnProperty("rel")) {
+                    nodesMap[sourceNode.id].rel = [];
+                }
+
+                var rel = {
+                    label: l.label,
+                    target: nodesMap[targetNode.id]
+                };
+
+                if (targetNode.hasOwnProperty("isParentRelReverse") && targetNode.isParentRelReverse === true) {
+                    rel.isReverse = true;
+                }
+
+                nodesMap[sourceNode.id].rel.push(rel);
+            }
+        });
+
+    }
+
+    return nodesMap[rootNode.id];
+};
+
+/**
+ * Function to call on D3.js force layout tick event.
+ * This function will update the position of all links and nodes elements in the graph with the force layout computed coordinate.
+ */
+graph.tick = function () {
+    var paths = graph.svg.selectAll("#" + graph.link.gID + " > g");
+
+    // Update link paths
+    paths.selectAll(".ppt-link")
+        .attr("d", function (d) {
+            var linkSource = d.source;
+            var linkTarget = d.target;
+            var parentAngle = graph.computeParentAngle(linkTarget);
+            var sourceMargin = provider.node.getSize(linkSource);
+            var targetMargin = provider.node.getSize(linkTarget);
+
+            if (!graph.DISABLE_RELATION && linkSource.hasOwnProperty("relationships") && linkSource.relationships.length > 0) {
+                sourceMargin = graph.node.getDonutOuterRadius(linkSource);
+            }
+
+            if (!graph.DISABLE_RELATION && linkTarget.hasOwnProperty("relationships") && linkTarget.relationships.length > 0) {
+                targetMargin = graph.node.getDonutOuterRadius(linkTarget);
+            }
+
+            var targetX = linkTarget.x + ((targetMargin) * Math.cos(parentAngle)),
+                targetY = linkTarget.y - ((targetMargin) * Math.sin(parentAngle));
+
+            var sourceX = linkSource.x - ((sourceMargin) * Math.cos(parentAngle)),
+                sourceY = linkSource.y + ((sourceMargin) * Math.sin(parentAngle));
+
+            // Add an intermediate point in path center
+            var middleX = (targetX + sourceX) / 2,
+                middleY = (targetY + sourceY) / 2;
+
+            if (linkSource.x <= linkTarget.x || graph.ignoreMirroLinkLabels === true) {
+                return "M" + sourceX + " " + sourceY + "L" + middleX + " " + middleY + "L" + targetX + " " + targetY;
+            } else {
+                return "M" + targetX + " " + targetY + "L" + middleX + " " + middleY + "L" + sourceX + " " + sourceY;
+            }
+        })
+        .attr("marker-end", function (d) {
+            if (graph.link.SHOW_MARKER) {
+                if (d.target.isParentRelReverse === true) {
+                    if (d.source.x > d.target.x) {
+                        return "url(#arrow)";
+                    }
+                } else {
+                    if (d.source.x <= d.target.x) {
+                        return "url(#arrow)";
+                    }
+                }
+            }
+            return null;
+        })
+        .attr("marker-start", function (d) {
+            if (graph.link.SHOW_MARKER) {
+                if (d.target.isParentRelReverse === true) {
+                    if (d.source.x <= d.target.x) {
+                        return "url(#reverse-arrow)";
+                    }
+                } else {
+                    if (d.source.x > d.target.x) {
+                        return "url(#reverse-arrow)";
+                    }
+                }
+            }
+            return null;
+        });
+
+    // Workaround to WebKit browsers:
+    // Updating a path element by itself does not trigger redraw on dependent elements that reference this path.
+    // So, even though we update the path, the referencing textPath element will not be redrawn.
+    // To workaround this update bug, the xlink:href attribute to “#path” is updated.
+    paths.selectAll(".ppt-textPath")
+        .attr("xlink:href", function (d) {
+            return "#ppt-path_" + d.id;
+        });
+
+    graph.svg.selectAll("#" + graph.node.gID + " > g")
+        .attr("transform", function (d) {
+            return "translate(" + (d.x) + "," + (d.y) + ")";
+        });
+
+    if (graph.USE_VORONOI_LAYOUT === true) {
+
+        var clip = d3$1.select("#voronoi-clip-path").selectAll('.voroclip')
+            .data(graph.recenterVoronoi(dataModel.nodes), function (d) {
+                return d.point.id;
+            });
+
+        clip.enter().append('clipPath')
+            .attr('id', function (d) {
+                return 'voroclip-' + d.point.id;
+            })
+            .attr('class', 'voroclip');
+
+        clip.exit().remove();
+
+        clip.selectAll('path').remove();
+
+        clip.append('path')
+            .attr('id', function (d) {
+                return 'pvoroclip-' + d.point.id;
+            })
+            .attr('d', function (d) {
+                return 'M' + d.join(',') + 'Z';
+            });
+    }
+};
+
+/**
+ * Compute the angle in radian between the node and its parent.
+ * TODO: clean or add comments to explain the code...
+ *
+ * @param n node to compute angle.
+ * @returns {number} angle in radian.
+ */
+graph.computeParentAngle = function (n) {
+    var angleRadian = 0;
+    var r = 100;
+    if (n.parent) {
+        var xp = n.parent.x;
+        var yp = n.parent.y;
+        var x0 = n.x;
+        var y0 = n.y;
+        var dist = Math.sqrt(Math.pow(xp - x0, 2) + Math.pow(yp - y0, 2));
+
+        var k = r / (dist - r);
+        var xc = (x0 + (k * xp)) / (1 + k);
+
+        var val = (xc - x0) / r;
+        if (val < -1) {
+            val = -1;
+        }
+        if (val > 1) {
+            val = 1;
+        }
+
+        angleRadian = Math.acos(val);
+
+        if (yp > y0) {
+            angleRadian = 2 * Math.PI - angleRadian;
+        }
+    }
+    return angleRadian;
+};
+
+/**
+ *
+ * @param n
+ * @param l
+ * @param callback
+ * @param values
+ * @param isNegative
+ */
+graph.addRelationshipData = function (n, l, callback, values, isNegative) {
+    var targetNode = {
+        "id": "" + dataModel.generateId(),
+        "parent": n,
+        "parentRel": l.label,
+        "type": graph.node.NodeTypes.CHOOSE,
+        "label": l.target,
+        "fixed": false,
+        "internalLabel": graph.node.generateInternalLabel(l.target),
+        "relationships": []
+    };
+
+    if (l.isReverse === true) {
+        targetNode.isParentRelReverse = true;
+    }
+
+    if (values !== undefined && values.length > 0) {
+        targetNode.value = values;
+    }
+    if (isNegative !== undefined && isNegative === true) {
+        targetNode.isNegative = true;
+    }
+
+    var newLink = {
+        id: "l" + dataModel.generateId(),
+        source: n,
+        target: targetNode,
+        type: graph.link.LinkTypes.RELATION,
+        label: l.label
+    };
+
+    targetNode.x = n.x + ((provider.link.getDistance(newLink) * 2 / 3) * Math.cos(l.directionAngle - Math.PI / 2)) + Math.random() * 10;
+    targetNode.y = n.y + ((provider.link.getDistance(newLink) * 2 / 3) * Math.sin(l.directionAngle - Math.PI / 2)) + Math.random() * 10;
+
+    targetNode.tx = n.tx + ((provider.link.getDistance(newLink)) * Math.cos(l.directionAngle - Math.PI / 2));
+    targetNode.ty = n.ty + ((provider.link.getDistance(newLink)) * Math.sin(l.directionAngle - Math.PI / 2));
+
+    dataModel.nodes.push(targetNode);
+    dataModel.links.push(newLink);
+
+    graph.hasGraphChanged = true;
+    updateGraph();
+
+    graph.node.loadRelationshipData(targetNode, function (relationships) {
+            targetNode.relationships = relationships;
+
+            graph.hasGraphChanged = true;
+            updateGraph();
+
+            if (provider.node.getIsAutoExpandRelations(targetNode.label)) {
+                graph.node.expandRelationships(targetNode, function () {
+                    callback(targetNode);
+                });
+            } else {
+                callback(targetNode);
+            }
+        },
+        l.directionAngle
+    );
+
+
+};
+
+graph.voronoi = d3$1.voronoi()
+    .x(function (d) {
+        return d.x;
+    })
+    .y(function (d) {
+        return d.y;
+    });
+
+graph.recenterVoronoi = function (nodes) {
+    var shapes = [];
+
+    var voronois = graph.voronoi.polygons(nodes.map(function (d) {
+        d.x = d.x || 0;
+        d.y = d.y || 0;
+        return d
+    }));
+
+    voronois.forEach(function (d) {
+        if (!d.length) {
+            return;
+        }
+
+        var n = [];
+        d.forEach(function (c) {
+            n.push([c[0] - d.data.x, c[1] - d.data.y]);
+        });
+
+        n.point = d.data;
+        shapes.push(n);
+    });
+    return shapes;
+};
+
+exports.version = version;
+exports.dataModel = dataModel;
+exports.graph = graph;
+exports.logger = logger;
+exports.provider = provider;
+exports.query = query;
+exports.rest = rest;
+exports.taxonomy = taxonomy;
+exports.tools = tools;
+exports.start = start;
+exports.update = update;
+exports.updateGraph = updateGraph;
+exports.appendFittedText = appendFittedText;
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+})));

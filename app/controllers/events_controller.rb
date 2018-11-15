@@ -11,59 +11,64 @@ class EventsController < ApplicationController
   end
   
   def show
-    @event = Event.find(params[:id])
+    @record = Event.find(params[:id])
 
-    @albums = @event.albums.includes(:primary_images, :tags, :translations).filter_by_user_settings(current_user).order('release_date DESC').page(params[:album_page])
+    @albums = @record.albums.includes(:primary_images, :tags, :translations).filter_by_user_settings(current_user).order('release_date DESC').page(params[:album_page])
     
     respond_to do |format|
-      format.js
+      format.js {render file: 'shared/show' }
       format.html # show.html.erb
-      format.json {@fields = (params[:fields] || '').split(',')}
+      format.json do
+        @fields = (params[:fields] || '').split(',')
+        render file: 'shared/show'
+      end
     end
   end
   
   def new
-    @event = Event.new
+    @record = Event.new
     
     respond_to do |format|
-      format.html # new.html.erb
-      format.json { render json: @event }
+      format.html  { render file: 'shared/new', layout: 'full'}
+      format.json { render json: @record }
     end
   end
   
   def edit
-    @event = Event.find(params[:id])    
+    @record = Event.find(params[:id])
     
     respond_to do |format|
-      format.html # edit.html.erb
-      format.json { render json: @event }
+      format.html { render file: 'shared/edit', layout: 'full'}
+      format.json { render json: @record }
     end
   end
   
   def create
-    @event = Event.new(event_params)
+    @record = Event.new(event_params)
     
     respond_to do |format|
-      if @event.save
-        format.html { redirect_to @event, notice: 'Event was successfully created.' }
-        format.json { render json: @event, status: :created, location: @event }
+      if @record.save
+        NeoWriter.perform(@record,1)
+        format.html { redirect_to @record, notice: 'Event was successfully created.' }
+        format.json { render json: @record, status: :created, location: @record }
       else
-        format.html { render action: "new" }
-        format.json { render json: @event.errors, status: :unprocessable_entity }
+        format.html { render action: 'new', file: 'shared/new', layout: 'full' }
+        format.json { render json: @record.errors, status: :unprocessable_entity }
       end
     end
   end
   
   
   def update
-    @event = Event.find(params[:id])
+    @record = Event.find(params[:id])
     
     respond_to do |format|
-      if @event.update_attributes(event_params)
-        format.html { redirect_to @event, notice: 'Event was successfully updated.' }
+      if @record.update_attributes(event_params)
+        NeoWriter.perform(@record,1)
+        format.html { redirect_to @record, notice: 'Event was successfully updated.' }
         format.json { head :no_content }
       else
-        format.html { render action: "edit" }
+        format.html { render action: 'edit', file: 'shared/edit', layout: 'full' }
         format.json { render json: @event.errors, status: :unprocessable_entity }
       end
     end    

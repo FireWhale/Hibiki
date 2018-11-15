@@ -40,7 +40,7 @@ module ImageRouteTests
         it "renders the images template" do
           record = create(model_symbol)
           get route, params: {id: record}
-          valid_permissions(route, accessible)
+          valid_permissions(:show_images, accessible)
         end
       end
     end

@@ -21,6 +21,9 @@ solr/*
 db/neo4j/*
 !db/neo4j/schema.yml
 
+# Ignore popoto files
+popoto/*
+
 # Ignore files with sensitive info
 /lib/llcookies
 /app/models/ability.rb
