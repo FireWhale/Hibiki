@@ -8,6 +8,7 @@ before_install:
 - cp config/travis/database.travis.yml config/database.yml
 - cp config/travis/neo4j.travis.yml config/neo4j.yml
 - cp config/travis/secrets_test.travis.yml config/secrets.yml
+- mkdir app/workers
 - cp config/travis/scrape_worker.travis.rb app/workers/scrape_worker.rb
 before_script:
 - ruby bin/setup
