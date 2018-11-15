@@ -5,8 +5,7 @@ services:
 - mysql
 - neo4j
 before_script:
-- bundle exec rake db:create db:structure:load
-- bundle exec rake neo4j:migrate
+- ruby bin/setup
 before_install:
 - cp config/travis/database.travis.yml config/database.yml
 - cp config/travis/neo4j.travis.yml config/neo4j.yml
