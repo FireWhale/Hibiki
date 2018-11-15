@@ -11,5 +11,5 @@ before_install:
 before_script:
 - ruby bin/setup
 script:
-- rspec --fail-fast=5 --force-color
+- bundle exec rspec --force-color --format progress --fail-fast=5
 
