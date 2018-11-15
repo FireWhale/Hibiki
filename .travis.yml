@@ -12,4 +12,3 @@ before_script:
 - ruby bin/setup
 script:
 - bundle exec rspec --force-color --format progress --fail-fast=5
-
