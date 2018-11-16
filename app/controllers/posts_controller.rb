@@ -1,5 +1,6 @@
 class PostsController < ApplicationController
   load_and_authorize_resource
+  include ImageViewModule
   layout "grid", only: [:show_images]
   
   def index
@@ -25,24 +26,6 @@ class PostsController < ApplicationController
       format.html # show.html.erb
       format.js {@id = @post.id}
       format.json {@fields = (params[:fields] || '').split(',')}
-    end
-  end
-
-  def show_images
-    @post = Post.includes(:images).find_by_id(params[:id])
-    if params[:image] == "cover"
-      @image = @post.primary_images.first
-    elsif @post.images.map(&:id).map(&:to_s).include?(params[:image])
-      @image = Image.find_by_id(params[:image])
-    else
-      @image = @post.images.first
-    end
-    @show_nws = params[:show_nws]
-
-    respond_to do |format|
-      format.html 
-      format.js { render template: "images/update_image"}
-      format.json { render json: @post.images }
     end
   end
     

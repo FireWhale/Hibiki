@@ -1,5 +1,6 @@
 class SeasonsController < ApplicationController
   load_and_authorize_resource
+  include ImageViewModule
   layout "grid", only: [:show, :show_images]
 
   def index
@@ -23,24 +24,6 @@ class SeasonsController < ApplicationController
     respond_to do |format|
       format.html # show.html.erb
       format.json {@fields = (params[:fields] || '').split(',')}
-    end
-  end
-
- def show_images
-    @season = Season.includes(:images).find_by_id(params[:id])
-    if params[:image] == "cover"
-      @image = @season.primary_images.first
-    elsif @season.images.map(&:id).map(&:to_s).include?(params[:image])
-      @image = Image.find_by_id(params[:image])
-    else
-      @image = @season.images.first
-    end
-    @show_nws = params[:show_nws]
-
-    respond_to do |format|
-      format.html 
-      format.js { render template: "images/update_image"}
-      format.json { render json: @season.images }
     end
   end
 

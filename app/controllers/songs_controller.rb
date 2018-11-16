@@ -1,5 +1,6 @@
 class SongsController < ApplicationController
   load_and_authorize_resource
+  include ImageViewModule
   layout "full", only: [:edit, :new]
 
   def index
@@ -33,23 +34,6 @@ class SongsController < ApplicationController
     end
   end
 
-  def show_images
-    @record = Song.includes(:images).find_by_id(params[:id])
-    if params[:image] == "cover"
-      @image = @record.primary_images.first
-    elsif @record.images.map(&:id).map(&:to_s).include?(params[:image])
-      @image = Image.find_by_id(params[:image])
-    else
-      @image = @record.images.first
-    end
-    @show_nws = params[:show_nws]
-
-    respond_to do |format|
-      format.html {render file: 'shared/show_images', layout: 'grid'}
-      format.js { render template: "images/update_image"}
-      format.json { render json: @record.images }
-    end
-  end
 
   def new
     @record = Song.new

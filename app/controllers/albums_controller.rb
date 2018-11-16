@@ -1,5 +1,6 @@
 class AlbumsController < ApplicationController
   load_and_authorize_resource
+  include ImageViewModule
 
   def index
     @records = PrimaryRecordGetter.perform('index',model: 'album', page: params[:page]).filter_by_user_settings(current_user)
@@ -28,24 +29,6 @@ class AlbumsController < ApplicationController
         @fields << 'full_song_info' unless params[:full_song_info].blank?
         render file: 'shared/show'
       end
-    end
-  end
-
-  def show_images
-    @record = Album.includes(:images).find_by_id(params[:id])
-    if params[:image] == "cover"
-      @image = @record.primary_images.first
-    elsif @record.images.pluck(:id).map(&:to_s).include?(params[:image])
-      @image = Image.find_by_id(params[:image])
-    else
-      @image = @record.images.first
-    end
-    @show_nws = params[:show_nws]
-
-    respond_to do |format|
-      format.html {render file: 'shared/show_images', layout: 'grid'}
-      format.js { render template: "images/update_image"}
-      format.json { render json: @record.images }
     end
   end
 

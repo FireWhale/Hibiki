@@ -1,6 +1,7 @@
 class ArtistsController < ApplicationController
   load_and_authorize_resource
   include GenViewsModule
+  include ImageViewModule
 
   def create
     new_params = artist_params

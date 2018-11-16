@@ -1,6 +1,7 @@
 class OrganizationsController < ApplicationController
   load_and_authorize_resource
   include GenViewsModule
+  include ImageViewModule
 
   def create
     new_params = organization_params
