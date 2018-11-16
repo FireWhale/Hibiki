@@ -14,5 +14,5 @@ class Collection < ApplicationRecord
 
   belongs_to :collected, polymorphic: true
   belongs_to :user
-  
+
 end

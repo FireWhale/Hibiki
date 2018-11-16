@@ -1,10 +1,9 @@
 == Code Status
 
 {<img src="https://travis-ci.org/FireWhale/Hibiki.svg?branch=master" alt="Build Status" />}[https://travis-ci.org/FireWhale/Hibiki]
+{<img src="https://coveralls.io/repos/github/FireWhale/Hibiki/badge.svg?branch=coveralls" alt="Coverage Status" />}[https://coveralls.io/github/FireWhale/Hibiki?branch=coveralls]
 
 == Welcome
-
-
 
 Welcome to the github for Hibiki (www.hibiki.moe), a Ruby-on-Rails musical database focusing on asian music, specificially jpop, anime music (anison), doujin music (independent japanese music), and vocaloid/utaite songs. If you like any of this music, you're definitely in the right place!
 
