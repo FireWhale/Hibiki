@@ -1,5 +1,5 @@
 language: ruby
-if: branch = master
+#if: branch = master
 rvm:
 - 2.3.3
 services:

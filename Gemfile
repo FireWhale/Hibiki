@@ -45,7 +45,6 @@ end
 
 group :development do
   gem 'web-console', '>= 3.3.0'
-  gem 'bullet', platforms: [:mingw, :mswin, :x64_mingw] #Raises notices unoptimized queries
 end
 
 group :test do
@@ -57,4 +56,6 @@ group :test do
   gem 'launchy'
   gem 'sunspot_test'
   gem 'json-schema'
+  gem 'coveralls', require: false
+  gem 'simplecov', require: false
 end
