@@ -1021,7 +1021,17 @@ var provider = {};
  * Default color scale generator.
  * Used in getColor link and node providers.
  */
-provider.colorScale = d3$1.scaleOrdinal(d3$1.schemeCategory10);
+//provider.colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+provider.colorScale = d3$1.scaleOrdinal(["#4bb79f",
+    "#705add",
+    "#62c33d",
+    "#6e7bc9",
+    "#adb840",
+    "#5dafdc",
+    "#d7a13a",
+    "#6bbf75",
+    "#988241",
+    "#4f7f3a"]);
 provider.link = {};
 provider.link.Provider = {};
 provider.taxonomy = {};

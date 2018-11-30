@@ -1,4 +1,7 @@
 class Reference < ApplicationRecord
+
+  attr_accessor :_destroy
+
   SiteNames = ["VGMdb", "Circus Website", "Generasia Wiki", "CDJapan", "Official Website",
                "Wikipedia", "Vocaloid Wiki", "Other Reference", "Utaite Wiki", "Touhou Wiki",
                "Vocaloid DB", "Utaite DB", "Last.fm", "Official Blog", "Twitter", "Jpopsuki",
@@ -29,4 +32,5 @@ class Reference < ApplicationRecord
   belongs_to :model, polymorphic: true
 
   scope :meets_role, ->(user) { where('references.site_name IN (?)', user.nil? == false && user.abilities.include?("Confident") ? SiteNames : SiteNames - HiddenSiteNames )}
+
 end

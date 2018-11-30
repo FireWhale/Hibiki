@@ -1,4 +1,6 @@
-<%= fields_for form_prefix, record do |f| %>
-  <%= render "layouts/forms/fields/label", label: opts[:label], form_prefix: form_prefix, record: record, attribute: opts[:attribute] %>
-  <%= f.select opts[:attribute], opts[:categories], include_blank: true %>
-<% end %>
+<div>
+  <%= f.fields_for :record do |c| %>
+    <%= c.label attribute, attribute == :db_status ?  'Database Status:' : "#{attribute.to_s.titleize}:" %>
+    <%= c.select attribute, choices, include_blank: true %>
+  <% end %>
+</div>

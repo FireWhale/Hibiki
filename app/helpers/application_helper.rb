@@ -138,34 +138,13 @@ module ApplicationHelper
     end
 
   #Form helpers
-    def render_form(records, opts = {})
-      records = records.target if records.respond_to?("target") && records.target.class == Array
-      multi_flag = true if records.class == Array
-      records = [records] unless records.class == Array
-      render "layouts/forms/form", records: records, url: opts[:url], form_prefix: opts[:form_prefix], fields: opts[:fields], multi_flag: multi_flag, submit_title: opts[:submit_title], no_submit_tag: opts[:no_submit_tag]
-    end
-
-    def fields_helper(record, opts = {})
-      model = record.class.model_name.param_key
-      fields = opts[:fields] || record.class::FormFields
-      form_prefix = opts[:form_prefix] || (opts[:multi_flag] ? "#{model}[#{record.id}]" : model)
-      render "layouts/forms/fields", form_prefix: form_prefix, record: record, fields: fields, model: model
-    end
-
-    def single_field_helper(opts, record, form_prefix)
-      #Render a form based on the type
-      if opts[:type] == "markup"
-        output = "<#{opts[:tag_name]}".html_safe
-        output = output + "id=#{record.id}" if opts[:add_id]
-        output = output + ">".html_safe
-        opts[:no_div] = true
-      elsif opts[:type] == "well_hide"
-        output = render :partial => 'layouts/forms/well_toggle', locals: {:div_id => record.id, :toggle_id => "Song#{record.id}Toggle"}
-        opts[:no_div] = true
-      else
-        output =  render "layouts/forms/fields/#{opts[:type]}", opts: opts, form_prefix: form_prefix, record: record
+    def link_to_add_fields(name, f, association, options = {})
+      new_object = f.object.class.reflect_on_association(options[:klass] || association.to_s.capitalize.constantize).klass.new
+      fields = f.fields_for(association.to_s.pluralize, new_object, child_index: "new_#{association}") do |builder|
+        render("layouts/forms/fields/#{association.to_s.singularize}", c: builder,
+               fields: options[:fields], source: options[:source], target: options[:target])
       end
-      opts[:no_div] == true ? output : content_tag(:div, class: opts[:div_class], id: opts[:div_id]) {output}
+      link_to(name, '#', class: 'add-form', data: {association: association, content: "#{fields}"})
     end
 
   #Post Helper - for parsing a post's content and replacing with hyperlinks and images

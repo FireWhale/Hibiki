@@ -1,0 +1,7 @@
+<%= c.hidden_field :locale %>
+<% fields.each do |field| %>
+  <%= c.label field, "#{field.capitalize}:" %>
+  <%= [:info].include?(field) ? (c.text_area field) : (c.text_field field) %>
+  <%= c.select :locale, LanguageModule::Locales, include_blank: true %>
+<% end %>
+

@@ -1,7 +1,9 @@
 class Image < ApplicationRecord
 
   #Concerns
-    include JsonModule
+  include JsonModule
+
+  attr_accessor :_destroy
 
   #Callbacks/Hooks
     before_destroy :delete_images

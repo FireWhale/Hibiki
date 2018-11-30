@@ -1,0 +1,25 @@
+<%= render :partial => 'layouts/forms/well_toggle', locals: {:div_id => opts[:sub_div_id], :toggle_id => "#{opts[:sub_div_id]}Toggle"} unless opts[:sub_div_id].nil? %>
+<%= content_tag(:h4, class: "text-center") {opts[:title]} unless opts[:title].nil? %>
+<div<%= ' id="'.html_safe + opts[:sub_div_id] + '"'.html_safe unless opts[:sub_div_id].nil? %>>
+  <% unless record.song_sources.empty? %>
+    <% record.song_sources.each do |song_source| %>
+      <div>
+        <%= check_box_tag "#{form_prefix}[remove_song_sources][]", song_source.id %>
+        <%= link_to language_helper(song_source.source,:name,highlight: false), song_source.source %>
+        <%= fields_for "#{form_prefix}[update_song_sources][]", song_source do |s| %>
+          <%= s.select('classification', SongSource::Relationship, {:include_blank => true}, {:class => "controls input-xsmall"})  %>
+          <%= s.label 'op_ed_number', "#:" %>
+          <%= s.text_field 'op_ed_number', :class => "controls input-xmini" %>                  
+          <%= s.label 'ep_numbers', "Eps:" %>
+          <%= s.text_field 'ep_numbers', :class => "controls input-xmini" %>
+         <% end %>
+      </div>
+    <% end %>
+  <% end %>
+  <div id='<%= "Sources" + record.id.to_s %>'></div>
+  <%= link_to "Add a Source", add_model_path(parent_div: "#Sources#{record.id.to_s}", 
+                                            field_names: "#{form_prefix}[new_sources][id]", 
+                                            category_field_names: "#{form_prefix}[new_sources][classification]", 
+                                            category_select: [""] + SongSource::Relationship, 
+                                            song_source: form_prefix, autocomplete_model: "source" ), :remote => true %></br></br>     
+</div>

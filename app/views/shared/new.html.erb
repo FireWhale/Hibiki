@@ -1,1 +1,9 @@
-<%= render 'layouts/forms/new', :record => @record %>
+<% content_for :title do %>New <%= @form.record.class%> <% end %>
+
+<% content_for :header do %>
+  <div class="text-center">
+    <h2>New <%= @form.record.class %></h2>
+  </div>
+<% end %>
+
+<%= render 'layouts/forms/form' %>

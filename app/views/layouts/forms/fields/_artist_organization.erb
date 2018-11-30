@@ -1,0 +1,4 @@
+<%= c.label "#{target}_id", "#{target.capitalize} ID:" %>
+<%= c.hidden_field "#{source.model_name.singular}_id", value: source.id %>
+<%= c.autocomplete_field "#{target}_id", autocomplete_path({:model => target}) %>
+<%= c.select :category, ArtistOrganization::Categories %>

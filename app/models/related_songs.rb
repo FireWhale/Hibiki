@@ -2,6 +2,8 @@ class RelatedSongs < ApplicationRecord
 
   include NeoRelModule
 
+  attr_accessor :_destroy
+
   Relationships = Song::SelfRelationships.map { |relation| relation[3]}.reject(&:nil?)
 
   validates :song1_id, :presence => true, uniqueness: {scope: :song2_id}

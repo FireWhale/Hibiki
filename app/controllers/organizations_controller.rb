@@ -1,40 +1,36 @@
 class OrganizationsController < ApplicationController
   load_and_authorize_resource
+  skip_load_resource only: :create
   include GenViewsModule
   include ImageViewModule
 
   def create
-    new_params = organization_params
-    handle_partial_date_assignment(new_params,Organization)
+    @form = OrganizationForm.new(organization_params)
 
-    @record = Organization.new(new_params)
-    
     respond_to do |format|
-      if @record.save
-        NeoWriter.perform(@record,1)
-        format.html { redirect_to @record, notice: 'Organization was successfully created.' }
-        format.json { render json: @record, status: :created, location: @record }
+      if @form.save
+        NeoWriter.perform(@form.record,1)
+        format.html { redirect_to @form.record, notice: 'Organization was successfully created.' }
+        format.json { render json: @form.record, status: :created, location: @form.record }
       else
         format.html { render action: 'new', file: 'shared/new', layout: 'full' }
-        format.json { render json: @record.errors, status: :unprocessable_entity }
+        format.json { render json: @form.errors, status: :unprocessable_entity }
       end
     end
   end
 
   def update
-    new_params = organization_params
-    handle_partial_date_assignment(new_params,Organization)
-        
-    @record = Organization.find(params[:id])
-    
+    @form = OrganizationForm.new(organization_params.merge(record: Organization.find(params[:id])))
+
     respond_to do |format|
-      if @record.update_attributes(new_params)
-        NeoWriter.perform(@record,1)
-        format.html { redirect_to @record, notice: 'Organization was successfully updated.' }
+      if @form.save
+        NeoWriter.perform(@form.record,1)
+        format.html { redirect_to @form.record, notice: 'Organization was successfully updated.' }
         format.json { head :no_content }
       else
+        @record = Organization.find(params[:id])
         format.html { render action: 'edit', file: 'shared/edit', layout: 'full' }
-        format.json { render json: @record.errors, status: :unprocessable_entity }
+        format.json { render json: @form.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -52,18 +48,12 @@ class OrganizationsController < ApplicationController
   class OrganizationParams
     def self.filter(params,current_user)
       if current_user && current_user.abilities.include?("Admin")
-        params.require(:organization).permit("internal_name", "status", "db_status", "activity", "info", "private_info", "established", "synonyms","synopsis","category",
-                                             "new_images" => [], "remove_artist_organizations" => [], "remove_related_organizations" => [], "namehash" => params[:organization][:namehash].try(:keys),
-                                             "new_references" => [:site_name => [], :url => []], "update_references" => [:site_name, :url], 
-                                             :new_name_langs => [], :new_name_lang_categories => [], :name_langs => params[:organization][:name_langs].try(:keys),
-                                             :new_info_langs => [], :new_info_lang_categories => [], :info_langs => params[:organization][:info_langs].try(:keys),
-                                             :new_related_organizations => [:id => [], :category =>[]], :update_related_organizations => :category,
-                                             :new_artists => [:id => [], :category => []], :update_artist_organizations => [:category]        
-                                              )
+        #Make sure params[:id] matches
+        params.require(:organization_form).permit!
       elsif current_user
-        params.require(:organization).permit()
+        params.require(:organization_form).permit()
       else
-        params.require(:organization).permit()
+        params.require(:organization_form).permit()
       end           
     end
   end

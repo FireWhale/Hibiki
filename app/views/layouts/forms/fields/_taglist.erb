@@ -1,0 +1,3 @@
+<%= c.label :tag_id, 'Tag ID:' %>
+<%= c.text_field :tag_id  %>
+<% c.autocomplete_field :tag_id, autocomplete_path({:model => 'tag'}) %>

@@ -1,0 +1,14 @@
+<% unless record.references.empty? %>
+  <% record.references.each do |reference| %>
+    <div>
+      <%= fields_for "#{form_prefix}[update_references][#{reference.id}]", reference do |f| %>
+        <%= f.label :site_name, 'Reference Link:'%>
+        <%= f.select :site_name, Reference::SiteNames, include_blank: true %>
+        <%= f.text_field :url, class: "input-xlarge" %>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>
+
+<div id="<%= "references#{record.id}"%>"></div>
+<%= link_to "Add a Reference", add_model_path(parent_div: "#references#{record.id.to_s}", secondary_category_field_names: "#{form_prefix}[new_references][site_name]", field_class: "input-xlarge", label: '', secondary_label: "New Reference Link: ", secondary_category_select: Reference::SiteNames, field_names: "#{form_prefix}[new_references][url]"), :remote => true %><br><br>      

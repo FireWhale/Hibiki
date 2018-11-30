@@ -1,9 +1,11 @@
 class NeoWriter
   include Performable
 
+  #def initialize(record,link_depth = 0, depth = 0)
   def initialize(record,depth = 0)
     @record = record
     @depth = depth
+    #@link_depth = link_depth
     @recordlist = [record]
   end
 
@@ -11,7 +13,9 @@ class NeoWriter
     unless @record.class == Tag && @record.visibility != 'Any'
       if neo_update(@record) && @depth > 0
         neo_related_models_crawl(@record,@depth)
-        neo_relations_crawl(@record)
+        #TODO separate relations and linekd records: ex: want to just update this record + relations. not linked models.
+        # neo_related_models_crawl(@record,@depth,@link_depth - 1) if @depth > 0 && link_depth >= 0
+        neo_relations_crawl(@record) # if @linked_depth > 0
       end
     end
   end
@@ -35,6 +39,7 @@ class NeoWriter
       relationships.keys.each do |model|
         record.send(model).each do |linked|
           NeoWriter.perform(linked,depth - 1)
+          #NeoWriter.perform(linked,depth - 1, link_depth - 1)
         end
       end
     end
@@ -51,7 +56,7 @@ class NeoWriter
     end
 
     def neo_rel_update(relation)
-      unless relation.class == Taglist && relation.subject.class == Post
+      unless relation.class == Taglist && relation.subject.class == Post #If it's a tag, ignore posts.
         rel = relation.neo_relation
         unless rel.from_node.respond_to?(:set?) || rel.to_node.respond_to?(:set?) #if true, they aren't real nodes.
           unless rel.from_node.sql_record.nil? || rel.to_node.sql_record.nil? #sql record is deleted. don't create.

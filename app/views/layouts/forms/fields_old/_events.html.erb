@@ -1,0 +1,8 @@
+<% unless record.events.nil? %>
+  <% record.album_events.each do |album_event| %>
+    <div>Event: <%= check_box_tag "#{form_prefix}[remove_album_events][]", album_event.id %> <%= link_to album_event.event.name_helper("shorthand", "read_abbreviation", "read_name"), album_event.event %></div>
+  <% end %>
+<% end %>
+<div id="EventFields"></div>
+<%= link_to "Add an Event", add_model_path(parent_div: "#EventFields", field_names: "#{form_prefix}[new_events][id]", label: "ID:"), :remote => true %></br></br>
+

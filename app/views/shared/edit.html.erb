@@ -1,1 +1,14 @@
-<%= render 'layouts/forms/edit', :record => @record %>
+<% content_for :title do %>
+  Edit - <%= @record.class == Post ? language_helper(@record, :title, highlight: false) : language_helper(@record, :name, highlight: false) %>
+<% end %>
+
+<% content_for :header do %>
+  <div class="text-center">
+    <h2>
+      Edit <%= @record.class %>
+      : <%= link_to (@record.class == Post ? language_helper(@record, :title, highlight: false) : language_helper(@record, :name, highlight: false)), @record %>
+    </h2>
+  </div>
+<% end %>
+
+<%= render 'layouts/forms/form' %>

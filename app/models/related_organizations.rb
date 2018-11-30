@@ -2,6 +2,9 @@ class RelatedOrganizations < ApplicationRecord
 
   include NeoRelModule
 
+  attr_accessor :_destroy
+
+
   Relationships = Organization::SelfRelationships.map { |relation| relation[3]}.reject(&:nil?)
   
   validates :organization1_id, :presence => true, uniqueness: {scope: :organization2_id}

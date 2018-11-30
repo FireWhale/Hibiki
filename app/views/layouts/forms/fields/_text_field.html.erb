@@ -1,6 +1,6 @@
 <div>
   <%= f.fields_for :record do |c| %>
     <%= c.label attribute, "#{attribute.to_s.titleize}:" %>
-    <%= c.text_area attribute %>
+    <%= c.text_field attribute %>
   <% end %>
 </div>

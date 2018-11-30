@@ -2,6 +2,8 @@ class Taglist < ApplicationRecord
 
   include NeoRelModule
 
+  attr_accessor :_destroy
+
   #Validation
     validates :tag, presence: true
     validates :subject, presence: true

@@ -3,6 +3,7 @@ module GenViewsModule
 
   included do
     model = self.name.chomp('sController').constantize
+    form = "#{self.name.chomp('sController')}Form".constantize
 
     define_method 'show' do
       @record = model.includes(:watchlists, :translations, :primary_images).find(params[:id])
@@ -30,22 +31,21 @@ module GenViewsModule
     end
 
     define_method 'new' do
-      @record = model.new
-      @record.namehash ||= {}
+      @form = form.new
 
       respond_to do |format|
         format.html  { render file: 'shared/new', layout: 'full'}
-        format.json { render json: @record }
+        format.json { render json: @form }
       end
     end
 
     define_method 'edit' do
       @record = model.find(params[:id])
-      @record.namehash ||= {}
+      @form = form.new(record: @record)
 
       respond_to do |format|
         format.html { render file: 'shared/edit', layout: 'full'}
-        format.json { render json: @record }
+        format.json { render json: @form }
       end
     end
 

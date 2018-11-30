@@ -19,13 +19,6 @@ class Artist < ApplicationRecord
   #Attributes
     serialize :namehash
 
-    attr_accessor :new_organizations
-    attr_accessor :update_artist_organizations
-    attr_accessor :remove_artist_organizations
-
-  #Callbacks/Hooks
-    after_save :manage_organizations
-
   #Cateogires
     Categories = ['Group','Person','Unit','Synthesized']
     Activity = ['Retired','Active','Hiatus']
@@ -56,29 +49,6 @@ class Artist < ApplicationRecord
     ['had the former member', 'Former Members', 'Former Member Of','Former Member'],
     ['provided the voice of','Voices', 'Voiced by', 'Voice'],
     ['is the voice of','-Voice']]
-
-    FormFields = [{type: "markup", tag_name: "div class='col-md-6'"},
-                  {type: "text", attribute: :internal_name, label: "Internal Name:"},
-                  {type: "text", attribute: :synonyms, label: "Synonyms:"},
-                  {type: "language_fields", attribute: :name},
-                  {type: "select", attribute: :status, label: "Status:", categories: Album::Status},
-                  {type: "select", attribute: :db_status, label: "Database Status:", categories: Artist::DatabaseStatus},
-                  {type: "select", attribute: :category, label: "Categories:", categories: Artist::Categories},
-                  {type: "select", attribute: :activity, label: "Activity:", categories: Artist::Activity},
-                  {type: "references"},
-                  {type: "date", attribute: :debut_date, label: "Debut Date:"},
-                  {type: "date", attribute: :birth_date, label: "Birth Date:"},
-                  {type: "images"},
-                  {type: "tags", div_class: "well", title: "Tags"},
-                  {type: "language_fields", attribute: :info},
-                  {type: "text_area", attribute: :info, rows: 4, label: "Info:"},
-                  {type: "text_area", attribute: :synopsis, rows: 2, label: "Synopsis:"},
-                  {type: "markup", tag_name: "/div"}, {type: "markup", tag_name: "div  class='col-md-6'"},
-                  {type: "self_relations", div_class: "well", title: "Artist Relationships", sub_div_id: "Artists"},
-                  {type: "related_model", div_class: "well", title: "Organization Relationships", model: "organization", relation_model: "artist_organizations", categories: ArtistOrganization::Categories, sub_div_id: "Organizations"},
-                  {type: "namehash", title: "Languages", div_class: "well", sub_div_id: "Languages"},
-                  {type: "text_area", attribute: :private_info, rows: 10, label: "Private Info:"},
-                  {type: "markup", tag_name: "/div"}]
 
   #Validation
     validates :internal_name, presence: true
@@ -118,8 +88,4 @@ class Artist < ApplicationRecord
       (Artist::Credits).reject { |r| ((bitmask || 0 ) & 2**(Artist::Credits).index(r)).zero?}
     end
 
-  private
-    def manage_organizations
-      self.manage_primary_relation(Organization,ArtistOrganization)
-    end
 end

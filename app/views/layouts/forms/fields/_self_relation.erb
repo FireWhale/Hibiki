@@ -1,0 +1,4 @@
+<%= c.label "#{source.model_name.singular}1", "This #{source.model_name}" %>
+<%= c.hidden_field "#{source.model_name.singular}1_id", value: source.id %>
+<%= c.select :category, source.class::SelfRelationships %>
+<%= c.autocomplete_field "#{source.model_name.singular}2_id", autocomplete_path({:model => source.model_name.singular}) %>

@@ -2,6 +2,8 @@ class RelatedSources < ApplicationRecord
 
   include NeoRelModule
 
+  attr_accessor :_destroy
+
   Relationships = Source::SelfRelationships.map { |relation| relation[3]}.reject(&:nil?)
   
   validates :source1_id, :presence => true, uniqueness: {scope: :source2_id}

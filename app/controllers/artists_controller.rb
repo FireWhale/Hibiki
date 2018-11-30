@@ -4,37 +4,31 @@ class ArtistsController < ApplicationController
   include ImageViewModule
 
   def create
-    new_params = artist_params
-    handle_partial_date_assignment(new_params,Artist)
+    @form = ArtistForm.new(artist_params)
 
-    @record = Artist.new(new_params)
-    
     respond_to do |format|
-      if @record.save
-        NeoWriter.perform(@record,1)
-        format.html { redirect_to @record, notice: 'Artist was successfully created.' }
-        format.json { render json: @record, status: :created, location: @record }
+      if @form.save
+        NeoWriter.perform(@form.record,1)
+        format.html { redirect_to @form.record, notice: 'Artist was successfully created.' }
+        format.json { render json: @form.record, status: :created, location: @form.record }
       else
         format.html { render action: 'new', file: 'shared/new', layout: 'full' }
-        format.json { render json: @record.errors, status: :unprocessable_entity }
+        format.json { render json: @form.errors, status: :unprocessable_entity }
       end
     end
   end
 
   def update
-    new_params = artist_params
-    handle_partial_date_assignment(new_params,Artist)
-
-    @record = Artist.find(params[:id])
+    @form = ArtistForm.new(artist_params.merge(record: Artist.find(params[:id])))
        
     respond_to do |format|
-      if @record.update_attributes(new_params)
-        NeoWriter.perform(@record,1)
-        format.html { redirect_to @record, notice: 'Artist was successfully updated.' }
+      if @form.save
+        NeoWriter.perform(@form.record,1)
+        format.html { redirect_to @form.record, notice: 'Artist was successfully updated.' }
         format.json { head :no_content }
       else
         format.html { render action: 'edit', file: 'shared/edit', layout: 'full' }
-        format.json { render json: @record.errors, status: :unprocessable_entity }
+        format.json { render json: @form.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -52,18 +46,11 @@ class ArtistsController < ApplicationController
   class ArtistParams
     def self.filter(params,current_user)
       if current_user && current_user.abilities.include?("Admin")
-        params.require(:artist).permit("internal_name", "status", "synopsis", "category", "db_status", "info", "private_info", "synonyms", "activity", "birth_place", "gender", "birth_date", "debut_date", "blood_type",
-                                        "new_images" => [], "remove_artist_organizations" => [], "remove_related_artists" => [], "namehash" => params[:artist][:namehash].try(:keys),
-                                        "new_references" => [:site_name => [], :url => []], "update_references" => [:site_name, :url], 
-                                         :new_name_langs => [], :new_name_lang_categories => [], :name_langs => params[:artist][:name_langs].try(:keys),
-                                         :new_info_langs => [], :new_info_lang_categories => [], :info_langs => params[:artist][:info_langs].try(:keys),
-                                         :new_related_artists=> [:id => [], :category =>[]], :update_related_artists => :category,
-                                         :new_organizations => [:id => [], :category => []], :update_artist_organizations => [:category]        
-        )
+        params.require(:artist_form).permit!
       elsif current_user
-        params.require(:artist).permit()
+        params.require(:artist_form).permit()
       else
-        params.require(:artist).permit()
+        params.require(:artist_form).permit()
       end         
     end
   end

@@ -1,13 +1,189 @@
-<div id="form">
-  <%= form_for records.first, :html => {:class => "form-horizontal", multipart: true}, url: url do |form| %>
-    <% records.each do |record| %>
-      <%= fields_helper(record, fields: fields, multi_flag: multi_flag, form_prefix: form_prefix) %>
-    <% end %>
-    
-    <% if no_submit_tag.nil? %>
-      <div class="actions submit">
-        <%= form.submit submit_title %>
+<% if @form.errors.any? %>
+  <div id="error_explanation">
+    <h2><%= pluralize(@form.errors.count, "error") %> prohibited this <%= @form.record.class.to_s.downcase %> from being
+      saved:</h2>
+    <ul>
+      <% @form.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<%= form_for @form, html: {class: 'form-horizontal'},
+             url: @form.record.persisted? ? @form.record : send("#{@form.record.class.name.downcase}s_path"),
+             method: @form.record.persisted? ? :patch : :post do |f| %>
+
+  <div class="col-md-6">
+
+    <%= render partial: 'layouts/forms/fields/text_field',
+               locals: {f: f, attribute: :internal_name} if @form.record.respond_to?('internal_name') %>
+
+    <%= render partial: 'layouts/forms/fields/text_field',
+               locals: {f: f, attribute: :synonyms} if @form.record.respond_to?('synonyms') %>
+
+    <% if @form.record.respond_to?('name_translations') %>
+      <div>
+        <%= f.fields_for :translations do |c| %>
+          <% unless c.object.name.blank? %>
+            <div>
+              <%= c.hidden_field :locale %>
+              <%= c.label :name, "#{c.object.locale} name:"  %>
+              <%= c.text_field :name  %>
+            </div>
+          <% end %>
+        <% end %>
+        <p><%= link_to_add_fields 'Add a Language for Name ', f, :translation, klass: @form.record.class::Translation, fields: [:name] %></p>
       </div>
     <% end %>
-  <% end %>
-</div>
+
+    <%= render partial: 'layouts/forms/fields/select',
+               locals: {f: f, attribute: :status, choices: Album::Status} if @form.record.respond_to?('status')  %>
+
+    <%= render partial: 'layouts/forms/fields/select',
+               locals: {f: f, attribute: :db_status, choices: Artist::DatabaseStatus} if @form.record.respond_to?('db_status') %>
+
+    <%= render partial: 'layouts/forms/fields/select',
+               locals: {f: f, attribute: :activity, choices: @form.record.class::Activity} if @form.record.respond_to?('activity') %>
+
+    <%= render partial: 'layouts/forms/fields/select',
+               locals: {f: f, attribute: :category, choices: @form.record.class::Categories} if @form.record.respond_to?('category') %>
+
+    <% if @form.record.respond_to?('references') %>
+      <div>
+        <%= f.fields_for :references do |c| %>
+          <div>
+            <%= c.label :site_name, 'Reference Link:' %>
+            <%= c.hidden_field :id %>
+            <%= c.select :site_name, Reference::SiteNames, include_blank: true %>
+            <%= c.text_field :url, class: 'input-xlarge' %>
+            <%= c.check_box :_destroy %>
+            <%= c.label :_destroy, 'Remove' %>
+          </div>
+        <% end %>
+        <p><%= link_to_add_fields 'Add a Reference', f, :reference %></p>
+      </div>
+    <% end %>
+
+    <%= render partial: 'layouts/forms/fields/date',
+               locals: {f: f, attribute: :debut_date} if @form.record.respond_to?('debut_date') %>
+
+    <%= render partial: 'layouts/forms/fields/date',
+               locals: {f: f, attribute: :birth_date} if @form.record.respond_to?('birth_date') %>
+
+    <%= render partial: 'layouts/forms/fields/date',
+               locals: {f: f, attribute: :established} if @form.record.respond_to?('established') %>
+
+    <% if @form.record.respond_to?('images') %>
+      <div>
+        <%= f.fields_for :images do |c| %>
+          <div>
+            <%= c.hidden_field :id %>
+            <%= c.hidden_field :name %>
+            <%= link_to c.object.name, images_path_helper(@form.record,c.object), remote: true %>
+            <%= c.label :name, c.object.name %>
+            <%= c.check_box :_destroy %>
+            <%= c.label :_destroy, 'Remove' %>
+          </div>
+        <% end %>
+        <div>
+          <%= f.label :new_images, 'Upload Images' %>
+          <%= f.file_field :new_images, multiple: true %>
+        </div>
+      </div>
+    <% end %>
+
+    <% if @form.record.respond_to?('tags') %>
+      <div>
+        <%= f.fields_for :taglists do |c| %>
+          <% unless c.object.tag_id.blank? %>
+            <div>
+              <%= c.label :id, "#{c.object.tag.internal_name} Tag:" %>
+              <%= c.hidden_field :id %>
+              <%= c.hidden_field :tag_id %>
+              <%= c.check_box :_destroy %>
+              <%= c.label :_destroy, 'Remove' %>
+            </div>
+          <% end %>
+        <% end %>
+        <p><%= link_to_add_fields 'Add a Tag', f, :taglist %></p>
+      </div>
+    <% end %>
+
+    <% if @form.record.respond_to?('info_translations') %>
+      <div>
+        <%= f.fields_for :translations do |c| %>
+          <% unless c.object.info.blank? %>
+            <div>
+              <%= c.hidden_field :locale %>
+              <%= c.label :info, "#{c.object.locale} info:" %>
+              <%= c.text_area :info %>
+            </div>
+          <% end %>
+        <% end %>
+        <p><%= link_to_add_fields 'Add a Language for info ', f, :translation,
+                                  klass: @form.record.class::Translation, fields: [:info], text_area: true %></p>
+      </div>
+    <% end %>
+
+    <%= render partial: 'layouts/forms/fields/text_area',
+               locals: {f: f, attribute: :synopsis} if @form.record.respond_to?('synopsis') %>
+
+  </div>
+
+  <div class="col-md-6">
+
+    <% if @form.record.respond_to?("related_#{@form.record.model_name.singular}_relations") %>
+      <div>
+        <%= f.fields_for :self_relations do |c| %>
+          <% unless c.object.send("#{@form.record.model_name.singular}1").nil? || c.object.send("#{@form.record.model_name.singular}2").nil?  %>
+            <div>
+              <%= c.check_box :_destroy %>
+              <%= c.hidden_field :id %>
+              <%= c.hidden_field "#{@form.record.model_name.singular}1_id" %>
+              <%= c.hidden_field "#{@form.record.model_name.singular}2_id" %>
+              <%= link_to  language_helper(c.object.send("#{@form.record.model_name.singular}1"),:name), c.object.send("#{@form.record.model_name.singular}1")  %>
+              <%= c.select :category, @form.record.class::SelfRelationships %>
+              <%= link_to language_helper(c.object.send("#{@form.record.model_name.singular}2"), :name), c.object.send("#{@form.record.model_name.singular}2") %>
+            </div>
+          <% end %>
+        <% end %>
+        <p><%= link_to_add_fields "Add a Related #{@form.record.model_name}", f, :self_relations,
+                                  klass: "Related#{@form.record.model_name}s".constantize,
+                                  source: @form.record %></p>
+      </div>
+    <% end %>
+
+    <% if @form.record.respond_to?('artist_organizations') %>
+      <div>
+        <%= f.fields_for :artist_organizations do |c| %>
+          <% unless c.object.artist.nil? || c.object.organization.nil? %>
+            <div>
+              <%= c.check_box :_destroy %>
+              <%= c.hidden_field :id %>
+              <%= c.hidden_field 'artist_id' %>
+              <%= c.hidden_field 'organization_id' %>
+              <%= link_to language_helper(c.object.artist,:name), c.object.artist if @form.record.class == Organization  %>
+              <%= link_to language_helper(c.object.organization,:name), c.object.organization if @form.record.class == Artist  %>
+              <%= c.select :category, ArtistOrganization::Categories %>
+            </div>
+          <% end %>
+        <% end %>
+        <p><%= link_to_add_fields 'Add an Artist', f, :artist_organizations,
+                                  klass: ArtistOrganization, source: @form.record,
+                                  target: :artist if @form.record.class == Organization %>
+          <%=  %></p>
+      </div>
+    <% end %>
+
+    <%= render partial: 'layouts/forms/fields/text_area',
+               locals: {f: f, attribute: :namehash} if @form.record.respond_to?('namehash') %>
+
+    <%= render partial: 'layouts/forms/fields/text_area',
+               locals: {f: f, attribute: :private_info} if @form.record.respond_to?('private_info') %>
+
+  </div>
+
+  <div class="actions submit"><%= f.submit "Submit" %></div>
+
+<% end %>

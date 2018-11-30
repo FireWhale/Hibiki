@@ -2,6 +2,8 @@ class ArtistOrganization < ApplicationRecord
 
   include NeoRelModule
 
+  attr_accessor :_destroy
+
   #Constants
     Categories = ['Member','Founder','Former Member','Label']
     
