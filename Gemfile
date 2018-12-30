@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 ruby '2.3.3' #current ruby version!
 
-gem 'rails', '>= 5.2.0'
+gem 'rails', '>= 5.2.2'
 gem 'yaml_db'
 gem 'authlogic'
 gem 'bcrypt', '~> 3.1.7', platform: 'ruby' #needed for authlogic 3.4.1
