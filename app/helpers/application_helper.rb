@@ -142,7 +142,7 @@ module ApplicationHelper
       new_object = f.object.class.reflect_on_association(options[:klass] || association.to_s.capitalize.constantize).klass.new
       fields = f.fields_for(association.to_s.pluralize, new_object, child_index: "new_#{association}") do |builder|
         render("layouts/forms/fields/#{association.to_s.singularize}", c: builder,
-               fields: options[:fields], source: options[:source], target: options[:target])
+               fields: options[:fields], source: options[:source], target: options[:target],klass: options[:klass])
       end
       link_to(name, '#', class: 'add-form', data: {association: association, content: "#{fields}"})
     end

@@ -9,7 +9,7 @@ class ArtistsController < ApplicationController
     respond_to do |format|
       if @form.save
         NeoWriter.perform(@form.record,1)
-        format.html { redirect_to @form.record, notice: 'Artist was successfully created.' }
+        format.html { redirect_to @form.record, notice: "#{@form.record.class} was successfully created." }
         format.json { render json: @form.record, status: :created, location: @form.record }
       else
         format.html { render action: 'new', file: 'shared/new', layout: 'full' }
@@ -24,7 +24,7 @@ class ArtistsController < ApplicationController
     respond_to do |format|
       if @form.save
         NeoWriter.perform(@form.record,1)
-        format.html { redirect_to @form.record, notice: 'Artist was successfully updated.' }
+        format.html { redirect_to @form.record, notice:  "#{@form.record.class} was successfully updated." }
         format.json { head :no_content }
       else
         format.html { render action: 'edit', file: 'shared/edit', layout: 'full' }

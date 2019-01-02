@@ -44,31 +44,7 @@ class Source < ApplicationRecord
     ['is in the same series as', 'Same Series', 'Same Series', 'Same Series'], #order doesn't matter
     ['is an alternate version of', 'Alternate Version', 'Alternate Version', 'Alternate Version'],
     ['is in an alternate setting of', 'Alternate Setting', 'Alternate Setting', 'Alternate Setting']] #order doesn't matter
-
-    FormFields = [{type: "markup", tag_name: "div class='col-md-6'"},
-                  {type: "text", attribute: :internal_name, label: "Internal Name:"},
-                  {type: "text", attribute: :synonyms, label: "Synonyms:"},
-                  {type: "language_fields", attribute: :name},
-                  {type: "select", attribute: :status, label: "Status:", categories: Album::Status},
-                  {type: "select", attribute: :db_status, label: "Database Status:", categories: Artist::DatabaseStatus},
-                  {type: "select", attribute: :category, label: "Categories:", categories: Source::Categories},
-                  {type: "select", attribute: :activity, label: "Activity:", categories: Source::Activity},
-                  {type: "references"},
-                  {type: "date", attribute: :release_date, label: "Release Date:"},
-                  {type: "date", attribute: :end_date, label: "End Date:"},
-                  {type: "images"},
-                  {type: "tags", div_class: "well", title: "Tags"},
-                  {type: "language_fields", attribute: :info},
-                  {type: "text_area", attribute: :info, rows: 4, label: "Info:"},
-                  {type: "text_area", attribute: :synopsis, rows: 2, label: "Synopsis:"},
-                  {type: "text_area", attribute: :plot_summary, rows: 4, label: "Plot Summary:"},
-                  {type: "markup", tag_name: "/div"}, {type: "markup", tag_name: "div  class='col-md-6'"},
-                  {type: "self_relations", div_class: "well", title: "Source Relationships", sub_div_id: "Sources"},
-                  {type: "related_model", div_class: "well", title: "Organization Relationships", model: "organization", relation_model: "source_organizations", categories: SourceOrganization::Categories, sub_div_id: "Organizations"},
-                  {type: "namehash", title: "Languages", div_class: "well", sub_div_id: "Languages"},
-                  {type: "text_area", attribute: :private_info, rows: 10, label: "Private Info:"},
-                  {type: "markup", tag_name: "/div"}]
-
+    
   #Validation
     validates :internal_name, presence: true
     validates :status, presence: true, inclusion: Album::Status

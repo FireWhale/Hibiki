@@ -67,6 +67,13 @@ class GeneralForm
     end
   end
 
+  def source_organizations_attributes=(attributes)
+    @source_organizations ||= []
+    attributes.each do |k, source_org|
+      @source_organizations.push(SourceOrganization.new(source_org))
+    end
+  end
+
   def self.reflect_on_association(klass) #For adding new records javascript
     data = { klass: klass }
     OpenStruct.new data

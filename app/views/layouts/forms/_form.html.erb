@@ -74,6 +74,12 @@
     <%= render partial: 'layouts/forms/fields/date',
                locals: {f: f, attribute: :established} if @form.record.respond_to?('established') %>
 
+    <%= render partial: 'layouts/forms/fields/date',
+               locals: {f: f, attribute: :release_date} if @form.record.respond_to?('release_date') %>
+
+    <%= render partial: 'layouts/forms/fields/date',
+               locals: {f: f, attribute: :end_date} if @form.record.respond_to?('end_date') %>
+
     <% if @form.record.respond_to?('images') %>
       <div>
         <%= f.fields_for :images do |c| %>
@@ -129,6 +135,9 @@
     <%= render partial: 'layouts/forms/fields/text_area',
                locals: {f: f, attribute: :synopsis} if @form.record.respond_to?('synopsis') %>
 
+    <%= render partial: 'layouts/forms/fields/text_area',
+               locals: {f: f, attribute: :plot_summary} if @form.record.respond_to?('plot_summary') %>
+
   </div>
 
   <div class="col-md-6">
@@ -172,7 +181,31 @@
         <p><%= link_to_add_fields 'Add an Artist', f, :artist_organizations,
                                   klass: ArtistOrganization, source: @form.record,
                                   target: :artist if @form.record.class == Organization %>
-          <%=  %></p>
+          <%= link_to_add_fields 'Add an Organization', f, :artist_organizations,
+                                 klass: ArtistOrganization, source: @form.record,
+                                 target: :organization if @form.record.class == Artist %></p>
+      </div>
+    <% end %>
+
+    <% if @form.class == SourceForm %>
+      <div>
+        <%= f.fields_for :source_organizations do |c| %>
+          <% unless c.object.source.nil? || c.object.organization.nil? %>
+            <div>
+              <%= c.check_box :_destroy %>
+              <%= c.hidden_field :id %>
+              <%= c.hidden_field 'source_id' %>
+              <%= c.hidden_field 'organization_id' %>
+              <%= link_to language_helper(c.object.source,:name), c.object.artist if @form.record.class == Organization  %>
+              <%= link_to language_helper(c.object.organization,:name), c.object.organization if @form.record.class == Source  %>
+              <%= c.select :category, SourceOrganization::Categories %>
+            </div>
+          <% end %>
+        <% end %>
+        <p><%= link_to_add_fields 'Add an Organization', f, :source_organizations,
+                                  klass: SourceOrganization, source: @form.record,
+                                  target: :organization if @form.record.class == Source %>
+        </p>
       </div>
     <% end %>
 

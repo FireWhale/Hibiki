@@ -20,8 +20,8 @@ class Organization < ApplicationRecord
     serialize :namehash
 
   #Categories
-    Activity = ["Active", "Hiatus", "Dissolved"]
-    Categories = ["Label","Doujin Group","Game Company"]
+    Activity = ['Active', 'Hiatus', 'Dissolved']
+    Categories = ['Label','Doujin Group','Game Company']
     SelfRelationships = [["is a parent company of", "Subsidaries", 'Parent Company', "Parent"],
     ['is a subsidary of', '-Parent'], #aka child
     ['was formerly known as', '-Formerly'],
