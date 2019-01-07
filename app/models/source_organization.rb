@@ -1,7 +1,12 @@
 class SourceOrganization < ApplicationRecord
+
+  include NeoRelModule
+
+  attr_accessor :_destroy
+
   #Constants
     Categories = ['Publisher','Distributor','Developer']
-    
+
   #Associations
     belongs_to :organization
     belongs_to :source
@@ -13,7 +18,7 @@ class SourceOrganization < ApplicationRecord
     
     validates :source_id, uniqueness: {scope: [:organization_id]}
 
-    def neo_relation
-        neo_rel(source,organization)
-    end
+  def neo_relation
+      neo_rel(source,organization)
+  end
 end

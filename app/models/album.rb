@@ -19,31 +19,6 @@ class Album < ApplicationRecord
   #Attributes
     serialize :namehash
 
-    attr_accessor :new_events
-    attr_accessor :new_events_by_name
-    attr_accessor :remove_album_events
-
-    attr_accessor :new_artists
-    attr_accessor :update_artist_albums
-
-    attr_accessor :new_organizations
-    attr_accessor :new_organizations_by_name
-    attr_accessor :update_album_organizations
-    attr_accessor :remove_album_organizations
-
-    attr_accessor :new_sources
-    attr_accessor :new_sources_by_name
-    attr_accessor :remove_album_sources
-
-    attr_accessor :new_songs
-
-  #Callbacks/Hooks
-    after_save :manage_events
-    after_save :manage_organizations
-    after_save :manage_artists
-    after_save :manage_sources
-    after_save :manage_songs
-
   #Multiple Model Constants - Put here for lack of a better place
     Status = ['Released', 'Unreleased', 'Hidden', 'Private']
       #Hidden - Just a placeholder in the database - maaya => maaya sakamoto
@@ -60,27 +35,6 @@ class Album < ApplicationRecord
     ['is an alternate version of', "Alternate Printings", "Alternate Printings", 'Alternate Version'], #Alt versions = slightly different songs
     ['is an instrumental version of', "Normal Versions", "Instrumental Versions", 'Instrumental'],
     ['has the instrumental version', '-Instrumental']]
-
-    FormFields = [{type: "markup", tag_name: "div class='col-md-6'"},
-                  {type: "text", attribute: :internal_name, label: "Internal Name:"},
-                  {type: "text", attribute: :synonyms, label: "Synonyms:"},
-                  {type: "language_fields", attribute: :name},
-                  {type: "text", attribute: :catalog_number, label: "Catalog Number:"},
-                  {type: "date", attribute: :release_date, label: "Release Date:"},
-                  {type: "select", attribute: :status, label: "Status:", categories: Album::Status},
-                  {type: "text", attribute: :classification, label: "Classification:"},
-                  {type: "references"}, {type: "events"}, {type: "images"},
-                  {type: "tags", div_class: "well", title: "Tags"},
-                  {type: "language_fields", attribute: :info},
-                  {type: "text_area", attribute: :info, rows: 4, label: "Info:"},
-                  {type: "text_area", attribute: :private_info, rows: 10, label: "Private Info:"},
-                  {type: "markup", tag_name: "/div"}, {type: "markup", tag_name: "div  class='col-md-6'"},
-                  {type: "self_relations", div_class: "well", title: "Album Relationships", sub_div_id: "Albums"},
-                  {type: "artist_relations", div_class: "well", title: "Artist Relationships", sub_div_id: "Artists"} ,
-                  {type: "related_model", div_class: "well", title: "Source Relationships", model: "source", relation_model: "album_sources", sub_div_id: "Sources"},
-                  {type: "related_model", div_class: "well", title: "Organization Relationships", model: "organization", relation_model: "album_organizations", categories: AlbumOrganization::Categories, sub_div_id: "Organizations"},
-                  {type: "namehash", title: "Languages", div_class: "well", sub_div_id: "Languages"}, {type: "songs", title: "Songs", div_class: "well", sub_div_id: "Songs"},
-                  {type: "markup", tag_name: "/div"}]
 
     #Artistreplace is used to replace names with IDs when adding artists by name to an album.
     #Since adding by name only applies to scrapes, we need a way to differeniate artists
@@ -168,39 +122,5 @@ class Album < ApplicationRecord
     def alternate_printing?
       self.related_album_relations1.map(&:category).include?("Alternate Printing")
     end
-
-  private
-    def manage_events
-      self.manage_primary_relation(Event,AlbumEvent)
-    end
-
-    def manage_artists
-      self.manage_artist_relation
-    end
-
-    def manage_sources
-      self.manage_primary_relation(Source,AlbumSource)
-    end
-
-    def manage_organizations
-      self.manage_primary_relation(Organization,AlbumOrganization)
-    end
-
-    def manage_songs
-      #Update - Not implemented since this is for updating the relationship. Not the song itself.
-      #         There is no categorization of the relationship between songs and albums (they always just belong to an album)
-      #Destroy - Not implemented at this time. Manually delete songs.
-
-      #Create
-      new_song_values = ActiveSupport::HashWithIndifferentAccess.new(self.new_songs)
-      unless new_song_values.blank?
-       new_song_values.values.transpose.each do |info|
-          attributes = [new_song_values.keys,info].transpose.to_h
-          self.songs.create(attributes)
-        end
-      end
-    end
-
-
 
 end

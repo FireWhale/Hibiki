@@ -42,15 +42,12 @@ class ArtistForm < GeneralForm
     def manage_attributes(record,attribute_record)
       handle_date(attribute_record,:debut_date,@debut_date) #modify date before assigning
       handle_date(attribute_record,:birth_date,@birth_date) #modify date before assigning
-      #Make sure record_attributes id (can be modified by user) matches passed_in_record's id (cannot be modified)
-      if attribute_record.id == record.id && attribute_record.class == record.class
-        @attribute_record.namehash = eval(@attribute_record.namehash) if @attribute_record.namehash.is_a?(String) #converts string back into hash
-        record.update_attributes!(@attribute_record.slice(:internal_name,:synonyms,:status,:db_status,
-                                                          :activity,:category,:birth_date,:birth_date_bitmask,
-                                                          :debut_date,:debut_date_bitmask,
-                                                          :synopsis,:namehash,:private_info))
-        add_to_log(record)
-      end
+      @attribute_record.namehash = eval(@attribute_record.namehash) if @attribute_record.namehash.is_a?(String) #converts string back into hash
+      record.update_attributes!(@attribute_record.slice(:internal_name,:synonyms,:status,:db_status,
+                                                        :activity,:category,:birth_date,:birth_date_bitmask,
+                                                        :debut_date,:debut_date_bitmask,
+                                                        :synopsis,:namehash,:private_info))
+      add_to_log(record)
     end
 
 

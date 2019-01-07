@@ -4,9 +4,6 @@ class ArtistSong < ApplicationRecord
     include NeoRelModule
     include LanguageModule
 
-  #Callbacks
-    after_save :update_album
-
   #Associations
     belongs_to :artist
     belongs_to :song

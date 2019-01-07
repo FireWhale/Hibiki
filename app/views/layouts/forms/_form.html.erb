@@ -33,9 +33,27 @@
             </div>
           <% end %>
         <% end %>
-        <p><%= link_to_add_fields 'Add a Language for Name ', f, :translation, klass: @form.record.class::Translation, fields: [:name] %></p>
+        <p><%= link_to_add_fields 'Add a Language for name ', f, :translation, klass: @form.record.class::Translation, fields: [:name] %></p>
       </div>
     <% end %>
+
+    <% if @form.record.respond_to?('album') %>
+      <div>
+        <%= f.fields_for :record do |c| %>
+          <%= c.label 'album_id', 'Album ID: ' %><%= @form.record.album_id %>
+          <%= c.hidden_field 'album_id' %>
+        <% end %>
+      </div>
+    <% end %>
+
+    <%= render partial: 'layouts/forms/fields/text_field',
+               locals: {f: f, attribute: :catalog_number} if @form.record.respond_to?('catalog_number') %>
+
+    <%= render partial: 'layouts/forms/fields/date',
+               locals: {f: f, attribute: :release_date} if @form.record.respond_to?('release_date') %>
+
+    <%= render partial: 'layouts/forms/fields/date',
+               locals: {f: f, attribute: :end_date} if @form.record.respond_to?('end_date') %>
 
     <%= render partial: 'layouts/forms/fields/select',
                locals: {f: f, attribute: :status, choices: Album::Status} if @form.record.respond_to?('status')  %>
@@ -43,11 +61,23 @@
     <%= render partial: 'layouts/forms/fields/select',
                locals: {f: f, attribute: :db_status, choices: Artist::DatabaseStatus} if @form.record.respond_to?('db_status') %>
 
+    <%= render partial: 'layouts/forms/fields/text_field',
+               locals: {f: f, attribute: :classification} if @form.record.respond_to?('classification') %>
+
     <%= render partial: 'layouts/forms/fields/select',
                locals: {f: f, attribute: :activity, choices: @form.record.class::Activity} if @form.record.respond_to?('activity') %>
 
     <%= render partial: 'layouts/forms/fields/select',
                locals: {f: f, attribute: :category, choices: @form.record.class::Categories} if @form.record.respond_to?('category') %>
+
+    <%= render partial: 'layouts/forms/fields/text_field',
+               locals: {f: f, attribute: :track_number} if @form.record.respond_to?('track_number') %>
+
+    <%= render partial: 'layouts/forms/fields/text_field',
+               locals: {f: f, attribute: :disc_number} if @form.record.respond_to?('disc_number') %>
+
+    <%= render partial: 'layouts/forms/fields/text_field',
+               locals: {f: f, attribute: :length} if @form.record.respond_to?('length') %>
 
     <% if @form.record.respond_to?('references') %>
       <div>
@@ -65,6 +95,29 @@
       </div>
     <% end %>
 
+    <% if @form.record.respond_to?('album_events') %>
+      <div>
+        <%= f.fields_for :album_events do |c| %>
+          <% unless c.object.event.nil? || c.object.album.nil? %>
+            <div>
+              <%= c.check_box :_destroy %>
+              <%= c.hidden_field :id %>
+              <%= c.hidden_field 'album_id' %>
+              <%= c.hidden_field 'event_id' %>
+              <%= link_to language_helper(c.object.event,:name), c.object.event if @form.record.class == Album  %>
+              <%= link_to language_helper(c.object.album,:name), c.object.album if @form.record.class == Event %>
+            </div>
+          <% end %>
+        <% end %>
+        <p><%= link_to_add_fields 'Add an Album', f, :album_events,
+                                  klass: AlbumEvent, source: @form.record,
+                                  target: :album if @form.record.class == Event %>
+          <%= link_to_add_fields 'Add an Event', f, :album_events,
+                                 klass: AlbumEvent, source: @form.record,
+                                 target: :event if @form.record.class == Album %></p>
+      </div>
+    <% end %>
+
     <%= render partial: 'layouts/forms/fields/date',
                locals: {f: f, attribute: :debut_date} if @form.record.respond_to?('debut_date') %>
 
@@ -73,12 +126,6 @@
 
     <%= render partial: 'layouts/forms/fields/date',
                locals: {f: f, attribute: :established} if @form.record.respond_to?('established') %>
-
-    <%= render partial: 'layouts/forms/fields/date',
-               locals: {f: f, attribute: :release_date} if @form.record.respond_to?('release_date') %>
-
-    <%= render partial: 'layouts/forms/fields/date',
-               locals: {f: f, attribute: :end_date} if @form.record.respond_to?('end_date') %>
 
     <% if @form.record.respond_to?('images') %>
       <div>
@@ -132,11 +179,129 @@
       </div>
     <% end %>
 
+    <% if @form.record.respond_to?('lyrics_translations') %>
+      <div>
+        <%= f.fields_for :translations do |c| %>
+          <% unless c.object.lyrics.blank? %>
+            <div>
+              <%= c.hidden_field :locale %>
+              <%= c.label :lyrics, "#{c.object.locale} lyrics:" %>
+              <%= c.text_area :lyrics %>
+            </div>
+          <% end %>
+        <% end %>
+        <p><%= link_to_add_fields 'Add a Language for lyrics ', f, :translation,
+                                  klass: @form.record.class::Translation, fields: [:lyrics], text_area: true %></p>
+      </div>
+    <% end %>
+
     <%= render partial: 'layouts/forms/fields/text_area',
                locals: {f: f, attribute: :synopsis} if @form.record.respond_to?('synopsis') %>
 
     <%= render partial: 'layouts/forms/fields/text_area',
                locals: {f: f, attribute: :plot_summary} if @form.record.respond_to?('plot_summary') %>
+
+    <% if @form.class == AlbumForm %>
+      <div>
+        <%= f.fields_for :song_forms do |c| %>
+          <% unless c.object.record.nil? %>
+            <div>
+              <%= c.fields_for :record do |s| %>
+                <div>
+                  <%= s.hidden_field :id %>
+                  <%= s.label :internal_name, 'I. Name' %>
+                  <%= s.text_field :internal_name %>
+                  <%= s.label :synonyms, 'Syn:' %>
+                  <%= s.text_field :synonyms %>
+                  <%= s.label :disc_number, 'Disc #:' %>
+                  <%= s.text_field :disc_number, class: 'input-xmini' %>
+                  <%= s.label :track_number, 'Track #:' %>
+                  <%= s.text_field :track_number, class: 'input-xmini' %>
+                  <%= s.label :length, 'Length' %>
+                  <%= s.text_field :length, class: 'input-xmini' %>
+                  <%= s.label :id, 'ID:' %><%= s.object.id %>
+                </div>
+              <% end %>
+            </div>
+            <%= render partial: 'layouts/forms/fields/select', locals: {f: c, attribute: :status, choices: Album::Status}  %>
+            <%= render partial: 'layouts/forms/fields/text_area', locals: {f: c, attribute: :private_info} %>
+            <%= render partial: 'layouts/forms/fields/text_area',locals: {f: c, attribute: :namehash} %>
+            <div>
+              <%= c.fields_for :translations do |s| %>
+                <% unless s.object.name.blank? %>
+                  <div>
+                    <%= s.hidden_field :locale %>
+                    <%= s.label :name, "#{s.object.locale} name:"  %>
+                    <%= s.text_field :name  %>
+                  </div>
+                <% end %>
+              <% end %>
+              <p><%= link_to_add_fields 'Add a Language for name ', c, :translation, klass: Song::Translation, fields: [:name] %></p>
+            </div>
+            <div>
+              <%= c.fields_for :translations do |s| %>
+                <% unless s.object.lyrics.blank? %>
+                  <div>
+                    <%= s.hidden_field :locale %>
+                    <%= s.label :lyrics, "#{s.object.locale} lyrics:"  %>
+                    <%= s.text_area :lyrics  %>
+                  </div>
+                <% end %>
+              <% end %>
+              <p><%= link_to_add_fields 'Add a Language for lyrics ', c, :translation, klass: Song::Translation, fields: [:lyrics] %></p>
+            </div>
+            <div>
+              <%= c.fields_for :artist_songs do |s| %>
+                <% unless s.object.artist.nil? || s.object.song.nil? %>
+                  <div>
+                    <%= s.hidden_field :id %>
+                    <%= s.hidden_field 'artist_id' %>
+                    <%= s.hidden_field 'song_id' %>
+                    <%= link_to language_helper(s.object.artist, :name), s.object.artist %>
+                    <% categories = Artist.get_credits(s.object.category) %>
+                    <% Artist::Credits.each_with_index do |credit, n| %>
+                      <%= check_box_tag("#{s.object_name}[category][]", credit, categories.include?(credit)) %>
+                      <%= Artist::CreditsAbbr[n] %>
+                    <% end %>
+                  </div>
+                <% end %>
+              <% end %>
+              <p><%= link_to_add_fields 'Add an Artist', c, :artist_songs,
+                                        klass: ArtistSong, source: c.object.record, target: :artist %>
+              </p>
+            </div>
+            <div>
+              <%= c.fields_for :song_sources do |s| %>
+                <% unless s.object.source.nil? || s.object.song.nil? %>
+                  <%= s.check_box :_destroy %>
+                  <%= s.hidden_field :id %>
+                  <%= s.hidden_field 'source_id' %>
+                  <%= s.hidden_field 'song_id' %>
+                  <%= link_to language_helper(s.object.source,:name), s.object.source  %>
+                  <%= s.select :classification, SongSource::Relationship %>
+                  <%= s.label 'op_ed_number', '#:' %>
+                  <%= s.text_field 'op_ed_number', :class => "controls input-xmini" %>
+                  <%= s.label 'ep_numbers', 'Eps:' %>
+                  <%= s.text_field 'ep_numbers', :class => "controls input-xmini" %>
+                <% end %>
+              <% end %>
+              <p><%= link_to_add_fields 'Add an Source', c, :song_sources,
+                                        klass: SongSource, source: c.object.record, target: :source %>
+              </p>
+            </div>
+
+
+
+
+
+          <% end %>
+        <% end %>
+        <p><%= link_to_add_fields 'Add a Song', f, :artist_albums,
+                                  klass: ArtistAlbum, source: @form.record,
+                                  target: :artist if @form.class == AlbumForm %>
+        </p>
+      </div>
+    <% end %>
 
   </div>
 
@@ -196,7 +361,7 @@
               <%= c.hidden_field :id %>
               <%= c.hidden_field 'source_id' %>
               <%= c.hidden_field 'organization_id' %>
-              <%= link_to language_helper(c.object.source,:name), c.object.artist if @form.record.class == Organization  %>
+              <%= link_to language_helper(c.object.source,:name), c.object.source if @form.record.class == Organization  %>
               <%= link_to language_helper(c.object.organization,:name), c.object.organization if @form.record.class == Source  %>
               <%= c.select :category, SourceOrganization::Categories %>
             </div>
@@ -205,6 +370,120 @@
         <p><%= link_to_add_fields 'Add an Organization', f, :source_organizations,
                                   klass: SourceOrganization, source: @form.record,
                                   target: :organization if @form.record.class == Source %>
+        </p>
+      </div>
+    <% end %>
+
+    <% if @form.class == AlbumForm %>
+      <div>
+        <%= f.fields_for :artist_albums do |c| %>
+          <% unless c.object.artist.nil? || c.object.album.nil? %>
+            <div>
+              <%= c.hidden_field :id %>
+              <%= c.hidden_field 'artist_id' %>
+              <%= c.hidden_field 'album_id' %>
+              <%= link_to language_helper(c.object.artist,:name), c.object.artist  %>
+              <% categories = Artist.get_credits(c.object.category) %>
+              <% Artist::Credits.each_with_index do |credit, n| %>
+                <%= check_box_tag("#{c.object_name}[category][]", credit, categories.include?(credit))  %>
+                <%= Artist::CreditsAbbr[n] %>
+              <% end %>
+            </div>
+          <% end %>
+        <% end %>
+        <p><%= link_to_add_fields 'Add an Artist', f, :artist_albums,
+                                  klass: ArtistAlbum, source: @form.record,
+                                  target: :artist if @form.class == AlbumForm %>
+        </p>
+      </div>
+    <% end %>
+
+    <% if @form.class == SongForm %>
+      <div>
+        <%= f.fields_for :artist_songs do |c| %>
+          <% unless c.object.artist.nil? || c.object.song.nil? %>
+            <div>
+              <%= c.hidden_field :id %>
+              <%= c.hidden_field 'artist_id' %>
+              <%= c.hidden_field 'song_id' %>
+              <%= link_to language_helper(c.object.artist, :name), c.object.artist %>
+              <% categories = Artist.get_credits(c.object.category) %>
+              <% Artist::Credits.each_with_index do |credit, n| %>
+                <%= check_box_tag("#{c.object_name}[category][]", credit, categories.include?(credit)) %>
+                <%= Artist::CreditsAbbr[n] %>
+              <% end %>
+            </div>
+          <% end %>
+        <% end %>
+        <p><%= link_to_add_fields 'Add an Artist', f, :artist_songs,
+                                  klass: ArtistSong, source: @form.record,
+                                  target: :artist if @form.class == SongForm %>
+        </p>
+      </div>
+    <% end %>
+
+    <% if @form.class == AlbumForm %>
+      <div>
+        <%= f.fields_for :album_sources do |c| %>
+          <% unless c.object.source.nil? || c.object.album.nil? %>
+            <div>
+              <%= c.check_box :_destroy %>
+              <%= c.hidden_field :id %>
+              <%= c.hidden_field 'source_id' %>
+              <%= c.hidden_field 'album_id' %>
+              <%= link_to language_helper(c.object.source, :name), c.object.source if @form.record.class == Album %>
+              <%= link_to language_helper(c.object.album, :name), c.object.album if @form.record.class == Source %>
+            </div>
+          <% end %>
+        <% end %>
+        <p><%= link_to_add_fields 'Add an Source', f, :album_sources,
+                                  klass: AlbumSource, source: @form.record,
+                                  target: :source if @form.record.class == Album %>
+        </p>
+      </div>
+    <% end %>
+
+    <% if @form.class == SongForm %>
+      <div>
+        <%= f.fields_for :song_sources do |c| %>
+          <% unless c.object.source.nil? || c.object.song.nil? %>
+            <%= c.check_box :_destroy %>
+            <%= c.hidden_field :id %>
+            <%= c.hidden_field 'source_id' %>
+            <%= c.hidden_field 'song_id' %>
+            <%= link_to language_helper(c.object.source,:name), c.object.source  %>
+            <%= c.select :classification, SongSource::Relationship %>
+            <%= c.label 'op_ed_number', '#:' %>
+            <%= c.text_field 'op_ed_number', :class => "controls input-xmini" %>
+            <%= c.label 'ep_numbers', 'Eps:' %>
+            <%= c.text_field 'ep_numbers', :class => "controls input-xmini" %>
+          <% end %>
+        <% end %>
+        <p><%= link_to_add_fields 'Add an Source', f, :song_sources,
+                                  klass: SongSource, source: @form.record,
+                                  target: :source if @form.record.class == Song %>
+        </p>
+      </div>
+    <% end %>
+
+    <% if @form.class == AlbumForm %>
+      <div>
+        <%= f.fields_for :album_organizations do |c| %>
+          <% unless c.object.organization.nil? || c.object.album.nil? %>
+            <div>
+              <%= c.check_box :_destroy %>
+              <%= c.hidden_field :id %>
+              <%= c.hidden_field 'organization_id' %>
+              <%= c.hidden_field 'album_id' %>
+              <%= link_to language_helper(c.object.organization, :name), c.object.organization if @form.record.class == Album %>
+              <%= link_to language_helper(c.object.album, :name), c.object.album if @form.record.class == Organization %>
+              <%= c.select :category, AlbumOrganization::Categories %>
+            </div>
+          <% end %>
+        <% end %>
+        <p><%= link_to_add_fields 'Add an Organization', f, :album_organizations,
+                                  klass: AlbumOrganization, source: @form.record,
+                                  target: :organization if @form.record.class == Album %>
         </p>
       </div>
     <% end %>

@@ -1,5 +1,6 @@
 class OrganizationsController < ApplicationController
   load_and_authorize_resource
+  skip_load_resource only: :create
   include GenViewsModule
   include ImageViewModule
 
@@ -27,7 +28,7 @@ class OrganizationsController < ApplicationController
         format.html { redirect_to @form.record, notice:  "#{@form.record.class} was successfully updated." }
         format.json { head :no_content }
       else
-        @record = Organization.find(params[:id])
+        @record = @form.record.class.find(params[:id])
         format.html { render action: 'edit', file: 'shared/edit', layout: 'full' }
         format.json { render json: @form.errors, status: :unprocessable_entity }
       end

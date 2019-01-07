@@ -40,7 +40,7 @@ module GenViewsModule
     end
 
     define_method 'edit' do
-      @record = model.find(params[:id])
+      @record = model.find(params[:id]) #TODO eager load
       @form = form.new(record: @record)
 
       respond_to do |format|

@@ -3,8 +3,7 @@ class SongSource < ApplicationRecord
   #Modules
   include NeoRelModule
 
-  #Callbacks
-    after_save :update_album
+  attr_accessor :_destroy
 
   #Constants
     Relationship = ['OP', 'ED', 'Insert', 'Theme Song']

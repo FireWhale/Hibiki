@@ -5,6 +5,7 @@ class Event < ApplicationRecord
     include JsonModule
     include ReferenceModule
     include NeoNodeModule
+    #TODO Add Search Module
     #Associaton Modules
       include LogModule
 

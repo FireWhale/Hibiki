@@ -56,5 +56,4 @@ class Organization < ApplicationRecord
   #Gem Stuff
     #Pagination
     paginates_per 50
-
 end

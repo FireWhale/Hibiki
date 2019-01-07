@@ -1,5 +1,6 @@
 class SourcesController < ApplicationController
   load_and_authorize_resource
+  skip_load_resource only: :create
   include GenViewsModule
   include ImageViewModule
 
@@ -27,7 +28,7 @@ class SourcesController < ApplicationController
         format.html { redirect_to @form.record, notice:  "#{@form.record.class} was successfully updated." }
         format.json { head :no_content }
       else
-        @record = Organization.find(params[:id])
+        @record = @form.record.class.find(params[:id])
         format.html { render action: 'edit', file: 'shared/edit', layout: 'full' }
         format.json { render json: @form.errors, status: :unprocessable_entity }
       end
@@ -47,16 +48,15 @@ class SourcesController < ApplicationController
   class SourceParams
     def self.filter(params,current_user)
       if current_user && current_user.abilities.include?('Admin')
-        params.require(:source).permit!
+        params.require(:source_form).permit!
       elsif current_user
-        params.require(:source).permit()
+        params.require(:source_form).permit()
       else
-        params.require(:source).permit()
+        params.require(:source_form).permit()
       end         
     end
   end
-  
-  
+
   private
     def source_params
       SourceParams.filter(params,current_user)

@@ -1,0 +1,8 @@
+<%= c.label "#{target}_id", "#{target.capitalize} ID:" %>
+<%= c.hidden_field "#{source.model_name.singular}_id", value: source.id %>
+<%= c.autocomplete_field "#{target}_id", autocomplete_path({:model => target}) %>
+<%= c.select :classification, klass::Relationship %>
+<%= c.label 'op_ed_number', "#:" %>
+<%= c.text_field 'op_ed_number', :class => "controls input-xmini" %>
+<%= c.label 'ep_numbers', "Eps:" %>
+<%= c.text_field 'ep_numbers', :class => "controls input-xmini" %>

@@ -19,13 +19,6 @@ class Source < ApplicationRecord
   #Attributes
     serialize :namehash
 
-    attr_accessor :new_organizations
-    attr_accessor :update_source_organizations
-    attr_accessor :remove_source_organizations
-
-  #Callbacks/Hooks
-    after_save :manage_organizations
-
   #Constants
     Activity = ["Complete", "Ongoing", "Not Yet Aired"]
     Categories = ["Franchise","Product"]
@@ -44,7 +37,7 @@ class Source < ApplicationRecord
     ['is in the same series as', 'Same Series', 'Same Series', 'Same Series'], #order doesn't matter
     ['is an alternate version of', 'Alternate Version', 'Alternate Version', 'Alternate Version'],
     ['is in an alternate setting of', 'Alternate Setting', 'Alternate Setting', 'Alternate Setting']] #order doesn't matter
-    
+
   #Validation
     validates :internal_name, presence: true
     validates :status, presence: true, inclusion: Album::Status
@@ -75,10 +68,5 @@ class Source < ApplicationRecord
 
   #Gem Stuff
     #Pagination
-      paginates_per 50
-
-  private
-    def manage_organizations
-      self.manage_primary_relation(Organization,SourceOrganization)
-    end
+    paginates_per 50
 end

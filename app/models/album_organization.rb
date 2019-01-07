@@ -2,6 +2,8 @@ class AlbumOrganization < ApplicationRecord
 
   include NeoRelModule
 
+  attr_accessor :_destroy
+
   #Constants
     Categories = ['Publisher','Distributor']
 

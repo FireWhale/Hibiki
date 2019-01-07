@@ -1,5 +1,6 @@
 class SongsController < ApplicationController
   load_and_authorize_resource
+  skip_load_resource only: :create
   include ImageViewModule
   layout "full", only: [:edit, :new]
 
@@ -36,59 +37,52 @@ class SongsController < ApplicationController
 
 
   def new
-    @record = Song.new
-    @record.namehash ||= {}
+    @form = SongForm.new
 
     respond_to do |format|
       format.html  { render file: 'shared/new', layout: 'full'}
-      format.json { render json: @record }
+      format.json { render json: @form }
     end
   end
 
+
   def edit
     @record = Song.find(params[:id])
-    @record.namehash ||= {}
+    @form = SongForm.new(record: @record)
     
     respond_to do |format|
       format.html { render file: 'shared/edit', layout: 'full'}
-      format.json { render json: @record }
+      format.json { render json: @form }
     end
   end
 
   def create
-    new_params = song_params
-    handle_length_assignment(new_params)
-    handle_partial_date_assignment(new_params,Song)
+    @form = SongForm.new(song_params)
 
-    @record = Song.new(new_params)
-    
     respond_to do |format|
-      if @record.save
-        NeoWriter.perform(@record,1)
-        format.html { redirect_to @record, notice: 'Song was successfully created.' }
-        format.json { render json: @record, status: :created, location: @record }
+      if @form.save
+        NeoWriter.perform(@form.record,1)
+        format.html { redirect_to @form.record, notice: "#{@form.record.class} was successfully created." }
+        format.json { render json: @form.record, status: :created, location: @form.record }
       else
         format.html { render action: 'new', file: 'shared/new', layout: 'full' }
-        format.json { render json: @record.errors, status: :unprocessable_entity }
+        format.json { render json: @form.errors, status: :unprocessable_entity }
       end
     end
   end
 
   def update
-    new_params = song_params
-    handle_length_assignment(new_params)
-    handle_partial_date_assignment(new_params,Song)
+    @form = SongForm.new(song_params.merge(record: Song.find(params[:id])))
 
-    @record = Song.find(params[:id])
-    
     respond_to do |format|
-      if @record.update_attributes(new_params)
-        NeoWriter.perform(@record,1)
-        format.html { redirect_to @record, notice: 'Song was successfully updated.' }
+      if @form.save
+        NeoWriter.perform(@form.record,1)
+        format.html { redirect_to @form.record, notice:  "#{@form.record.class} was successfully updated." }
         format.json { head :no_content }
       else
+        @record = @form.record.class.find(params[:id])
         format.html { render action: 'edit', file: 'shared/edit', layout: 'full' }
-        format.json { render json: @record.errors, status: :unprocessable_entity }
+        format.json { render json: @form.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -106,20 +100,11 @@ class SongsController < ApplicationController
   class SongParams
     def self.filter(params,current_user)
       if current_user && current_user.abilities.include?("Admin")
-        params.require(:song).permit("internal_name","track_number","length","release_date","synonyms","info","private_info",
-                                     "disc_number", "status", "new_images" => [], "remove_song_sources" => [], "remove_related_songs" => [], "namehash" => params[:song][:namehash].try(:keys),
-                                     "new_references" => [:site_name => [], :url => []], "update_references" => [:site_name, :url], 
-                                     :new_name_langs => [], :new_name_lang_categories => [], :name_langs => params[:song][:name_langs].try(:keys),
-                                     :new_info_langs => [], :new_info_lang_categories => [], :info_langs => params[:song][:info_langs].try(:keys),
-                                     :new_lyrics_langs => [], :new_lyrics_lang_categories => [], :lyrics_langs => params[:song][:lyrics_langs].try(:keys), 
-                                     :new_related_songs => [:id => [], :category =>[]], :update_related_songs => :category,
-                                     :new_artists => [:id => [], :category => []], :update_artist_songs => {:category => []},
-                                     :new_sources => [:id => [], :classification => [], :op_ed_number => [], :ep_numbers => []], :update_song_sources => [:classification, :op_ed_number, :ep_numbers]
-                                       )
+        params.require(:song_form).permit!
       elsif current_user
-        params.require(:song).permit()
+        params.require(:song_form).permit()
       else
-        params.require(:song).permit()
+        params.require(:song_form).permit()
       end             
     end
   end

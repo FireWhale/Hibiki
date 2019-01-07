@@ -1,0 +1,12 @@
+<%= c.label "#{target}_id", "#{target.capitalize} ID:" %>
+<%= c.hidden_field "#{source.model_name.singular}_id", value: source.id %>
+<%= c.autocomplete_field "#{target}_id", autocomplete_path({:model => target}) %>
+<%= select_tag "#{c.object_name}[translation][locale]", options_for_select(LanguageModule::Locales), include_blank: true %>
+<%= c.label "#{c.object_name}[translation][display_name]" , 'Name:' %>
+<%= text_field_tag "#{c.object_name}[translation][display_name]" %>
+<div>
+  <% Artist::Credits.each_with_index do |credit, n| %>
+    <%= check_box_tag("#{c.object_name}[category][]", credit) %>
+    <%= Artist::CreditsAbbr[n] %>
+  <% end %>
+</div>

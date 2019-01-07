@@ -1,5 +1,6 @@
 class ArtistsController < ApplicationController
   load_and_authorize_resource
+  skip_load_resource only: :create
   include GenViewsModule
   include ImageViewModule
 
@@ -20,13 +21,14 @@ class ArtistsController < ApplicationController
 
   def update
     @form = ArtistForm.new(artist_params.merge(record: Artist.find(params[:id])))
-       
+
     respond_to do |format|
       if @form.save
         NeoWriter.perform(@form.record,1)
         format.html { redirect_to @form.record, notice:  "#{@form.record.class} was successfully updated." }
         format.json { head :no_content }
       else
+        @record = @form.record.class.find(params[:id])
         format.html { render action: 'edit', file: 'shared/edit', layout: 'full' }
         format.json { render json: @form.errors, status: :unprocessable_entity }
       end

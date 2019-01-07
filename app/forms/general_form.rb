@@ -6,9 +6,10 @@ class GeneralForm
 
 
   validates :record, presence: true
+  validate :record_check
 
   def save
-    valid? && persist
+    valid? && persist ? true :  (@log.add_to_content('error',errors.full_messages.join(','),'Unresolved',true) unless @log.blank?; false)
   end
 
   #def save! #unused method. Keep?
@@ -20,7 +21,9 @@ class GeneralForm
   #end
 
   def record_attributes=(attributes) #takes form attributes and attaches to form object on instantiation
-    @attribute_record = model.new(attributes)
+    new_attribute_record = model.new(attributes)
+    new_attribute_record.length = format_length(attributes['length']) if model == Song
+    @attribute_record = new_attribute_record
   end
 
   def references_attributes=(attributes)
@@ -74,6 +77,61 @@ class GeneralForm
     end
   end
 
+  def album_events_attributes=(attributes)
+    @album_events ||= []
+    attributes.each do |k, album_event|
+      record = AlbumEvent.new(album_event.except(:join_reference))
+      record.event.references.new(album_event[:join_reference]) unless record.event.blank? || album_event[:join_reference].blank?
+      @album_events.push(record)
+    end
+  end
+
+  def artist_albums_attributes=(attributes)
+    @artist_albums ||= []
+    attributes.each do |k, artist_album|
+      record = ArtistAlbum.new(artist_album.except(:category,:translation,:join_reference)) #Except url for artist
+      record.category = Artist.get_bitmask(artist_album[:category])
+      record.translations.push(ArtistAlbum::Translation.new(artist_album[:translation])) unless artist_album[:translation].blank?
+      record.artist.references.new(artist_album[:join_reference]) unless record.artist.blank? || artist_album[:join_reference].blank?
+      @artist_albums.push(record)
+    end
+  end
+
+  def artist_songs_attributes=(attributes)
+    @artist_songs ||= []
+    attributes.each do |k, artist_song|
+      record = ArtistSong.new(artist_song.except(:category,:translation)) #Except url for artist
+      record.category = Artist.get_bitmask(artist_song[:category])
+      record.translations.push(ArtistSong::Translation.new(artist_song[:translation])) unless artist_song[:translation].blank?
+      @artist_songs.push(record)
+    end
+  end
+
+  def album_sources_attributes=(attributes)
+    @album_sources ||= []
+    attributes.each do |k, album_source|
+      record = AlbumSource.new(album_source.except(:join_reference))
+      record.source.references.new(album_source[:join_reference]) unless record.source.blank? || album_source[:join_reference].blank?
+      @album_sources.push(record)
+    end
+  end
+
+  def song_sources_attributes=(attributes)
+    @song_sources ||= []
+    attributes.each do |k, song_source|
+      @song_sources.push(SongSource.new(song_source))
+    end
+  end
+
+  def album_organizations_attributes=(attributes)
+    @album_organizations ||= []
+    attributes.each do |k, album_organization|
+      record = AlbumOrganization.new(album_organization.except(:join_reference))
+      record.organization.references.new(album_organization[:join_reference]) unless record.organization.blank? || album_organization[:join_reference].blank?
+      @album_organizations.push(record)
+    end
+  end
+
   def self.reflect_on_association(klass) #For adding new records javascript
     data = { klass: klass }
     OpenStruct.new data
@@ -81,7 +139,7 @@ class GeneralForm
 
   private
     def persist
-      ActiveRecord::Base.transaction do
+      ActiveRecord::Base.transaction(requires_new: true) do
         transaction #defined in child classes
       end
       upload_images(@record,@new_images) if @record.respond_to?(:images) && !@new_images.blank?
@@ -157,16 +215,24 @@ class GeneralForm
 
     def manage_association(record,join_records,joined_model,self_model)
       join_records.each do |rel|
-        if record == rel.send(self_model)
-          relation = record.send(rel.model_name.plural).find_by_id(rel.id)
+        if record == rel.send(self_model) #Make sure join_record is in model
+          relation = record.send(rel.model_name.plural).find_by_id(rel.id) #finds existing record
           if rel._destroy.to_i == 1
             relation.destroy! unless relation.nil?
           else
-            unless rel.send(joined_model).blank?
+            unless rel.send(joined_model).blank? #makes sure attaching record exists
               if relation.nil?
-                record.send(rel.model_name.plural).create!(rel.slice(joined_model,:category))
+                relation = record.send(rel.model_name.plural).create!(rel.slice([joined_model,:category].select {|k| rel.respond_to?(k)}))
               else
-                relation.update_attributes!(rel.slice(:category))
+                relation.update_attributes!(rel.slice([:category].select {|k| rel.respond_to?(k)}))
+              end
+              if self_model == 'album' && %(event source organization).include?(joined_model) #allow adding urls
+                rel.send(joined_model).references.select { |ref| ref.new_record? }.each do |ref|
+                  relation.send(joined_model).references.find_or_create_by!(ref.slice(:site_name, :url))
+                end
+              end
+              if self_model== 'song' && joined_model == 'source' && !record.album.blank?
+                record.album.album_sources.create!(source_id: rel.source_id)  unless record.album.sources.pluck(:id).include?(rel.source_id)
               end
               add_to_log(rel.send(joined_model))
               add_to_log(rel.send(self_model))
@@ -176,7 +242,44 @@ class GeneralForm
       end
     end
 
-    def upload_images(record,new_images)
+    def manage_artist_association(record,join_records,self_model)
+      join_records.each do |rel|
+        if record == rel.send(self_model)
+          relation = record.send(rel.model_name.plural).find_by_id(rel.id)
+          if rel.category == '0'
+            relation.destroy! unless relation.nil?
+          else
+            unless rel.artist.blank?
+              if relation.nil?
+                relation = record.send(rel.model_name.plural).create!(rel.slice([:artist,:category].select {|k| rel.respond_to?(k)}))
+              else
+                relation.update_attributes!(rel.slice([:category].select {|k| rel.respond_to?(k)}))
+              end
+              rel.translations.each{ |trans| relation.translations.create!(trans.slice(:locale,:display_name)) }
+              if self_model == 'album' #allow adding urls
+                rel.artist.references.select { |ref| ref.new_record? }.each do |ref|
+                  relation.artist.references.find_or_create_by!(ref.slice(:site_name, :url))
+                end
+              end
+              if self_model == 'song' && !record.album.blank? #Add information to album if present
+                artist_album = record.album.artist_albums.find_by_artist_id(rel.artist_id)
+                if artist_album.nil? #create
+                  new_rel = record.album.artist_albums.create!(rel.slice(:artist, :category))
+                  rel.translations.each { |trans| new_rel.translations.create!(trans.slice(:locale,:display_name)) }
+                else
+                  artist_album.update_attributes!(category: artist_album.category.to_i | rel.category.to_i)
+                  #don't add translations if it already exists
+                end
+              end
+              add_to_log(rel.artist)
+              add_to_log(rel.send(self_model))
+            end
+          end
+        end
+      end
+    end
+
+    def upload_images(record,new_images) #This occurs outside of the transaction, afterward.
       new_images.each do |image_info|
         image_info = {image: image_info} unless image_info.is_a?(Hash) #Converts simple images into a hash
         full_dir_path = "#{Rails.application.secrets.image_directory}/#{record.model_name.plural}/#{record.id}"
@@ -244,5 +347,12 @@ class GeneralForm
     def add_to_log(record)
       @log.loglists.create!(model: record) unless @log.nil? || @log.loglists.where(model: record).exists?
     end
+
+  #validation
+  def record_check #Make sure record_attributes id (can be modified by user) matches passed_in_record's id (cannot be modified)
+    unless @record.id == @attribute_record.id && @record.class == @attribute_record.class
+      errors.add(:record, 'is different than attribute_record')
+    end
+  end
 
 end

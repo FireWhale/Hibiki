@@ -2,6 +2,8 @@ class AlbumEvent < ApplicationRecord
 
   include NeoRelModule
 
+  attr_accessor :_destroy
+
   #Associations
     belongs_to :album
     belongs_to :event
